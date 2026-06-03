@@ -5,7 +5,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/twilio";
+const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID") ?? "";
+const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN") ?? "";
+const GATEWAY_URL = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}`;
 const DEFAULT_FROM = "whatsapp:+14155238886";
 const SITE_URL = "https://howdoyoudo.group";
 
@@ -40,13 +42,13 @@ function chunk(text: string, max = 1500): string[] {
 }
 
 async function sendWhatsApp(opts: {
-  to: string; body: string; from: string; lovableKey: string; twilioKey: string;
+  to: string; body: string; from: string; accountSid: string; authToken: string;
 }) {
   return fetch(`${GATEWAY_URL}/Messages.json`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${opts.lovableKey}`,
-      "X-Connection-Api-Key": opts.twilioKey,
+      Authorization: `Basic ${btoa(`${opts.accountSid}:${opts.authToken}`)}`,
+      
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams({ From: opts.from, To: `whatsapp:${opts.to}`, Body: opts.body }),
@@ -59,11 +61,9 @@ Deno.serve(async (req) => {
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const TWILIO_API_KEY = Deno.env.get("TWILIO_API_KEY");
     const WHATSAPP_FROM = Deno.env.get("WHATSAPP_FROM") ?? DEFAULT_FROM;
 
-    if (!LOVABLE_API_KEY || !TWILIO_API_KEY) {
+    if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) {
       return new Response(JSON.stringify({ error: "WhatsApp not configured" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
       const piece = parts.length > 1 ? `${parts[i]}\n\n(${i + 1}/${parts.length})` : parts[i];
       const res = await sendWhatsApp({
         to: phone, body: piece, from: WHATSAPP_FROM,
-        lovableKey: LOVABLE_API_KEY, twilioKey: TWILIO_API_KEY,
+        accountSid: TWILIO_ACCOUNT_SID, authToken: TWILIO_AUTH_TOKEN,
       });
       const data = await res.json().catch(() => ({}));
       results.push({ ok: res.ok, sid: data?.sid, error: res.ok ? null : data });

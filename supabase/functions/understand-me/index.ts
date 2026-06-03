@@ -111,7 +111,7 @@ async function extractFileText(filePath: string, apiKey: string): Promise<string
   } else if (fileName.endsWith(".pdf")) {
     const bytes = new Uint8Array(await fileData.arrayBuffer());
     const base64 = arrayBufferToBase64(bytes.buffer);
-    const visionResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const visionResp = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -137,7 +137,7 @@ async function extractFileText(filePath: string, apiKey: string): Promise<string
       const mime = fileName.endsWith(".docx")
         ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         : "application/msword";
-      const visionResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const visionResp = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -309,15 +309,15 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
     // Build combined text from all available sources
     const sections: string[] = [];
 
     // Extract CV text if uploaded
     if (filePath) {
-      const cvText = await extractFileText(filePath, LOVABLE_API_KEY);
+      const cvText = await extractFileText(filePath, GEMINI_API_KEY);
       if (cvText && cvText.trim().length > 10) {
         sections.push(`=== CV / RESUME ===\n${cvText}`);
       }
@@ -338,9 +338,9 @@ serve(async (req) => {
           const base64 = arrayBufferToBase64(bytes.buffer);
           const ext = linkedinScreenshotPath.toLowerCase().split(".").pop() || "png";
           const mime = ext === "jpg" || ext === "jpeg" ? "image/jpeg" : ext === "webp" ? "image/webp" : "image/png";
-          const visionResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          const visionResp = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
             method: "POST",
-            headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+            headers: { Authorization: `Bearer ${GEMINI_API_KEY}`, "Content-Type": "application/json" },
             body: JSON.stringify({
               model: "google/gemini-2.5-flash",
               messages: [{
@@ -394,10 +394,10 @@ serve(async (req) => {
 
     const systemPrompt = buildSystemPrompt(inputType, hasInstagram);
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${GEMINI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

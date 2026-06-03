@@ -352,7 +352,7 @@ FORMAT RULES:
   try {
     const ctrl = new AbortController();
     const timer = setTimeout(() => ctrl.abort(), 25000);
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -430,7 +430,7 @@ Deno.serve(async (req) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-  const apiKey = Deno.env.get("LOVABLE_API_KEY")!;
+  const apiKey = Deno.env.get("GEMINI_API_KEY")!;
   const supabase = createClient(supabaseUrl, serviceKey);
 
   let body: { industry?: string; industries?: string[] } = {};

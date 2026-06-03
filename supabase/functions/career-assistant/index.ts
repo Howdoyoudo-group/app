@@ -346,8 +346,8 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
       : CANDIDATE_KNOWLEDGE.replace("__SITE_MAP__", renderSiteMapForPrompt());
     const systemPrompt = baseKnowledge + AGENT_INSTRUCTIONS + userContext;
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
 
     // ---------- Agent tools (candidate mode only) ----------
     const tools = mode === "candidate" ? [
@@ -528,9 +528,9 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
 
     if (mode === "candidate") {
       for (let round = 0; round < 3; round++) {
-        const toolResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        const toolResp = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
           method: "POST",
-          headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+          headers: { Authorization: `Bearer ${GEMINI_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
             model: "google/gemini-3-flash-preview",
             messages: convo,
@@ -578,10 +578,10 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
     }
 
     // Final streaming pass (employer mode, or after agent loop hit max rounds)
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${GEMINI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const apiKey = Deno.env.get("LOVABLE_API_KEY");
+    const apiKey = Deno.env.get("GEMINI_API_KEY");
     if (!apiKey) {
       return new Response(JSON.stringify({ error: "AI not configured" }), {
         status: 500,
@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
 
     const prompt = `${roleName}${industry ? ` in UK ${industry}` : ""}. Short: "${shortDescription || "(none)"}". Write 3 sentences (max 70 words, British English, flowing prose, no clichés/emojis/headings) covering: day-to-day, key skills, who thrives. Factual only - no invented salaries or employers.`;
 
-    const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({

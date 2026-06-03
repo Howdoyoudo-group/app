@@ -2,7 +2,7 @@
 // Used by the printable two-page profile when content overflows.
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 
-const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY")!;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -18,11 +18,11 @@ Deno.serve(async (req) => {
 TEXT:
 ${safe}`;
 
-    const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const r = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Lovable-API-Key": LOVABLE_API_KEY,
+        "Lovable-API-Key": GEMINI_API_KEY,
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash-lite",

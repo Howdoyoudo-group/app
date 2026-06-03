@@ -45,7 +45,7 @@ const TOOL = {
 
 async function classifyOne(job: any, key: string) {
   const prompt = `Title: ${job.title}\nCompany: ${job.company}\nDescription: ${(job.description || "").slice(0, 500)}\nLocation: ${job.location || ""}\n\nPick the best industry and role category for this UK graduate/internship role.`;
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -84,8 +84,8 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
-    const key = Deno.env.get("LOVABLE_API_KEY");
-    if (!key) throw new Error("LOVABLE_API_KEY not set");
+    const key = Deno.env.get("GEMINI_API_KEY");
+    if (!key) throw new Error("GEMINI_API_KEY not set");
 
     let limit = 100;
     try {

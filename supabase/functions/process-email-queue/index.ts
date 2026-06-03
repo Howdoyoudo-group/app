@@ -1,5 +1,5 @@
-import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import { sendViaResend } from '../_shared/send-via-resend.ts'
 
 const MAX_RETRIES = 5
 const DEFAULT_BATCH_SIZE = 10
@@ -21,32 +21,16 @@ function getRetryAfterSeconds(error: unknown): number {
   return 60
 }
 
-// Send via Lovable Cloud for all queued emails.
-async function sendViaLovable(payload: Record<string, unknown>, apiKey: string): Promise<void> {
-  await sendLovableEmail(
-    {
-      run_id: payload.run_id as string | undefined,
-      to: payload.to as string,
-      from: payload.from as string,
-      sender_domain: payload.sender_domain as string,
-      subject: payload.subject as string,
-      html: payload.html as string,
-      text: payload.text as string,
-      purpose: payload.purpose as string,
-      label: payload.label as string,
-      idempotency_key: (payload.idempotency_key || (payload.purpose === 'transactional' ? payload.message_id : undefined)) as string | undefined,
-      unsubscribe_token: payload.unsubscribe_token as string | undefined,
-    },
-    { apiKey, sendUrl: Deno.env.get('LOVABLE_SEND_URL') }
-  )
+async function sendEmail(payload: Record<string, unknown>): Promise<void> {
+  const result = await sendViaResend(payload as any)
+  if (result.error) throw new Error(result.error)
 }
 
 Deno.serve(async (req) => {
-  const apiKey = Deno.env.get('LOVABLE_API_KEY')
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
-  if (!apiKey || !supabaseUrl || !supabaseServiceKey) {
+  if (!supabaseUrl || !supabaseServiceKey) {
     console.error('Missing required environment variables')
     return new Response(
       JSON.stringify({ error: 'Server configuration error' }),
@@ -149,7 +133,7 @@ Deno.serve(async (req) => {
       }
 
       try {
-        await sendViaLovable(payload, apiKey)
+        await sendEmail(payload)
 
         await supabase.from('email_send_log').insert({
           message_id: payload.message_id,

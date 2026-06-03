@@ -8,7 +8,9 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/twilio";
+const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID") ?? "";
+const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN") ?? "";
+const GATEWAY_URL = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}`;
 const DEFAULT_FROM = "whatsapp:+14155238886";
 
 const SYSTEM_PROMPT = `You are "Howdy", a friendly UK careers assistant on WhatsApp.
@@ -54,13 +56,13 @@ function sideHustleWhatsAppAnswer(): string {
 }
 
 async function sendWhatsApp(opts: {
-  to: string; body: string; from: string; lovableKey: string; twilioKey: string;
+  to: string; body: string; from: string; accountSid: string; authToken: string;
 }) {
   return fetch(`${GATEWAY_URL}/Messages.json`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${opts.lovableKey}`,
-      "X-Connection-Api-Key": opts.twilioKey,
+      Authorization: `Basic ${btoa(`${opts.accountSid}:${opts.authToken}`)}`,
+      
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams({ From: opts.from, To: opts.to.startsWith("whatsapp:") ? opts.to : `whatsapp:${opts.to}`, Body: opts.body }),
@@ -73,11 +75,9 @@ Deno.serve(async (req) => {
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const TWILIO_API_KEY = Deno.env.get("TWILIO_API_KEY");
     const WHATSAPP_FROM = Deno.env.get("WHATSAPP_FROM") ?? DEFAULT_FROM;
 
-    if (!LOVABLE_API_KEY) {
+    if (!TWILIO_ACCOUNT_SID) {
       return twiml("Howdy is offline right now. Please try again shortly.");
     }
 
@@ -151,10 +151,10 @@ Deno.serve(async (req) => {
       if (routingDirective) messages.push({ role: "system", content: routingDirective });
       messages.push({ role: "user", content: bodyText });
 
-      const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const aiRes = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          Authorization: `Basic ${btoa(`${TWILIO_ACCOUNT_SID}:${TWILIO_AUTH_TOKEN}`)}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -188,7 +188,7 @@ Deno.serve(async (req) => {
       try {
         const sendRes = await sendWhatsApp({
           to: phoneE164, body: reply, from: WHATSAPP_FROM,
-          lovableKey: LOVABLE_API_KEY!, twilioKey: TWILIO_API_KEY!,
+          accountSid: TWILIO_ACCOUNT_SID, authToken: TWILIO_AUTH_TOKEN,
         });
         const sendData = await sendRes.json().catch(() => ({}));
         await admin.from("whatsapp_send_log").insert({

@@ -98,7 +98,7 @@ OUTPUT - return ONLY valid JSON, no markdown, no commentary:
 Sort education and experience with most recent first. If you find nothing for a section, return an empty array - never invent.`;
 
 async function callGemini(apiKey: string, body: any) {
-  const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const r = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify(body),
@@ -143,8 +143,8 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: "filePath is required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
     const { data: fileData, error: dlErr } = await svc.storage.from("cv-uploads").download(filePath);
     if (dlErr || !fileData) {
@@ -165,7 +165,7 @@ serve(async (req) => {
       if (!cvText || cvText.trim().length < 20) {
         return new Response(JSON.stringify({ error: "Could not read enough text from the CV." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
-      const r = await callGemini(LOVABLE_API_KEY, {
+      const r = await callGemini(GEMINI_API_KEY, {
         model: "google/gemini-2.5-flash",
         max_tokens: 8192,
         messages: [
@@ -221,7 +221,7 @@ serve(async (req) => {
 
     console.log(`binary path mime=${mime} bytes=${bytes.length}`);
 
-    const r = await callGemini(LOVABLE_API_KEY, {
+    const r = await callGemini(GEMINI_API_KEY, {
       model: "google/gemini-2.5-flash",
       max_tokens: 8192,
       messages: [

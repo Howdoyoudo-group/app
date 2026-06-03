@@ -28,7 +28,7 @@ async function extractTextViaVision(
 ): Promise<string> {
   const base64 = arrayBufferToBase64(fileBytes);
 
-  const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
@@ -119,8 +119,8 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
@@ -148,7 +148,7 @@ serve(async (req) => {
     } else if (fileName.endsWith(".pdf")) {
       // Use vision API to properly read PDF content (handles scanned docs too)
       const bytes = new Uint8Array(await fileData.arrayBuffer());
-      cvText = await extractTextViaVision(bytes, "application/pdf", LOVABLE_API_KEY);
+      cvText = await extractTextViaVision(bytes, "application/pdf", GEMINI_API_KEY);
     } else if (fileName.endsWith(".doc") || fileName.endsWith(".docx")) {
       // Try text extraction first, fall back to vision API
       const text = await fileData.text();
@@ -160,7 +160,7 @@ serve(async (req) => {
         const mime = fileName.endsWith(".docx")
           ? "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
           : "application/msword";
-        cvText = await extractTextViaVision(bytes, mime, LOVABLE_API_KEY);
+        cvText = await extractTextViaVision(bytes, mime, GEMINI_API_KEY);
       }
     } else {
       cvText = await fileData.text();
@@ -204,10 +204,10 @@ Return JSON with this exact structure:
 Only include industries with confidence >= 40. Sort by confidence descending. Only return valid JSON, no markdown.
 Double-check every fact in your response against the CV text before returning.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${GEMINI_API_KEY}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

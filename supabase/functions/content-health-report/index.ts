@@ -107,7 +107,7 @@ ${numberedList}
 Return ONLY a JSON array of the index numbers of items to KEEP, e.g. [0, 2, 5]. If none are relevant, return [].`;
 
   try {
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${apiKey}`,
@@ -221,7 +221,7 @@ Deno.serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const resendKey = Deno.env.get('RESEND_API_KEY');
-    const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    const lovableApiKey = Deno.env.get('GEMINI_API_KEY');
 
     const url = new URL(req.url);
     const recipientEmail = url.searchParams.get('email') || 'andrew@stanwoodoffice.com';

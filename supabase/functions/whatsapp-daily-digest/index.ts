@@ -15,7 +15,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const GATEWAY_URL = "https://connector-gateway.lovable.dev/twilio";
+const TWILIO_ACCOUNT_SID = Deno.env.get("TWILIO_ACCOUNT_SID") ?? "";
+const TWILIO_AUTH_TOKEN = Deno.env.get("TWILIO_AUTH_TOKEN") ?? "";
+const GATEWAY_URL = `https://api.twilio.com/2010-04-01/Accounts/${TWILIO_ACCOUNT_SID}`;
 const DEFAULT_FROM = "whatsapp:+14155238886";
 
 function pickFirstIndustry(interests: string[] | null): string | null {
@@ -34,7 +36,7 @@ function normalizeTitleForDedupe(raw: string): string {
 }
 
 async function sendWhatsApp(opts: {
-  to: string; body: string; from: string; lovableKey: string; twilioKey: string;
+  to: string; body: string; from: string; accountSid: string; authToken: string;
   contentSid?: string | null; contentVariables?: Record<string, string> | null;
 }) {
   const params: Record<string, string> = { From: opts.from, To: `whatsapp:${opts.to}` };
@@ -51,8 +53,8 @@ async function sendWhatsApp(opts: {
   return fetch(`${GATEWAY_URL}/Messages.json`, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${opts.lovableKey}`,
-      "X-Connection-Api-Key": opts.twilioKey,
+      Authorization: `Basic ${btoa(`${opts.accountSid}:${opts.authToken}`)}`,
+      
       "Content-Type": "application/x-www-form-urlencoded",
     },
     body: new URLSearchParams(params),
@@ -71,12 +73,10 @@ Deno.serve(async (req) => {
   try {
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const TWILIO_API_KEY = Deno.env.get("TWILIO_API_KEY");
     const WHATSAPP_FROM = Deno.env.get("WHATSAPP_FROM") ?? DEFAULT_FROM;
     const WHATSAPP_DIGEST_CONTENT_SID = Deno.env.get("WHATSAPP_DIGEST_CONTENT_SID") ?? null;
 
-    if (!LOVABLE_API_KEY || !TWILIO_API_KEY) {
+    if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN) {
       return new Response(JSON.stringify({ error: "WhatsApp service not configured" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -281,7 +281,7 @@ Deno.serve(async (req) => {
 
       const res = await sendWhatsApp({
         to: phone, body, from: WHATSAPP_FROM,
-        lovableKey: LOVABLE_API_KEY!, twilioKey: TWILIO_API_KEY!,
+        accountSid: TWILIO_ACCOUNT_SID, authToken: TWILIO_AUTH_TOKEN,
         contentSid: WHATSAPP_DIGEST_CONTENT_SID,
         contentVariables: WHATSAPP_DIGEST_CONTENT_SID ? contentVariables : null,
       });
