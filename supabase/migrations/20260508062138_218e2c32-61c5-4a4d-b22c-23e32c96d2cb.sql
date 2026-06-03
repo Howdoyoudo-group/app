@@ -1,0 +1,1 @@
+UPDATE public.jobs SET expires_at = now() WHERE url ILIKE '%jobsinfootball.com%' AND expires_at IS NULL;

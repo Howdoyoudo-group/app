@@ -1,0 +1,1 @@
+UPDATE jobs SET expires_at = now() WHERE lower(company) = 'next' AND url LIKE '%careers.next.co.uk%' AND (expires_at IS NULL OR expires_at > now())

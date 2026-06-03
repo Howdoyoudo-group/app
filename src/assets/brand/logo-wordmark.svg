@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 160" role="img" aria-label="Howdoyoudo?">
+  <style>
+    .w { font-family: 'Dela Gothic One', 'Arial Black', sans-serif; font-weight: 900; font-size: 120px; }
+  </style>
+  <text x="20" y="120" class="w" fill="#0A0A0A">Howdoyoudo</text>
+  <text x="600" y="120" class="w" fill="#00E600">?</text>
+</svg>

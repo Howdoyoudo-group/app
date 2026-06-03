@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Download - Money · How Do You Do?</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--black:#0a0a0a;--white:#fff;--green:#3ddc3d;--grey:#f2f2f2;--mid:#666;--border:#e0e0e0;--page-w:860px;--pad:24px;--gap:12px}
+  html,body{background:var(--white)}
+  body{font-family:'Inter',sans-serif;font-size:12px;line-height:1.45;color:var(--black);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{size:A4 landscape;margin:0}
+  .page{width:var(--page-w);margin:0 auto}
+  @media print{.page{page-break-after:always}.page:last-child{page-break-after:avoid}}
+  .no-break{break-inside:avoid;page-break-inside:avoid}
+  .topbar{background:var(--green);padding:6px var(--pad);display:flex;justify-content:space-between;align-items:center}
+  .topbar span{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--black)}
+  .masthead{padding:16px var(--pad) 14px;border-bottom:3px solid var(--black)}
+  .masthead-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);margin-bottom:4px}
+  .masthead-body{display:flex;align-items:flex-end;justify-content:space-between}
+  .masthead-title{font-size:54px;font-weight:900;line-height:1;letter-spacing:-.03em;text-transform:uppercase;white-space:nowrap}
+  .masthead-title .dot{color:var(--green)}
+  .masthead-desc{font-size:11px;color:var(--mid);max-width:240px;text-align:right;line-height:1.4;padding-bottom:4px}
+  .tag-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .tag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border:2px solid var(--black)}
+  .tag.filled{background:var(--black);color:var(--white)}
+  .tag.green{background:var(--green);border-color:var(--green)}
+  .content{padding:0 var(--pad) var(--pad)}
+  .section-label{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;border-bottom:2px solid var(--green);padding:10px 0 6px;margin-bottom:var(--gap)}
+  .section-label::before{content:'▼';font-size:7px;color:var(--green)}
+  .col-4{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+  .col-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-bottom:var(--gap)}
+  .stack{display:flex;flex-direction:column;gap:var(--gap)}
+  .stat-strip{border:2px solid var(--black);margin-bottom:var(--gap)}
+  .stat-cell{padding:12px 14px;border-right:2px solid var(--black)}
+  .stat-cell:last-child{border-right:none}
+  .stat-cell.dark{background:var(--black);color:var(--white)}
+  .stat-cell.green{background:var(--green)}
+  .stat-cell .lbl{font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.55;margin-bottom:3px}
+  .stat-cell .num{font-size:28px;font-weight:900;line-height:1;letter-spacing:-.03em}
+  .stat-cell .sub{font-size:9px;line-height:1.35;margin-top:3px;opacity:.75}
+  .box{border:2px solid var(--black);padding:12px 14px;break-inside:avoid;page-break-inside:avoid}
+  .box.dark{background:var(--black);color:var(--white)}
+  .box.green{background:var(--green)}
+  .box.grey{background:var(--grey)}
+  .box-title{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-bottom:1.5px solid currentColor;padding-bottom:6px;margin-bottom:10px;opacity:.85}
+  .bullet-list{display:flex;flex-direction:column;gap:8px}
+  .bullet{font-size:10px;line-height:1.45;padding-left:14px;position:relative}
+  .bullet::before{content:'■';position:absolute;left:0;top:0;color:var(--green);font-size:8px}
+  .player{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);gap:10px}
+  .player:last-child{border-bottom:none}
+  .player-name{font-size:11px;font-weight:700}
+  .player-type{font-size:9px;color:var(--mid);line-height:1.45;max-width:240px}
+  .player-badge{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;white-space:nowrap;flex-shrink:0;background:var(--green);border:1.5px solid var(--green)}
+  .pills{display:flex;flex-wrap:wrap;gap:5px}
+  .pill{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border:2px solid var(--black);background:var(--white);line-height:1.2}
+  .pill.hot{background:var(--black);color:var(--white);border-color:var(--black)}
+  .trend{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #333;align-items:flex-start}
+  .trend:last-child{border-bottom:none;padding-bottom:0}
+  .trend-n{font-size:18px;font-weight:900;color:var(--green);line-height:1;flex-shrink:0;width:22px}
+  .trend-txt{font-size:10px;line-height:1.4}
+  .trend-txt strong{font-weight:700}
+  .kf-item{margin-bottom:10px}
+  .kf-item:last-child{margin-bottom:0}
+  .kf-num{font-size:26px;font-weight:900;line-height:1;letter-spacing:-.02em}
+  .kf-desc{font-size:9px;color:var(--mid);margin-top:2px;line-height:1.35}
+  .footer{background:var(--black);color:var(--white);padding:8px var(--pad);display:flex;justify-content:space-between;align-items:center}
+  .footer-brand{font-size:12px;font-weight:900;letter-spacing:-.01em;text-transform:uppercase}
+  .footer-brand .dot{color:var(--green)}
+  .footer-src{font-size:8px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#777}
+  .page-break-line{border:none;border-top:3px dashed #ccc;margin:24px auto;width:var(--page-w)}
+  @media print{.page-break-line{display:none}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar no-break">
+    <span>How Do You Do? · Unpacking the industries we love and live in</span>
+    <span>Ed. 24.04.26</span>
+  </div>
+  <div class="masthead no-break">
+    <div class="masthead-eyebrow">The Download · Industry Series · Issue 27</div>
+    <div class="masthead-body">
+      <div class="masthead-title">Money<span class="dot">.</span></div>
+      <div class="masthead-desc">The UK money industry - banks, investors, insurers, accountants, fintechs and market infrastructure.</div>
+    </div>
+    <div class="tag-row">
+      <div class="tag filled">UK Market</div>
+      <div class="tag filled">Sector Shape</div>
+      <div class="tag filled">Key Players</div>
+      <div class="tag green">Trends</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="section-label">Market Snapshot</div>
+    <div class="stat-strip col-4 no-break">
+      <div class="stat-cell dark"><div class="lbl">Economic value</div><div class="num">£200bn+</div><div class="sub">Financial services contribute over £200 billion a year to the UK economy.</div></div> <div class="stat-cell "><div class="lbl">People employed</div><div class="num">2m+</div><div class="sub">More than 2 million people work across UK financial services.</div></div> <div class="stat-cell green"><div class="lbl">Global position</div><div class="num">London-led</div><div class="sub">The UK remains one of the world's most influential money centres.</div></div> <div class="stat-cell "><div class="lbl">Fastest shift</div><div class="num">FinTech</div><div class="sub">Digital banks and payments are changing the shape of entry and growth roles.</div></div>
+    </div>
+    <div class="section-label">How It Works</div>
+    <div class="col-2">
+      <div class="box grey no-break">
+        <div class="box-title">Sector shape</div>
+        <div class="bullet-list"><div class="bullet">Banking: retail, business, corporate and investment banking across the high street and the City.</div> <div class="bullet">Investment & asset management: funds, research, wealth, pension capital and markets.</div> <div class="bullet">Insurance & risk: underwriting, broking, claims and specialist markets like Lloyd's.</div> <div class="bullet">FinTech & payments: challenger banks, cross-border transfers, product and compliance.</div> <div class="bullet">Accountancy & leadership: audit, tax, treasury, CFO, risk and financial planning.</div></div>
+      </div>
+      <div class="box no-break">
+        <div class="box-title">Quick facts</div>
+        <div class="kf-item"><div class="kf-num">HSBC + Barclays</div><div class="kf-desc">Traditional banks still dominate hiring, training and scale.</div></div> <div class="kf-item"><div class="kf-num">Revolut + Monzo</div><div class="kf-desc">Fintechs create some of the clearest modern growth pathways.</div></div> <div class="kf-item"><div class="kf-num">Routes in</div><div class="kf-desc">Graduate schemes, apprenticeships, operations roles, ACA/ACCA and startups.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer no-break">
+    <div class="footer-brand">How Do You Do<span class="dot">?</span></div>
+    <div class="footer-src">Sources: FCA careers · industry profiles · How Do You Do editorial synthesis · April 2026 · Page 1 of 2</div>
+  </div>
+</div>
+<hr class="page-break-line">
+<div class="page">
+  <div class="topbar no-break">
+    <span>How Do You Do? · The Download - Money</span>
+    <span>Ed. 24.04.26</span>
+  </div>
+  <div class="content" style="padding-top:14px">
+    <div class="section-label">Key Players</div>
+    <div class="col-2">
+      <div class="box no-break">
+        <div class="box-title">Major players</div>
+        <div class="player"><div><div class="player-name">HSBC</div><div class="player-type">Global universal bank spanning retail, commercial and investment banking.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">Barclays</div><div class="player-type">Major British bank with deep consumer and capital-markets presence.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">BlackRock</div><div class="player-type">The world's largest asset manager and a major force in global investing.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">Lloyd's of London</div><div class="player-type">The best-known specialty insurance market in the world.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">Aviva</div><div class="player-type">A core UK insurance and long-term savings business.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">Revolut</div><div class="player-type">Europe's most valuable fintech and a symbol of digital finance growth.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">Monzo</div><div class="player-type">The challenger bank that made app-led banking mainstream in Britain.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">Bank of England</div><div class="player-type">The central institution for monetary policy and financial stability.</div></div><div class="player-badge">Key player</div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <div class="box green no-break">
+          <div class="box-title">Categories</div>
+          <div class="pills"><span class="pill hot">Retail Banking</span> <span class="pill">Investment Banking</span> <span class="pill hot">Asset Management</span> <span class="pill">Insurance</span> <span class="pill">Wealth</span> <span class="pill hot">FinTech</span> <span class="pill hot">Payments</span> <span class="pill">Audit</span> <span class="pill">Tax</span> <span class="pill">Risk & Compliance</span></div>
+        </div>
+        <div class="box dark no-break">
+          <div class="box-title">5 trends to watch</div>
+          <div class="trend"><div class="trend-n">01</div><div class="trend-txt">Fintech keeps creating the clearest new-career paths in product, operations and compliance.</div></div> <div class="trend"><div class="trend-n">02</div><div class="trend-txt">Regulation is increasing demand for risk, controls, AML and consumer-duty roles.</div></div> <div class="trend"><div class="trend-n">03</div><div class="trend-txt">AI is automating routine analysis but raising the value of judgement and trust.</div></div> <div class="trend"><div class="trend-n">04</div><div class="trend-txt">Energy-transition and sustainability finance are opening new specialist roles.</div></div> <div class="trend"><div class="trend-n">05</div><div class="trend-txt">The most resilient careers combine technical credibility with commercial communication.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer no-break">
+    <div class="footer-brand">How Do You Do<span class="dot">?</span></div>
+    <div class="footer-src">Sources: FCA careers · industry profiles · How Do You Do editorial synthesis · April 2026 · Page 2 of 2</div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+UPDATE public.jobs SET url = 'https://www.jobs.nhs.uk' || url WHERE url LIKE '/candidate/jobadvert/%';

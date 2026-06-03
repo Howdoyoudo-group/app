@@ -1,0 +1,434 @@
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+};
+
+// ── Known company → correct industry mapping ────────────────────────
+// If a company appears here, it MUST be tagged with this industry
+const COMPANY_INDUSTRY_MAP: Record<string, string> = {
+  // Fashion / lingerie - NOT grocery
+  "ann summers": "fashion",
+  "victoria's secret": "fashion",
+  "agent provocateur": "fashion",
+  // Grocery
+  "tesco": "grocery",
+  "sainsbury": "grocery",
+  "asda": "grocery",
+  "waitrose": "grocery",
+  "ocado": "grocery",
+  "aldi": "grocery",
+  "lidl": "grocery",
+  "morrisons": "grocery",
+  "m&s food": "grocery",
+  "co-op food": "grocery",
+  "booker group": "grocery",
+  "booker wholesale": "grocery",
+  "makro": "grocery",
+  // Beauty (cosmetics, skincare, fragrance) - these were leaking into grocery
+  "l'oréal": "beauty",
+  "l'oreal": "beauty",
+  "loreal": "beauty",
+  "estée lauder": "beauty",
+  "estee lauder": "beauty",
+  "rituals": "beauty",
+  "the body shop": "beauty",
+  "lush retail": "beauty",
+  "molton brown": "beauty",
+  "jo malone": "beauty",
+  "charlotte tilbury": "beauty",
+  "space nk": "beauty",
+  "sephora": "beauty",
+  "boots uk": "beauty",
+  "superdrug": "beauty",
+  "mac cosmetics": "beauty",
+  "benefit cosmetics": "beauty",
+  "clinique": "beauty",
+  "clarins": "beauty",
+  "shiseido": "beauty",
+  "bobbi brown": "beauty",
+  "urban decay": "beauty",
+  "nars cosmetics": "beauty",
+  "elemis": "beauty",
+  "liz earle": "beauty",
+  "aesop": "beauty",
+  "glossier": "beauty",
+  "morphe": "beauty",
+  "revolution beauty": "beauty",
+  "cult beauty": "beauty",
+  "feelunique": "beauty",
+  "lookfantastic": "beauty",
+  "thg beauty": "beauty",
+  // Fashion / apparel - these were leaking into grocery
+  "peacocks": "fashion",
+  "primark": "fashion",
+  "next plc": "fashion",
+  "river island": "fashion",
+  "h&m": "fashion",
+  "zara": "fashion",
+  "uniqlo": "fashion",
+  // Coffee
+  "starbucks": "coffee",
+  "costa coffee": "coffee",
+  "caffe nero": "coffee",
+  "pret a manger": "coffee",
+  // Cinema
+  "netflix": "cinema",
+  "warner bros": "cinema",
+  "universal pictures": "cinema",
+  "disney": "cinema",
+  "paramount": "cinema",
+  "sony pictures": "cinema",
+  "lionsgate": "cinema",
+  "framestore": "cinema",
+  "vue": "cinema",
+  "curzon": "cinema",
+  // Estate agency
+  "foxtons": "estate-agency",
+  "savills": "estate-agency",
+  "knight frank": "estate-agency",
+  "rightmove": "estate-agency",
+  "zoopla": "estate-agency",
+  "purplebricks": "estate-agency",
+  "dexters": "estate-agency",
+  "winkworth": "estate-agency",
+  "hamptons": "estate-agency",
+  "connells": "estate-agency",
+  // Football
+  "premier league": "football",
+  "manchester united": "football",
+  "liverpool fc": "football",
+  "arsenal": "football",
+  "chelsea fc": "football",
+  "tottenham hotspur": "football",
+  // Beer - Diageo intentionally excluded as it spans beer + food-drink
+  "brewdog": "beer",
+  "heineken": "beer",
+  "molson coors": "beer",
+  "ab inbev": "beer",
+  // Pets / animal welfare
+  "pets at home": "pets",
+  "vets4pets": "pets",
+  "medivet": "pets",
+  "battersea": "pets",
+  "blue cross": "pets",
+  "pdsa": "pets",
+  "jollyes": "pets",
+  "butternut box": "pets",
+  "lily's kitchen": "pets",
+  "ivc evidensia": "pets",
+  "rspca": "pets",
+  "dogs trust": "pets",
+  "cats protection": "pets",
+  "wood green": "pets",
+  "mayhew animal": "pets",
+  "world horse welfare": "pets",
+  "redwings horse sanctuary": "pets",
+  "international cat care": "pets",
+  "guide dogs": "pets",
+  "hearing dogs": "pets",
+  "canine partners": "pets",
+  // Travel
+  "betterhomes": "estate-agency",
+  // Cars / automotive - Tesla was leaking into grocery via Adzuna
+  "tesla": "cars",
+  "ford": "cars",
+  "vauxhall": "cars",
+  "bmw": "cars",
+  "mercedes-benz": "cars",
+  "audi": "cars",
+  "volkswagen": "cars",
+  "jaguar land rover": "cars",
+  "stellantis": "cars",
+  "toyota": "cars",
+  "honda": "cars",
+  "nissan": "cars",
+  "kwik fit": "cars",
+  "halfords autocentres": "cars",
+  // Medical / healthcare device makers - keep out of cinema (Fujifilm Healthcare,
+  // Fujifilm Medical etc were leaking in because the parent name contains "film")
+  "fujifilm healthcare": "tech",
+  "fujifilm medical": "tech",
+  "fujifilm diosynth": "tech",
+};
+
+// ── Negative keywords: titles that should NEVER appear in an industry ──
+const INDUSTRY_TITLE_BLOCKLIST: Record<string, RegExp> = {
+  cinema: /\b(care assistant|care worker|carer|nurse|nursing|social worker|support worker|domiciliary|live.in care|healthcare|endoscopy|radiograph|sonograph|medical imaging|hospital|tesla|automotive|vehicle technician|service technician|solar|megapack|powerwall|test driver|dealership|service advisor|parts advisor)\b/i,
+  grocery: /\b(lingerie|apparel|intimates|adult|sex|swimwear|toolstation|screwfix|b&q|homebase|wickes|dunelm|ikea|halfords|pets at home|cosmetic|skincare|fragrance|perfume|makeup|beauty advisor|sales advisor|peacocks|rituals|l'oreal|l'oréal|loreal|sushi chef|sushi)\b/i,
+  football: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare)\b/i,
+  beer: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare)\b/i,
+  coffee: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|butcher|butchery|hgv|forklift|warehouse|picker|replenishment|branch assistant|wholesale)\b/i,
+  music: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare)\b/i,
+  teaching: /\b(plumber|electrician|welder|forklift|hgv|driver|paralegal|solicitor|barrister|legal counsel|swim|swimming|swim school|lifeguard|marketing executive|marketing manager|marketing assistant|sales executive|recruitment consultant|estate agent|nurse|nursing|care assistant|support worker|psychologist|aspiring child|psychology graduate|software engineer|cyber)\b/i,
+  pets: /\b(lecturer|fe teacher|further education|btec|examiner|teacher of|sen teacher|primary teacher|secondary teacher|teaching assistant|tutor|cyber security|cybersecurity|software engineer|java developer|devops|sap consultant|hgv|forklift)\b/i,
+  farming: /\b(uber|drive with uber|driver account|deliveroo|just eat courier|amazon flex|care assistant|care worker|carer|support worker|nurse|nursing|social worker|lawyer|solicitor|paralegal|barrister|legal counsel|legal secretary|legal assistant|head of prosecutions|prosecutor|conveyancer|compliance officer|export compliance|counsellor|counselor|psychotherapist|hgv class|delivery driver|courier|warehouse operative|forklift|cleaner|housekeep|draughtsperson|draughtsman|draftsman|cad technician|architectural technician|refrigeration|electrician|plumber|cyber security|software engineer)\b/i,
+  gaming: /\b(care assistant|nurse|cyber security|investment banker|risk analyst|compliance officer|insurance|mortgage|conveyancer|estate agent|chef|barista|hgv|forklift|warehouse operative|electrician|plumber|teacher|social worker|civil engineer|structural engineer|mechanical engineer|wind turbine|nuclear|grid|substation|kafka engineer|java developer|spring boot|.net developer|salesforce|sap|oracle dba|workday|servicenow)\b/i,
+  "interior-design": /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|forklift|warehouse operative)\b/i,
+  "estate-agency": /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|forklift|warehouse operative)\b/i,
+  "food-drink": /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|forklift|wind turbine|gas turbine|power plant|substation|transmission|grid|hvdc|nuclear|electrical engineer|commissioning specialist|wams|epc)\b/i,
+  hospitality: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|forklift|wind turbine|gas turbine|power plant|substation|transmission|grid|hvdc|nuclear|electrical engineer|commissioning specialist|wams|epc)\b/i,
+  travel: /\b(estate agent|real estate agent|lettings negotiator|property valuer|conveyancer|mortgage adviser)\b/i,
+};
+
+// ── Banned companies: regardless of industry, these should never appear ──
+// (Generic recruiters/staffing agencies pollute industry feeds with hundreds of unrelated roles)
+const BANNED_COMPANIES = /\b(ge vernova|vernova)\b/i;
+const BANNED_IN_GROCERY = /\b(reed|michael page|hirecracker|matchtech|zachary daniels|kingdom people|centre people|talentpool|dr newitt|drnewitt|d r newitt|henderson brown|manucomm|rise technical|searchability|agricultural & farming|mayborn|hertfordshire catering|ignite|dee set|one retail)\b/i;
+
+// ── Cross-industry company → only-allowed-industries map ──
+// These companies are ONLY allowed in the listed industries. Anywhere else = delete.
+// Stops energy/aerospace/scientific brands leaking into fashion/jewellery/music/etc.
+const COMPANY_ALLOWED_INDUSTRIES: Record<string, string[]> = {
+  "british heart foundation": ["charity"],
+  "hitachi": ["cars", "tech"],
+  "diamond light source": ["tech"],
+  "saab": ["cars", "tech"],
+  "leonardo": ["tech"],
+  "scania": ["cars"],
+  "bio-techne": ["tech"],
+  "vitality": ["wellness"],
+  "ge vernova": [], // never allowed
+  "vernova": [],
+  "roku": ["tech", "cinema"],
+  "booker group": ["grocery"],
+};
+
+// ── Cross-industry title blocklist: IT/cyber/dev roles never belong in non-tech industries ──
+const TECH_ROLE_REGEX = /\b(cyber security|cybersecurity|it support|software engineer|devops|sre|data engineer|cloud engineer|java developer|\.net developer|salesforce developer|sap consultant|oracle dba|kafka engineer|spring boot|backend engineer|frontend engineer|full[- ]?stack|qa engineer|test engineer|systems engineer|network engineer|infrastructure engineer)\b/i;
+const TECH_ALLOWED_INDUSTRIES = new Set(["gaming", "tech", "remote", "graduate"]);
+
+// ── Industry relevance keywords: at least one must appear in title OR description ──
+// CRITICAL: keep these tight - they are the primary defence against generic IT/finance/recruiter spam
+const INDUSTRY_RELEVANCE_KEYWORDS: Record<string, RegExp> = {
+  // Cinema relevance - broad film/TV/cinema vocabulary. \b word boundaries
+  // mean "film" matches "film" but NOT "Fujifilm" or "fulfilment". Generic
+  // words like "creative" / "media" / "studio" / "production" / "editor" are
+  // INTENTIONALLY excluded because they match thousands of unrelated jobs
+  // (Tesla, recruiters, agencies). Non-cinema companies are blocked separately
+  // via COMPANY_INDUSTRY_MAP and the cinema title blocklist below.
+  cinema: /\b(film|films|filmmaker|filmmaking|cinema|cinemas|cinematic|movie|movies|tv|television|broadcast|broadcasting|broadcaster|vfx|visual effects|animation|animator|screenwriter|screenwriting|script|scriptwriter|cinematograph|cinematographer|post.production|postproduction|sound design|sound designer|colourist|colorist|gaffer|grip|stunt|costume designer|casting director|casting|location scout|dolby|imax|streaming|netflix|bbc studios|itv studios|channel 4|channel 5|sky studios|hbo|warner bros|paramount|disney|universal|sony pictures|lionsgate|a24|production assistant|production runner|production coordinator|production manager|production designer|line producer|series producer|tv producer|film producer|film director|tv director|video editor|video producer|videographer|first assistant director|second assistant director|development executive|commissioning editor|drama|documentary|reality tv|short film|feature film|projectionist|box office|cinema manager|cinema team|cinema host|projection|exhibitor|exhibition|distributor|distribution|acquisitions|festival programmer|programmer cinema|edit assistant|assistant editor|colour grade|grading|foley|adr|sound mixer|boom operator|focus puller|clapper loader|dop|director of photography|matte painter|3d artist|compositor|rotoscope|previz|pre.viz|on set|on.set|crew|runner)\b/i,
+  "estate-agency": /\b(estate agent|letting|lettings|property|conveyancing|mortgage|surveyor|valuation|rightmove|zoopla|negotiator|RICS|land|housing|real estate|renting|tenant|landlord|sales progressor|EPC)\b/i,
+  "interior-design": /\b(interior|design|architect|furniture|lighting|fabric|textile|décor|decor|showroom|upholstery|joinery|kitchen|bathroom|renovation|specification|FF&E|procurement|styling|home)\b/i,
+  "food-drink": /\b(chef|kitchen|restaurant|food|drink|beverage|hospitality|bar|bartender|waiter|waitress|sous|sommelier|catering|dining|menu|recipe|baking|pastry|brunch|café|cafe|pub|hotel|front of house|general manager|F&B)\b/i,
+  grocery: /\b(grocery|supermarket|fmcg|fresh produce|chilled|frozen food|bakery|deli|checkout|replenish|shelf|cafe|café|pharmacy|online grocery|click.collect|customer assistant|store manager|store team|shop floor|tesco|sainsbury|asda|waitrose|ocado|aldi|lidl|morrisons|m&s food|co-op food|booker)\b/i,
+  gaming: /\b(game|games|gaming|esports|console|playstation|xbox|nintendo|level design|game design|game art|game engine|unreal|unity|3d artist|character artist|environment artist|technical artist|narrative design|qa tester|game tester|gameplay|game producer|game director|game writer|animator|rigger|vfx artist|sound designer|game ux|game audio|mobile game|mmo|rpg|fps|aaa|indie game)\b/i,
+  coffee: /\b(barista|coffee|espresso|cafe|café|roastery|roaster|latte|cappuccino|brew bar|pour over|coffee shop)\b/i,
+  bakery: /\b(baker|bakery|bakehouse|pastry|patisserie|sourdough|bread|viennoiserie|cake decorator|chocolatier)\b/i,
+  beer: /\b(brewer|brewery|beer|ale|lager|cask|keg|cellar|publican|landlord|landlady|tap room|hop|cask ale|craft beer)\b/i,
+  travel: /\b(travel|tourism|tour operator|cruise|airline|cabin crew|flight attendant|holiday|hotel|resort|destination|booking|reservations|tour guide|adventure|expedition|hospitality|concierge|spa|wellness retreat)\b/i,
+  cars: /\b(car|automotive|vehicle|motor|mechanic|technician|MOT|garage|dealership|workshop|tyre|tyres|panel beater|paint sprayer|service advisor|parts advisor|salesperson)\b/i,
+  pets: /\b(pet|pets|veterinary|vet|animal|dog|cat|grooming|kennel|cattery|pet shop|pet food|aquarium|reptile)\b/i,
+  fashion: /\b(fashion|apparel|clothing|garment|textile|tailor|seamstress|pattern cutter|stylist|merchandiser|buyer|visual merchandiser|womenswear|menswear|childrenswear|accessories|jewellery|footwear|luxury|brand|boutique|retail assistant|store manager|sales assistant)\b/i,
+  jewellery: /\b(jewell|jewelry|gold|silver|platinum|diamond|gemstone|watchmaker|goldsmith|silversmith|engraver|polisher|setter|valuer|hallmark|bullion|fine jewellery)\b/i,
+  beauty: /\b(beauty|cosmetic|skincare|haircare|makeup|nail|spa|salon|aesthetic|laser|waxing|brow|lash|massage|facial|microblading|dermatology)\b/i,
+  hospitality: /\b(hotel|restaurant|bar|pub|café|cafe|chef|waiter|waitress|sommelier|concierge|housekeeping|front of house|F&B|catering|hospitality|barista|bartender|reception)\b/i,
+  charity: /\b(charity|charit|fundrais|non.profit|nfp|third sector|donor|giving|grant|trustee|volunteer coordinator|community engagement|impact|cause|advocacy|outreach|nhs charity|hospice|aid|relief)\b/i,
+  music: /\b(music|musician|composer|producer|sound engineer|recording|mixing|mastering|songwriter|a&r|label|artist|band|tour manager|music supervisor|orchestra|conductor|DJ|venue|festival|booking agent)\b/i,
+  teaching: /\b(teach|teacher|education|school|college|university|tutor|lecturer|TA|teaching assistant|SENCO|head teacher|deputy head|primary|secondary|EYFS|ofsted|safeguarding|curriculum)\b/i,
+  farming: /\b(farm|farming|farmer|agronomist|agricultural|agriculture|agritech|livestock|dairy|herd|shepherd|stockperson|poultry|tractor|combine|harvest|arable|crop|horticultur|glasshouse|vineyard|viticulture|nursery|grain|silage|fertiliser|fertilizer|defra|nfu|ahdb|estate manager|rural|smallholding|orchard|equine farm|farmhand)\b/i,
+  journalism: /\b(journalist|reporter|editor|news|writer|correspondent|sub.editor|newsroom|publication|magazine|broadcast|investigative|features|columnist|press)\b/i,
+  football: /\b(football|soccer|club|premier league|championship|EFL|FA|UEFA|FIFA|player|coach|scout|matchday|stadium|broadcasting|sponsorship|commercial partnership|kit|football operations|academy|youth development)\b/i,
+  "horse-racing": /\b(horse[- ]?rac(?:e|ing)|racehorse|racecourse|race.?course|race.?day|equine|equestrian|thoroughbred|jockey|amateur jockey|apprentice jockey|conditional jockey|jockey coach|stable lad|stable lass|stable hand|head lad|head girl|work rider|exercise rider|travelling head|yard manager|racing yard|stud farm|stud manager|stud groom|bloodstock|bloodstock agent|farrier|paddock|turf club|BHA|British Horseracing|gallops|point.to.point|hunt yard|riding school|riding centre|racing manager|racing secretary|racing administrator|racecourse manager|clerk of the course)\b/i,
+};
+
+function lookupCompanyIndustry(company: string): string | null {
+  const lower = company.toLowerCase().trim();
+  for (const [key, industry] of Object.entries(COMPANY_INDUSTRY_MAP)) {
+    if (lower.includes(key)) return industry;
+  }
+  return null;
+}
+
+function isBlockedTitle(title: string, industry: string): boolean {
+  const blocklist = INDUSTRY_TITLE_BLOCKLIST[industry];
+  if (!blocklist) return false;
+  return blocklist.test(title);
+}
+
+function isRelevantToIndustry(title: string, description: string, industry: string): boolean {
+  const relevance = INDUSTRY_RELEVANCE_KEYWORDS[industry];
+  if (!relevance) return true; // no relevance check for this industry = assume OK
+  const combined = `${title} ${description || ""}`;
+  return relevance.test(combined);
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, serviceKey);
+
+    const body = await req.json().catch(() => ({}));
+    const batchSize = body.batch_size || 500;
+    const targetIndustry = body.industry || null;
+    const dryRun = body.dry_run || false;
+
+    const results = {
+      scanned: 0,
+      reassigned: 0,
+      removed: 0,
+      blocked_titles: 0,
+      irrelevant: 0,
+      banned_company: 0,
+      details: [] as string[],
+    };
+
+    // Process in pages
+    let offset = 0;
+    let hasMore = true;
+
+    while (hasMore) {
+      let query = supabase
+        .from("jobs")
+        .select("id, title, company, industry, description, source_url")
+        .range(offset, offset + batchSize - 1);
+
+      if (targetIndustry) {
+        query = query.eq("industry", targetIndustry);
+      }
+
+      const { data: jobs, error } = await query;
+      if (error) throw error;
+      if (!jobs || jobs.length === 0) {
+        hasMore = false;
+        break;
+      }
+
+      results.scanned += jobs.length;
+
+      for (const job of jobs) {
+        const title = job.title || "";
+        const company = job.company || "";
+        const industry = job.industry || "";
+        const description = job.description || "";
+
+        // 0. Banned company - delete regardless of industry
+        if (BANNED_COMPANIES.test(company)) {
+          if (!dryRun) {
+            await supabase.from("jobs").delete().eq("id", job.id);
+          }
+          results.banned_company++;
+          results.details.push(`BANNED COMPANY: "${title}" @ ${company} in ${industry}`);
+          continue;
+        }
+
+        // 0b. Industry-specific banned companies (recruiters polluting grocery)
+        if (industry === "grocery" && BANNED_IN_GROCERY.test(company)) {
+          if (!dryRun) {
+            await supabase.from("jobs").delete().eq("id", job.id);
+          }
+          results.banned_company++;
+          results.details.push(`RECRUITER IN GROCERY: "${title}" @ ${company}`);
+          continue;
+        }
+
+        // 0c. Cross-industry company allow-list - kill rows where a company appears
+        // in an industry that isn't in its allow-list (e.g. Hitachi in fashion, BHF in hospitality)
+        const companyLower = company.toLowerCase();
+        for (const [key, allowed] of Object.entries(COMPANY_ALLOWED_INDUSTRIES)) {
+          if (companyLower.includes(key) && !allowed.includes(industry)) {
+            if (!dryRun) {
+              await supabase.from("jobs").delete().eq("id", job.id);
+            }
+            results.banned_company++;
+            results.details.push(`WRONG-INDUSTRY: "${title}" @ ${company} in ${industry}`);
+            break;
+          }
+        }
+        // If the previous loop deleted, skip the rest. Re-fetch via a flag isn't possible here,
+        // so use the simpler approach: check again at top of next iteration via `continue`.
+        if (companyLower && Object.keys(COMPANY_ALLOWED_INDUSTRIES).some(
+          (k) => companyLower.includes(k) && !COMPANY_ALLOWED_INDUSTRIES[k].includes(industry)
+        )) {
+          continue;
+        }
+
+        // 0d. Tech/IT roles in non-tech industries
+        if (TECH_ROLE_REGEX.test(title) && !TECH_ALLOWED_INDUSTRIES.has(industry)) {
+          if (!dryRun) {
+            await supabase.from("jobs").delete().eq("id", job.id);
+          }
+          results.blocked_titles++;
+          results.details.push(`TECH ROLE LEAK: "${title}" @ ${company} in ${industry}`);
+          continue;
+        }
+
+        // 1. Check company→industry mapping
+        const correctIndustry = lookupCompanyIndustry(company);
+        if (correctIndustry && correctIndustry !== industry) {
+          if (!dryRun) {
+            await supabase
+              .from("jobs")
+              .update({ industry: correctIndustry })
+              .eq("id", job.id);
+          }
+          results.reassigned++;
+          results.details.push(
+            `REASSIGN: "${title}" @ ${company} from ${industry} → ${correctIndustry}`
+          );
+          continue;
+        }
+
+        // 2. Check title blocklist
+        if (isBlockedTitle(title, industry)) {
+          if (!dryRun) {
+            await supabase.from("jobs").delete().eq("id", job.id);
+          }
+          results.blocked_titles++;
+          results.details.push(
+            `BLOCKED: "${title}" @ ${company} in ${industry}`
+          );
+          continue;
+        }
+
+        // 3. Relevance check - apply to ALL jobs from unknown companies, regardless of source
+        // (Adzuna, Reed, Jooble, RapidAPI all push generic jobs into specific industries)
+        const isKnownCompany = lookupCompanyIndustry(company) !== null;
+
+        if (!isKnownCompany && !isRelevantToIndustry(title, description, industry)) {
+          if (!dryRun) {
+            await supabase.from("jobs").delete().eq("id", job.id);
+          }
+          results.irrelevant++;
+          results.details.push(
+            `IRRELEVANT: "${title}" @ ${company} in ${industry}`
+          );
+          continue;
+        }
+      }
+
+      if (jobs.length < batchSize) {
+        hasMore = false;
+      } else {
+        offset += batchSize;
+      }
+    }
+
+    // Truncate details for response
+    const truncatedDetails = results.details.slice(0, 100);
+
+    return new Response(
+      JSON.stringify({
+        message: `Validated ${results.scanned} jobs`,
+        dry_run: dryRun,
+        ...results,
+        details: truncatedDetails,
+        details_truncated: results.details.length > 100,
+      }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  } catch (err) {
+    console.error("validate-jobs error:", err);
+    return new Response(
+      JSON.stringify({ error: err instanceof Error ? err.message : "Unknown error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});

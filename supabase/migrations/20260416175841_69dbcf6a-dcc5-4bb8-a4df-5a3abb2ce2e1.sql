@@ -1,0 +1,1 @@
+SELECT cron.alter_job((SELECT jobid FROM cron.job WHERE jobname = 'fetch-external-jobs-daily'), schedule := '0 6,18 * * *');

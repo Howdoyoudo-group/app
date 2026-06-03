@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Download - Footwear · How Do You Do?</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0a0a0a;
+    --white: #ffffff;
+    --green: #3ddc3d;
+    --grey: #f2f2f2;
+    --mid: #666666;
+    --border: #e0e0e0;
+  }
+
+  body {
+    background: var(--white);
+    color: var(--black);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .page {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  /* ─── TOP BAR ─── */
+  .topbar {
+    background: var(--green);
+    padding: 7px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .topbar-left {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+  .topbar-right {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--black);
+  }
+
+  /* ─── MASTHEAD ─── */
+  .masthead {
+    padding: 22px 28px 0;
+    border-bottom: 3px solid var(--black);
+    padding-bottom: 18px;
+  }
+  .masthead-meta {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--mid);
+    margin-bottom: 6px;
+  }
+  .masthead-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+  }
+  .masthead-title {
+    font-size: 58px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .masthead-title .green { color: var(--green); }
+  .masthead-right-block {
+    flex-shrink: 0;
+    text-align: right;
+    padding-bottom: 6px;
+  }
+  .masthead-right-block .sub {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--mid);
+    max-width: 200px;
+    text-align: right;
+    line-height: 1.4;
+  }
+  .tag-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+  .tag {
+    border: 2px solid var(--black);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+  }
+  .tag.filled {
+    background: var(--black);
+    color: var(--white);
+  }
+  .tag.green-fill {
+    background: var(--green);
+    border-color: var(--green);
+    color: var(--black);
+  }
+
+  /* ─── CONTENT AREA ─── */
+  .content {
+    padding: 0 28px 24px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--black);
+    padding: 14px 0 8px;
+    border-bottom: 2px solid var(--green);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section-label::before {
+    content: '▼';
+    font-size: 8px;
+    color: var(--green);
+  }
+
+  /* ─── BIG NUMBERS ROW ─── */
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 0;
+    border: 2px solid var(--black);
+    margin-bottom: 14px;
+  }
+  .stat-cell {
+    padding: 16px 18px;
+    border-right: 2px solid var(--black);
+  }
+  .stat-cell:last-child { border-right: none; }
+  .stat-cell.dark {
+    background: var(--black);
+    color: var(--white);
+  }
+  .stat-cell.green-bg {
+    background: var(--green);
+    color: var(--black);
+  }
+  .stat-num {
+    font-size: 34px;
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.03em;
+  }
+  .stat-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    opacity: 0.6;
+  }
+  .stat-cell.dark .stat-label { opacity: 0.5; }
+  .stat-sub {
+    font-size: 10px;
+    margin-top: 4px;
+    line-height: 1.35;
+    opacity: 0.65;
+  }
+  .stat-cell.dark .stat-sub { opacity: 0.6; }
+
+  /* ─── TWO COL ─── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: start;
+  }
+  .three-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: start;
+  }
+
+  /* ─── BLOCK ─── */
+  .block {
+    border: 2px solid var(--black);
+    padding: 16px 18px;
+  }
+  .block.grey-bg { background: var(--grey); }
+  .block.dark-bg { background: var(--black); color: var(--white); }
+  .block.green-bg { background: var(--green); }
+
+  .block-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1.5px solid currentColor;
+    opacity: 0.9;
+  }
+
+  /* ─── BAR CHART ─── */
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .bar-row:last-child { margin-bottom: 0; }
+  .bar-name {
+    width: 80px;
+    font-size: 10px;
+    font-weight: 600;
+    flex-shrink: 0;
+    line-height: 1.3;
+  }
+  .bar-track {
+    flex: 1;
+    height: 8px;
+    background: var(--border);
+    position: relative;
+  }
+  .dark-bg .bar-track { background: #333; }
+  .bar-fill {
+    height: 100%;
+    background: var(--green);
+  }
+  .bar-fill.alt { background: var(--black); }
+  .dark-bg .bar-fill.alt { background: #888; }
+  .bar-val {
+    font-size: 10px;
+    font-weight: 700;
+    width: 42px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* ─── TWO COL ─── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+    align-items: start;
+  }
+
+  /* ─── PLAYER LIST ─── */
+  .player-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .player-item:last-child { border-bottom: none; }
+  .player-name {
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .player-type {
+    font-size: 10px;
+    color: var(--mid);
+    margin-top: 0px;
+  }
+  .player-tag {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 7px;
+    background: var(--green);
+    color: var(--black);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .player-tag.outline {
+    background: transparent;
+    border: 1.5px solid var(--black);
+  }
+
+  /* ─── PILL CLOUD ─── */
+  .pill-cloud { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border: 2px solid var(--black);
+    background: var(--white);
+    line-height: 1.2;
+  }
+  .pill.hot {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .pill.dark {
+    background: var(--black);
+    color: var(--white);
+    border-color: var(--black);
+  }
+
+  /* ─── TREND LIST ─── */
+  .trend-item {
+    display: flex;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+  .trend-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .trend-num {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--green);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 24px;
+  }
+  .trend-body { font-size: 11px; line-height: 1.45; }
+  .trend-body strong { font-weight: 700; }
+
+  /* ─── CALLOUT ─── */
+  .callout {
+    border-left: 4px solid var(--green);
+    padding: 10px 14px;
+    background: var(--grey);
+    font-size: 11px;
+    line-height: 1.5;
+    margin-top: 8px;
+  }
+  .callout strong { font-weight: 700; }
+
+  /* ─── FOOTER ─── */
+  .footer {
+    background: var(--black);
+    color: var(--white);
+    padding: 10px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4px;
+  }
+  .footer-brand {
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    text-transform: uppercase;
+  }
+  .footer-brand span { color: var(--green); }
+  .footer-meta {
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #888;
+    text-align: right;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-left">How Do You Do? · Unpacking the industries we love and live in</div>
+    <div class="topbar-right">Ed. 22.04.26</div>
+  </div>
+
+  <!-- MASTHEAD -->
+  <div class="masthead">
+    <div class="masthead-meta">The Download · Industry Series · Issue 01</div>
+    <div class="masthead-row">
+      <div class="masthead-title">Footwear<span class="green">.</span></div>
+      <div class="masthead-right-block">
+        <div class="sub">UK market size, global context, key players & categories - at a glance.</div>
+      </div>
+    </div>
+    <div class="tag-row">
+      <div class="tag filled">UK Market</div>
+      <div class="tag filled">Global Context</div>
+      <div class="tag filled">Key Players</div>
+      <div class="tag green-fill">Category Map</div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- SECTION: MARKET SIZE -->
+    <div class="section-label">Market Size</div>
+
+    <div class="stats-row">
+      <div class="stat-cell dark">
+        <div class="stat-label">UK Market (2025 est.)</div>
+        <div class="stat-num">~£11bn</div>
+        <div class="stat-sub">£10.7bn recorded 2023; Statista projects $21.7bn by 2025</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Global Market (2025)</div>
+        <div class="stat-num">$477bn</div>
+        <div class="stat-sub">Growing to ~$675bn by 2033 at 4.5% CAGR (Grand View Research)</div>
+      </div>
+      <div class="stat-cell green-bg">
+        <div class="stat-label">UK Growth Rate</div>
+        <div class="stat-num">3–5%</div>
+        <div class="stat-sub">CAGR 2025–30. Trainers & school shoes defying cost-of-living pressure</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">UK Pairs Consumed</div>
+        <div class="stat-num">271m</div>
+        <div class="stat-sub">Pairs per year. UK avg: ~5 pairs per person. 63% imported from China.</div>
+      </div>
+    </div>
+
+    <!-- SECTION: MARKET SHAPE -->
+    <div class="section-label">Market Shape</div>
+
+    <div class="two-col">
+
+      <div style="display:flex; flex-direction:column; gap:14px">
+        <div class="block grey-bg">
+          <div class="block-title">UK Sales Channels</div>
+          <div class="bar-row">
+            <div class="bar-name">Specialists</div>
+            <div class="bar-track"><div class="bar-fill alt" style="width:80%"></div></div>
+            <div class="bar-val">Largest</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-name">E-commerce</div>
+            <div class="bar-track"><div class="bar-fill" style="width:70%"></div></div>
+            <div class="bar-val">↑ Fast</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-name">Dept. Stores</div>
+            <div class="bar-track"><div class="bar-fill alt" style="width:38%"></div></div>
+            <div class="bar-val">↓ Slow</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-name">Supermarkets</div>
+            <div class="bar-track"><div class="bar-fill alt" style="width:28%"></div></div>
+            <div class="bar-val">Stable</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-name">Resale</div>
+            <div class="bar-track"><div class="bar-fill" style="width:48%"></div></div>
+            <div class="bar-val">↑ Fast</div>
+          </div>
+          <div class="callout"><strong>JD Sports</strong> leads UK retail with 400+ stores. <strong>Nike</strong> gained most share in 2023 via direct-to-consumer.</div>
+        </div>
+
+        <div class="block dark-bg">
+          <div class="block-title">Global Region Share</div>
+          <div class="bar-row">
+            <div class="bar-name">Asia-Pacific</div>
+            <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+            <div class="bar-val">41%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-name">N. America</div>
+            <div class="bar-track"><div class="bar-fill" style="width:61%"></div></div>
+            <div class="bar-val">25%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-name">Europe</div>
+            <div class="bar-track"><div class="bar-fill alt" style="width:54%"></div></div>
+            <div class="bar-val">22%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-name">MEA + LatAm</div>
+            <div class="bar-track"><div class="bar-fill alt" style="width:29%"></div></div>
+            <div class="bar-val">12%</div>
+          </div>
+          <div style="margin-top:10px; font-size:10px; opacity:0.6; line-height:1.4">UK ranks 7th in Europe. US is the largest single market at $103bn.</div>
+        </div>
+      </div>
+
+      <div class="block">
+        <div class="block-title">UK by End User</div>
+        <div class="bar-row">
+          <div class="bar-name">Women</div>
+          <div class="bar-track"><div class="bar-fill" style="width:95%"></div></div>
+          <div class="bar-val">48%</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-name">Men</div>
+          <div class="bar-track"><div class="bar-fill alt" style="width:84%"></div></div>
+          <div class="bar-val">40%</div>
+        </div>
+        <div class="bar-row">
+          <div class="bar-name">Children</div>
+          <div class="bar-track"><div class="bar-fill" style="width:29%"></div></div>
+          <div class="bar-val">↑ Fast</div>
+        </div>
+
+        <div style="margin-top:16px; padding-top:14px; border-top:1.5px solid var(--border)">
+          <div style="font-size:9px; font-weight:700; letter-spacing:0.14em; text-transform:uppercase; color:var(--mid); margin-bottom:8px">Key Facts</div>
+
+          <div style="margin-bottom:12px">
+            <div style="font-size:32px; font-weight:900; line-height:1; letter-spacing:-0.02em">34 pairs</div>
+            <div style="font-size:10px; color:var(--mid); margin-top:4px; line-height:1.4">Avg. pairs owned by a UK woman - one of the highest globally</div>
+          </div>
+
+          <div style="margin-bottom:12px">
+            <div style="font-size:32px; font-weight:900; line-height:1; letter-spacing:-0.02em">44%</div>
+            <div style="font-size:10px; color:var(--mid); margin-top:4px; line-height:1.4">UK consumers willing to pay more for locally made footwear (Mintel 2025)</div>
+          </div>
+
+          <div>
+            <div style="font-size:32px; font-weight:900; line-height:1; letter-spacing:-0.02em">63%</div>
+            <div style="font-size:10px; color:var(--mid); margin-top:4px; line-height:1.4">Of UK footwear imports sourced from China; also Vietnam and Italy</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SECTION: PLAYERS + CATEGORIES -->
+    <div class="section-label">Key Players & Categories</div>
+
+    <div class="two-col">
+
+      <div class="block">
+        <div class="block-title">Major Players - UK & Global</div>
+
+        <div class="player-item">
+          <div>
+            <div class="player-name">Nike</div>
+            <div class="player-type">Athletic / Lifestyle · US</div>
+          </div>
+          <div class="player-tag">~27% global</div>
+        </div>
+        <div class="player-item">
+          <div>
+            <div class="player-name">Adidas</div>
+            <div class="player-type">Athletic / Streetwear · DE</div>
+          </div>
+          <div class="player-tag">~21% global</div>
+        </div>
+        <div class="player-item">
+          <div>
+            <div class="player-name">JD Sports</div>
+            <div class="player-type">UK Retailer · 400+ stores</div>
+          </div>
+          <div class="player-tag">#1 UK retail</div>
+        </div>
+        <div class="player-item">
+          <div>
+            <div class="player-name">Clarks</div>
+            <div class="player-type">Heritage / Comfort · British</div>
+          </div>
+          <div class="player-tag outline">UK heritage</div>
+        </div>
+        <div class="player-item">
+          <div>
+            <div class="player-name">New Balance</div>
+            <div class="player-type">Athletic / Fashion · US</div>
+          </div>
+          <div class="player-tag">↑ UK moment</div>
+        </div>
+        <div class="player-item">
+          <div>
+            <div class="player-name">Dr. Martens</div>
+            <div class="player-type">Heritage / Counter-culture · British</div>
+          </div>
+          <div class="player-tag outline">UK icon</div>
+        </div>
+        <div class="player-item">
+          <div>
+            <div class="player-name">Skechers</div>
+            <div class="player-type">Comfort / Value · US</div>
+          </div>
+          <div class="player-tag">↑ growing</div>
+        </div>
+        <div class="player-item">
+          <div>
+            <div class="player-name">Vinted / eBay</div>
+            <div class="player-type">Resale Platforms</div>
+          </div>
+          <div class="player-tag">↑ resale</div>
+        </div>
+
+        <div style="margin-top:10px; font-size:10px; color:var(--mid); line-height:1.5">Also: Puma · ASICS · Under Armour · Hunter · Church's · Vivobarefoot · ASOS · Next · Schuh</div>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:14px">
+
+        <div class="block green-bg">
+          <div class="block-title">Product Categories</div>
+          <div class="pill-cloud">
+            <span class="pill dark">Trainers / Sneakers</span>
+            <span class="pill dark">Athletic & Running</span>
+            <span class="pill">Boots</span>
+            <span class="pill">Casual Shoes</span>
+            <span class="pill">Formal / Office</span>
+            <span class="pill">School Shoes</span>
+            <span class="pill">Sandals & Slides</span>
+            <span class="pill">Hiking & Outdoor</span>
+            <span class="pill">Luxury / Premium</span>
+            <span class="pill">Comfort / Wide Fit</span>
+            <span class="pill dark">Resale / Pre-owned</span>
+            <span class="pill">Safety / Work</span>
+            <span class="pill">Medical / Ortho</span>
+            <span class="pill">Children's</span>
+            <span class="pill dark">Athleisure Crossover</span>
+            <span class="pill">Sustainable / Eco</span>
+          </div>
+          <div style="margin-top:10px; font-size:10px; font-weight:600">Dark = fastest growing segments. Non-athletic = 66% of global market.</div>
+        </div>
+
+        <div class="block dark-bg">
+          <div class="block-title">5 Trends to Watch</div>
+          <div class="trend-item">
+            <div class="trend-num">01</div>
+            <div class="trend-body"><strong>Trainers as default.</strong> Sneakers dominate all age groups, blurring athletic and lifestyle.</div>
+          </div>
+          <div class="trend-item">
+            <div class="trend-num">02</div>
+            <div class="trend-body"><strong>Sustainability pressure.</strong> 47%+ of consumers globally prefer sustainable options; compostable materials gaining ground.</div>
+          </div>
+          <div class="trend-item">
+            <div class="trend-num">03</div>
+            <div class="trend-body"><strong>DTC & social commerce.</strong> TikTok & Instagram driving impulse; Nike and Adidas cutting wholesale.</div>
+          </div>
+          <div class="trend-item">
+            <div class="trend-num">04</div>
+            <div class="trend-body"><strong>Resale boom.</strong> Vinted & eBay now top-3 UK channels for second-hand footwear.</div>
+          </div>
+          <div class="trend-item">
+            <div class="trend-num">05</div>
+            <div class="trend-body"><strong>Made in UK moment.</strong> Post-Liberation Day tariffs creating opportunity for British heritage brands.</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-brand">How Do You Do<span>?</span></div>
+    <div class="footer-meta">Sources: Statista · GlobalData · Grand View Research · Mintel 2025 · IMARC · April 2026</div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1 @@
+UPDATE subscribers SET industry_interests = array_append(industry_interests, 'footwear') WHERE email = 'andrew@stanwoodoffice.com' AND NOT ('footwear' = ANY(industry_interests))

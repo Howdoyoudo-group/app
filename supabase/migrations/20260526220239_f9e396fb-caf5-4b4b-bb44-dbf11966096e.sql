@@ -1,0 +1,1 @@
+DELETE FROM public.breaking_news WHERE fetched_at >= current_date - interval '2 days';

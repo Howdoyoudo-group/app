@@ -1,0 +1,1 @@
+DELETE FROM jobs WHERE industry = 'formula-1' AND title IN ('Load More', 'image description');

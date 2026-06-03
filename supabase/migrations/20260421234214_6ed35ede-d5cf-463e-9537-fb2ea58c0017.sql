@@ -1,0 +1,2 @@
+UPDATE public.jobs SET industry = 'cinema' WHERE industry = 'film and tv';
+UPDATE public.jobs SET industry = 'cinema' WHERE industry IS NULL AND (lower(company) LIKE '%bbc studios%' OR lower(company) LIKE '%itv%' OR lower(company) LIKE '%channel 4%' OR lower(company) LIKE '%channel 5%' OR lower(company) LIKE '%nfts%' OR lower(company) LIKE '%industrial light%' OR lower(company) LIKE '%mammoth screen%' OR lower(company) LIKE '%fifth season%' OR lower(company) LIKE '%my first job in film%' OR lower(company) LIKE '%eastenders%');

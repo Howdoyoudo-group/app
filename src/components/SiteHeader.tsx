@@ -1,0 +1,387 @@
+import { Link, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import GlobalMobileMenu from "./GlobalMobileMenu";
+
+const LIME = "hsl(120, 100%, 45%)";
+
+/* -------------------------------------------------------------------------- */
+/*  Shared bits                                                                */
+/* -------------------------------------------------------------------------- */
+
+const SketchCta = ({
+  children,
+  variant = "primary",
+}: {
+  children: React.ReactNode;
+  variant?: "primary" | "ghost";
+}) => (
+  <span className="relative inline-flex items-center">
+    <svg
+      viewBox="0 0 160 52"
+      preserveAspectRatio="none"
+      className="absolute inset-0 w-full h-full"
+      aria-hidden="true"
+    >
+      <path
+        d="M26,3 C14,3 4,14 3,26 C3,38 13,49 26,49 L134,49 C147,49 157,38 157,26 C158,14 147,3 134,3 Z"
+        fill={variant === "primary" ? LIME : "transparent"}
+        stroke="hsl(0, 0%, 7%)"
+        strokeWidth="4.5"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+    </svg>
+    <span className="relative font-display font-900 text-sm tracking-wide uppercase px-6 py-3 whitespace-nowrap text-foreground">
+      {children}
+    </span>
+  </span>
+);
+
+const Underline = () => (
+  <svg
+    className="absolute -bottom-1.5 left-0 w-full h-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+    viewBox="0 0 80 6"
+    preserveAspectRatio="none"
+    aria-hidden="true"
+  >
+    <path
+      d="M1 3 Q20 0 40 3 T79 3"
+      stroke={LIME}
+      strokeWidth="2"
+      fill="none"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+/* -------------------------------------------------------------------------- */
+/*  Grouped dropdown                                                           */
+/* -------------------------------------------------------------------------- */
+
+type DropdownItem = {
+  label: string;
+  to?: string;
+  href?: string;
+  description?: string;
+};
+
+const NavDropdown = ({
+  label,
+  items,
+}: {
+  label: string;
+  items: DropdownItem[];
+}) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onEsc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onEsc);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onEsc);
+    };
+  }, [open]);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className="group relative inline-flex items-center gap-1 font-display font-900 text-sm lg:text-base uppercase tracking-wide text-foreground hover:text-primary transition-colors whitespace-nowrap"
+      >
+        <span className="relative">
+          {label}
+          <Underline />
+        </span>
+        <ChevronDown
+          size={16}
+          strokeWidth={3}
+          className={`transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            role="menu"
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute left-0 top-full mt-3 z-50 w-72 bg-background border-2 border-foreground rounded-2xl shadow-[6px_6px_0_0_hsl(var(--foreground))] p-2"
+          >
+            {items.map((item) => {
+              const inner = (
+                <div className="px-3 py-2.5 rounded-xl hover:bg-primary transition-colors border-2 border-transparent hover:border-foreground">
+                  <div className="font-display font-900 text-sm uppercase tracking-wide text-foreground">
+                    {item.label}
+                  </div>
+                  {item.description && (
+                    <div className="font-body text-xs text-foreground/60 mt-0.5">
+                      {item.description}
+                    </div>
+                  )}
+                </div>
+              );
+              return item.to ? (
+                <Link
+                  key={item.label}
+                  to={item.to}
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="block"
+                >
+                  {inner}
+                </Link>
+              ) : (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  role="menuitem"
+                  onClick={() => setOpen(false)}
+                  className="block"
+                >
+                  {inner}
+                </a>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
+/*  Groups                                                                     */
+/* -------------------------------------------------------------------------- */
+
+const INSPIRATION: DropdownItem[] = [
+  { label: "The Show", to: "/the-show", description: "Our original series — coming soon" },
+  { label: "Industries", href: "/#series", description: "Explore 30+ sectors" },
+  { label: "Roles", to: "/roles", description: "By job, not just by title" },
+  { label: "Side Hustles", to: "/side-hustles", description: "Turn what you love into income" },
+  { label: "Start a Business", to: "/starting-a-business", description: "Your own thing" },
+];
+
+const LEVEL_UP: DropdownItem[] = [
+  { label: "Learning Hub", to: "/learning", description: "Courses, books & podcasts" },
+  { label: "CV Tips", to: "/cv-builder", description: "Build a profile that stands out" },
+];
+
+const JOBS: DropdownItem[] = [
+  { label: "Howdy Jobs", to: "/my-jobs?tab=jobs", description: "Roles matched to your profile" },
+  { label: "Discover a Job", to: "/marketplace", description: "Browse all live roles" },
+];
+
+const COMMUNITY: DropdownItem[] = [
+  { label: "Feed", to: "/feed", description: "Industry news, videos & briefings" },
+  { label: "People", to: "/community", description: "Members, chat & connections" },
+  { label: "Events", to: "/events", description: "What's on in your industry" },
+  { label: "Mentor", to: "/mentoring", description: "Learn from people already doing it" },
+];
+
+/* -------------------------------------------------------------------------- */
+/*  Main header                                                                */
+/* -------------------------------------------------------------------------- */
+
+type SiteHeaderProps = {
+  /** Use absolute positioning over a hero. Defaults to relative bar. */
+  overlay?: boolean;
+  /** Show the brand wordmark on the left (default true on non-overlay). */
+  showLogo?: boolean;
+};
+
+const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
+  const { user, signOut, loading: authLoading } = useAuth();
+  const [accountOpen, setAccountOpen] = useState(false);
+  const accountRef = useRef<HTMLDivElement | null>(null);
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [firstName, setFirstName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!accountOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
+        setAccountOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setAccountOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [accountOpen]);
+
+  // Default: hide logo on overlay (hero already has speech bubble), show otherwise
+  const renderLogo = showLogo ?? !overlay;
+
+  useEffect(() => {
+    let active = true;
+    if (!user) {
+      setPhotoUrl(null);
+      setFirstName(null);
+      return;
+    }
+    (async () => {
+      const meta = (user.user_metadata as any) || {};
+      const metadataPhoto = meta.avatar_url || meta.picture || null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("photo_url, full_name")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (!active) return;
+      setPhotoUrl((data as any)?.photo_url || metadataPhoto || null);
+      const fullName = (data as any)?.full_name as string | null;
+      const profileFirst = fullName ? fullName.trim().split(/\s+/)[0] : null;
+      const metaFirst =
+        meta.first_name ||
+        (typeof meta.full_name === "string" ? meta.full_name.split(" ")?.[0] : null) ||
+        (typeof meta.name === "string" ? meta.name.split(" ")?.[0] : null);
+      setFirstName(profileFirst || metaFirst || null);
+    })();
+    return () => {
+      active = false;
+    };
+  }, [user]);
+
+  const navClass = overlay
+    ? "absolute top-0 inset-x-0 z-30"
+    : "relative z-40 bg-background";
+
+  return (
+    <>
+      <nav
+        className={`${navClass} px-3 sm:px-5 md:px-6 lg:px-10 pt-16 md:pt-7 pb-5 md:pb-7 flex items-center justify-between gap-2 sm:gap-3 md:gap-4`}
+      >
+        {/* LEFT: logo + groups */}
+        <div className="flex items-center gap-5 md:gap-7 lg:gap-10 min-w-0">
+          {renderLogo && (
+            <Link
+              to="/"
+              className="font-display font-900 text-xl md:text-2xl leading-[1.02] tracking-tight text-foreground hover:opacity-80 transition-opacity"
+              aria-label="How do you do?"
+            >
+              Howdoyoudo<span style={{ color: LIME }}>?</span>
+              {firstName ? (
+                <>
+                  <br />
+                  <span style={{ color: LIME }}>{firstName}</span>
+                </>
+              ) : null}
+            </Link>
+          )}
+
+          <div className="hidden md:flex items-center gap-5 lg:gap-7">
+            <NavDropdown label="Inspiration" items={INSPIRATION} />
+            <NavDropdown label="Level Up" items={LEVEL_UP} />
+            <NavDropdown label="Jobs" items={JOBS} />
+            <NavDropdown label="Community" items={COMMUNITY} />
+          </div>
+        </div>
+
+        {/* RIGHT: auth */}
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink-0">
+          {user ? (
+            <div ref={accountRef} className="hidden sm:block relative">
+              <button
+                type="button"
+                onClick={() => setAccountOpen((v) => !v)}
+                aria-label="Profile menu"
+                aria-expanded={accountOpen}
+                className="w-11 h-11 rounded-full overflow-hidden border-2 border-foreground bg-background hover:opacity-90 transition-opacity shadow-[2px_2px_0_hsl(var(--foreground))]"
+              >
+                {photoUrl ? (
+                  <img src={photoUrl} alt="Your profile" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center bg-primary/10 font-display font-900 text-foreground text-base">
+                    {firstName?.[0]?.toUpperCase() || user.email?.[0]?.toUpperCase() || "?"}
+                  </div>
+                )}
+              </button>
+              <AnimatePresence>
+                {accountOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-2 w-56 bg-background border-2 border-foreground rounded-xl shadow-[4px_4px_0_0_hsl(var(--foreground))] overflow-hidden z-50"
+                  >
+                    <div className="px-4 py-3 border-b-2 border-foreground/10 font-body text-xs text-foreground/60 truncate">
+                      {user.email}
+                    </div>
+                    <Link
+                      to="/my-profile"
+                      onClick={() => setAccountOpen(false)}
+                      className="block px-4 py-3 font-display font-900 text-sm uppercase tracking-wide text-foreground hover:bg-primary transition-colors"
+                    >
+                      Edit Profile
+                    </Link>
+                    <Link
+                      to="/onboarding"
+                      onClick={() => setAccountOpen(false)}
+                      className="block px-4 py-3 font-display font-900 text-sm uppercase tracking-wide text-foreground hover:bg-primary transition-colors border-t-2 border-foreground/10"
+                    >
+                      Take the Quiz
+                    </Link>
+                    <Link
+                      to="/terms"
+                      onClick={() => setAccountOpen(false)}
+                      className="block px-4 py-3 font-display font-900 text-sm uppercase tracking-wide text-foreground hover:bg-primary transition-colors border-t-2 border-foreground/10"
+                    >
+                      Privacy &amp; Account
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        setAccountOpen(false);
+                        await signOut();
+                      }}
+                      className="w-full text-left block px-4 py-3 font-display font-900 text-sm uppercase tracking-wide text-foreground hover:bg-primary transition-colors border-t-2 border-foreground/10"
+                    >
+                      Sign Out
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          ) : authLoading ? null : (
+            <Link
+              to="/auth"
+              className="hidden sm:inline-block hover:opacity-90 transition-opacity"
+            >
+              <SketchCta>Sign In</SketchCta>
+            </Link>
+          )}
+
+
+          {/* Mobile-only avatar + hamburger menu (shared component) */}
+          <GlobalMobileMenu showAvatar panelTopClass="top-20" />
+        </div>
+      </nav>
+
+    </>
+  );
+};
+
+
+export default SiteHeader;

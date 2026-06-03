@@ -1,0 +1,22 @@
+DELETE FROM public.jobs
+WHERE industry = 'jewellery'
+  AND (
+    company ILIKE '%goldsmiths su%'
+    OR company ILIKE '%goldsmiths student%'
+    OR company ILIKE '%goldsmithpersonnel%'
+    OR company = 'The Goldsmiths'
+    OR title ILIKE '%home care%'
+    OR title ILIKE '%home carer%'
+    OR title ILIKE '%domiciliary%'
+    OR title ILIKE '%live in carer%'
+    OR title ILIKE '%food and beverage%'
+    OR title ILIKE '%food & beverage%'
+    OR title ILIKE '%grants officer%'
+    OR title ILIKE '%social worker%'
+    OR title ILIKE '%housing%officer%'
+    OR title ILIKE '%placement officer%'
+    OR title ILIKE '%business support officer%'
+    OR title ILIKE '%delivery%driver%'
+    OR title ILIKE '%maintenance driver%'
+    OR title ILIKE '%internal communications%'
+  );

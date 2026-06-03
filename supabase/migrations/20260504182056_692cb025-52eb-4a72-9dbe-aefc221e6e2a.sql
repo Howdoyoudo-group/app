@@ -1,0 +1,1 @@
+DELETE FROM jobs WHERE industry = 'football' AND (company ILIKE '%hca healthcare%' OR company ILIKE '%compass group%');

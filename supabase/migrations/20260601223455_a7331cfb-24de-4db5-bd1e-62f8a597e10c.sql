@@ -1,0 +1,1 @@
+DELETE FROM public.industry_videos WHERE industry='footwear' AND title ILIKE '%Karkhano%';

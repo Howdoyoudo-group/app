@@ -1,0 +1,1 @@
+DELETE FROM public.industry_videos;

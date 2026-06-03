@@ -1,0 +1,1 @@
+UPDATE jobs SET industry = 'estate-agency' WHERE industry = 'travel' AND (title ILIKE '%estate agent%' OR title ILIKE '%real estate%');

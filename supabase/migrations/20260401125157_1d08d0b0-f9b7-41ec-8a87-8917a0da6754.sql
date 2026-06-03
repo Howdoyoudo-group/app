@@ -1,0 +1,1 @@
+DELETE FROM public.subscribers WHERE email = 'tristiaharrison@gmail';

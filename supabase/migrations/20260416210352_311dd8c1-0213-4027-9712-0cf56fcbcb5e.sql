@@ -1,0 +1,1 @@
+DELETE FROM public.dismissed_jobs WHERE user_id = '2c709954-222e-4889-bf97-3f91385ca0a8';

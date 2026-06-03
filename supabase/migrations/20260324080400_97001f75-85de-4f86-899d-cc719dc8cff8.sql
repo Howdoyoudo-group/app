@@ -1,0 +1,1 @@
+DELETE FROM jobs WHERE company = 'City Football Group' AND url LIKE '%/search?job=%';

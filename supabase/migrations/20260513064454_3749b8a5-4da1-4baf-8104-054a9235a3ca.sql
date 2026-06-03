@@ -1,0 +1,2 @@
+DELETE FROM articles WHERE url = 'https://www.voguebusiness.com/story/fashion/burberry-ceo-akeroyd-revival-strategy-profile';
+DELETE FROM daily_briefings WHERE industry = 'fashion' AND briefing_date = CURRENT_DATE;

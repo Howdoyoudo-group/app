@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Download - Health · How Do You Do?</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--black:#0a0a0a;--white:#fff;--green:#3ddc3d;--grey:#f2f2f2;--mid:#666;--border:#e0e0e0;--page-w:860px;--pad:24px;--gap:12px}
+  html,body{background:var(--white)}
+  body{font-family:'Inter',sans-serif;font-size:12px;line-height:1.45;color:var(--black);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{size:A4 landscape;margin:0}
+  .page{width:var(--page-w);margin:0 auto}
+  @media print{.page{page-break-after:always}.page:last-child{page-break-after:avoid}}
+  .no-break{break-inside:avoid;page-break-inside:avoid}
+  .topbar{background:var(--green);padding:6px var(--pad);display:flex;justify-content:space-between;align-items:center}
+  .topbar span{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--black)}
+  .masthead{padding:16px var(--pad) 14px;border-bottom:3px solid var(--black)}
+  .masthead-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);margin-bottom:4px}
+  .masthead-body{display:flex;align-items:flex-end;justify-content:space-between}
+  .masthead-title{font-size:54px;font-weight:900;line-height:1;letter-spacing:-.03em;text-transform:uppercase;white-space:nowrap}
+  .masthead-title .dot{color:var(--green)}
+  .masthead-desc{font-size:11px;color:var(--mid);max-width:240px;text-align:right;line-height:1.4;padding-bottom:4px}
+  .tag-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .tag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border:2px solid var(--black)}
+  .tag.filled{background:var(--black);color:var(--white)}
+  .tag.green{background:var(--green);border-color:var(--green)}
+  .content{padding:0 var(--pad) var(--pad)}
+  .section-label{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;border-bottom:2px solid var(--green);padding:10px 0 6px;margin-bottom:var(--gap)}
+  .section-label::before{content:'▼';font-size:7px;color:var(--green)}
+  .col-4{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+  .col-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-bottom:var(--gap)}
+  .stack{display:flex;flex-direction:column;gap:var(--gap)}
+  .stat-strip{border:2px solid var(--black);margin-bottom:var(--gap)}
+  .stat-cell{padding:12px 14px;border-right:2px solid var(--black)}
+  .stat-cell:last-child{border-right:none}
+  .stat-cell.dark{background:var(--black);color:var(--white)}
+  .stat-cell.green{background:var(--green)}
+  .stat-cell .lbl{font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.55;margin-bottom:3px}
+  .stat-cell .num{font-size:28px;font-weight:900;line-height:1;letter-spacing:-.03em}
+  .stat-cell .sub{font-size:9px;line-height:1.35;margin-top:3px;opacity:.75}
+  .box{border:2px solid var(--black);padding:12px 14px;break-inside:avoid;page-break-inside:avoid}
+  .box.dark{background:var(--black);color:var(--white)}
+  .box.green{background:var(--green)}
+  .box.grey{background:var(--grey)}
+  .box-title{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-bottom:1.5px solid currentColor;padding-bottom:6px;margin-bottom:10px;opacity:.85}
+  .bullet-list{display:flex;flex-direction:column;gap:8px}
+  .bullet{font-size:10px;line-height:1.45;padding-left:14px;position:relative}
+  .bullet::before{content:'■';position:absolute;left:0;top:0;color:var(--green);font-size:8px}
+  .player{display:flex;justify-content:space-between;align-items:flex-start;padding:6px 0;border-bottom:1px solid var(--border);gap:10px}
+  .player:last-child{border-bottom:none}
+  .player-name{font-size:11px;font-weight:700}
+  .player-type{font-size:9px;color:var(--mid);line-height:1.45;max-width:240px}
+  .player-badge{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;white-space:nowrap;flex-shrink:0;background:var(--green);border:1.5px solid var(--green)}
+  .pills{display:flex;flex-wrap:wrap;gap:5px}
+  .pill{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border:2px solid var(--black);background:var(--white);line-height:1.2}
+  .pill.hot{background:var(--black);color:var(--white);border-color:var(--black)}
+  .trend{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #333;align-items:flex-start}
+  .trend:last-child{border-bottom:none;padding-bottom:0}
+  .trend-n{font-size:18px;font-weight:900;color:var(--green);line-height:1;flex-shrink:0;width:22px}
+  .trend-txt{font-size:10px;line-height:1.4}
+  .trend-txt strong{font-weight:700}
+  .kf-item{margin-bottom:10px}
+  .kf-item:last-child{margin-bottom:0}
+  .kf-num{font-size:26px;font-weight:900;line-height:1;letter-spacing:-.02em}
+  .kf-desc{font-size:9px;color:var(--mid);margin-top:2px;line-height:1.35}
+  .footer{background:var(--black);color:var(--white);padding:8px var(--pad);display:flex;justify-content:space-between;align-items:center}
+  .footer-brand{font-size:12px;font-weight:900;letter-spacing:-.01em;text-transform:uppercase}
+  .footer-brand .dot{color:var(--green)}
+  .footer-src{font-size:8px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#777}
+  .page-break-line{border:none;border-top:3px dashed #ccc;margin:24px auto;width:var(--page-w)}
+  @media print{.page-break-line{display:none}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar no-break">
+    <span>How Do You Do? · Unpacking the industries we love and live in</span>
+    <span>Ed. 24.04.26</span>
+  </div>
+  <div class="masthead no-break">
+    <div class="masthead-eyebrow">The Download · Industry Series · Issue 25</div>
+    <div class="masthead-body">
+      <div class="masthead-title">Health<span class="dot">.</span></div>
+      <div class="masthead-desc">The UK health economy - from the NHS and social care to pharma, medtech and digital health.</div>
+    </div>
+    <div class="tag-row">
+      <div class="tag filled">UK Market</div>
+      <div class="tag filled">Sector Shape</div>
+      <div class="tag filled">Key Players</div>
+      <div class="tag green">Trends</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="section-label">Market Snapshot</div>
+    <div class="stat-strip col-4 no-break">
+      <div class="stat-cell dark"><div class="lbl">NHS workforce</div><div class="num">1.7m</div><div class="sub">The NHS is one of the biggest employers in the world.</div></div> <div class="stat-cell "><div class="lbl">Social care workforce</div><div class="num">1.5m</div><div class="sub">Adult social care adds another huge labour market across the UK.</div></div> <div class="stat-cell green"><div class="lbl">Life sciences value</div><div class="num">£30bn</div><div class="sub">Pharma, medtech and biotech make health a major industrial sector.</div></div> <div class="stat-cell "><div class="lbl">Community pharmacy</div><div class="num">65k</div><div class="sub">Community pharmacists are a crucial front line of everyday healthcare.</div></div>
+    </div>
+    <div class="section-label">How It Works</div>
+    <div class="col-2">
+      <div class="box grey no-break">
+        <div class="box-title">Sector shape</div>
+        <div class="bullet-list"><div class="bullet">Doctors & clinicians: hospitals, GPs, surgery, emergency and specialist medicine.</div> <div class="bullet">Nursing & midwifery: frontline care, advanced practice and community services.</div> <div class="bullet">Care & social care: residential care, home care, coordination and safeguarding.</div> <div class="bullet">Allied health & pharmacy: paramedics, radiographers, pharmacists, OTs and more.</div> <div class="bullet">MedTech, biotech & policy: devices, data, trials, regulation and public health.</div></div>
+      </div>
+      <div class="box no-break">
+        <div class="box-title">Quick facts</div>
+        <div class="kf-item"><div class="kf-num">NHS + Bupa</div><div class="kf-desc">Public and private employers both shape career pathways.</div></div> <div class="kf-item"><div class="kf-num">Boots + GSK</div><div class="kf-desc">Retail pharmacy and pharma remain major commercial routes in.</div></div> <div class="kf-item"><div class="kf-num">Routes in</div><div class="kf-desc">Clinical degrees, apprenticeships, NHS schemes, care pathways and lab roles.</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="footer no-break">
+    <div class="footer-brand">How Do You Do<span class="dot">?</span></div>
+    <div class="footer-src">Sources: NHS Careers · Skills for Care · company profiles · How Do You Do editorial synthesis · April 2026 · Page 1 of 2</div>
+  </div>
+</div>
+<hr class="page-break-line">
+<div class="page">
+  <div class="topbar no-break">
+    <span>How Do You Do? · The Download - Health</span>
+    <span>Ed. 24.04.26</span>
+  </div>
+  <div class="content" style="padding-top:14px">
+    <div class="section-label">Key Players</div>
+    <div class="col-2">
+      <div class="box no-break">
+        <div class="box-title">Major players</div>
+        <div class="player"><div><div class="player-name">NHS England</div><div class="player-type">The backbone of UK healthcare delivery across hospitals and community services.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">Bupa UK</div><div class="player-type">Private healthcare, insurance, clinics, dental and care homes.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">Spire Healthcare</div><div class="player-type">A major private hospital group across the UK.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">Boots UK</div><div class="player-type">The country's largest pharmacy-led healthcare chain.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">GSK</div><div class="player-type">Global pharma leader with deep UK research and commercial roots.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">AstraZeneca</div><div class="player-type">A British-Swedish biopharma giant anchored in Cambridge.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">Smith+Nephew</div><div class="player-type">Global medtech in orthopaedics, wound care and sports medicine.</div></div><div class="player-badge">Key player</div></div> <div class="player"><div><div class="player-name">NICE</div><div class="player-type">Evidence-based guidance that shapes funding and treatment across the NHS.</div></div><div class="player-badge">Key player</div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <div class="box green no-break">
+          <div class="box-title">Categories</div>
+          <div class="pills"><span class="pill hot">Hospitals</span> <span class="pill">Primary Care</span> <span class="pill">Mental Health</span> <span class="pill hot">Social Care</span> <span class="pill">Pharmacy</span> <span class="pill">Diagnostics</span> <span class="pill hot">MedTech</span> <span class="pill">Biotech</span> <span class="pill hot">Digital Health</span> <span class="pill">Public Health</span></div>
+        </div>
+        <div class="box dark no-break">
+          <div class="box-title">5 trends to watch</div>
+          <div class="trend"><div class="trend-n">01</div><div class="trend-txt">Workforce shortages continue to shape policy, budgets and employer demand.</div></div> <div class="trend"><div class="trend-n">02</div><div class="trend-txt">Digital health is moving from experimentation into mainstream patient workflows.</div></div> <div class="trend"><div class="trend-n">03</div><div class="trend-txt">Care is becoming one of the UK's most important and pressured labour markets.</div></div> <div class="trend"><div class="trend-n">04</div><div class="trend-txt">AI is expanding in imaging, admin and support, but governance still matters.</div></div> <div class="trend"><div class="trend-n">05</div><div class="trend-txt">Consumer health and clinical health are increasingly overlapping through pharmacy and home testing.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer no-break">
+    <div class="footer-brand">How Do You Do<span class="dot">?</span></div>
+    <div class="footer-src">Sources: NHS Careers · Skills for Care · company profiles · How Do You Do editorial synthesis · April 2026 · Page 2 of 2</div>
+  </div>
+</div>
+</body>
+</html>

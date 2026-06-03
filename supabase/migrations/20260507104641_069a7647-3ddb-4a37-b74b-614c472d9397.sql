@@ -1,0 +1,1 @@
+DELETE FROM public.jobs WHERE lower(company) = 'adidas' AND (expires_at IS NULL OR expires_at > now()) AND location IS NOT NULL AND location !~* '(UK|United Kingdom|England|Scotland|Wales|London|Manchester|Birmingham|Leeds|Bristol|Edinburgh|Glasgow|Liverpool|Leicester|Portsmouth|Hampshire|Yorkshire|Surrey|Kent|Essex|Midlands|Battersea|Oxford|Cambridge|Northern Ireland)'

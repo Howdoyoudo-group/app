@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ALTER COLUMN employer_visibility_opt_in SET DEFAULT true;
