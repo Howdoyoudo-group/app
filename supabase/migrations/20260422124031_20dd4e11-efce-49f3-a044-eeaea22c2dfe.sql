@@ -1,6 +1,7 @@
--- Grant admin role to master account
+-- Grant admin role to master account (only if user exists)
 INSERT INTO public.user_roles (user_id, role)
-VALUES ('cb860d74-051b-4264-ad76-f82537851e47', 'admin')
+SELECT 'cb860d74-051b-4264-ad76-f82537851e47', 'admin'
+WHERE EXISTS (SELECT 1 FROM auth.users WHERE id = 'cb860d74-051b-4264-ad76-f82537851e47')
 ON CONFLICT DO NOTHING;
 
 -- Update profiles SELECT policy so admins can read any candidate profile,
