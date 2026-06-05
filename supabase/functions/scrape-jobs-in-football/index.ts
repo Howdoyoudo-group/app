@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
   try {
     const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
-    const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    const serviceKey = Deno.env.get('HDYD_SERVICE_JWT') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
     if (!apiKey || !supabaseUrl || !serviceKey) {
       return new Response(JSON.stringify({ success: false, error: 'Missing env vars' }), {
         status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -170,70 +170,80 @@ Deno.serve(async (req) => {
       ? body.categories
       : DEFAULT_CATEGORIES;
 
-    let totalFound = 0;
-    let totalUkRelevant = 0;
-    let totalInserted = 0;
-    const stats: Array<{ category: string; found: number; ukRelevant: number; inserted: number }> = [];
+    // Return immediately and run scraping in background to avoid resource limit
+    const work = (async () => {
+      let totalFound = 0;
+      let totalUkRelevant = 0;
+      let totalInserted = 0;
+      const stats: Array<{ category: string; found: number; ukRelevant: number; inserted: number }> = [];
 
-    for (const category of categories) {
-      const jobs = await scrapeCategory(category, apiKey);
-      totalFound += jobs.length;
+      for (const category of categories) {
+        const jobs = await scrapeCategory(category, apiKey);
+        totalFound += jobs.length;
 
-      const ukJobs = jobs.filter(isUkRelevant);
-      totalUkRelevant += ukJobs.length;
-      console.log(`[scrape-jobs-in-football] ${category}: ${jobs.length} found, ${ukJobs.length} UK-relevant`);
+        const ukJobs = jobs.filter(isUkRelevant);
+        totalUkRelevant += ukJobs.length;
+        console.log(`[scrape-jobs-in-football] ${category}: ${jobs.length} found, ${ukJobs.length} UK-relevant`);
 
-      if (ukJobs.length === 0) {
-        stats.push({ category, found: jobs.length, ukRelevant: 0, inserted: 0 });
-        continue;
+        if (ukJobs.length === 0) {
+          stats.push({ category, found: jobs.length, ukRelevant: 0, inserted: 0 });
+          continue;
+        }
+
+        // Skip URLs already in the DB.
+        const urls = ukJobs.map((j) => j.url);
+        const { data: existing } = await supabase
+          .from('jobs')
+          .select('url')
+          .in('url', urls);
+        const existingSet = new Set((existing ?? []).map((r: any) => r.url));
+        const fresh = ukJobs.filter((j) => !existingSet.has(j.url));
+
+        if (fresh.length === 0) {
+          stats.push({ category, found: jobs.length, ukRelevant: ukJobs.length, inserted: 0 });
+          continue;
+        }
+
+        const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+        const rows = fresh.map((j) => ({
+          title: j.title,
+          company: j.company || COMPANY,
+          location: j.location,
+          description: j.description,
+          url: j.url,
+          tags: ['Football', category],
+          industry: INDUSTRY,
+          type: j.type ?? 'Full-time',
+          work_mode: 'On-site',
+          featured: false,
+          source_url: BASE,
+          expires_at: expiresAt,
+        }));
+
+        const { error: insertErr, data: insertedRows } = await supabase
+          .from('jobs')
+          .upsert(rows, { onConflict: 'url', ignoreDuplicates: true })
+          .select('id');
+        if (insertErr) {
+          console.error(`[scrape-jobs-in-football] insert error for ${category}:`, insertErr);
+          stats.push({ category, found: jobs.length, ukRelevant: ukJobs.length, inserted: 0 });
+        } else {
+          const inserted = insertedRows?.length ?? 0;
+          totalInserted += inserted;
+          stats.push({ category, found: jobs.length, ukRelevant: ukJobs.length, inserted });
+        }
       }
+      console.log(`[scrape-jobs-in-football] done: found=${totalFound}, ukRelevant=${totalUkRelevant}, inserted=${totalInserted}`);
+    })();
 
-      // Skip URLs already in the DB.
-      const urls = ukJobs.map((j) => j.url);
-      const { data: existing } = await supabase
-        .from('jobs')
-        .select('url')
-        .in('url', urls);
-      const existingSet = new Set((existing ?? []).map((r: any) => r.url));
-      const fresh = ukJobs.filter((j) => !existingSet.has(j.url));
-
-      if (fresh.length === 0) {
-        stats.push({ category, found: jobs.length, ukRelevant: ukJobs.length, inserted: 0 });
-        continue;
-      }
-
-      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-      const rows = fresh.map((j) => ({
-        title: j.title,
-        company: j.company || COMPANY,
-        location: j.location,
-        description: j.description,
-        url: j.url,
-        tags: ['Football', category],
-        industry: INDUSTRY,
-        type: j.type ?? 'Full-time',
-        work_mode: 'On-site',
-        featured: false,
-        source_url: BASE,
-        expires_at: expiresAt,
-      }));
-
-      const { error: insertErr, data: insertedRows } = await supabase
-        .from('jobs')
-        .upsert(rows, { onConflict: 'url', ignoreDuplicates: true })
-        .select('id');
-      if (insertErr) {
-        console.error(`[scrape-jobs-in-football] insert error for ${category}:`, insertErr);
-        stats.push({ category, found: jobs.length, ukRelevant: ukJobs.length, inserted: 0 });
-      } else {
-        const inserted = insertedRows?.length ?? 0;
-        totalInserted += inserted;
-        stats.push({ category, found: jobs.length, ukRelevant: ukJobs.length, inserted });
-      }
+    if (typeof EdgeRuntime !== 'undefined' && (EdgeRuntime as any)?.waitUntil) {
+      (EdgeRuntime as any).waitUntil(work);
+    } else {
+      await work;
     }
 
     return new Response(
-      JSON.stringify({ success: true, totalFound, totalUkRelevant, totalInserted, stats }),
+      JSON.stringify({ success: true, accepted: true, message: 'Football job scrape started in background', categories }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (err) {
