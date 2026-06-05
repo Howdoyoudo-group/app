@@ -6111,7 +6111,7 @@ Deno.serve(async (req) => {
     // is also allowed an Adzuna top-up.
     const skipAdzuna = triggerSource === "industry-health-monitor";
     const adzunaAppId = skipAdzuna ? undefined : Deno.env.get("ADZUNA_APP_ID");
-    const adzunaAppKey = skipAdzuna ? undefined : Deno.env.get("ADZUNA_APP_KEY");
+    const adzunaAppKey = skipAdzuna ? undefined : Deno.env.get("ADZUNA_API_KEY");
     if (skipAdzuna) {
       console.log(`[fetch-external-jobs] trigger=${triggerSource} → Adzuna skipped (quota guard)`);
     }
