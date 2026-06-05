@@ -160,7 +160,7 @@ Return ONLY valid JSON, no markdown wrapping.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: "You are a UK career coach. Return only valid JSON. No markdown code fences." },
           { role: "user", content: prompt },
