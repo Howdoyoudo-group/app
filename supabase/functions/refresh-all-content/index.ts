@@ -35,7 +35,7 @@ Deno.serve(async (req) => {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+  const serviceKey = Deno.env.get("HDYD_SERVICE_JWT")!;
 
   const results: Record<string, unknown> = {};
   const INDUSTRIES = shuffle(ALL_INDUSTRIES);
@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${anonKey}`,
+            "Authorization": `Bearer ${serviceKey}`,
           },
           body: JSON.stringify({ industry }),
           signal: controller.signal,

@@ -114,7 +114,7 @@ Return ONLY a JSON array of the index numbers of items to KEEP, e.g. [0, 2, 5]. 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite',
+        model: 'gemini-2.5-flash-lite',
         messages: [
           { role: 'system', content: 'You are a precise news relevance filter. Return only a JSON array of index numbers.' },
           { role: 'user', content: prompt },

@@ -39,7 +39,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         messages: [
           { role: "system", content: "You write concise, factual British place descriptions. Zero hallucination - if unsure, decline." },
           { role: "user", content: prompt },

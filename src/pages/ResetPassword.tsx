@@ -52,6 +52,23 @@ const ResetPassword = () => {
 
     // PKCE flow: explicitly exchange the code if present
     const initSession = async () => {
+      // token_hash flow (custom email hook)
+      const tokenHash = searchParams.get("token_hash");
+      const tokenType = searchParams.get("type");
+      if (tokenHash && tokenType === "recovery") {
+        const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" });
+        if (cancelled) return;
+        if (error) {
+          setErrorMsg("This reset link has already been used or has expired. Please request a new one.");
+          setChecking(false);
+          return;
+        }
+        window.history.replaceState({}, "", "/reset-password");
+        setReady(true);
+        setChecking(false);
+        return;
+      }
+
       if (code) {
         const { error } = await supabase.auth.exchangeCodeForSession(code);
         if (cancelled) return;

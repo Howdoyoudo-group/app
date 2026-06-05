@@ -3,6 +3,7 @@ import { sendViaResend } from '../_shared/send-via-resend.ts'
 const SITE_NAME = "How do you do?"
 const FROM_EMAIL = "hello@notify.howdoyoudo.group"
 const SITE_URL = "https://dist-kappa-ten-23.vercel.app"
+const SUPABASE_URL = "https://wgistckxxbfpsuulbswr.supabase.co"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,14 +38,21 @@ Deno.serve(async (req) => {
     }
 
     const email = user.email
-    const tokenHash = emailData?.token_hash ?? ''
+    const tokenHash = emailData?.token_hash ?? emailData?.token ?? ''
     const siteUrl = emailData?.site_url ?? SITE_URL
+
+    // Temporary debug — remove after confirming token_hash field
+    if (!tokenHash) {
+      return new Response(JSON.stringify({ debug: true, emailDataKeys: Object.keys(emailData), emailData }), {
+        status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
 
     let subject = ''
     let html = ''
 
     if (type === 'recovery') {
-      const resetUrl = `${siteUrl}/auth/confirm?token_hash=${tokenHash}&type=recovery&next=/reset-password`
+      const resetUrl = `${SITE_URL}/reset-password?token_hash=${tokenHash}&type=recovery`
       subject = 'Reset your password — How do you do?'
       html = `
         <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;">

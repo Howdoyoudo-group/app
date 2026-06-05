@@ -58,7 +58,7 @@ serve(async (req) => {
 
     const svcClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
 
     // Authorisation: caller must be admin OR an employer with a contact_request

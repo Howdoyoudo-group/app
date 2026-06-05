@@ -151,7 +151,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-  const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const SERVICE_ROLE = Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const PPLX = Deno.env.get("PERPLEXITY_API_KEY");
   if (!PPLX) {
     return new Response(JSON.stringify({ error: "PERPLEXITY_API_KEY not configured" }), {

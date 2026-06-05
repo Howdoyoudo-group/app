@@ -89,7 +89,7 @@ serve(async (req) => {
 
     const svc = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
     const todayStart = new Date();
     todayStart.setUTCHours(0, 0, 0, 0);
@@ -173,7 +173,7 @@ serve(async (req) => {
       method: "POST",
       headers: { Authorization: `Bearer ${GEMINI_API_KEY}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         max_tokens: 8192,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },

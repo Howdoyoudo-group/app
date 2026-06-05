@@ -49,7 +49,7 @@ async function classifyOne(job: any, key: string) {
     method: "POST",
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "gemini-2.5-flash",
       messages: [
         { role: "system", content: "You classify UK graduate jobs. Always call the tool. Pick the single best industry and role_category from the enums." },
         { role: "user", content: prompt },
@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
   try {
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
     const key = Deno.env.get("GEMINI_API_KEY");
     if (!key) throw new Error("GEMINI_API_KEY not set");

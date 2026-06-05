@@ -14,7 +14,7 @@ serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const serviceKey = Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const lovableKey = Deno.env.get("GEMINI_API_KEY")!;
     const supabase = createClient(supabaseUrl, serviceKey);
 
@@ -118,7 +118,7 @@ If the job doesn't clearly fit any category, use confidence below 0.5.`;
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              model: "google/gemini-2.5-flash-lite",
+              model: "gemini-2.5-flash-lite",
               messages: [
                 {
                   role: "system",

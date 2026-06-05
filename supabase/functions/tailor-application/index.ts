@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
     // Rate limit: 10 AI calls per user per day (admins and premium users are exempt)
     const svcClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
     const { data: roleRows } = await svcClient
       .from("user_roles")
@@ -160,7 +160,7 @@ Return ONLY valid JSON, no markdown wrapping.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         messages: [
           { role: "system", content: "You are a UK career coach. Return only valid JSON. No markdown code fences." },
           { role: "user", content: prompt },

@@ -178,7 +178,7 @@ Deno.serve(async (req) => {
     // Rate limit: 10 AI calls per day (admins and premium users are exempt)
     const svcClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
     const { data: roleRows } = await svcClient
       .from("user_roles")
@@ -532,15 +532,15 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
           method: "POST",
           headers: { Authorization: `Bearer ${GEMINI_API_KEY}`, "Content-Type": "application/json" },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
+            model: "gemini-2.5-flash",
             messages: convo,
             tools,
-            tool_choice: "auto",
           }),
         });
         if (!toolResp.ok) {
           if (toolResp.status === 429) return new Response(JSON.stringify({ error: "Rate limited - try again shortly" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
           if (toolResp.status === 402) return new Response(JSON.stringify({ error: "AI credits required" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+          // Tool-calling failed — fall through to plain streaming response
           break;
         }
         const data = await toolResp.json();
@@ -585,7 +585,7 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         messages: convo,
         stream: true,
       }),
@@ -604,7 +604,7 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
       }
       const t = await response.text();
       console.error("AI error:", response.status, t);
-      throw new Error("AI service error");
+      throw new Error(`AI error ${response.status}: ${t.slice(0, 200)}`);
     }
 
     // Tee the stream: pass through to client, sniff full assistant text for MEMORY:: lines, then persist.

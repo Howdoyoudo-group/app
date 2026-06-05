@@ -89,7 +89,7 @@ async function extractDocxText(bytes: Uint8Array): Promise<string> {
 async function extractFileText(filePath: string, apiKey: string): Promise<string> {
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
 
   const { data: fileData, error: downloadError } = await supabase.storage
@@ -115,7 +115,7 @@ async function extractFileText(filePath: string, apiKey: string): Promise<string
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         messages: [{
           role: "user",
           content: [
@@ -141,7 +141,7 @@ async function extractFileText(filePath: string, apiKey: string): Promise<string
         method: "POST",
         headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "gemini-2.5-flash",
           messages: [{
             role: "user",
             content: [
@@ -275,7 +275,7 @@ serve(async (req) => {
     // Rate limit: 10 AI calls per user per day (admins and premium users are exempt)
     const svcClient = createClient(
       Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+      Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
     const { data: roleRows } = await svcClient
       .from("user_roles")
@@ -328,7 +328,7 @@ serve(async (req) => {
       try {
         const svcClient = createClient(
           Deno.env.get("SUPABASE_URL")!,
-          Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+          Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
         );
         const { data: imgData, error: dlError } = await svcClient.storage
           .from("cv-uploads")
@@ -342,7 +342,7 @@ serve(async (req) => {
             method: "POST",
             headers: { Authorization: `Bearer ${GEMINI_API_KEY}`, "Content-Type": "application/json" },
             body: JSON.stringify({
-              model: "google/gemini-2.5-flash",
+              model: "gemini-2.5-flash",
               messages: [{
                 role: "user",
                 content: [
@@ -401,7 +401,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: `Analyse this person's background:\n\n${extractedText.substring(0, 30000)}` },

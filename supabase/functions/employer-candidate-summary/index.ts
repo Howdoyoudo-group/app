@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const serviceKey = Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const lovableKey = Deno.env.get("GEMINI_API_KEY")!;
     const authHeader = req.headers.get("Authorization");
 
@@ -96,7 +96,7 @@ Write a 2-3 sentence summary highlighting fit with ${company.name} based ONLY on
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         messages: [
           { role: "system", content: "You are a concise, factual talent analyst. Never hallucinate." },
           { role: "user", content: prompt },

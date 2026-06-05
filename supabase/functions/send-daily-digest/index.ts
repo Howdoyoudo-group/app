@@ -1010,7 +1010,7 @@ Return ONLY a JSON array of the index numbers of items to KEEP, e.g. [0, 2, 5]. 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gemini-2.5-flash',
         messages: [
           { role: 'system', content: 'You are a precise content relevance filter for a professional newsletter. Return only a JSON array of index numbers.' },
           { role: 'user', content: prompt },
@@ -1161,7 +1161,7 @@ FORMAT RULES:
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'gemini-2.5-flash',
         messages: [
           { role: 'system', content: 'You are a professional newsletter editor. Return valid JSON only.' },
           { role: 'user', content: prompt },
@@ -2147,7 +2147,7 @@ Deno.serve(async (req) => {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const supabaseKey = Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
   const lovableApiKey = Deno.env.get("GEMINI_API_KEY");
   const supabase = createClient(supabaseUrl, supabaseKey);

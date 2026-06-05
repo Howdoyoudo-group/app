@@ -262,6 +262,7 @@ async function fetchContent(supabase: any, industry: string, recentLinks: Source
       .limit(40),
   ]);
 
+  console.log(`[fetchContent:${industry}] newsRes48.data=${JSON.stringify(newsRes48.data?.slice(0,2))}, error=${JSON.stringify(newsRes48.error)}, cutoff48h=${cutoff48h}, publishedCutoff=${publishedCutoff}`);
   let rawNews = (newsRes48.data ?? []) as NewsItem[];
   let rawArticles = (articlesRes48.data ?? []) as NewsItem[];
 
@@ -359,7 +360,7 @@ FORMAT RULES:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         messages: [
           { role: "system", content: "You are a professional newsletter editor. Return valid JSON only." },
           { role: "user", content: prompt },
@@ -370,14 +371,15 @@ FORMAT RULES:
     }).finally(() => clearTimeout(timer));
 
     if (!response.ok) {
-      console.warn(`Briefing generation failed for ${industry}:`, response.status);
-      return null;
+      const errText = await response.text();
+      console.warn(`Briefing generation failed for ${industry}: ${response.status} ${errText}`);
+      throw new Error(`Gemini ${response.status}: ${errText.slice(0, 200)}`);
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || "";
     const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return null;
+    if (!jsonMatch) throw new Error(`No JSON in Gemini response: ${content.slice(0, 300)}`);
 
     const parsed = JSON.parse(jsonMatch[0]);
     const citedArticleIdx: number[] = parsed.citedArticles || [];
@@ -418,8 +420,7 @@ FORMAT RULES:
 
     return { mainNews, people, takeaway, sourceLinks: dedupedSources };
   } catch (err) {
-    console.warn(`Briefing error for ${industry}:`, err);
-    return null;
+    throw err;
   }
 }
 
@@ -429,7 +430,7 @@ Deno.serve(async (req) => {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const serviceKey = Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const apiKey = Deno.env.get("GEMINI_API_KEY")!;
   const supabase = createClient(supabaseUrl, serviceKey);
 
@@ -462,7 +463,8 @@ Deno.serve(async (req) => {
           // failures. Articles already have validated `published_at`, so
           // they are a safe anchor on their own.
           if (news.length === 0 && articles.length === 0) {
-            results[industry] = "skipped (no content)";
+            const dbCheck = await supabase.from("breaking_news").select("title,fetched_at,published_at").eq("industry", industry).limit(3);
+            results[industry] = `skipped: dbCheck=${JSON.stringify(dbCheck.data?.length)},err=${JSON.stringify(dbCheck.error?.message)},sample=${JSON.stringify(dbCheck.data?.[0]?.title?.slice(0,30))}`;
             return;
           }
           const briefing = await generateBriefing(industry, articles, news, apiKey, recentContext.summaries);
@@ -491,8 +493,8 @@ Deno.serve(async (req) => {
           } else {
             results[industry] = "ok";
           }
-        } catch (err) {
-          results[industry] = `error: ${(err as Error).message}`;
+        } catch (err: any) {
+          results[industry] = `error: ${err?.message || String(err)}`;
         }
       }),
     );

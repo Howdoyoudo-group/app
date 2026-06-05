@@ -6089,7 +6089,7 @@ Deno.serve(async (req) => {
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseKey = Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const reedApiKey = Deno.env.get("REED_API_KEY");
     const joobleApiKey = Deno.env.get("JOOBLE_API_KEY");
     const rapidApiKey = Deno.env.get("RAPIDAPI_KEY");

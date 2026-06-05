@@ -125,7 +125,7 @@ serve(async (req) => {
     }
     const userId = claims.claims.sub as string;
 
-    const svc = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const svc = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const todayStart = new Date();
     todayStart.setUTCHours(0, 0, 0, 0);
     const { count } = await svc
@@ -166,7 +166,7 @@ serve(async (req) => {
         return new Response(JSON.stringify({ error: "Could not read enough text from the CV." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       }
       const r = await callGemini(GEMINI_API_KEY, {
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         max_tokens: 8192,
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
@@ -222,7 +222,7 @@ serve(async (req) => {
     console.log(`binary path mime=${mime} bytes=${bytes.length}`);
 
     const r = await callGemini(GEMINI_API_KEY, {
-      model: "google/gemini-2.5-flash",
+      model: "gemini-2.5-flash",
       max_tokens: 8192,
       messages: [
         { role: "system", content: SYSTEM_PROMPT },

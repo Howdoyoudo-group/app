@@ -25,7 +25,7 @@ ${safe}`;
         "Lovable-API-Key": GEMINI_API_KEY,
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
+        model: "gemini-2.5-flash-lite",
         messages: [
           { role: "system", content: "You shorten profile text. British English. Factual only. No invention." },
           { role: "user", content: prompt },

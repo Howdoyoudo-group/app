@@ -57,7 +57,7 @@ Address the reader as "you". Do not list the letters back - synthesise them into
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "gemini-2.5-flash",
         messages: [
           { role: "system", content: "You write warm, plain-English career-personality explanations. British English, factual, no clichés, no emojis." },
           { role: "user", content: prompt },
