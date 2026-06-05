@@ -48,7 +48,24 @@ const Auth = () => {
       if (isLogin) {
         const { error, data } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
         if (error) {
-          toast.error(error.message);
+          // Check if this is a migrated user who hasn't set a new password yet
+          const { data: emailExists } = await supabase
+            .rpc("check_email_exists", { p_email: email.trim().toLowerCase() });
+
+          if (emailExists) {
+            toast.error(
+              "Looks like you need to set a new password — we recently moved platforms. Check your email or reset it now.",
+              {
+                duration: 8000,
+                action: {
+                  label: "Reset password",
+                  onClick: () => navigate("/forgot-password"),
+                },
+              }
+            );
+          } else {
+            toast.error("Incorrect email or password. Please try again.");
+          }
         } else {
           toast.success("Welcome back!");
           navigate(data.session ? nextPath : "/");
