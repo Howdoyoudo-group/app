@@ -166,90 +166,100 @@ Deno.serve(async (req) => {
   const filter = body.industries?.map((s) => s.toLowerCase()) ?? null;
   const targets = INDUSTRIES.filter((i) => !filter || filter.includes(i.slug));
 
-  const summary: Record<string, number | string> = {};
+  // Return immediately — run the heavy Perplexity calls in the background
+  // to avoid hitting the edge-function wall-clock resource limit.
+  const work = (async () => {
+    const summary: Record<string, number | string> = {};
 
-  // Sequential, with 2s delay between calls to respect Perplexity rate limits.
-  for (const ind of targets) {
-    try {
-      const events = await callPerplexity(ind.name, ind.hint, PPLX);
-      let kept = 0;
-      const rows = [];
-      for (const e of events) {
-        const title = clean(e?.title, 200);
-        const url = clean(e?.url, 600);
-        if (!title || !url || !/^https?:\/\//i.test(url)) continue;
-        rows.push({
-          industry: ind.slug,
-          title,
-          description: clean(e?.description, 400),
-          event_type: clean(e?.event_type, 40),
-          organizer: clean(e?.organizer, 200),
-          location: clean(e?.location, 120),
-          starts_on: isoDate(e?.starts_on),
-          ends_on: isoDate(e?.ends_on),
-          date_label: clean(e?.date_label, 80),
-          url,
-          source: "perplexity",
-          fetched_at: new Date().toISOString(),
-        });
-        kept++;
-      }
-
-      // Always append curated seed events so the feed has a baseline.
-      const seeds = SEED_EVENTS[ind.slug] ?? [];
-      for (const s of seeds) {
-        rows.push({
-          industry: ind.slug,
-          title: s.title,
-          description: s.description,
-          event_type: s.event_type,
-          organizer: s.organizer,
-          location: s.location,
-          starts_on: s.starts_on ?? null,
-          ends_on: null,
-          date_label: s.date_label,
-          url: s.url,
-          source: "seed",
-          fetched_at: new Date().toISOString(),
-        });
-      }
-
-
-      if (rows.length) {
-        // Dedupe by url within this batch (Postgres upsert can't touch same row twice).
-        const seen = new Set<string>();
-        const deduped = rows.filter((r) => {
-          const key = r.url.toLowerCase();
-          if (seen.has(key)) return false;
-          seen.add(key);
-          return true;
-        });
-        const { error } = await supabase
-          .from("industry_events")
-          .upsert(deduped, { onConflict: "industry,url" });
-        if (error) {
-          summary[ind.slug] = `db error: ${error.message}`;
-          continue;
+    // Sequential, with 2s delay between calls to respect Perplexity rate limits.
+    for (const ind of targets) {
+      try {
+        const events = await callPerplexity(ind.name, ind.hint, PPLX);
+        let kept = 0;
+        const rows = [];
+        for (const e of events) {
+          const title = clean(e?.title, 200);
+          const url = clean(e?.url, 600);
+          if (!title || !url || !/^https?:\/\//i.test(url)) continue;
+          rows.push({
+            industry: ind.slug,
+            title,
+            description: clean(e?.description, 400),
+            event_type: clean(e?.event_type, 40),
+            organizer: clean(e?.organizer, 200),
+            location: clean(e?.location, 120),
+            starts_on: isoDate(e?.starts_on),
+            ends_on: isoDate(e?.ends_on),
+            date_label: clean(e?.date_label, 80),
+            url,
+            source: "perplexity",
+            fetched_at: new Date().toISOString(),
+          });
+          kept++;
         }
+
+        // Always append curated seed events so the feed has a baseline.
+        const seeds = SEED_EVENTS[ind.slug] ?? [];
+        for (const s of seeds) {
+          rows.push({
+            industry: ind.slug,
+            title: s.title,
+            description: s.description,
+            event_type: s.event_type,
+            organizer: s.organizer,
+            location: s.location,
+            starts_on: s.starts_on ?? null,
+            ends_on: null,
+            date_label: s.date_label,
+            url: s.url,
+            source: "seed",
+            fetched_at: new Date().toISOString(),
+          });
+        }
+
+        if (rows.length) {
+          // Dedupe by url within this batch (Postgres upsert can't touch same row twice).
+          const seen = new Set<string>();
+          const deduped = rows.filter((r) => {
+            const key = r.url.toLowerCase();
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+          });
+          const { error } = await supabase
+            .from("industry_events")
+            .upsert(deduped, { onConflict: "industry,url" });
+          if (error) {
+            summary[ind.slug] = `db error: ${error.message}`;
+            continue;
+          }
+        }
+
+        // Drop events for this industry that are >120 days in the past.
+        const cutoff = new Date(Date.now() - 120 * 86400_000).toISOString().slice(0, 10);
+        await supabase
+          .from("industry_events")
+          .delete()
+          .eq("industry", ind.slug)
+          .not("starts_on", "is", null)
+          .lt("starts_on", cutoff);
+
+        summary[ind.slug] = kept;
+      } catch (err) {
+        summary[ind.slug] = `error: ${(err as Error).message}`;
       }
-
-      // Drop events for this industry that are >120 days in the past.
-      const cutoff = new Date(Date.now() - 120 * 86400_000).toISOString().slice(0, 10);
-      await supabase
-        .from("industry_events")
-        .delete()
-        .eq("industry", ind.slug)
-        .not("starts_on", "is", null)
-        .lt("starts_on", cutoff);
-
-      summary[ind.slug] = kept;
-    } catch (err) {
-      summary[ind.slug] = `error: ${(err as Error).message}`;
+      await new Promise((r) => setTimeout(r, 2000));
     }
-    await new Promise((r) => setTimeout(r, 2000));
+    console.log("fetch-industry-events complete:", JSON.stringify(summary));
+  })();
+
+  if (typeof EdgeRuntime !== "undefined" && (EdgeRuntime as any)?.waitUntil) {
+    (EdgeRuntime as any).waitUntil(work);
+  } else {
+    await work;
   }
 
-  return new Response(JSON.stringify({ ok: true, summary }), {
+  return new Response(JSON.stringify({ ok: true, accepted: true, message: "Event fetch started in background", industries: targets.map(t => t.slug) }), {
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 });
