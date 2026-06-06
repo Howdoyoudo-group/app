@@ -19,10 +19,27 @@ const GALLERY_PHOTOS: { id: number; src?: string; alt: string }[] = [
 
 // ── Add short films / vox pops here ─────────────────────────
 // Add url and thumbnail when videos are live
+const VIDEO_STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/videos";
+
 const SHORT_FILMS: { id: number; title: string; description?: string; url?: string; thumbnail?: string }[] = [
-  { id: 1, title: "Explainer film 1" },
-  { id: 2, title: "Teaser 1" },
-  { id: 3, title: "Vox pop 1" },
+  {
+    id: 1,
+    title: "How did you get into media?",
+    description: "We hit the streets and asked someone working in media how they actually got there.",
+    url: `${VIDEO_STORAGE}/video-2316.mp4`,
+  },
+  {
+    id: 2,
+    title: "The doctor who went viral",
+    description: "A qualified doctor tells us why they became a content creator — and how both worlds collide.",
+    url: `${VIDEO_STORAGE}/video-2317.mp4`,
+  },
+  {
+    id: 3,
+    title: "How did you get where you are?",
+    description: "Real people, unscripted. We asked — they answered.",
+    url: `${VIDEO_STORAGE}/video-2318.mp4`,
+  },
 ];
 
 export default function TheShowPage() {
