@@ -7,7 +7,7 @@ const Footer = () => {
         <div className="font-display text-xl font-700">
           howdoyoudo<span className="text-primary">.group</span>
         </div>
-        <div className="flex gap-8 text-sm text-muted-foreground font-body">
+        <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground font-body">
           <a href="#series" className="hover:text-primary transition-colors">Series</a>
           <a href="#about" className="hover:text-primary transition-colors">About</a>
           <a href="#" className="hover:text-primary transition-colors">Listen</a>
