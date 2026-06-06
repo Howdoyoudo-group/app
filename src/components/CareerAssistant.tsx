@@ -443,14 +443,14 @@ const CareerAssistant = () => {
                       <X className="h-4 w-4" />
                     </button>
                   </div>
-                  <div className="flex-1 flex items-center justify-center bg-black">
-                    <video
-                      src="/howdy-intro.mp4"
-                      controls
-                      autoPlay
-                      playsInline
-                      className="w-full h-full object-contain"
-                      onEnded={() => setShowVideo(false)}
+                  <div className="flex-1 bg-black">
+                    <iframe
+                      src={`https://www.youtube.com/embed/9yozgPU1YM0?autoplay=1&playsinline=1&rel=0`}
+                      allow="autoplay; fullscreen"
+                      allowFullScreen
+                      className="w-full h-full"
+                      style={{ border: "none" }}
+                      title="Meet Howdy"
                     />
                   </div>
                   <button
