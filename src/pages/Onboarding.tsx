@@ -555,7 +555,11 @@ const Onboarding = () => {
     );
   }
 
-  if (!user) return null;
+  if (!user) return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+    </div>
+  );
 
   // Completion screen
   if (completed) {
