@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import voxpopsVideo from "@/assets/videos/hdyd-voxpops-v6.mp4.asset.json";
+const voxpopsVideo = { url: "https://https-howdoyoudo-group.lovable.app/__l5e/assets-v1/867b66a7-10b5-43f6-9316-a1c231af2265/hdyd-voxpops-v6.mp4" };
 import { useEffect, useRef } from "react";
 import aboutStudio from "@/assets/about-studio.jpg";
 
