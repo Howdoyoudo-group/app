@@ -284,25 +284,80 @@ for (const spec of INDUSTRY_REGISTRY) {
 const RSS_JOB_FEEDS: Record<string, { url: string; source: string; tags?: string[]; maxItems?: number }[]> = {
   cinema: [
     { url: "https://www.mandy.com/uk/job-search/rss?category=film", source: "Mandy.com" },
+    { url: "https://www.mandy.com/uk/job-search/rss?category=television", source: "Mandy.com TV" },
+    { url: "https://www.productionbase.co.uk/jobs/rss", source: "ProductionBase" },
+    { url: "https://www.screenskills.com/jobs/rss/", source: "ScreenSkills" },
   ],
   music: [
     { url: "https://www.musictechjobs.com/feed/", source: "MusicTechJobs" },
+    { url: "https://www.musicweek.com/jobs/rss", source: "Music Week" },
+    { url: "https://www.musicjobs.com/rss/latest-jobs.xml", source: "MusicJobs.com" },
+    { url: "https://jobs.theaim.org/jobs/rss", source: "AIM Jobs" },
   ],
   charity: [
     { url: "https://www.charityjob.co.uk/jobs/rss", source: "CharityJob" },
+    { url: "https://www.thirdsector.co.uk/jobs/rss", source: "Third Sector" },
+    { url: "https://www.civilsociety.co.uk/jobs/rss", source: "Civil Society" },
   ],
   hospitality: [
     { url: "https://www.caterer.com/jobs/rss", source: "Caterer.com" },
+    { url: "https://www.hosco.com/en/jobs?format=rss", source: "Hosco" },
   ],
   "food-drink": [
     { url: "https://www.caterer.com/jobs/rss", source: "Caterer.com" },
   ],
   fashion: [
     { url: "https://www.fashionunited.uk/rss/fashion-jobs", source: "FashionUnited" },
+    { url: "https://www.drapersonline.com/jobs/rss", source: "Drapers" },
   ],
   journalism: [
     { url: "https://www.journoresources.org.uk/jobs/feed/", source: "Journo Resources" },
     { url: "https://pressgazette.co.uk/jobs/feed/", source: "Press Gazette" },
+    { url: "https://www.theguardian.com/guardian-jobs-rss/media.xml", source: "Guardian Jobs" },
+    { url: "https://www.journalism.co.uk/jobs/rss/s2/", source: "Journalism.co.uk" },
+  ],
+  gaming: [
+    { url: "https://www.gamesindustry.biz/jobs/rss", source: "GamesIndustry.biz" },
+    { url: "https://jobs.ukie.org.uk/rss/jobs", source: "Ukie Jobs" },
+    { url: "https://www.develop-online.net/jobs/rss", source: "Develop Online" },
+  ],
+  football: [
+    { url: "https://www.sportsjobs.co.uk/rss/football-jobs", source: "SportsJobs.co.uk" },
+    { url: "https://www.leisurejobs.com/jobs/rss?category=football", source: "LeisureJobs" },
+  ],
+  money: [
+    { url: "https://www.efinancialcareers.co.uk/jobs/rss", source: "eFinancialCareers" },
+    { url: "https://www.cityjobs.com/rss/latest-jobs.xml", source: "CityJobs" },
+  ],
+  grocery: [
+    { url: "https://www.igdleadersinretail.com/jobs/rss", source: "IGD" },
+    { url: "https://www.thegrocer.co.uk/jobs/rss", source: "The Grocer" },
+  ],
+  "interior-design": [
+    { url: "https://www.dezeen.com/jobs/feed/", source: "Dezeen Jobs" },
+    { url: "https://www.architectsjournal.co.uk/jobs/rss", source: "Architects Journal" },
+  ],
+  jewellery: [
+    { url: "https://www.professionaljeweller.com/jobs/rss", source: "Professional Jeweller" },
+    { url: "https://www.nationalassociationofjewellers.co.uk/jobs/rss", source: "NAJ Jobs" },
+  ],
+  cars: [
+    { url: "https://www.am-online.com/jobs/rss", source: "AM Online" },
+    { url: "https://www.motortrader.com/jobs/rss", source: "Motor Trader" },
+  ],
+  teaching: [
+    { url: "https://www.tes.com/jobs/rss", source: "TES Jobs" },
+    { url: "https://www.educationweek.org/jobs/rss", source: "Education Week" },
+  ],
+  wellness: [
+    { url: "https://www.leisurejobs.com/jobs/rss?category=fitness", source: "LeisureJobs Fitness" },
+    { url: "https://www.ukactive.com/jobs/rss", source: "ukactive Jobs" },
+  ],
+  beauty: [
+    { url: "https://www.professionalbeauty.co.uk/jobs/rss", source: "Professional Beauty" },
+  ],
+  influencing: [
+    { url: "https://www.themuse.com/rss/jobs?category=Marketing+%26+PR&location=London%2C+England", source: "The Muse" },
   ],
   travel: [
     { url: "https://www.catererglobal.com/jobs/rss", source: "CatererGlobal" },
