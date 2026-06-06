@@ -32,7 +32,7 @@ const NAV_SECTIONS: NavSection[] = [
     label: "Level Up",
     items: [
       { label: "Learning Hub", to: "/learning", description: "Courses, books & podcasts" },
-      { label: "CV Tips", to: "/cv-builder", description: "Build a profile that stands out" },
+      { label: "Profile Builder", to: "/cv-builder", description: "Build a profile that stands out" },
     ],
   },
   {
