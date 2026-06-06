@@ -294,7 +294,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
             <NavDropdown label="Inspiration" items={INSPIRATION} />
             <NavDropdown label="Level Up" items={LEVEL_UP} />
             <NavDropdown label="Jobs" items={JOBS} />
-            <NavDropdown label="Community!" items={COMMUNITY} />
+            <NavDropdown label="Community" items={COMMUNITY} />
           </div>
         </div>
 
