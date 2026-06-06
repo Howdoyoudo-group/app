@@ -179,7 +179,8 @@ const INSPIRATION: DropdownItem[] = [
 
 const LEVEL_UP: DropdownItem[] = [
   { label: "Learning Hub", to: "/learning", description: "Courses, books & podcasts" },
-  { label: "Profile Builder", to: "/cv-builder", description: "Build a profile that stands out" },
+  { label: "Profile Builder", to: "/resources/cv-builder", description: "Build a profile that stands out" },
+  { label: "Mentoring", to: "/resources/mentoring", description: "Find a mentor to guide your career" },
 ];
 
 const JOBS: DropdownItem[] = [
