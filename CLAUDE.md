@@ -144,12 +144,11 @@ return new Response(JSON.stringify({ accepted: true }), { ... });
 2. Update `SESSION_LOG.md` with what you did and what's left — be specific
 3. Push the log update
 
-### Branching strategy (avoid clashes)
-- **Woody** works on `main` branch
-- **Andrew** works on `andrew` branch
-- Andrew: when a feature is ready, open a PR to main and tell Woody
-- Never both edit the same file at the same time without checking first
-- If unsure, ask in SESSION_LOG.md before starting
+### Branching strategy
+- **Both Woody and Andrew work on `main`** — changes deploy to the live site immediately
+- Never both work at the same time — check SESSION_LOG.md first to see if the other is active
+- If you see the other person's session was recent, check what files they changed before starting
+- Never both edit the same file at the same time
 
 ### Git is fully allowed — no permission prompts
 Commits, pushes, branch switches — all pre-approved in `.claude/settings.json`
