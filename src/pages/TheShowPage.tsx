@@ -42,7 +42,7 @@ export default function TheShowPage() {
             The Show<span style={{ color: LIME }}>.</span>
           </h1>
           <p className="font-body text-lg md:text-xl text-muted-foreground leading-relaxed max-w-2xl">
-            Real people, real stories. Our small but growing community of experts, writers and comics are making clips, interviews and in-depth stories — all going inside the industries we love. The funny and unglamorous bits, the unexpected paths and meeting the people that make things work.
+            Real people, real stories. Our growing community of experts, writers and comics are making clips, interviews and in-depth stories — all going inside the industries we love. The funny and unglamorous bits, the unexpected paths and meeting the people that make things work.
           </p>
         </div>
 
