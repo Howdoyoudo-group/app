@@ -67,6 +67,7 @@ type DropdownItem = {
   to?: string;
   href?: string;
   description?: string;
+  badge?: string;
 };
 
 const NavDropdown = ({
@@ -126,8 +127,13 @@ const NavDropdown = ({
             {items.map((item) => {
               const inner = (
                 <div className="px-3 py-2.5 rounded-xl hover:bg-primary transition-colors border-2 border-transparent hover:border-foreground">
-                  <div className="font-display font-900 text-sm uppercase tracking-wide text-foreground">
+                  <div className="font-display font-900 text-sm uppercase tracking-wide text-foreground flex items-center gap-2">
                     {item.label}
+                    {item.badge && (
+                      <span className="font-display font-700 text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-primary text-foreground border border-foreground rounded-full leading-none">
+                        {item.badge}
+                      </span>
+                    )}
                   </div>
                   {item.description && (
                     <div className="font-body text-xs text-foreground/60 mt-0.5">
@@ -170,7 +176,7 @@ const NavDropdown = ({
 /* -------------------------------------------------------------------------- */
 
 const INSPIRATION: DropdownItem[] = [
-  { label: "The Show", to: "/the-show", description: "Our original series — coming soon" },
+  { label: "The Show", to: "/the-show", description: "Our original series — coming soon", badge: "Coming Soon" },
   { label: "Industries", href: "/#series", description: "Explore 30+ sectors" },
   { label: "Roles", to: "/roles", description: "By job, not just by title" },
   { label: "Side Hustles", to: "/side-hustles", description: "Turn what you love into income" },
