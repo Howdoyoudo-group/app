@@ -105,15 +105,17 @@ export default function TheShowPage() {
                 className="group border-2 border-foreground/20 bg-card overflow-hidden"
               >
                 {/* Video player */}
-                <div className="relative aspect-video bg-foreground/5 overflow-hidden">
+                <div className="relative bg-black overflow-hidden" style={{ aspectRatio: "9/16", maxHeight: "400px" }}>
                   {film.url ? (
                     <video
-                      src={film.url}
                       controls
                       playsInline
                       preload="metadata"
+                      crossOrigin="anonymous"
                       className="w-full h-full object-cover"
-                    />
+                    >
+                      <source src={film.url} type="video/mp4" />
+                    </video>
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-foreground/5 to-foreground/10 flex flex-col items-center justify-center gap-2">
                       <Film className="w-8 h-8 text-foreground/20" />
