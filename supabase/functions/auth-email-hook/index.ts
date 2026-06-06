@@ -2,7 +2,7 @@ import { sendViaResend } from '../_shared/send-via-resend.ts'
 
 const SITE_NAME = "How do you do?"
 const FROM_EMAIL = "hello@notify.howdoyoudo.group"
-const SITE_URL = "https://dist-kappa-ten-23.vercel.app"
+const SITE_URL = "https://www.howdoyoudo.co.uk"
 const SUPABASE_URL = "https://wgistckxxbfpsuulbswr.supabase.co"
 
 const corsHeaders = {

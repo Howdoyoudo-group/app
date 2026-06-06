@@ -79,7 +79,7 @@ const Auth = () => {
         password,
         options: {
           data: { full_name: fullName.trim() },
-          emailRedirectTo: `https://howdoyoudo.group/onboarding`,
+          emailRedirectTo: `https://www.howdoyoudo.co.uk/onboarding`,
         },
       });
 
