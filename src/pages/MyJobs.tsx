@@ -1375,9 +1375,9 @@ const MyJobs = () => {
 
       const requireRoleMatch = shouldRequireRoleMatch(nextProfile);
       const minSalary = nextProfile.salary_expectation ? (SALARY_THRESHOLDS[nextProfile.salary_expectation] || 0) : 0;
-      const candidateTarget = 400;
-      const pageSize = 1000;
-      const maxRows = 5000;
+      const candidateTarget = 300;
+      const pageSize = 500;
+      const maxRows = 2000;
       const matchedJobs: Job[] = [];
 
       const passesAllFilters = (job: Job) =>
@@ -1386,11 +1386,28 @@ const MyJobs = () => {
         !shouldExcludeJob(job, nextProfile) &&
         passesSalaryFilter(job, minSalary);
 
-      const { data: firstPage } = await supabase
-        .from("jobs")
-        .select("id, title, company, location, salary, industry, career_level, url, created_at, type, work_mode, role_category, ai_role_category, job_traits, description, tags, ai_confidence, expires_at")
-        .order("created_at", { ascending: false })
-        .range(0, pageSize - 1);
+      // Build industry filter at DB level — massive performance win now we have 25k+ jobs.
+      // Only skip the filter if the user has no industry signal at all (show everything).
+      const effectiveIndustries = getEffectiveIndustries(nextProfile);
+      const passionIndustries = Array.from(getIndustriesFromPassions(nextProfile.job_preferences?.passions || []));
+      const allIndustrySlugs = [...new Set([
+        ...expandIndustrySlugs(effectiveIndustries),
+        ...passionIndustries,
+      ])].filter(Boolean);
+
+      const buildQuery = () => {
+        let q = supabase
+          .from("jobs")
+          .select("id, title, company, location, salary, industry, career_level, url, created_at, type, work_mode, role_category, ai_role_category, job_traits, description, tags, ai_confidence, expires_at")
+          .gt("expires_at", new Date().toISOString())
+          .order("created_at", { ascending: false });
+        if (allIndustrySlugs.length > 0) {
+          q = q.in("industry", allIndustrySlugs);
+        }
+        return q;
+      };
+
+      const { data: firstPage } = await buildQuery().range(0, pageSize - 1);
 
       if (firstPage?.length) {
         matchedJobs.push(...(firstPage as unknown as Job[]).filter(passesAllFilters));
@@ -1401,11 +1418,7 @@ const MyJobs = () => {
       }
 
       for (let from = pageSize; from < maxRows && matchedJobs.length < candidateTarget; from += pageSize) {
-        const { data: jobsPage, error } = await supabase
-          .from("jobs")
-          .select("id, title, company, location, salary, industry, career_level, url, created_at, type, work_mode, role_category, ai_role_category, job_traits, description, tags, ai_confidence, expires_at")
-          .order("created_at", { ascending: false })
-          .range(from, from + pageSize - 1);
+        const { data: jobsPage, error } = await buildQuery().range(from, from + pageSize - 1);
 
         if (error || !jobsPage?.length) break;
 
