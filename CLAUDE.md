@@ -132,6 +132,14 @@ if (typeof EdgeRuntime !== "undefined" && (EdgeRuntime as any)?.waitUntil) {
 return new Response(JSON.stringify({ accepted: true }), { ... });
 ```
 
+## Design Rules — ALWAYS FOLLOW
+
+- **Every UI change must work on both mobile and desktop** — test mentally for both before committing
+- Use Tailwind responsive prefixes (`md:`, `lg:`) to create layouts optimised per screen size, not just scaled down
+- Mobile first — base styles are mobile, `md:` overrides for desktop
+- Never hide important content on mobile unless there's a mobile-specific alternative
+- Touch targets must be large enough on mobile (min 44px)
+
 ## Workflow Rules — IMPORTANT
 
 ### At the start of EVERY session (do this automatically, without being asked):
