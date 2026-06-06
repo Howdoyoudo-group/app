@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Tv, Play, Image as ImageIcon, Film } from "lucide-react";
+import { Image as ImageIcon, Film } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
@@ -104,27 +104,21 @@ export default function TheShowPage() {
                 key={film.id}
                 className="group border-2 border-foreground/20 bg-card overflow-hidden"
               >
-                {/* Thumbnail */}
-                <div className="relative aspect-video bg-foreground/5 flex items-center justify-center overflow-hidden">
-                  {film.thumbnail ? (
-                    <img src={film.thumbnail} alt={film.title} className="w-full h-full object-cover" />
+                {/* Video player */}
+                <div className="relative aspect-video bg-foreground/5 overflow-hidden">
+                  {film.url ? (
+                    <video
+                      src={film.url}
+                      controls
+                      playsInline
+                      preload="metadata"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <div className="w-full h-full bg-gradient-to-br from-foreground/5 to-foreground/10 flex flex-col items-center justify-center gap-2">
                       <Film className="w-8 h-8 text-foreground/20" />
-                      <span className="font-display font-700 text-[10px] uppercase tracking-wide text-foreground/20">Add video</span>
+                      <span className="font-display font-700 text-[10px] uppercase tracking-wide text-foreground/20">Coming soon</span>
                     </div>
-                  )}
-                  {film.url && (
-                    <a
-                      href={film.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="absolute inset-0 flex items-center justify-center"
-                    >
-                      <span className="w-14 h-14 rounded-full bg-primary border-2 border-foreground flex items-center justify-center shadow-[3px_3px_0_hsl(var(--foreground))] group-hover:scale-110 transition-transform">
-                        <Play className="w-6 h-6 text-foreground fill-foreground ml-0.5" />
-                      </span>
-                    </a>
                   )}
                 </div>
                 {/* Info */}
