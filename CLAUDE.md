@@ -132,8 +132,32 @@ if (typeof EdgeRuntime !== "undefined" && (EdgeRuntime as any)?.waitUntil) {
 return new Response(JSON.stringify({ accepted: true }), { ... });
 ```
 
-## Workflow Notes
-- Woody (woodyharrison100@gmail.com) owns the project and manages credentials
-- Andrew Harrison is the partner/boss — his Claude account needs this context
-- Always check memory files for latest status before starting work
-- Session memory location: `~/.claude/projects/-Users-woodyharrison-Desktop-Howdoyoudo/memory/`
+## Workflow Rules — IMPORTANT
+
+### At the start of EVERY session:
+1. Read `SESSION_LOG.md` to see what the other person did last
+2. Run `git pull` to get the latest code
+3. Check which branch you're on (`git branch`)
+
+### At the end of EVERY session:
+1. Commit and push all changes
+2. Update `SESSION_LOG.md` with what you did and what's left — be specific
+3. Push the log update
+
+### Branching strategy (avoid clashes)
+- **Woody** works on `main` branch
+- **Andrew** works on `andrew` branch
+- Andrew: when a feature is ready, open a PR to main and tell Woody
+- Never both edit the same file at the same time without checking first
+- If unsure, ask in SESSION_LOG.md before starting
+
+### Git is fully allowed — no permission prompts
+Commits, pushes, branch switches — all pre-approved in `.claude/settings.json`
+
+### People
+- **Woody** (woodyharrison100@gmail.com) — owns project, manages credentials
+- **Andrew Harrison** — partner, works on `andrew` branch
+- Credentials are in Woody's local memory file — Andrew needs them shared privately
+
+### Session memory (Woody's machine only)
+`~/.claude/projects/-Users-woodyharrison-Desktop-Howdoyoudo/memory/`
