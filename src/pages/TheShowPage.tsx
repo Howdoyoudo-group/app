@@ -111,7 +111,6 @@ export default function TheShowPage() {
                       controls
                       playsInline
                       preload="metadata"
-                      crossOrigin="anonymous"
                       className="w-full h-full object-contain"
                     >
                       <source src={film.url} type="video/mp4" />
