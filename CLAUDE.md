@@ -30,8 +30,9 @@ Howdoyoudo (HDYD) is a UK career exploration platform. The ethos is helping peop
 
 ## Deploying Edge Functions
 ```
-SUPABASE_ACCESS_TOKEN=sbp_85b5c2e55af69656021b5999f4deb120699e0d00 npx supabase functions deploy <name> --project-ref wgistckxxbfpsuulbswr
+SUPABASE_ACCESS_TOKEN=<token-from-memory-file> npx supabase functions deploy <name> --project-ref wgistckxxbfpsuulbswr
 ```
+(Access token in local memory file — never hardcode in git)
 
 ## CRITICAL: Service Key Issue
 New Supabase projects auto-inject `SUPABASE_SERVICE_ROLE_KEY` in `sb_*` format which is **incompatible** with old supabase-js. Always use `HDYD_SERVICE_JWT` (custom secret) instead for all DB queries and function-to-function calls.
