@@ -335,7 +335,7 @@ const FilterDropdown = ({
   const openDropdown = () => {
     if (triggerRef.current) {
       const r = triggerRef.current.getBoundingClientRect();
-      const panelWidth = 220;
+      const panelWidth = Math.min(220, window.innerWidth - 16);
       const left = Math.min(r.left, window.innerWidth - panelWidth - 8);
       setPos({ top: r.bottom + 6, left: Math.max(8, left) });
     }
@@ -344,21 +344,20 @@ const FilterDropdown = ({
 
   useEffect(() => {
     if (!open) return;
-    const onOutside = (e: MouseEvent) => {
+    const onOutside = (e: MouseEvent | TouchEvent) => {
       if (
         panelRef.current && !panelRef.current.contains(e.target as Node) &&
         triggerRef.current && !triggerRef.current.contains(e.target as Node)
       ) setOpen(false);
     };
     const onEsc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    const onScroll = () => setOpen(false);
     document.addEventListener("mousedown", onOutside);
+    document.addEventListener("touchstart", onOutside, { passive: true });
     document.addEventListener("keydown", onEsc);
-    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       document.removeEventListener("mousedown", onOutside);
+      document.removeEventListener("touchstart", onOutside);
       document.removeEventListener("keydown", onEsc);
-      window.removeEventListener("scroll", onScroll);
     };
   }, [open]);
 
