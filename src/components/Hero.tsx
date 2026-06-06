@@ -532,7 +532,7 @@ const Hero = () => {
               </g>
             </svg>
             <video
-              src="/videos/promo-web.mp4"
+              src="https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets/promo-web.mp4"
               poster="/videos/promo-poster.jpg"
               autoPlay
               loop
