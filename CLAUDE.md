@@ -134,10 +134,10 @@ return new Response(JSON.stringify({ accepted: true }), { ... });
 
 ## Workflow Rules — IMPORTANT
 
-### At the start of EVERY session:
-1. Read `SESSION_LOG.md` to see what the other person did last
-2. Run `git pull` to get the latest code
-3. Check which branch you're on (`git branch`)
+### At the start of EVERY session (do this automatically, without being asked):
+1. Run `git pull` to get the latest code
+2. Read `SESSION_LOG.md` to see what the other person did last
+3. Greet the user by name and give a 3-bullet summary of: what was done last session, what's pending, and a suggested first task
 
 ### At the end of EVERY session:
 1. Commit and push all changes
