@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ExternalLink, Calendar, MapPin, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { INDUSTRIES as industries } from "@/data/industries";
+import { Button } from "@/components/ui/button";
 
 interface EventsSectionProps {
   industry: string;
@@ -126,14 +127,11 @@ const EventsSection = ({ industry, searchQuery, industrySlug }: EventsSectionPro
             We're still gathering upcoming {industry.toLowerCase()} events. In the meantime,
             browse the open listings on Eventbrite.
           </p>
-          <a
-            href={eventbriteUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity"
-          >
-            Browse {industry} events <ExternalLink className="w-3.5 h-3.5" />
-          </a>
+          <Button asChild size="lg" className="rounded-full">
+            <a href={eventbriteUrl} target="_blank" rel="noopener noreferrer">
+              Browse {industry} events <ExternalLink className="w-3.5 h-3.5 ml-1" />
+            </a>
+          </Button>
         </div>
       )}
 

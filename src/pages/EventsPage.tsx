@@ -4,6 +4,8 @@ import EventsSection from "@/components/EventsSection";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import { INDUSTRIES } from "@/data/industries";
+import IndustryDoodle from "@/components/feed/IndustryDoodle";
+import { Circle } from "lucide-react";
 
 export default function EventsPage() {
   const [selectedIndustry, setSelectedIndustry] = useState("All");
@@ -21,31 +23,61 @@ export default function EventsPage() {
           What's on across every industry.
         </p>
 
-        {/* Industry filter chips */}
-        <div className="flex gap-2 flex-wrap mb-8">
-          <button
-            onClick={() => setSelectedIndustry("All")}
-            className={`px-3 py-1.5 border-2 font-display font-700 text-xs uppercase tracking-wide transition-colors ${
-              selectedIndustry === "All"
-                ? "border-foreground bg-primary"
-                : "border-border text-muted-foreground hover:border-foreground"
-            }`}
-          >
-            All
-          </button>
-          {INDUSTRIES.map((ind) => (
+        {/* Industry filter doodles — swipeable */}
+        <div className="bg-background rounded-2xl border-2 border-foreground/10 shadow-sm px-4 py-3 mb-8">
+          <div className="flex gap-3 overflow-x-auto pt-1 pb-1 px-1 scrollbar-hide snap-x">
+            {/* All button */}
             <button
-              key={ind.slug}
-              onClick={() => setSelectedIndustry(ind.name)}
-              className={`px-3 py-1.5 border-2 font-display font-700 text-xs uppercase tracking-wide transition-colors ${
-                selectedIndustry === ind.name
-                  ? "border-foreground bg-primary"
-                  : "border-border text-muted-foreground hover:border-foreground"
-              }`}
+              onClick={() => setSelectedIndustry("All")}
+              className="shrink-0 snap-start flex flex-col items-center gap-1.5 w-[72px] focus:outline-none group"
+              aria-pressed={selectedIndustry === "All"}
             >
-              {ind.name}
+              <span
+                className={`relative inline-flex items-center justify-center rounded-full transition-all bg-foreground text-background ${
+                  selectedIndustry === "All"
+                    ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                    : "opacity-80 group-hover:opacity-100"
+                }`}
+                style={{ width: 56, height: 56 }}
+              >
+                <Circle size={28} strokeWidth={2.2} />
+              </span>
+              <span className={`font-display font-700 text-[9px] uppercase tracking-[0.06em] text-center leading-[1.15] w-full px-0.5 ${
+                selectedIndustry === "All" ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+              }`}>
+                All
+              </span>
             </button>
-          ))}
+
+            {INDUSTRIES.map((ind) => {
+              const active = selectedIndustry === ind.name;
+              return (
+                <button
+                  key={ind.slug}
+                  onClick={() => setSelectedIndustry(ind.name)}
+                  className="shrink-0 snap-start flex flex-col items-center gap-1.5 w-[72px] focus:outline-none group"
+                  aria-pressed={active}
+                  aria-label={ind.name}
+                >
+                  <span
+                    className={`relative inline-flex items-center justify-center rounded-full transition-all ${
+                      active
+                        ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                        : "opacity-80 group-hover:opacity-100"
+                    }`}
+                    style={{ width: 56, height: 56 }}
+                  >
+                    <IndustryDoodle industry={ind.slug} size={56} />
+                  </span>
+                  <span className={`font-display font-700 text-[9px] uppercase tracking-[0.06em] text-center leading-[1.15] break-words hyphens-auto w-full px-0.5 ${
+                    active ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                  }`}>
+                    {ind.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
