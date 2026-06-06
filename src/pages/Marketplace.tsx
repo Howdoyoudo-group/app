@@ -312,6 +312,7 @@ const DoodleChip = ({ children, active = false, className = "", ...props }: Reac
 );
 
 // ── Filter dropdown pill ──────────────────────────────────────
+// On mobile: full-screen bottom sheet. On desktop: fixed-position dropdown.
 
 const FilterDropdown = ({
   label,
@@ -331,9 +332,10 @@ const FilterDropdown = ({
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLUListElement>(null);
   const active = value !== "All";
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
 
   const openDropdown = () => {
-    if (triggerRef.current) {
+    if (!isMobile && triggerRef.current) {
       const r = triggerRef.current.getBoundingClientRect();
       const panelWidth = Math.min(220, window.innerWidth - 16);
       const left = Math.min(r.left, window.innerWidth - panelWidth - 8);
@@ -344,7 +346,7 @@ const FilterDropdown = ({
 
   useEffect(() => {
     if (!open) return;
-    const onOutside = (e: MouseEvent | TouchEvent) => {
+    const onOutside = (e: MouseEvent) => {
       if (
         panelRef.current && !panelRef.current.contains(e.target as Node) &&
         triggerRef.current && !triggerRef.current.contains(e.target as Node)
@@ -352,11 +354,9 @@ const FilterDropdown = ({
     };
     const onEsc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
     document.addEventListener("mousedown", onOutside);
-    document.addEventListener("touchstart", onOutside, { passive: true });
     document.addEventListener("keydown", onEsc);
     return () => {
       document.removeEventListener("mousedown", onOutside);
-      document.removeEventListener("touchstart", onOutside);
       document.removeEventListener("keydown", onEsc);
     };
   }, [open]);
@@ -376,45 +376,88 @@ const FilterDropdown = ({
         }`}
       >
         {active ? value : label}
-        <ChevronDown
-          size={11}
-          strokeWidth={3}
-          className={`transition-transform ${open ? "rotate-180" : ""}`}
-        />
+        <ChevronDown size={11} strokeWidth={3} className={`transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
+
       <AnimatePresence>
-        {open && pos && (
-          <motion.ul
-            ref={panelRef}
-            role="listbox"
-            initial={{ opacity: 0, y: -6, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.97 }}
-            transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
-            style={{ position: "fixed", top: pos.top, left: pos.left, width: 220 }}
-            className={`z-[200] bg-background border-2 border-foreground rounded-xl shadow-[4px_4px_0_0_hsl(var(--foreground))] p-1.5 space-y-0.5 ${scrollable ? "max-h-72 overflow-y-auto" : ""}`}
-          >
-            {options.map((opt) => {
-              const isActive = value === opt;
-              return (
-                <li key={opt}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={isActive}
-                    onClick={() => { onChange(opt); setOpen(false); }}
-                    className={`w-full text-left px-3 py-2.5 rounded-lg font-display font-700 text-xs uppercase tracking-wide transition-colors ${
-                      isActive
-                        ? "bg-primary text-foreground"
-                        : "text-foreground hover:bg-primary/60"
-                    }`}
-                  >
-                    {opt}
-                  </button>
-                </li>
-              );
-            })}
-          </motion.ul>
+        {open && (
+          <>
+            {/* Mobile: bottom sheet */}
+            <motion.div
+              className="md:hidden fixed inset-0 z-[300] flex flex-col justify-end"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              {/* Backdrop */}
+              <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
+              {/* Sheet */}
+              <motion.div
+                className="relative bg-background rounded-t-2xl border-t-2 border-foreground p-4 pb-8 max-h-[70vh] overflow-y-auto"
+                initial={{ y: "100%" }}
+                animate={{ y: 0 }}
+                exit={{ y: "100%" }}
+                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span className="font-display font-800 text-sm uppercase tracking-wide">{label}</span>
+                  <button onClick={() => setOpen(false)} className="p-1"><X size={18} strokeWidth={2.5} /></button>
+                </div>
+                <ul className="space-y-1">
+                  {options.map((opt) => {
+                    const isActive = value === opt;
+                    return (
+                      <li key={opt}>
+                        <button
+                          type="button"
+                          onClick={() => { onChange(opt); setOpen(false); }}
+                          className={`w-full text-left px-4 py-3 rounded-xl font-display font-700 text-sm uppercase tracking-wide transition-colors ${
+                            isActive ? "bg-primary text-foreground" : "text-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {opt}
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </motion.div>
+            </motion.div>
+
+            {/* Desktop: fixed dropdown */}
+            {pos && (
+              <motion.ul
+                ref={panelRef}
+                role="listbox"
+                initial={{ opacity: 0, y: -6, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -6, scale: 0.97 }}
+                transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
+                style={{ position: "fixed", top: pos.top, left: pos.left, width: 220 }}
+                className={`hidden md:block z-[200] bg-background border-2 border-foreground rounded-xl shadow-[4px_4px_0_0_hsl(var(--foreground))] p-1.5 space-y-0.5 ${scrollable ? "max-h-72 overflow-y-auto" : ""}`}
+              >
+                {options.map((opt) => {
+                  const isActive = value === opt;
+                  return (
+                    <li key={opt}>
+                      <button
+                        type="button"
+                        role="option"
+                        aria-selected={isActive}
+                        onClick={() => { onChange(opt); setOpen(false); }}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg font-display font-700 text-xs uppercase tracking-wide transition-colors ${
+                          isActive ? "bg-primary text-foreground" : "text-foreground hover:bg-primary/60"
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    </li>
+                  );
+                })}
+              </motion.ul>
+            )}
+          </>
         )}
       </AnimatePresence>
     </div>
