@@ -6,15 +6,15 @@ import SEO from "@/components/SEO";
 
 const LIME = "hsl(120, 100%, 45%)";
 
-// ── Add photos here ──────────────────────────────────────────
-// Replace src with real image URLs when ready
+const STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/gallery";
+
 const GALLERY_PHOTOS: { id: number; src?: string; alt: string }[] = [
-  { id: 1, alt: "Photo 1" },
-  { id: 2, alt: "Photo 2" },
-  { id: 3, alt: "Photo 3" },
-  { id: 4, alt: "Photo 4" },
-  { id: 5, alt: "Photo 5" },
-  { id: 6, alt: "Photo 6" },
+  { id: 1, src: `${STORAGE}/photo-1.jpg`, alt: "The Howdoyoudo mic" },
+  { id: 2, src: `${STORAGE}/photo-2.jpg`, alt: "Live show audience" },
+  { id: 3, src: `${STORAGE}/photo-3.jpg`, alt: "Filming at Tower Bridge" },
+  { id: 4, src: `${STORAGE}/photo-4.jpg`, alt: "Interview at the show" },
+  { id: 5, src: `${STORAGE}/photo-5.jpg`, alt: "Host with mic" },
+  { id: 6, src: `${STORAGE}/photo-6.jpg`, alt: "Interview at All Points East" },
 ];
 
 // ── Add short films / vox pops here ─────────────────────────
@@ -54,7 +54,7 @@ export default function TheShowPage() {
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 auto-rows-fr">
             {GALLERY_PHOTOS.map((photo) => (
               <div
                 key={photo.id}
