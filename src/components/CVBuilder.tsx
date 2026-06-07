@@ -382,14 +382,15 @@ const CVBuilder = () => {
         // Hydrate Profile Builder sub-object (saved by Onboarding + Save button)
         const jp: any = (data as any).job_preferences || {};
         const pb = jp.profileBuilder || {};
-        const savedCvInput = ((um as any)?._inputData && typeof (um as any)._inputData === "object")
-          ? (um as any)._inputData
-          : (jp.understandMe || {});
-        const existingCvPath = typeof savedCvInput.cvFilePath === "string" && savedCvInput.cvFilePath
-          ? savedCvInput.cvFilePath
-          : typeof savedCvInput.cvPath === "string" && savedCvInput.cvPath
-            ? savedCvInput.cvPath
-            : null;
+        // Check both sources for the CV path — _inputData may exist but lack the full path
+        const umInput = ((um as any)?._inputData && typeof (um as any)._inputData === "object") ? (um as any)._inputData : {};
+        const jpUm = jp.understandMe || {};
+        const existingCvPath =
+          (typeof umInput.cvFilePath === "string" && umInput.cvFilePath) ||
+          (typeof umInput.cvPath === "string" && umInput.cvPath) ||
+          (typeof jpUm.cvFilePath === "string" && jpUm.cvFilePath) ||
+          (typeof jpUm.cvPath === "string" && jpUm.cvPath) ||
+          null;
         if (existingCvPath) setStoredCvPath(existingCvPath);
         // Pull "what you love" from onboarding (job_preferences.passions + passionsText)
         const onboardingPassions: string[] = [
