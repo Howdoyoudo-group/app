@@ -36,7 +36,7 @@ Industries interested in: ${Array.isArray(p.industryInterests) ? p.industryInter
 Looking for: ${p.lookingFor || ""}
 Skills: ${(p.skills || []).join(", ")}
 Things I've done: ${(p.experiences || []).map((e: any) => `${e.category}: ${e.description}`).join(" | ")}
-Work experience: ${(p.workExperience || []).map((w: any) => `${w.jobTitle} at ${w.company} (${w.startDate}–${w.endDate}): ${w.description}`).join(" | ")}
+Work experience: ${(p.workExperience || []).map((w: any) => `${w.jobTitle} at ${w.company} (${w.dates || ""}): ${w.description}`).join(" | ")}
 Education: ${(p.education || []).map((e: any) => `${e.qualification} at ${e.school} (${e.grade})`).join(" | ")}
 Qualifications: ${(p.qualifications || []).map((q: any) => `${q.name} from ${q.issuer} (${q.year})`).join(" | ")}
 Proud of: ${p.proudOf || ""}
