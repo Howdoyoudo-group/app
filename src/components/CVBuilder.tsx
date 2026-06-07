@@ -719,11 +719,16 @@ const CVBuilder = () => {
         proudOf: promptAnswers["proud"] || "",
         givesEnergy: promptAnswers["energy"] || "",
       };
-      const { data, error } = await supabase.functions.invoke("generate-ats-cv", {
-        body: { jobDescription, profileData },
-      });
-      console.log("ATS response:", { data, error });
-      if (!data?.cvText) { toast.error(data?.error || error?.message || "Could not generate ATS CV."); return; }
+      const res = await fetch(
+        "https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/generate-ats-cv",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${(await supabase.auth.getSession()).data.session?.access_token || ""}` },
+          body: JSON.stringify({ jobDescription, profileData }),
+        }
+      );
+      const data = await res.json();
+      if (!data?.cvText) { toast.error(data?.error || "Could not generate ATS CV."); return; }
       setAtsResult(data);
     } catch (err) {
       console.error(err);
