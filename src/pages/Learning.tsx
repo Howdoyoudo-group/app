@@ -680,7 +680,7 @@ const Learning = () => {
                 { stage: "2", label: "Build", desc: "CV & profile", icon: <FileText className="w-5 h-5" />, to: "/cv-builder", color: "bg-primary/10 border-primary/30" },
                 { stage: "3", label: "Practice", desc: "Interviews & confidence", icon: <Mic className="w-5 h-5" />, to: "/resources/interview-skills", color: "bg-yellow-50 border-yellow-200" },
                 { stage: "4", label: "Connect", desc: "Mentors & coaches", icon: <Users className="w-5 h-5" />, to: "/resources/mentoring", color: "bg-purple-50 border-purple-200" },
-                { stage: "5", label: "Apply", desc: "Jobs & resilience", icon: <Briefcase className="w-5 h-5" />, to: "/my-jobs", color: "bg-green-50 border-green-200" },
+                { stage: "5", label: "Apply", desc: "Jobs & resilience", icon: <Briefcase className="w-5 h-5" />, to: "/marketplace", color: "bg-green-50 border-green-200" },
               ].map(({ stage, label, desc, icon, to, color }) => (
                 <Link
                   key={stage}
