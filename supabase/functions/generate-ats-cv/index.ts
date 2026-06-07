@@ -32,7 +32,7 @@ serve(async (req) => {
 Name: ${p.fullName || ""}
 Location: ${p.location || ""}
 Personal intro: ${p.personalIntro || ""}
-Industries interested in: ${(p.industryInterests || []).join(", ")}
+Industries interested in: ${Array.isArray(p.industryInterests) ? p.industryInterests.join(", ") : (p.industryInterests || "")}
 Looking for: ${p.lookingFor || ""}
 Skills: ${(p.skills || []).join(", ")}
 Things I've done: ${(p.experiences || []).map((e: any) => `${e.category}: ${e.description}`).join(" | ")}
