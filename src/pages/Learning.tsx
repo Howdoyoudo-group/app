@@ -1,7 +1,7 @@
 import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen, Compass, FileText, Mic, Users, Briefcase } from "lucide-react";
 import Footer from "@/components/Footer";
 import learningStartups from "@/assets/learning-startups.png";
 import learningEmployability from "@/assets/learning-employability.png";
@@ -658,19 +658,45 @@ const Learning = () => {
             <h1 className="font-display text-5xl md:text-7xl font-900 leading-[0.9] tracking-tight mb-6">
               Learning Hub<span className="text-primary">.</span>
             </h1>
-            <p className="font-display text-xl md:text-2xl font-700 leading-snug max-w-3xl mb-6">
-              Nobody really teaches you how to build a working life. School skips it, parents guess at it, and the internet shouts at you about it.
+            <p className="font-display text-xl md:text-2xl font-700 leading-snug max-w-3xl mb-4">
+              From finding your direction to landing the job — everything you need in one place.
             </p>
-            <div className="space-y-4 text-muted-foreground font-body text-base md:text-lg max-w-2xl">
-              <p>
-                So we did the digging. Every square below is a topic - money, mentoring, apprenticeships, your CV, your first interview - and inside each one we've curated what's worth your time.
-              </p>
-              <p>
-                Things to <span className="font-700 text-foreground">watch</span> when you've got ten minutes. Podcasts to <span className="font-700 text-foreground">listen</span> to on the bus. Articles to <span className="font-700 text-foreground">read</span> when you want to go deeper. And the <span className="font-700 text-foreground">organisations</span> that will actually help - most of them free, all of them UK.
-              </p>
-              <p className="text-sm md:text-base italic">
-                Our perspective: the answer isn't more content. It's the right content, from people who've done it, before you need it.
-              </p>
+            <div className="flex flex-wrap gap-2 mb-6">
+              {["✅ ATS CV builder", "✅ Interview practice", "✅ Find a mentor", "✅ Confidence & resilience", "✅ Skills passport"].map(item => (
+                <span key={item} className="text-sm font-body font-600 bg-primary/10 px-3 py-1 rounded-full">{item}</span>
+              ))}
+            </div>
+            <p className="text-muted-foreground font-body text-sm md:text-base max-w-2xl italic">
+              School skips it, parents guess at it, the internet shouts at you. We did the digging — every square below has curated videos, podcasts, articles and organisations. Most of it free, all of it UK.
+            </p>
+          </motion.div>
+
+          {/* Career Readiness Journey Strip */}
+          <motion.div {...fadeUp} className="mt-10 mb-2">
+            <p className="font-display text-xs uppercase tracking-widest text-muted-foreground mb-3">Your journey →</p>
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x">
+              {[
+                { stage: "1", label: "Discover", desc: "Find your direction", icon: <Compass className="w-5 h-5" />, to: "/onboarding", color: "bg-blue-50 border-blue-200" },
+                { stage: "2", label: "Build", desc: "CV & profile", icon: <FileText className="w-5 h-5" />, to: "/cv-builder", color: "bg-primary/10 border-primary/30" },
+                { stage: "3", label: "Practice", desc: "Interviews & confidence", icon: <Mic className="w-5 h-5" />, to: "/resources/interview-skills", color: "bg-yellow-50 border-yellow-200" },
+                { stage: "4", label: "Connect", desc: "Mentors & coaches", icon: <Users className="w-5 h-5" />, to: "/resources/mentoring", color: "bg-purple-50 border-purple-200" },
+                { stage: "5", label: "Apply", desc: "Jobs & resilience", icon: <Briefcase className="w-5 h-5" />, to: "/my-jobs", color: "bg-green-50 border-green-200" },
+              ].map(({ stage, label, desc, icon, to, color }) => (
+                <Link
+                  key={stage}
+                  to={to}
+                  className={`snap-start shrink-0 flex flex-col gap-2 border-2 ${color} rounded-2xl p-4 w-[140px] hover:-translate-y-0.5 transition-all`}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="font-display font-900 text-xs text-muted-foreground">{stage}</span>
+                    {icon}
+                  </div>
+                  <div>
+                    <p className="font-display font-700 text-sm leading-tight">{label}</p>
+                    <p className="font-body text-[11px] text-muted-foreground mt-0.5">{desc}</p>
+                  </div>
+                </Link>
+              ))}
             </div>
           </motion.div>
 

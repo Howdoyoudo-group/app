@@ -17,12 +17,16 @@ const CVBuilderPage = () => {
           </span>
         </div>
         <h1 className="font-display text-3xl md:text-5xl font-800 text-foreground leading-tight mb-3">
-          Build a profile that shows who you are<span className="text-primary">…</span> not just what you've achieved<span className="text-primary">.</span>
+          Build a profile that stands out — and an ATS-ready CV that gets through the door<span className="text-primary">.</span>
         </h1>
-        <p className="font-body text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed">
-          Add your story, skills, interests, projects and video intro. Perfect if you're starting
-          out and don't have a traditional CV yet.
+        <p className="font-body text-base md:text-lg text-muted-foreground max-w-2xl leading-relaxed mb-4">
+          Add your story, skills, interests, projects and video intro. Then generate a clean, keyword-matched CV that passes the AI screening systems recruiters use.
         </p>
+        <div className="flex flex-wrap gap-3 text-sm font-body">
+          <span className="inline-flex items-center gap-1.5 bg-primary/10 text-foreground px-3 py-1 rounded-full font-600">✅ Visual profile for humans</span>
+          <span className="inline-flex items-center gap-1.5 bg-primary/10 text-foreground px-3 py-1 rounded-full font-600">✅ ATS CV for job portals</span>
+          <span className="inline-flex items-center gap-1.5 bg-primary/10 text-foreground px-3 py-1 rounded-full font-600">✅ AI-powered, role-matched</span>
+        </div>
       </section>
 
       {/* Builder */}

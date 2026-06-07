@@ -344,6 +344,12 @@ const CVBuilder = () => {
   const [hydrated, setHydrated] = useState(false);
   const [storedCvPath, setStoredCvPath] = useState<string | null>(null);
 
+  // ATS CV
+  const [showAts, setShowAts] = useState(false);
+  const [jobDescription, setJobDescription] = useState("");
+  const [atsResult, setAtsResult] = useState<{ cvText: string; keywords: string[]; score: number } | null>(null);
+  const [generatingAts, setGeneratingAts] = useState(false);
+
   // AI / personality data (read-only)
   const [aiOverview, setAiOverview] = useState<string>("");
   const [riasecScores, setRiasecScores] = useState<Record<string, number> | null>(null);
@@ -692,6 +698,49 @@ const CVBuilder = () => {
       win.close();
       toast.error("Could not open preview.");
     }
+  };
+
+  const generateAtsCv = async () => {
+    if (!user) { toast.error("Sign in to generate an ATS CV."); return; }
+    if (!jobDescription.trim()) { toast.error("Paste a job description first."); return; }
+    setGeneratingAts(true);
+    try {
+      const allSkills = Object.values(skills).flat();
+      const profileData = {
+        fullName, location,
+        personalIntro: intro,
+        industryInterests: interests,
+        lookingFor,
+        skills: allSkills,
+        experiences: things.map(t => ({ category: t.kind, description: t.description })),
+        workExperience: experience.map(w => ({ jobTitle: w.title, company: w.company, dates: w.dates, description: w.description })),
+        education: education.map(e => ({ school: e.school, qualification: e.qualification, grade: e.grade })),
+        qualifications: qualifications.map(q => ({ name: q.name, issuer: q.issuer, year: q.year })),
+        proudOf: promptAnswers["proud"] || "",
+        givesEnergy: promptAnswers["energy"] || "",
+      };
+      const { data, error } = await supabase.functions.invoke("generate-ats-cv", {
+        body: { jobDescription, profileData },
+      });
+      if (error || !data?.cvText) { toast.error("Could not generate ATS CV."); return; }
+      setAtsResult(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong.");
+    } finally {
+      setGeneratingAts(false);
+    }
+  };
+
+  const downloadAtsTxt = () => {
+    if (!atsResult) return;
+    const blob = new Blob([atsResult.cvText], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(fullName || "cv").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-ats.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const downloadPdf = async () => {
@@ -1543,7 +1592,61 @@ const CVBuilder = () => {
             <Button variant="outline" onClick={emailProfile} disabled={emailing || !user} className="font-body gap-2 rounded-full">
               {emailing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />} Email me a copy
             </Button>
+            <Button
+              variant="outline"
+              onClick={() => setShowAts(v => !v)}
+              className="font-body gap-2 rounded-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+            >
+              <Sparkles className="w-4 h-4" /> ATS CV Generator
+            </Button>
           </div>
+
+          {/* ATS CV Panel */}
+          {showAts && (
+            <div className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-4 space-y-4 print:hidden">
+              <div>
+                <p className="font-display font-700 text-sm mb-1 flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-primary" /> ATS CV Generator
+                </p>
+                <p className="font-body text-xs text-muted-foreground">
+                  Most job portals use AI to scan CVs for keywords before a human sees them. Paste the job description below and we'll generate a plain-text CV tailored to pass the filter.
+                </p>
+              </div>
+              <textarea
+                className="w-full min-h-[120px] rounded-xl border border-border bg-background p-3 font-body text-sm resize-y focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Paste the full job description here…"
+                value={jobDescription}
+                onChange={e => setJobDescription(e.target.value)}
+              />
+              <Button onClick={generateAtsCv} disabled={generatingAts || !user} className="font-body gap-2 rounded-full">
+                {generatingAts ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                {generatingAts ? "Generating…" : "Generate ATS CV"}
+              </Button>
+
+              {atsResult && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-display font-700">
+                      ATS Score: {atsResult.score}%
+                    </span>
+                    <span className="font-body text-xs text-muted-foreground">
+                      Keywords matched: {atsResult.keywords.slice(0, 5).join(", ")}
+                      {atsResult.keywords.length > 5 ? ` +${atsResult.keywords.length - 5} more` : ""}
+                    </span>
+                  </div>
+                  <pre className="w-full min-h-[200px] max-h-[400px] overflow-y-auto rounded-xl border border-border bg-background p-3 font-body text-xs whitespace-pre-wrap">
+                    {atsResult.cvText}
+                  </pre>
+                  <Button variant="outline" onClick={downloadAtsTxt} className="font-body gap-2 rounded-full">
+                    <Download className="w-4 h-4" /> Download as .txt
+                  </Button>
+                  <p className="font-body text-[11px] text-muted-foreground">
+                    ⚠️ Your visual PDF is for human readers. Use this plain-text version when applying through an online job portal or ATS system.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ── Preview ── */}
