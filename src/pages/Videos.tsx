@@ -109,13 +109,12 @@ export default function Videos() {
                 <div key={film.id} className="border-2 border-foreground rounded-2xl overflow-hidden">
                   <div className="aspect-video bg-black overflow-hidden">
                     <video
+                      src={film.url}
                       controls
                       playsInline
                       preload="metadata"
                       className="w-full h-full object-contain"
-                    >
-                      <source src={film.url} type="video/mp4" />
-                    </video>
+                    />
                   </div>
                   <div className="p-4">
                     <p className="font-display font-900 text-sm uppercase tracking-wide text-foreground leading-snug">

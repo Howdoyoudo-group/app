@@ -67,14 +67,13 @@ export default function TheShowPage() {
               <div key={v.id} className="border-2 border-foreground rounded-2xl overflow-hidden">
                 <div className="aspect-video bg-black overflow-hidden">
                   <video
+                    src={v.url}
                     controls
                     playsInline
                     muted={v.muted}
                     preload="metadata"
                     className="w-full h-full object-cover"
-                  >
-                    <source src={v.url} type="video/mp4" />
-                  </video>
+                  />
                 </div>
                 <div className="p-4">
                   <p className="font-display font-900 text-sm uppercase tracking-wide text-foreground leading-snug">
