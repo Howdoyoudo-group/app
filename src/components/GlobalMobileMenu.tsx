@@ -276,12 +276,13 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                           </div>
                         );
                       }
+                      const isComingSoon = item.badge === "Coming Soon";
                       const inner = (
                         <>
                           <span className="font-display font-900 text-base uppercase tracking-wide text-foreground flex items-center gap-2">
                             {item.label}
                             {item.badge && (
-                              <span className="font-display font-700 text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-primary text-foreground border border-foreground rounded-full leading-none">
+                              <span className={`font-display font-700 text-[9px] uppercase tracking-wide px-1.5 py-0.5 border rounded-full leading-none ${isComingSoon ? "bg-foreground/10 text-foreground/50 border-foreground/20" : "bg-primary text-foreground border-foreground"}`}>
                                 {item.badge}
                               </span>
                             )}
@@ -293,6 +294,13 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                           )}
                         </>
                       );
+                      if (isComingSoon) {
+                        return (
+                          <div key={item.label} className="flex flex-col px-3 py-3 rounded-xl opacity-50 cursor-not-allowed">
+                            {inner}
+                          </div>
+                        );
+                      }
                       return item.to ? (
                         <Link
                           key={item.label}

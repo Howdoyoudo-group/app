@@ -137,12 +137,13 @@ const NavDropdown = ({
                   </div>
                 );
               }
+              const isComingSoon = item.badge === "Coming Soon";
               const inner = (
-                <div className="px-3 py-2.5 rounded-xl hover:bg-primary transition-colors border-2 border-transparent hover:border-foreground">
+                <div className={`px-3 py-2.5 rounded-xl border-2 border-transparent ${isComingSoon ? "opacity-50 cursor-not-allowed" : "hover:bg-primary hover:border-foreground transition-colors"}`}>
                   <div className="font-display font-900 text-sm uppercase tracking-wide text-foreground flex items-center gap-2">
                     {item.label}
                     {item.badge && (
-                      <span className="font-display font-700 text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-primary text-foreground border border-foreground rounded-full leading-none">
+                      <span className="font-display font-700 text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-foreground/10 text-foreground/60 border border-foreground/20 rounded-full leading-none">
                         {item.badge}
                       </span>
                     )}
@@ -154,6 +155,9 @@ const NavDropdown = ({
                   )}
                 </div>
               );
+              if (isComingSoon) {
+                return <div key={item.label} role="menuitem" aria-disabled="true">{inner}</div>;
+              }
               return item.to ? (
                 <Link
                   key={item.label}
