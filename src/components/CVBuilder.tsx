@@ -972,8 +972,14 @@ const CVBuilder = () => {
         toast.error("Could not upload file.");
         return;
       }
-      const { data, error } = await supabase.functions.invoke("extract-cv-education", { body: { filePath: path } });
-      if (error || !data?.success) {
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const fnRes = await fetch(
+        "https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/extract-cv-education",
+        { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ filePath: path }) }
+      );
+      const data = await fnRes.json().catch(() => ({}));
+      if (!fnRes.ok || !data?.success) {
         toast.error(data?.error || "Could not extract from CV.");
         return;
       }
@@ -1365,28 +1371,49 @@ const CVBuilder = () => {
             <p className="font-body text-xs text-muted-foreground">
               Jobs, internships, placements, weekend work or freelance gigs. Upload your CV and we'll fill these in for you.
             </p>
-            <label className="block">
-              <div className="rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 hover:border-primary transition-colors p-4 text-center cursor-pointer">
-                {extracting ? (
-                  <div className="flex items-center justify-center gap-2 text-xs font-body text-muted-foreground">
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" /> Reading your CV...
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-1">
-                    <Upload className="w-4 h-4 text-primary" />
-                    <span className="font-display font-700 text-xs uppercase tracking-widest text-primary">Pull from CV</span>
-                    <span className="font-body text-[11px] text-muted-foreground">Upload a PDF, DOC or DOCX and we'll fill this in for you</span>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx,.txt"
-                  className="hidden"
+            {storedCvPath ? (
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
                   disabled={extracting}
-                  onChange={(e) => extractFromCV(e.target.files?.[0] || null)}
-                />
+                  onClick={pullFromExistingCV}
+                  className="rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 hover:border-primary transition-colors p-4 text-center w-full disabled:opacity-50"
+                >
+                  {extracting ? (
+                    <div className="flex items-center justify-center gap-2 text-xs font-body text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" /> Reading your CV...
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <span className="font-display font-700 text-xs uppercase tracking-widest text-primary">Fill from my CV</span>
+                      <span className="font-body text-[11px] text-muted-foreground">Use the CV already on your account</span>
+                    </div>
+                  )}
+                </button>
+                <label className="block">
+                  <span className="font-body text-[11px] text-muted-foreground underline cursor-pointer hover:text-primary">Upload a different CV file</span>
+                  <input type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" disabled={extracting} onChange={(e) => extractFromCV(e.target.files?.[0] || null)} />
+                </label>
               </div>
-            </label>
+            ) : (
+              <label className="block">
+                <div className="rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 hover:border-primary transition-colors p-4 text-center cursor-pointer">
+                  {extracting ? (
+                    <div className="flex items-center justify-center gap-2 text-xs font-body text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" /> Reading your CV...
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <Upload className="w-4 h-4 text-primary" />
+                      <span className="font-display font-700 text-xs uppercase tracking-widest text-primary">Pull from CV</span>
+                      <span className="font-body text-[11px] text-muted-foreground">Upload a PDF, DOC or DOCX and we'll fill this in for you</span>
+                    </div>
+                  )}
+                  <input type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" disabled={extracting} onChange={(e) => extractFromCV(e.target.files?.[0] || null)} />
+                </div>
+              </label>
+            )}
             {experience.length === 0 && (
               <p className="font-body text-xs text-muted-foreground italic">No work experience yet. Add one below or upload your CV.</p>
             )}
@@ -1447,28 +1474,49 @@ const CVBuilder = () => {
             <p className="font-body text-xs text-muted-foreground">
               Where you went to school, sixth-form, college or university. Add as many as you like.
             </p>
-            <label className="block">
-              <div className="rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 hover:border-primary transition-colors p-4 text-center cursor-pointer">
-                {extracting ? (
-                  <div className="flex items-center justify-center gap-2 text-xs font-body text-muted-foreground">
-                    <Loader2 className="w-4 h-4 animate-spin text-primary" /> Reading your CV...
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-1">
-                    <Upload className="w-4 h-4 text-primary" />
-                    <span className="font-display font-700 text-xs uppercase tracking-widest text-primary">Pull from CV</span>
-                    <span className="font-body text-[11px] text-muted-foreground">Upload a PDF, DOC or DOCX and we'll fill this in for you</span>
-                  </div>
-                )}
-                <input
-                  type="file"
-                  accept=".pdf,.doc,.docx,.txt"
-                  className="hidden"
+            {storedCvPath ? (
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
                   disabled={extracting}
-                  onChange={(e) => extractFromCV(e.target.files?.[0] || null)}
-                />
+                  onClick={pullFromExistingCV}
+                  className="rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 hover:border-primary transition-colors p-4 text-center w-full disabled:opacity-50"
+                >
+                  {extracting ? (
+                    <div className="flex items-center justify-center gap-2 text-xs font-body text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" /> Reading your CV...
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                      <span className="font-display font-700 text-xs uppercase tracking-widest text-primary">Fill from my CV</span>
+                      <span className="font-body text-[11px] text-muted-foreground">Use the CV already on your account</span>
+                    </div>
+                  )}
+                </button>
+                <label className="block">
+                  <span className="font-body text-[11px] text-muted-foreground underline cursor-pointer hover:text-primary">Upload a different CV file</span>
+                  <input type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" disabled={extracting} onChange={(e) => extractFromCV(e.target.files?.[0] || null)} />
+                </label>
               </div>
-            </label>
+            ) : (
+              <label className="block">
+                <div className="rounded-2xl border-2 border-dashed border-primary/40 bg-primary/5 hover:border-primary transition-colors p-4 text-center cursor-pointer">
+                  {extracting ? (
+                    <div className="flex items-center justify-center gap-2 text-xs font-body text-muted-foreground">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" /> Reading your CV...
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-1">
+                      <Upload className="w-4 h-4 text-primary" />
+                      <span className="font-display font-700 text-xs uppercase tracking-widest text-primary">Pull from CV</span>
+                      <span className="font-body text-[11px] text-muted-foreground">Upload a PDF, DOC or DOCX and we'll fill this in for you</span>
+                    </div>
+                  )}
+                  <input type="file" accept=".pdf,.doc,.docx,.txt" className="hidden" disabled={extracting} onChange={(e) => extractFromCV(e.target.files?.[0] || null)} />
+                </div>
+              </label>
+            )}
             {education.map((ed, i) => (
               <div key={ed.id} className="rounded-2xl bg-muted/40 p-4 space-y-3">
                 <div className="flex items-center justify-between">
