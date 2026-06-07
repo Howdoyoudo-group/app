@@ -472,8 +472,14 @@ const CVBuilder = () => {
         const filePath = await getExistingCvPath();
         if (!filePath) return;
         setExtracting(true);
-        const { data, error: fnErr } = await supabase.functions.invoke("extract-cv-education", { body: { filePath } });
-        if (cancelled || fnErr || !data?.success) return;
+        const session = await supabase.auth.getSession();
+        const token = session.data.session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY;
+        const fnRes = await fetch(
+          "https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/extract-cv-education",
+          { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ filePath }) }
+        );
+        const data = await fnRes.json().catch(() => ({}));
+        if (cancelled || !fnRes.ok || !data?.success) return;
         const { education: newEd, qualifications: newQ, experience: newW } = mapCvExtraction(data);
         if (newEd.length && educationEmpty) setEducation(newEd);
         if (newQ.length) setQualifications((prev) => [...prev, ...newQ]);
@@ -994,13 +1000,15 @@ const CVBuilder = () => {
         toast.error("No CV found in your account. Upload one above and we'll fill this in.");
         return;
       }
-      const { data, error: fnErr } = await supabase.functions.invoke("extract-cv-education", { body: { filePath } });
-      if (fnErr) {
-        console.error("Edge function error:", fnErr);
-        toast.error("Could not read your CV. Try uploading it again.");
-        return;
-      }
-      if (!data?.success) {
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const fnRes = await fetch(
+        "https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/extract-cv-education",
+        { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ filePath }) }
+      );
+      const data = await fnRes.json().catch(() => ({}));
+      if (!fnRes.ok || !data?.success) {
+        console.error("extract-cv-education error:", data);
         toast.error(data?.error || "Could not extract from your CV.");
         return;
       }

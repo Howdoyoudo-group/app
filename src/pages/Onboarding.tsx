@@ -452,8 +452,14 @@ const Onboarding = () => {
     if (!cvPath) { toast.error("Upload your CV first on the previous step."); return; }
     setPbExtractingEdu(true);
     try {
-      const { data, error } = await supabase.functions.invoke("extract-cv-education", { body: { filePath: cvPath } });
-      if (error || !data?.success) { toast.error(data?.error || "Could not extract from your CV."); return; }
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const fnRes = await fetch(
+        "https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/extract-cv-education",
+        { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ filePath: cvPath }) }
+      );
+      const data = await fnRes.json().catch(() => ({}));
+      if (!fnRes.ok || !data?.success) { toast.error(data?.error || "Could not extract from your CV."); return; }
       const newEd: PbEducation[] = (data.education || []).map((e: any) => ({
         id: uid(), school: e.school || "", qualification: e.qualification || "", dates: e.dates || "", grade: e.grade || "",
       }));
@@ -480,8 +486,14 @@ const Onboarding = () => {
     if (!cvPath) { toast.error("Upload your CV on the earlier step first."); return; }
     setPbExtractingExp(true);
     try {
-      const { data, error } = await supabase.functions.invoke("extract-cv-education", { body: { filePath: cvPath } });
-      if (error || !data?.success) { toast.error(data?.error || "Could not extract from your CV."); return; }
+      const session = await supabase.auth.getSession();
+      const token = session.data.session?.access_token || import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const fnRes = await fetch(
+        "https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/extract-cv-education",
+        { method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` }, body: JSON.stringify({ filePath: cvPath }) }
+      );
+      const data = await fnRes.json().catch(() => ({}));
+      if (!fnRes.ok || !data?.success) { toast.error(data?.error || "Could not extract from your CV."); return; }
       const newExp: PbThing[] = (data.experience || []).map((e: any) => ({
         id: uid(),
         title: [e.title, e.company].filter(Boolean).join(" - ") || e.title || e.company || "",

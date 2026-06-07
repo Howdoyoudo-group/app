@@ -203,11 +203,14 @@ serve(async (req) => {
     if (isDocx) {
       try {
         const docxText = await extractDocxText(bytes);
-        return await runTextExtraction(docxText, "docx");
+        if (docxText && docxText.trim().length >= 20) {
+          return await runTextExtraction(docxText, "docx");
+        }
+        console.log("docx text extraction returned too little text, falling back to multimodal");
       } catch (err) {
-        console.error("docx text extraction failed", err);
-        return new Response(JSON.stringify({ error: "Could not read text from the DOCX CV. Try uploading it as a PDF." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        console.error("docx text extraction failed, falling back to multimodal", err);
       }
+      // Fall through to Gemini multimodal for DOCX if text extraction fails
     }
 
     // 2) PDF / DOC / DOCX - send the file directly to Gemini multimodal so we
