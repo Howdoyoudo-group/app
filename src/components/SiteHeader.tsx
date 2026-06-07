@@ -74,9 +74,11 @@ type DropdownItem = {
 const NavDropdown = ({
   label,
   items,
+  wide = false,
 }: {
   label: string;
   items: DropdownItem[];
+  wide?: boolean;
 }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -123,7 +125,7 @@ const NavDropdown = ({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
             transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-            className="absolute left-0 top-full mt-3 z-50 w-72 bg-background border-2 border-foreground rounded-2xl shadow-[6px_6px_0_0_hsl(var(--foreground))] p-2"
+            className={`absolute left-0 top-full mt-3 z-50 ${wide ? "w-80" : "w-72"} bg-background border-2 border-foreground rounded-2xl shadow-[6px_6px_0_0_hsl(var(--foreground))] p-2 max-h-[80vh] overflow-y-auto`}
           >
             {items.map((item) => {
               if (item.divider) {
@@ -203,9 +205,28 @@ const DISCOVER: DropdownItem[] = [
 ];
 
 const LEVEL_UP: DropdownItem[] = [
-  { label: "Learning Hub", to: "/learning", description: "Courses, books & podcasts" },
-  { label: "Experience", to: "/resources/internships-graduates", description: "Internships, apprenticeships & more" },
-  { label: "Skills", to: "/skills-passport", description: "Assess and track your skills", badge: "Coming Soon" },
+  { label: "Skills", divider: true },
+  { label: "Skills Assessment", to: "/skills-passport", description: "Find out what you're good at", badge: "Coming Soon" },
+  { label: "Skill Gaps", to: "/skills-passport", description: "See what you need to learn", badge: "Coming Soon" },
+  { label: "Skills Passport", to: "/skills-passport", description: "Track and show your skills", badge: "Coming Soon" },
+  { label: "Learning Hub", divider: true },
+  { label: "Further Education", to: "/resources/education", description: "University, college & courses" },
+  { label: "Online Learning", to: "/resources/online-courses", description: "Learn at your own pace" },
+  { label: "Mentoring", to: "/resources/mentoring", description: "Find a mentor to guide you" },
+  { label: "Interview Skills", to: "/resources/interview-skills", description: "Prep and practice" },
+  { label: "Employability", to: "/resources/employability", description: "Confidence & communication" },
+  { label: "Financial Skills", to: "/resources/money", description: "Money, budgeting & tax" },
+  { label: "Resilience & Confidence", to: "/resources/resilience-confidence", description: "Bounce back and back yourself" },
+  { label: "Experience", divider: true },
+  { label: "Practice Interviews", to: "/learning", description: "AI mock interviews with Howdy", badge: "Coming Soon" },
+  { label: "Internships & Grad Schemes", to: "/resources/internships-graduates", description: "Structured programmes" },
+  { label: "Work Experience", to: "/resources/work-experience", description: "Get your foot in the door" },
+  { label: "Apprenticeships", to: "/resources/apprenticeships", description: "Earn while you learn" },
+  { label: "Volunteering", to: "/resources/volunteering", description: "Build skills and make a difference" },
+  { label: "How to Stand Out", to: "/starting-a-business", description: "Entrepreneurship, leadership & more" },
+  { label: "Support", divider: true },
+  { label: "Social Mobility", to: "/resources/social-mobility", description: "Programmes and support" },
+  { label: "Careers Advice", to: "/resources/careers", description: "Guidance and next steps" },
 ];
 
 const JOBS: DropdownItem[] = [
@@ -326,7 +347,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
           <div className="hidden md:flex items-center gap-4 lg:gap-6">
             <NavDropdown label="Inspire" items={INSPIRE} />
             <NavDropdown label="Discover" items={DISCOVER} />
-            <NavDropdown label="Level Up" items={LEVEL_UP} />
+            <NavDropdown label="Level Up" items={LEVEL_UP} wide />
             <NavDropdown label="Jobs" items={JOBS} />
             <NavDropdown label="Community" items={COMMUNITY} />
           </div>
