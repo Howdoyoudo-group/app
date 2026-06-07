@@ -210,10 +210,9 @@ const DISCOVER: DropdownItem[] = [
 
 const LEVEL_UP: DropdownItem[] = [
   { label: "Skills", divider: true },
-  { label: "Football Learning Module", to: "/football/badge", description: "Lessons & badge — earn it for your profile", badge: "New" },
+  { label: "Skills Passport", to: "/skills-passport", description: "Industry modules, badges & more" },
   { label: "Skills Assessment", to: "/skills-passport", description: "Find out what you're good at", badge: "Coming Soon" },
   { label: "Skill Gaps", to: "/skills-passport", description: "See what you need to learn", badge: "Coming Soon" },
-  { label: "Skills Passport", to: "/skills-passport", description: "Track and show your skills", badge: "Coming Soon" },
   { label: "Learning Hub", divider: true },
   { label: "Further Education", to: "/resources/education", description: "University, college & courses" },
   { label: "Online Learning", to: "/resources/online-courses", description: "Learn at your own pace" },
