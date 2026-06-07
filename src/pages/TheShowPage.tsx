@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Image as ImageIcon, Film } from "lucide-react";
+import { Image as ImageIcon } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
@@ -26,38 +25,14 @@ const FEATURED_VIDEOS = [
     muted: true,
   },
   {
-    id: "voxpops",
-    title: "Vox Pops — How did you get there?",
-    description: "We asked people working in the industries they love how they actually got there. Unscripted.",
-    url: "https://https-howdoyoudo-group.lovable.app/__l5e/assets-v1/867b66a7-10b5-43f6-9316-a1c231af2265/hdyd-voxpops-v6.mp4",
+    id: "explainer",
+    title: "HDYD Explainer — What is Howdoyoudo?",
+    description: "Everything we're building, why it matters, and who it's for. Two minutes that explain it all.",
+    url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/videos/hdyd-explainer-v6.mp4",
     muted: true,
   },
 ];
 
-// ── Add short films / vox pops here ─────────────────────────
-// Add url and thumbnail when videos are live
-const VIDEO_STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/videos";
-
-const SHORT_FILMS: { id: number; title: string; description?: string; url?: string; thumbnail?: string }[] = [
-  {
-    id: 1,
-    title: "How did you get into media?",
-    description: "We hit the streets and asked someone working in media how they actually got there.",
-    url: `${VIDEO_STORAGE}/video-2316.mp4`,
-  },
-  {
-    id: 2,
-    title: "The doctor who went viral",
-    description: "A qualified doctor tells us why they became a content creator — and how both worlds collide.",
-    url: `${VIDEO_STORAGE}/video-2317.mp4`,
-  },
-  {
-    id: 3,
-    title: "How did you get where you are?",
-    description: "Real people, unscripted. We asked — they answered.",
-    url: `${VIDEO_STORAGE}/video-2318.mp4`,
-  },
-];
 
 export default function TheShowPage() {
   return (
@@ -89,7 +64,7 @@ export default function TheShowPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {FEATURED_VIDEOS.map((v) => (
-              <div key={v.id} className="border-2 border-foreground/20 bg-card overflow-hidden">
+              <div key={v.id} className="border-2 border-foreground rounded-2xl overflow-hidden">
                 <div className="aspect-video bg-black overflow-hidden">
                   <video
                     controls
@@ -141,54 +116,6 @@ export default function TheShowPage() {
           </div>
         </section>
 
-        {/* Short films */}
-        <section>
-          <div className="flex items-baseline gap-3 mb-8">
-            <h2 className="font-display font-900 text-2xl md:text-3xl uppercase tracking-tight">
-              Our short stories<span style={{ color: LIME }}>.</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {SHORT_FILMS.map((film) => (
-              <div
-                key={film.id}
-                className="group border-2 border-foreground/20 bg-card overflow-hidden"
-              >
-                {/* Video player */}
-                <div className="relative aspect-video bg-black overflow-hidden">
-                  {film.url ? (
-                    <video
-                      controls
-                      playsInline
-                      preload="metadata"
-                      className="w-full h-full object-contain"
-                    >
-                      <source src={film.url} type="video/mp4" />
-                    </video>
-
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-foreground/5 to-foreground/10 flex flex-col items-center justify-center gap-2">
-                      <Film className="w-8 h-8 text-foreground/20" />
-                      <span className="font-display font-700 text-[10px] uppercase tracking-wide text-foreground/20">Coming soon</span>
-                    </div>
-                  )}
-                </div>
-                {/* Info */}
-                <div className="p-4">
-                  <p className="font-display font-900 text-sm uppercase tracking-wide text-foreground leading-snug">
-                    {film.title}
-                  </p>
-                  {film.description && (
-                    <p className="font-body text-xs text-muted-foreground leading-relaxed mt-1">
-                      {film.description}
-                    </p>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
 
       </main>
 
