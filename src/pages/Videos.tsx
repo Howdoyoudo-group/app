@@ -13,8 +13,7 @@ const FEATURED_VIDEOS = [
   {
     title: "How Do You Do — Voxpops",
     description: "Real people, real careers. Hear from young people and industry insiders about how they got where they are.",
-    src: "https://https-howdoyoudo-group.lovable.app/__l5e/assets-v1/867b66a7-10b5-43f6-9316-a1c231af2265/hdyd-voxpops-v6.mp4",
-    poster: "/videos/hdyd-voxpops-1-poster.jpg",
+    src: "https://https-howdoyoudo-group.lovable.app/__l5e/assets-v1/867b66a7-10b5-43f6-9316-a1c231af2265/hdyd-voxpops-v6.mp4#t=0.001",
     tag: "Howdoyoudo",
   },
 ];
@@ -24,19 +23,19 @@ const SHORT_FILMS: { id: number; title: string; description?: string; url?: stri
     id: 1,
     title: "How did you get into media?",
     description: "We hit the streets and asked someone working in media how they actually got there.",
-    url: `${VIDEO_STORAGE}/video-2316.mp4`,
+    url: `${VIDEO_STORAGE}/video-2316.mp4#t=0.001`,
   },
   {
     id: 2,
     title: "The doctor who went viral",
     description: "A qualified doctor tells us why they became a content creator — and how both worlds collide.",
-    url: `${VIDEO_STORAGE}/video-2317.mp4`,
+    url: `${VIDEO_STORAGE}/video-2317.mp4#t=0.001`,
   },
   {
     id: 3,
     title: "How did you get where you are?",
     description: "Real people, unscripted. We asked — they answered.",
-    url: `${VIDEO_STORAGE}/video-2318.mp4`,
+    url: `${VIDEO_STORAGE}/video-2318.mp4#t=0.001`,
   },
 ];
 
@@ -78,7 +77,6 @@ export default function Videos() {
                 <div key={v.title} className="border-2 border-foreground rounded-2xl overflow-hidden">
                   <video
                     src={v.src}
-                    poster={v.poster}
                     controls
                     playsInline
                     muted
