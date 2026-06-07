@@ -17,6 +17,23 @@ const GALLERY_PHOTOS: { id: number; src?: string; alt: string }[] = [
   { id: 6, src: `${STORAGE}/photo-6.jpg`, alt: "Interview at All Points East" },
 ];
 
+const FEATURED_VIDEOS = [
+  {
+    id: "promo",
+    title: "How Do You Do — The Show",
+    description: "A taste of what we're building. Real people, real industries, no corporate fluff.",
+    url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets/promo-web.mp4",
+    muted: true,
+  },
+  {
+    id: "voxpops",
+    title: "Vox Pops — How did you get there?",
+    description: "We asked people working in the industries they love how they actually got there. Unscripted.",
+    url: "https://https-howdoyoudo-group.lovable.app/__l5e/assets-v1/867b66a7-10b5-43f6-9316-a1c231af2265/hdyd-voxpops-v6.mp4",
+    muted: true,
+  },
+];
+
 // ── Add short films / vox pops here ─────────────────────────
 // Add url and thumbnail when videos are live
 const VIDEO_STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/videos";
@@ -62,6 +79,40 @@ export default function TheShowPage() {
             Real people, real stories. Our growing community of experts, writers and comics are making clips, interviews and in-depth stories — all going inside the industries we love. The funny and unglamorous bits, the unexpected paths and meeting the people that make things work.
           </p>
         </div>
+
+        {/* Featured videos */}
+        <section className="mb-16 md:mb-24">
+          <div className="flex items-baseline gap-3 mb-8">
+            <h2 className="font-display font-900 text-2xl md:text-3xl uppercase tracking-tight">
+              Watch<span style={{ color: LIME }}>.</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {FEATURED_VIDEOS.map((v) => (
+              <div key={v.id} className="border-2 border-foreground/20 bg-card overflow-hidden">
+                <div className="aspect-video bg-black overflow-hidden">
+                  <video
+                    controls
+                    playsInline
+                    muted={v.muted}
+                    preload="metadata"
+                    className="w-full h-full object-cover"
+                  >
+                    <source src={v.url} type="video/mp4" />
+                  </video>
+                </div>
+                <div className="p-4">
+                  <p className="font-display font-900 text-sm uppercase tracking-wide text-foreground leading-snug">
+                    {v.title}
+                  </p>
+                  <p className="font-body text-xs text-muted-foreground leading-relaxed mt-1">
+                    {v.description}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
 
         {/* Gallery */}
         <section className="mb-16 md:mb-24">

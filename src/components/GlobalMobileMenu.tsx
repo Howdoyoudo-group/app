@@ -28,7 +28,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "Inspire",
     items: [
-      { label: "The Show", to: "/the-show", description: "Our original series", badge: "Coming Soon" },
+      { label: "The Show", to: "/the-show", description: "Our original series" },
       { label: "Videos", to: "/videos", description: "Watch the best career stories" },
       { label: "Articles", to: "/feed", description: "Read & learn", badge: "Coming Soon" },
     ],
