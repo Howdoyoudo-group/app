@@ -18,17 +18,17 @@ const GALLERY_PHOTOS: { id: number; src?: string; alt: string }[] = [
 
 const FEATURED_VIDEOS = [
   {
-    id: "promo",
-    title: "How Do You Do — The Show",
-    description: "A taste of what we're building. Real people, real industries, no corporate fluff.",
-    url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets/promo-web.mp4#t=0.001",
-    muted: true,
-  },
-  {
     id: "explainer",
     title: "HDYD Explainer — What is Howdoyoudo?",
     description: "Everything we're building, why it matters, and who it's for. Two minutes that explain it all.",
     url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/videos/hdyd-explainer-v6.mp4#t=0.001",
+    muted: true,
+  },
+  {
+    id: "promo",
+    title: "How Do You Do — The Show",
+    description: "A taste of what we're building. Real people, real industries, no corporate fluff.",
+    url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets/promo-web.mp4#t=0.001",
     muted: true,
   },
 ];
