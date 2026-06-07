@@ -1,27 +1,8 @@
 import { motion } from "framer-motion";
 const voxpopsVideo = { url: "https://https-howdoyoudo-group.lovable.app/__l5e/assets-v1/867b66a7-10b5-43f6-9316-a1c231af2265/hdyd-voxpops-v6.mp4" };
-import { useEffect, useRef } from "react";
-
 const INDUSTRIES = ["Fashion", "Football", "Music", "Beauty", "Food", "Travel", "Technology", "Beer", "Pets", "Gaming"];
 
 const About = () => {
-  const videoRef = useRef<HTMLVideoElement | null>(null);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) video.play().catch(() => {});
-        });
-      },
-      { threshold: 0.4 }
-    );
-    observer.observe(video);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <section id="about" className="py-20 md:py-32 border-t border-border">
       <div className="container mx-auto px-6 md:px-12">
@@ -34,29 +15,11 @@ const About = () => {
           transition={{ duration: 0.7 }}
           className="mb-20 overflow-hidden"
         >
-          <div className="md:hidden mx-auto w-full max-w-[320px]">
-            <div className="relative aspect-[9/16] bg-transparent">
-              <svg className="absolute -inset-4 w-[calc(100%+2rem)] h-[calc(100%+2rem)] pointer-events-none z-10" viewBox="0 0 660 1080" preserveAspectRatio="none" aria-hidden="true">
-                <path fillRule="evenodd" fill="hsl(var(--background))" stroke="none" d="M30,30 Q180,24 330,28 Q480,32 630,30 Q636,360 632,540 Q636,720 630,1050 Q480,1052 330,1050 Q180,1048 30,1052 Q24,720 28,540 Q24,360 30,30 Z M50,50 Q180,46 330,48 Q480,50 610,52 Q612,360 610,540 Q612,720 610,1030 Q480,1032 330,1030 Q180,1028 50,1032 Q48,720 50,540 Q48,360 50,50 Z" />
-                <g fill="none" stroke="hsl(var(--foreground))" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M30,30 Q180,24 330,28 Q480,32 630,30 Q636,360 632,540 Q636,720 630,1050 Q480,1052 330,1050 Q180,1048 30,1052 Q24,720 28,540 Q24,360 30,30 Z" />
-                  <path d="M50,50 Q180,46 330,48 Q480,50 610,52 Q612,360 610,540 Q612,720 610,1030 Q480,1032 330,1030 Q180,1028 50,1032 Q48,720 50,540 Q48,360 50,50 Z" />
-                  <circle cx="330" cy="20" r="3" fill="hsl(var(--primary))" />
-                  <path d="M325,4 Q330,-4 335,4" />
-                </g>
-              </svg>
-              <video ref={videoRef} src="/videos/promo-web.mp4" poster="/videos/promo-poster.jpg" loop playsInline preload="metadata" controls controlsList="nodownload noplaybackrate" className="absolute inset-0 w-full h-full object-cover rounded-sm" />
-            </div>
-          </div>
-          <video src={voxpopsVideo.url} poster="/videos/hdyd-voxpops-1-poster.jpg" loop muted playsInline preload="metadata" controls controlsList="nodownload noplaybackrate" className="hidden md:block w-full h-64 md:h-[28rem] object-cover object-center" />
-        </motion.div>
-
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="md:hidden mb-12">
-          <video src={voxpopsVideo.url} poster="/videos/hdyd-voxpops-1-poster.jpg" loop muted playsInline preload="metadata" controls controlsList="nodownload noplaybackrate" className="w-full aspect-video object-cover rounded-md border border-border" />
+          <video src={voxpopsVideo.url} poster="/videos/hdyd-voxpops-1-poster.jpg" loop muted playsInline preload="metadata" controls controlsList="nodownload noplaybackrate" className="w-full h-64 md:h-[28rem] object-cover object-center" />
         </motion.div>
 
         {/* Header */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-12 md:gap-20 mb-20">
           <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
             <p className="text-primary text-xs tracking-[0.3em] uppercase font-body mb-3">About</p>
             <h2 className="font-display text-4xl md:text-5xl font-800 leading-[0.9]">
@@ -65,7 +28,7 @@ const About = () => {
           </motion.div>
           <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }} className="flex flex-col justify-center">
             <p className="text-muted-foreground text-base md:text-lg leading-relaxed font-body mb-4">
-              How Do You Do is a small but growing community of young people, writers, comedians, experts and producers in the UK and US.
+              How Do You Do is a growing community of young people, writers, comedians, experts and producers in the UK and US.
             </p>
             <p className="text-foreground text-base md:text-lg leading-relaxed font-body font-500">
               We're building something for people who are curious about the industries they love and want to understand how they really work.
@@ -88,7 +51,7 @@ const About = () => {
             <div className="space-y-4">
               <p className="text-muted-foreground text-base md:text-lg leading-relaxed font-body">Millions of young people are leaving education without a clear idea of what they want to do next, who to talk to or where to start.</p>
               <p className="text-muted-foreground text-base md:text-lg leading-relaxed font-body">At the same time, the outlook can feel pretty bleak. Headlines are full of rising living costs, AI taking jobs and a tough employment market.</p>
-              <p className="text-foreground text-base md:text-lg leading-relaxed font-body font-600">How Do You Do exists to help solve that. Feeding our curiosities and helping people discover the things they didn't know existed. If you can't see it, you can't be part of it.</p>
+              <p className="text-foreground text-base md:text-lg leading-relaxed font-body font-600">How Do You Do exists to help solve that. Feeding our curiosities and helping people discover the things they didn't know existed.</p>
             </div>
           </motion.div>
 

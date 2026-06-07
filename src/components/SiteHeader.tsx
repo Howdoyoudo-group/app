@@ -195,7 +195,7 @@ const NavDropdown = ({
 
 const INSPIRE: DropdownItem[] = [
   { label: "The Show", to: "/the-show", description: "Our original series", badge: "Coming Soon" },
-  { label: "Videos", to: "/the-show", description: "Watch the best career stories", badge: "Coming Soon" },
+  { label: "Videos", to: "/videos", description: "Watch the best career stories" },
   { label: "Articles", to: "/the-show", description: "Read & learn", badge: "Coming Soon" },
 ];
 

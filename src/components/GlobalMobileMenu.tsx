@@ -11,12 +11,17 @@ type NavItem = {
   href?: string;
   description?: string;
   badge?: string;
-  divider?: boolean;
+};
+
+type NavSubSection = {
+  label: string;
+  items: NavItem[];
 };
 
 type NavSection = {
   label: string;
-  items: NavItem[];
+  items?: NavItem[];          // flat list (most sections)
+  subSections?: NavSubSection[]; // grouped drill-down (Level Up)
 };
 
 const NAV_SECTIONS: NavSection[] = [
@@ -24,8 +29,8 @@ const NAV_SECTIONS: NavSection[] = [
     label: "Inspire",
     items: [
       { label: "The Show", to: "/the-show", description: "Our original series", badge: "Coming Soon" },
-      { label: "Videos", to: "/the-show", description: "Watch the best career stories", badge: "Coming Soon" },
-      { label: "Articles", to: "/the-show", description: "Read & learn", badge: "Coming Soon" },
+      { label: "Videos", to: "/videos", description: "Watch the best career stories" },
+      { label: "Articles", to: "/feed", description: "Read & learn", badge: "Coming Soon" },
     ],
   },
   {
@@ -41,29 +46,45 @@ const NAV_SECTIONS: NavSection[] = [
   },
   {
     label: "Level Up",
-    items: [
-      { label: "Skills", divider: true },
-      { label: "Skills Assessment", to: "/skills-passport", description: "Find out what you're good at", badge: "Coming Soon" },
-      { label: "Skill Gaps", to: "/skills-passport", description: "See what you need to learn", badge: "Coming Soon" },
-      { label: "Skills Passport", to: "/skills-passport", description: "Track and show your skills", badge: "Coming Soon" },
-      { label: "Learning Hub", divider: true },
-      { label: "Further Education", to: "/resources/education", description: "University, college & courses" },
-      { label: "Online Learning", to: "/resources/online-courses", description: "Learn at your own pace" },
-      { label: "Mentoring", to: "/resources/mentoring", description: "Find a mentor to guide you" },
-      { label: "Interview Skills", to: "/resources/interview-skills", description: "Prep and practice" },
-      { label: "Employability", to: "/resources/employability", description: "Confidence & communication" },
-      { label: "Financial Skills", to: "/resources/money", description: "Money, budgeting & tax" },
-      { label: "Resilience & Confidence", to: "/resources/resilience-confidence", description: "Bounce back and back yourself" },
-      { label: "Experience", divider: true },
-      { label: "Practice Interviews", to: "/learning", description: "AI mock interviews with Howdy", badge: "Coming Soon" },
-      { label: "Internships & Grad Schemes", to: "/resources/internships-graduates", description: "Structured programmes" },
-      { label: "Work Experience", to: "/resources/work-experience", description: "Get your foot in the door" },
-      { label: "Apprenticeships", to: "/resources/apprenticeships", description: "Earn while you learn" },
-      { label: "Volunteering", to: "/resources/volunteering", description: "Build skills and make a difference" },
-      { label: "How to Stand Out", to: "/how-to-stand-out", description: "Side hustles, projects, leadership & skills" },
-      { label: "Support", divider: true },
-      { label: "Social Mobility", to: "/resources/social-mobility", description: "Programmes and support" },
-      { label: "Careers Advice", to: "/resources/careers", description: "Guidance and next steps" },
+    subSections: [
+      {
+        label: "Skills",
+        items: [
+          { label: "Skills Assessment", to: "/skills-passport", description: "Find out what you're good at", badge: "Coming Soon" },
+          { label: "Skill Gaps", to: "/skills-passport", description: "See what you need to learn", badge: "Coming Soon" },
+          { label: "Skills Passport", to: "/skills-passport", description: "Track and show your skills", badge: "Coming Soon" },
+        ],
+      },
+      {
+        label: "Learning Hub",
+        items: [
+          { label: "Further Education", to: "/resources/education", description: "University, college & courses" },
+          { label: "Online Learning", to: "/resources/online-courses", description: "Learn at your own pace" },
+          { label: "Mentoring", to: "/resources/mentoring", description: "Find a mentor to guide you" },
+          { label: "Interview Skills", to: "/resources/interview-skills", description: "Prep and practice" },
+          { label: "Employability", to: "/resources/employability", description: "Confidence & communication" },
+          { label: "Financial Skills", to: "/resources/money", description: "Money, budgeting & tax" },
+          { label: "Resilience & Confidence", to: "/resources/resilience-confidence", description: "Bounce back and back yourself" },
+        ],
+      },
+      {
+        label: "Experience",
+        items: [
+          { label: "Practice Interviews", to: "/learning", description: "AI mock interviews with Howdy", badge: "Coming Soon" },
+          { label: "Internships & Grad Schemes", to: "/resources/internships-graduates", description: "Structured programmes" },
+          { label: "Work Experience", to: "/resources/work-experience", description: "Get your foot in the door" },
+          { label: "Apprenticeships", to: "/resources/apprenticeships", description: "Earn while you learn" },
+          { label: "Volunteering", to: "/resources/volunteering", description: "Build skills and make a difference" },
+          { label: "How to Stand Out", to: "/how-to-stand-out", description: "Side hustles, projects, leadership & skills" },
+        ],
+      },
+      {
+        label: "Support",
+        items: [
+          { label: "Social Mobility", to: "/resources/social-mobility", description: "Programmes and support" },
+          { label: "Careers Advice", to: "/resources/careers", description: "Guidance and next steps" },
+        ],
+      },
     ],
   },
   {
@@ -83,7 +104,6 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "People", to: "/community", description: "Members, chat & connections" },
       { label: "Events", to: "/events", description: "What's on in your industry" },
       { label: "Mentors", to: "/mentoring", description: "Learn from people already doing it" },
-      { label: "Help", divider: true },
       { label: "The Mix", href: "https://www.themix.org.uk", description: "Free support for under 25s" },
       { label: "Shout", href: "https://www.giveusashout.org", description: "24/7 crisis text line" },
       { label: "National Careers Service", href: "https://nationalcareers.service.gov.uk", description: "Free careers guidance" },
@@ -106,11 +126,28 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
   const { user, signOut, loading: authLoading } = useAuth();
   const [open, setOpen] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
+  const [openSubSection, setOpenSubSection] = useState<string | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const location = useLocation();
-  const closeMenu = () => { setOpen(false); setOpenSection(null); };
 
+  const closeMenu = () => {
+    setOpen(false);
+    setOpenSection(null);
+    setOpenSubSection(null);
+  };
+
+  // Close on navigation
   useEffect(() => { closeMenu(); }, [location.pathname]);
+
+  // Lock body scroll when menu is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
 
   useEffect(() => {
     let active = true;
@@ -129,11 +166,12 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
     return () => { active = false; };
   }, [user]);
 
-  const allSections = user
+  const allSections: NavSection[] = user
     ? [...NAV_SECTIONS, { label: "Profile", items: PROFILE_ITEMS }]
     : NAV_SECTIONS;
 
   const activeSection = allSections.find((s) => s.label === openSection);
+  const activeSubSection = activeSection?.subSections?.find((ss) => ss.label === openSubSection);
 
   return (
     <>
@@ -157,7 +195,7 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
 
         <button
           type="button"
-          onClick={() => { setOpen((v) => !v); setOpenSection(null); }}
+          onClick={() => { setOpen((v) => !v); setOpenSection(null); setOpenSubSection(null); }}
           aria-label={open ? "Close menu" : "Open menu"}
           aria-expanded={open}
           className="inline-flex items-center justify-center w-10 h-10 rounded-full border-2 border-foreground bg-background text-foreground hover:bg-primary transition-colors"
@@ -186,10 +224,11 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
-              className={`md:hidden fixed ${panelTopClass} inset-x-4 z-50 bg-background border-2 border-foreground rounded-2xl shadow-[6px_6px_0_0_hsl(var(--foreground))] overflow-hidden`}
+              className={`md:hidden fixed ${panelTopClass} inset-x-4 z-50 bg-background border-2 border-foreground rounded-2xl shadow-[6px_6px_0_0_hsl(var(--foreground))] overflow-y-auto max-h-[calc(100dvh-5rem)]`}
             >
               <AnimatePresence mode="wait">
-                {/* TOP LEVEL — section list */}
+
+                {/* LEVEL 1 — section list */}
                 {!openSection && (
                   <motion.div
                     key="top"
@@ -213,7 +252,7 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                       <button
                         key={section.label}
                         type="button"
-                        onClick={() => setOpenSection(section.label)}
+                        onClick={() => { setOpenSection(section.label); setOpenSubSection(null); }}
                         className="flex items-center justify-between w-full px-3 py-3 rounded-xl font-display font-900 text-lg uppercase tracking-wide text-foreground hover:bg-primary transition-colors text-left"
                       >
                         {section.label}
@@ -243,8 +282,8 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                   </motion.div>
                 )}
 
-                {/* SECOND LEVEL — subsection items */}
-                {openSection && activeSection && (
+                {/* LEVEL 2 — flat items list (most sections) */}
+                {openSection && activeSection && activeSection.items && !openSubSection && (
                   <motion.div
                     key={`section-${openSection}`}
                     initial={{ opacity: 0, x: 16 }}
@@ -267,15 +306,6 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                     </div>
 
                     {activeSection.items.map((item) => {
-                      if (item.divider) {
-                        return (
-                          <div key={item.label} className="flex items-center gap-2 px-3 pt-3 pb-1">
-                            <div className="h-px flex-1 bg-foreground/15" />
-                            <span className="font-display font-700 text-[9px] uppercase tracking-[0.18em] text-foreground/40">{item.label}</span>
-                            <div className="h-px flex-1 bg-foreground/15" />
-                          </div>
-                        );
-                      }
                       const isComingSoon = item.badge === "Coming Soon";
                       const inner = (
                         <>
@@ -325,6 +355,123 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                     })}
                   </motion.div>
                 )}
+
+                {/* LEVEL 2 — sub-section group list (Level Up) */}
+                {openSection && activeSection && activeSection.subSections && !openSubSection && (
+                  <motion.div
+                    key={`section-${openSection}-groups`}
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 16 }}
+                    transition={{ duration: 0.18 }}
+                    className="p-5 flex flex-col gap-1"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenSection(null)}
+                      className="flex items-center gap-2 mb-3 font-display font-700 text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
+                    >
+                      <ArrowLeft size={14} strokeWidth={2.5} />
+                      Back
+                    </button>
+
+                    <div className="font-display font-900 text-xs uppercase tracking-[0.2em] text-primary mb-2 px-1">
+                      {activeSection.label}
+                    </div>
+
+                    {activeSection.subSections.map((sub) => (
+                      <button
+                        key={sub.label}
+                        type="button"
+                        onClick={() => setOpenSubSection(sub.label)}
+                        className="flex items-center justify-between w-full px-3 py-3 rounded-xl font-display font-900 text-base uppercase tracking-wide text-foreground hover:bg-primary transition-colors text-left border-2 border-transparent hover:border-foreground"
+                      >
+                        <span>
+                          {sub.label}
+                          <span className="block font-body font-400 text-xs text-foreground/50 normal-case tracking-normal mt-0.5">
+                            {sub.items.length} topics
+                          </span>
+                        </span>
+                        <ChevronRight size={18} strokeWidth={2.5} className="text-foreground/40 shrink-0" />
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+
+                {/* LEVEL 3 — sub-section items */}
+                {openSection && activeSection && activeSection.subSections && openSubSection && activeSubSection && (
+                  <motion.div
+                    key={`subsection-${openSubSection}`}
+                    initial={{ opacity: 0, x: 16 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 16 }}
+                    transition={{ duration: 0.18 }}
+                    className="p-5 flex flex-col gap-1"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenSubSection(null)}
+                      className="flex items-center gap-2 mb-3 font-display font-700 text-xs uppercase tracking-wider text-foreground/50 hover:text-foreground transition-colors"
+                    >
+                      <ArrowLeft size={14} strokeWidth={2.5} />
+                      {activeSection.label}
+                    </button>
+
+                    <div className="font-display font-900 text-xs uppercase tracking-[0.2em] text-primary mb-2 px-1">
+                      {activeSubSection.label}
+                    </div>
+
+                    {activeSubSection.items.map((item) => {
+                      const isComingSoon = item.badge === "Coming Soon";
+                      const inner = (
+                        <>
+                          <span className="font-display font-900 text-base uppercase tracking-wide text-foreground flex items-center gap-2">
+                            {item.label}
+                            {item.badge && (
+                              <span className={`font-display font-700 text-[9px] uppercase tracking-wide px-1.5 py-0.5 border rounded-full leading-none ${isComingSoon ? "bg-foreground/10 text-foreground/50 border-foreground/20" : "bg-primary text-foreground border-foreground"}`}>
+                                {item.badge}
+                              </span>
+                            )}
+                          </span>
+                          {item.description && (
+                            <span className="font-body text-xs text-foreground/50 mt-0.5">
+                              {item.description}
+                            </span>
+                          )}
+                        </>
+                      );
+                      if (isComingSoon) {
+                        return (
+                          <div key={item.label} className="flex flex-col px-3 py-3 rounded-xl opacity-50 cursor-not-allowed">
+                            {inner}
+                          </div>
+                        );
+                      }
+                      return item.to ? (
+                        <Link
+                          key={item.label}
+                          to={item.to}
+                          onClick={closeMenu}
+                          className="flex flex-col px-3 py-3 rounded-xl hover:bg-primary transition-colors border-2 border-transparent hover:border-foreground"
+                        >
+                          {inner}
+                        </Link>
+                      ) : (
+                        <a
+                          key={item.label}
+                          href={item.href}
+                          target={item.href?.startsWith("http") ? "_blank" : undefined}
+                          rel={item.href?.startsWith("http") ? "noopener noreferrer" : undefined}
+                          onClick={closeMenu}
+                          className="flex flex-col px-3 py-3 rounded-xl hover:bg-primary transition-colors border-2 border-transparent hover:border-foreground"
+                        >
+                          {inner}
+                        </a>
+                      );
+                    })}
+                  </motion.div>
+                )}
+
               </AnimatePresence>
             </motion.div>
           </>

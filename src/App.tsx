@@ -78,6 +78,7 @@ const CVBuilderPage = lazy(() => import("./pages/CVBuilderPage.tsx"));
 const MatchMe = lazy(() => import("./pages/MatchMe.tsx"));
 const HelpMeApply = lazy(() => import("./pages/HelpMeApply.tsx"));
 const HowToStandOut = lazy(() => import("./pages/HowToStandOut.tsx"));
+const Videos = lazy(() => import("./pages/Videos.tsx"));
 const CareerProfile = lazy(() => import("./pages/CareerProfile.tsx"));
 const MyProfile = lazy(() => import("./pages/MyProfile.tsx"));
 const BriefingsSample = lazy(() => import("./pages/BriefingsSample.tsx"));
@@ -292,6 +293,7 @@ const App = () => (
           <Route path="/match-me" element={<MatchMe />} />
           <Route path="/help-me-apply" element={<HelpMeApply />} />
           <Route path="/how-to-stand-out" element={<HowToStandOut />} />
+          <Route path="/videos" element={<Videos />} />
           <Route path="/profile/:id" element={<CareerProfile />} />
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/my-profile-demo" element={<MyProfileDemo />} />
