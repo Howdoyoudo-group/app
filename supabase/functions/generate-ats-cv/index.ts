@@ -102,9 +102,9 @@ Now write the ATS CV:`;
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
-  } catch (err) {
+  } catch (err: any) {
     console.error("generate-ats-cv error:", err);
-    return new Response(JSON.stringify({ error: "Unexpected error" }), {
+    return new Response(JSON.stringify({ error: err?.message || String(err) }), {
       status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
