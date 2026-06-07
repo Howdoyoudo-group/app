@@ -1,4 +1,18 @@
 {
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "howdoyoudo.group" }],
+      "destination": "https://www.howdoyoudo.co.uk/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.howdoyoudo.group" }],
+      "destination": "https://www.howdoyoudo.co.uk/$1",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { "source": "/((?!assets/).*)", "destination": "/index.html" }
   ]
