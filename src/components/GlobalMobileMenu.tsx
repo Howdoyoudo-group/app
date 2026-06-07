@@ -51,6 +51,7 @@ const NAV_SECTIONS: NavSection[] = [
       {
         label: "Skills",
         items: [
+          { label: "Football Learning Module", to: "/football/badge", description: "Lessons & badge — earn it for your profile", badge: "New" },
           { label: "Skills Assessment", to: "/skills-passport", description: "Find out what you're good at", badge: "Coming Soon" },
           { label: "Skill Gaps", to: "/skills-passport", description: "See what you need to learn", badge: "Coming Soon" },
           { label: "Skills Passport", to: "/skills-passport", description: "Track and show your skills", badge: "Coming Soon" },
