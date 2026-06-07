@@ -7,7 +7,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
-import SiteHeader from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -95,8 +94,6 @@ export default function HelpMeApply() {
   return (
     <>
       <SEO title="Help Me Apply | Howdoyoudo?" description="AI-powered cover letters tailored to you and the job." />
-      <SiteHeader />
-
       <main className="min-h-screen bg-background">
         <section className="px-4 sm:px-6 lg:px-10 pt-8 pb-16 max-w-3xl mx-auto">
           <motion.div {...fadeUp} className="mb-8">

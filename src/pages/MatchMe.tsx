@@ -6,7 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
-import SiteHeader from "@/components/SiteHeader";
 import { Button } from "@/components/ui/button";
 
 interface RoleMatch {
@@ -106,8 +105,6 @@ export default function MatchMe() {
   return (
     <>
       <SEO title="Match Me | Howdoyoudo?" description="Discover the roles, industries and opportunities that match who you are." />
-      <SiteHeader />
-
       <main className="min-h-screen bg-background">
         {/* Hero */}
         <section className="px-4 sm:px-6 lg:px-10 pt-8 pb-12 max-w-5xl mx-auto">

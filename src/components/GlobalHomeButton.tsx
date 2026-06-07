@@ -26,6 +26,8 @@ const GlobalHomeButton = () => {
     "/my-jobs-demo",
     "/cv-builder",
     "/onboarding",
+    "/match-me",
+    "/help-me-apply",
   ];
   if (skipRoutes.some(r => pathname === r || pathname.startsWith(r + "/"))) return null;
 

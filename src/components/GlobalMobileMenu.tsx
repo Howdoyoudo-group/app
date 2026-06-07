@@ -23,17 +23,17 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "Inspire",
     items: [
-      { label: "The Show", to: "/the-show", description: "Our original series — coming soon" },
-      { label: "Articles", to: "/feed", description: "Industry news & briefings" },
-      { label: "Industries", href: "/#series", description: "Explore 30+ sectors" },
+      { label: "The Show", to: "/the-show", description: "Our original series", badge: "Coming Soon" },
+      { label: "Videos", to: "/the-show", description: "Watch the best career stories", badge: "Coming Soon" },
+      { label: "Articles", to: "/the-show", description: "Read & learn", badge: "Coming Soon" },
     ],
   },
   {
     label: "Discover",
     items: [
       { label: "Yourself", to: "/my-profile", description: "Interests, personality, strengths & values" },
-      { label: "Roles", to: "/roles", description: "By job, not just by title" },
       { label: "Industries", href: "/#series", description: "Explore 30+ sectors" },
+      { label: "Roles", to: "/roles", description: "By job, not just by title" },
       { label: "Side Hustles", to: "/side-hustles", description: "Turn what you love into income" },
       { label: "Start a Business", to: "/starting-a-business", description: "Your own thing" },
       { label: "Match Me", to: "/match-me", description: "See where you could go", badge: "New" },
