@@ -194,9 +194,9 @@ Deno.serve(async (req) => {
         .select("id", { count: "exact", head: true })
         .eq("user_id", userId)
         .gte("used_at", todayStart.toISOString());
-      if ((count ?? 0) >= 10) {
+      if ((count ?? 0) >= 50) {
         return new Response(
-          JSON.stringify({ error: "You've reached your daily limit of 10 AI requests. Try again tomorrow." }),
+          JSON.stringify({ error: "You've reached your daily limit of 50 AI requests. Try again tomorrow." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }

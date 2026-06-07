@@ -136,8 +136,8 @@ serve(async (req) => {
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
       .gte("used_at", todayStart.toISOString());
-    if ((count ?? 0) >= 10) {
-      return new Response(JSON.stringify({ error: "You've reached your daily limit of 10 AI requests. Try again tomorrow." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if ((count ?? 0) >= 50) {
+      return new Response(JSON.stringify({ error: "You've reached your daily limit of 50 AI requests. Try again tomorrow." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     await svc.from("ai_usage_log").insert({ user_id: userId, function_name: "extract-cv-education" });
 
