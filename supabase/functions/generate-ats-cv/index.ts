@@ -20,19 +20,6 @@ serve(async (req) => {
       });
     }
 
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
-      { global: { headers: { Authorization: authHeader } } }
-    );
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claims, error: authError } = await supabase.auth.getClaims(token);
-    if (authError || !claims?.claims) {
-      return new Response(JSON.stringify({ error: "Invalid session. Please sign in again." }), {
-        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
     const { jobDescription, profileData } = await req.json();
     if (!jobDescription?.trim()) {
       return new Response(JSON.stringify({ error: "Job description is required" }), {

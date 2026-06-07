@@ -722,7 +722,8 @@ const CVBuilder = () => {
       const { data, error } = await supabase.functions.invoke("generate-ats-cv", {
         body: { jobDescription, profileData },
       });
-      if (error || !data?.cvText) { toast.error("Could not generate ATS CV."); return; }
+      console.log("ATS response:", { data, error });
+      if (!data?.cvText) { toast.error(data?.error || error?.message || "Could not generate ATS CV."); return; }
       setAtsResult(data);
     } catch (err) {
       console.error(err);
