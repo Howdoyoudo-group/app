@@ -60,7 +60,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Work Experience", to: "/resources/work-experience", description: "Get your foot in the door" },
       { label: "Apprenticeships", to: "/resources/apprenticeships", description: "Earn while you learn" },
       { label: "Volunteering", to: "/resources/volunteering", description: "Build skills and make a difference" },
-      { label: "How to Stand Out", to: "/starting-a-business", description: "Entrepreneurship, leadership & more" },
+      { label: "How to Stand Out", to: "/how-to-stand-out", description: "Side hustles, projects, leadership & skills" },
       { label: "Support", divider: true },
       { label: "Social Mobility", to: "/resources/social-mobility", description: "Programmes and support" },
       { label: "Careers Advice", to: "/resources/careers", description: "Guidance and next steps" },
