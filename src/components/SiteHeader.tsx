@@ -234,11 +234,11 @@ const LEVEL_UP: DropdownItem[] = [
 ];
 
 const JOBS: DropdownItem[] = [
+  { label: "Jobs Marketplace", to: "/marketplace", description: "Browse all live roles" },
+  { label: "Howdy Jobs", to: "/my-jobs?tab=jobs", description: "Roles matched to your profile" },
   { label: "CV Builder", to: "/cv-builder", description: "Build a profile that stands out" },
   { label: "Help Me Apply", to: "/help-me-apply", description: "AI cover letters & applications", badge: "New" },
   { label: "Interview Prep", to: "/resources/interview-skills", description: "Practice and prepare" },
-  { label: "Jobs Marketplace", to: "/marketplace", description: "Browse all live roles" },
-  { label: "Howdy Jobs", to: "/my-jobs?tab=jobs", description: "Roles matched to your profile" },
 ];
 
 const COMMUNITY: DropdownItem[] = [

@@ -11,6 +11,7 @@ type NavItem = {
   href?: string;
   description?: string;
   badge?: string;
+  divider?: boolean;
 };
 
 type NavSubSection = {
@@ -90,11 +91,11 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "Jobs",
     items: [
+      { label: "Jobs Marketplace", to: "/marketplace", description: "Browse all live roles" },
+      { label: "Howdy Jobs", to: "/my-jobs?tab=jobs", description: "Roles matched to your profile" },
       { label: "CV Builder", to: "/cv-builder", description: "Build a profile that stands out" },
       { label: "Help Me Apply", to: "/help-me-apply", description: "AI cover letters & applications", badge: "New" },
       { label: "Interview Prep", to: "/resources/interview-skills", description: "Practice and prepare" },
-      { label: "Jobs Marketplace", to: "/marketplace", description: "Browse all live roles" },
-      { label: "Howdy Jobs", to: "/my-jobs?tab=jobs", description: "Roles matched to your profile" },
     ],
   },
   {
@@ -104,6 +105,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "People", to: "/community", description: "Members, chat & connections" },
       { label: "Events", to: "/events", description: "What's on in your industry" },
       { label: "Mentors", to: "/mentoring", description: "Learn from people already doing it" },
+      { label: "Help", divider: true },
       { label: "The Mix", href: "https://www.themix.org.uk", description: "Free support for under 25s" },
       { label: "Shout", href: "https://www.giveusashout.org", description: "24/7 crisis text line" },
       { label: "National Careers Service", href: "https://nationalcareers.service.gov.uk", description: "Free careers guidance" },
@@ -306,6 +308,15 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                     </div>
 
                     {activeSection.items.map((item) => {
+                      if (item.divider) {
+                        return (
+                          <div key={item.label} className="flex items-center gap-2 px-3 pt-3 pb-1">
+                            <div className="h-px flex-1 bg-foreground/15" />
+                            <span className="font-display font-700 text-[9px] uppercase tracking-[0.18em] text-foreground/40">{item.label}</span>
+                            <div className="h-px flex-1 bg-foreground/15" />
+                          </div>
+                        );
+                      }
                       const isComingSoon = item.badge === "Coming Soon";
                       const inner = (
                         <>
