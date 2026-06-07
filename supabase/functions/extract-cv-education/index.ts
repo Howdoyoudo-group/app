@@ -119,11 +119,14 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } },
     );
     const token = authHeader.replace("Bearer ", "");
-    const { data: claims, error: authError } = await authClient.auth.getClaims(token);
-    if (authError || !claims?.claims) {
+    let userId: string;
+    try {
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      if (!payload?.sub) throw new Error("no sub");
+      userId = payload.sub as string;
+    } catch {
       return new Response(JSON.stringify({ error: "Invalid session." }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    const userId = claims.claims.sub as string;
 
     const svc = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
     const todayStart = new Date();
