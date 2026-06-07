@@ -393,6 +393,82 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
       { name: "OpenClassrooms", description: "Online diplomas and bachelor's/master's-level programmes with mentor support, recognised across Europe.", url: "https://openclassrooms.com/en/", tags: ["Mentored", "Diplomas"] },
     ],
   },
+  {
+    slug: "cv-tips",
+    title: "CV Tips",
+    description: "Stand out on paper and online. Practical guides to writing a CV that gets read, passing ATS filters and making a great first impression.",
+    icon: learningEmployability,
+    watch: [
+      { name: "How to Write a CV in 2024 (YouTube - Thomas Frank)", description: "Step-by-step walkthrough of a modern, effective CV with real examples.", url: "https://www.youtube.com/watch?v=y8YH0Qbu5h4" },
+      { name: "ATS Resume Tips - Beat the Bots (YouTube - Jeff Su)", description: "How applicant tracking systems work and exactly how to format your CV to get past them.", url: "https://www.youtube.com/watch?v=9Gvz4_WExNs" },
+      { name: "LinkedIn Learning - Writing a Great CV", description: "Short professional course on CV structure, language and what recruiters look for.", url: "https://www.linkedin.com/learning/topics/resume-writing" },
+    ],
+    listen: [
+      { name: "Squiggly Careers - How to write a CV that works", description: "Practical episode on CVs, covering modern formats, what to include and how to tailor for roles.", url: "https://open.spotify.com/show/2JCRlgjewZqdgpovS3e8GA" },
+      { name: "The Job Interview Experience", description: "Covers CVs, cover letters and interview prep from both sides of the table.", url: "https://open.spotify.com/show/3PCG3N9RqZOd2V0mcfTQUQ" },
+    ],
+    read: [
+      { name: "TotalJobs - CV Guide", description: "UK's most comprehensive CV writing guide - formats, examples and what employers want to see.", url: "https://www.totaljobs.com/advice/cv-advice" },
+      { name: "Reed.co.uk - CV Tips", description: "Recruiter-backed advice on CVs, covering length, structure, skills sections and common mistakes.", url: "https://www.reed.co.uk/career-advice/cv-advice/" },
+      { name: "Guardian Careers - CV advice", description: "Practical articles from the Guardian on standout CVs, LinkedIn and job applications.", url: "https://www.theguardian.com/careers/cv" },
+    ],
+    help: [
+      { name: "National Careers Service - CV builder", description: "Free UK government CV builder with templates, tips and downloadable formats.", url: "https://nationalcareers.service.gov.uk/get-a-job/cv-sections", tags: ["Free", "UK"] },
+      { name: "MyWorldOfWork", description: "Scottish careers service with free CV, cover letter and interview resources.", url: "https://www.myworldofwork.co.uk/cv-guide", tags: ["Free", "UK"] },
+      { name: "TopCV - Free CV review", description: "Submit your CV for a free expert review with actionable feedback.", url: "https://www.topcv.co.uk/free-cv-review", tags: ["Free", "Review"] },
+    ],
+  },
+  {
+    slug: "volunteering",
+    title: "Volunteering",
+    description: "Build real skills, find your community and make a difference. Volunteering is one of the fastest ways to gain experience, references and confidence — whatever stage you're at.",
+    icon: learningMentoring,
+    watch: [
+      { name: "Why volunteer? The surprising benefits (TED)", description: "TED playlist on social impact, purpose-driven work and why volunteering changes you more than you expect.", url: "https://www.ted.com/topics/volunteering" },
+      { name: "Do IT - Volunteering for your career (YouTube)", description: "How volunteering builds employability, fills CV gaps and opens unexpected doors.", url: "https://www.youtube.com/@doitnow" },
+      { name: "NCVO - Volunteering guides", description: "The National Council for Voluntary Organisations' practical videos on getting into volunteering.", url: "https://www.ncvo.org.uk/get-involved/volunteering/" },
+    ],
+    listen: [
+      { name: "Social Impact with Dora Petherbridge", description: "Conversations about careers in charity, social enterprise and volunteering — what it's really like.", url: "https://open.spotify.com/show/0iJR8cTiAi4k23ZHFMFm8h" },
+      { name: "Squiggly Careers - Building experience outside work", description: "Episode on how volunteering, side projects and community roles all count as real experience.", url: "https://open.spotify.com/show/2JCRlgjewZqdgpovS3e8GA" },
+    ],
+    read: [
+      { name: "NCVO - What is volunteering?", description: "Everything you need to know about volunteering in the UK — rights, benefits and how to find the right role.", url: "https://www.ncvo.org.uk/get-involved/volunteering/" },
+      { name: "Volunteering Matters", description: "UK volunteering charity — articles on the impact of volunteering at different life stages.", url: "https://volunteeringmatters.org.uk" },
+      { name: "CharityJob - Volunteer roles guide", description: "How to find, apply for and make the most of voluntary roles in the UK charity sector.", url: "https://www.charityjob.co.uk/careeradvice/volunteer-roles/" },
+    ],
+    help: [
+      { name: "Do IT", description: "The UK's largest volunteering platform — thousands of opportunities from big charities and local community groups.", url: "https://doit.life/volunteer", tags: ["UK", "Find roles"] },
+      { name: "Volunteering Matters", description: "UK charity connecting volunteers with meaningful community projects, especially for young people and those facing barriers.", url: "https://volunteeringmatters.org.uk", tags: ["UK", "Young people"] },
+      { name: "CharityJob - Volunteer roles", description: "Search hundreds of UK volunteer opportunities across every cause area.", url: "https://www.charityjob.co.uk/volunteer-jobs", tags: ["UK", "Find roles"] },
+    ],
+  },
+  {
+    slug: "resilience-confidence",
+    title: "Resilience & Confidence",
+    description: "Rejection is part of the process. Build the mental toolkit to bounce back, back yourself and keep going — even when it feels like it's not working.",
+    icon: learningEmployability,
+    watch: [
+      { name: "Angela Duckworth - Grit: The power of passion and perseverance (TED)", description: "The most-watched talk on why persistence matters more than talent. A must-watch.", url: "https://www.youtube.com/watch?v=H14bBuluwB8" },
+      { name: "Brené Brown - The power of vulnerability (TED)", description: "On courage, shame, and why letting yourself be seen is the foundation of confidence.", url: "https://www.youtube.com/watch?v=iCvmsMzlF7o" },
+      { name: "Amy Cuddy - Your body language may shape who you are (TED)", description: "How posture and presence affect your confidence and how others see you.", url: "https://www.youtube.com/watch?v=Ks-_Mh1QhMc" },
+    ],
+    listen: [
+      { name: "Squiggly Careers - Dealing with setbacks and rejection", description: "UK career podcast episodes specifically on resilience, handling rejection and building confidence at work.", url: "https://open.spotify.com/show/2JCRlgjewZqdgpovS3e8GA" },
+      { name: "Dare to Lead with Brené Brown", description: "Conversations on courage, vulnerability and showing up in work and life.", url: "https://open.spotify.com/show/3oEPsPKDhPVoNNL7pH5db6" },
+      { name: "The Resilience Project Podcast", description: "Stories and practical tools for building gratitude, empathy and mindfulness.", url: "https://open.spotify.com/show/3Hkzz0P10lG0e0T4IEjBVj" },
+    ],
+    read: [
+      { name: "Mind - How to cope with rejection", description: "Mental health charity's guide to handling rejection, self-esteem and staying well during job searching.", url: "https://www.mind.org.uk/information-support/types-of-mental-health-problems/self-esteem/" },
+      { name: "Young Minds - Building resilience", description: "UK youth mental health charity with practical guides on resilience, stress and self-belief for young people.", url: "https://www.youngminds.org.uk/young-person/coping-with-life/building-resilience/" },
+      { name: "Verywell Mind - Rejection sensitive dysphoria", description: "How to understand your emotional response to rejection and build healthier coping strategies.", url: "https://www.verywellmind.com/rejection-sensitive-dysphoria-4587099" },
+    ],
+    help: [
+      { name: "Mind", description: "UK mental health charity offering advice, support and resources on all aspects of mental wellbeing.", url: "https://www.mind.org.uk", tags: ["Mental health", "UK"] },
+      { name: "Young Minds", description: "The UK's leading charity fighting for young people's mental health — helpline, resources and campaigns.", url: "https://www.youngminds.org.uk", tags: ["Young people", "UK"] },
+      { name: "The Mix", description: "Free support for under 25s in the UK — mental health, relationships, money, jobs and more. Chat, phone or email.", url: "https://www.themix.org.uk", tags: ["Under 25", "Free", "UK"] },
+    ],
+  },
 ];
 
 export const getResourceTopic = (slug: string) =>

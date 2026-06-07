@@ -10,6 +10,8 @@ type NavItem = {
   to?: string;
   href?: string;
   description?: string;
+  badge?: string;
+  divider?: boolean;
 };
 
 type NavSection = {
@@ -19,28 +21,40 @@ type NavSection = {
 
 const NAV_SECTIONS: NavSection[] = [
   {
-    label: "Inspiration",
+    label: "Inspire",
     items: [
       { label: "The Show", to: "/the-show", description: "Our original series — coming soon" },
+      { label: "Articles", to: "/feed", description: "Industry news & briefings" },
       { label: "Industries", href: "/#series", description: "Explore 30+ sectors" },
+    ],
+  },
+  {
+    label: "Discover",
+    items: [
+      { label: "Yourself", to: "/my-profile", description: "Interests, personality, strengths & values" },
       { label: "Roles", to: "/roles", description: "By job, not just by title" },
+      { label: "Industries", href: "/#series", description: "Explore 30+ sectors" },
       { label: "Side Hustles", to: "/side-hustles", description: "Turn what you love into income" },
       { label: "Start a Business", to: "/starting-a-business", description: "Your own thing" },
+      { label: "Match Me", to: "/match-me", description: "See where you could go", badge: "New" },
     ],
   },
   {
     label: "Level Up",
     items: [
       { label: "Learning Hub", to: "/learning", description: "Courses, books & podcasts" },
-      { label: "Profile Builder", to: "/resources/cv-builder", description: "Build a profile that stands out" },
-      { label: "Mentoring", to: "/resources/mentoring", description: "Find a mentor to guide your career" },
+      { label: "Experience", to: "/resources/internships-graduates", description: "Internships, apprenticeships & more" },
+      { label: "Skills", to: "/skills-passport", description: "Assess and track your skills", badge: "Coming Soon" },
     ],
   },
   {
     label: "Jobs",
     items: [
+      { label: "CV Builder", to: "/cv-builder", description: "Build a profile that stands out" },
+      { label: "Help Me Apply", to: "/help-me-apply", description: "AI cover letters & applications", badge: "New" },
+      { label: "Interview Prep", to: "/resources/interview-skills", description: "Practice and prepare" },
+      { label: "Jobs Marketplace", to: "/marketplace", description: "Browse all live roles" },
       { label: "Howdy Jobs", to: "/my-jobs?tab=jobs", description: "Roles matched to your profile" },
-      { label: "Discover a Job", to: "/marketplace", description: "Browse all live roles" },
     ],
   },
   {
@@ -49,7 +63,11 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "Feed", to: "/feed", description: "Industry news, videos & briefings" },
       { label: "People", to: "/community", description: "Members, chat & connections" },
       { label: "Events", to: "/events", description: "What's on in your industry" },
-      { label: "Mentor", to: "/mentoring", description: "Learn from people already doing it" },
+      { label: "Mentors", to: "/mentoring", description: "Learn from people already doing it" },
+      { label: "Help", divider: true },
+      { label: "The Mix", href: "https://www.themix.org.uk", description: "Free support for under 25s" },
+      { label: "Shout", href: "https://www.giveusashout.org", description: "24/7 crisis text line" },
+      { label: "National Careers Service", href: "https://nationalcareers.service.gov.uk", description: "Free careers guidance" },
     ],
   },
 ];
@@ -229,41 +247,55 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                       {activeSection.label}
                     </div>
 
-                    {activeSection.items.map((item) =>
-                      item.to ? (
+                    {activeSection.items.map((item) => {
+                      if (item.divider) {
+                        return (
+                          <div key={item.label} className="flex items-center gap-2 px-3 pt-3 pb-1">
+                            <div className="h-px flex-1 bg-foreground/15" />
+                            <span className="font-display font-700 text-[9px] uppercase tracking-[0.18em] text-foreground/40">{item.label}</span>
+                            <div className="h-px flex-1 bg-foreground/15" />
+                          </div>
+                        );
+                      }
+                      const inner = (
+                        <>
+                          <span className="font-display font-900 text-base uppercase tracking-wide text-foreground flex items-center gap-2">
+                            {item.label}
+                            {item.badge && (
+                              <span className="font-display font-700 text-[9px] uppercase tracking-wide px-1.5 py-0.5 bg-primary text-foreground border border-foreground rounded-full leading-none">
+                                {item.badge}
+                              </span>
+                            )}
+                          </span>
+                          {item.description && (
+                            <span className="font-body text-xs text-foreground/50 mt-0.5">
+                              {item.description}
+                            </span>
+                          )}
+                        </>
+                      );
+                      return item.to ? (
                         <Link
                           key={item.label}
                           to={item.to}
                           onClick={closeMenu}
                           className="flex flex-col px-3 py-3 rounded-xl hover:bg-primary transition-colors border-2 border-transparent hover:border-foreground"
                         >
-                          <span className="font-display font-900 text-base uppercase tracking-wide text-foreground">
-                            {item.label}
-                          </span>
-                          {item.description && (
-                            <span className="font-body text-xs text-foreground/50 mt-0.5">
-                              {item.description}
-                            </span>
-                          )}
+                          {inner}
                         </Link>
                       ) : (
                         <a
                           key={item.label}
                           href={item.href}
+                          target={item.href?.startsWith("http") ? "_blank" : undefined}
+                          rel={item.href?.startsWith("http") ? "noopener noreferrer" : undefined}
                           onClick={closeMenu}
                           className="flex flex-col px-3 py-3 rounded-xl hover:bg-primary transition-colors border-2 border-transparent hover:border-foreground"
                         >
-                          <span className="font-display font-900 text-base uppercase tracking-wide text-foreground">
-                            {item.label}
-                          </span>
-                          {item.description && (
-                            <span className="font-body text-xs text-foreground/50 mt-0.5">
-                              {item.description}
-                            </span>
-                          )}
+                          {inner}
                         </a>
-                      )
-                    )}
+                      );
+                    })}
                   </motion.div>
                 )}
               </AnimatePresence>
