@@ -61,6 +61,8 @@ interface RiasecQuizProps {
   initialScores?: RiasecScores | null;
   initialWorkValues?: WorkValues | null;
   onComplete: (scores: RiasecScores, workValues: WorkValues) => void;
+  /** Optional: if provided, shows a "Complete your profile" CTA in the results screen */
+  onFinish?: () => void;
 }
 
 export function getTopRiasecCode(scores: RiasecScores): string {
@@ -71,7 +73,7 @@ export function getTopRiasecCode(scores: RiasecScores): string {
     .join("");
 }
 
-const RiasecQuiz = ({ initialScores, initialWorkValues, onComplete }: RiasecQuizProps) => {
+const RiasecQuiz = ({ initialScores, initialWorkValues, onComplete, onFinish }: RiasecQuizProps) => {
   const [phase, setPhase] = useState<"intro" | "questions" | "values" | "results">(
     initialScores ? "results" : "intro"
   );
@@ -327,9 +329,17 @@ const RiasecQuiz = ({ initialScores, initialWorkValues, onComplete }: RiasecQuiz
               </div>
             </div>
 
+            {onFinish && (
+              <button
+                onClick={onFinish}
+                className="flex items-center gap-2 w-full justify-center mt-4 bg-primary text-primary-foreground px-6 py-3 font-display font-700 text-sm tracking-wider uppercase hover:bg-primary/90 transition-colors"
+              >
+                <Check className="w-4 h-4" /> Complete your profile
+              </button>
+            )}
             <button
               onClick={handleRetake}
-              className="text-muted-foreground hover:text-foreground font-display text-xs underline"
+              className="block text-center w-full mt-3 text-muted-foreground hover:text-foreground font-display text-xs underline"
             >
               Retake quiz
             </button>

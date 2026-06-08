@@ -536,7 +536,11 @@ const Onboarding = () => {
 
   const handleFinish = async () => {
     setSubmitting(true);
-    await persistStep();
+    try {
+      await persistStep();
+    } catch (e) {
+      console.warn("persistStep error on finish", e);
+    }
     // Send personalized welcome summary email
     try {
       await supabase.functions.invoke("send-onboarding-summary", {
@@ -1327,6 +1331,7 @@ const Onboarding = () => {
                       initialScores={riasecScores}
                       initialWorkValues={workValues}
                       onComplete={handleRiasecComplete}
+                      onFinish={handleFinish}
                     />
                   </div>
                 </StepShell>
