@@ -348,15 +348,19 @@ Deno.serve(async (req) => {
           kept++;
         }
 
-        // Eventbrite results
+        // Eventbrite results — only include if title contains an industry keyword
+        const indKeywords = ind.eventbrite?.split("+").filter(k => k.length > 3) ?? [];
         for (const e of ebEvents) {
           const title = clean(e.title, 200);
           const url = clean(e.url, 600);
           if (!title || !url) continue;
+          const titleLower = title.toLowerCase().replace(/\*|\\/g, "");
+          const relevant = indKeywords.length === 0 || indKeywords.some(k => titleLower.includes(k.toLowerCase()));
+          if (!relevant) continue;
           rows.push({
             industry: ind.slug,
-            title,
-            description: "Eventbrite event — click for full details.",
+            title: titleLower.replace(/^\*+\s*/, "").replace(/\*+$/, ""),
+            description: "Networking or workshop event — click for full details.",
             event_type: "networking",
             organizer: "Eventbrite",
             location: "UK",
@@ -370,7 +374,7 @@ Deno.serve(async (req) => {
           kept++;
         }
 
-        // Meetup results
+        // Meetup results — include all (URLs already industry-filtered by query)
         for (const e of muEvents) {
           const title = clean(e.title, 200);
           const url = clean(e.url, 600);
@@ -378,7 +382,7 @@ Deno.serve(async (req) => {
           rows.push({
             industry: ind.slug,
             title,
-            description: "Meetup event — click for full details.",
+            description: "Community meetup event — click for full details.",
             event_type: "networking",
             organizer: "Meetup",
             location: "UK",
