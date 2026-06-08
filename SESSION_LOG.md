@@ -42,12 +42,20 @@ This file is updated by Claude at the start and end of every session.
 - Collapsed Help section in GlobalMobileMenu (Community page) so services are hidden by default behind a toggle; added The King's Trust link
 - Fixed ElevenLabs voice (Howdy) — stale API key updated, correct agent ID set (`agent_1001krm7gvwefwjr7yd8nyyam3rg`), fixed fallback error check (`agent_not_found` not just `invalid_agent_id`), redeployed `howdy-voice-token` function
 - Fixed onboarding completion screen: "View my profile" is now the primary (green) button instead of "Take the 90-sec tour" — users were landing on the home page doodle background because the tour button called `navigate("/")` and was the first thing tapped on mobile
+- Removed "Discover Yourself" item from nav (SiteHeader + GlobalMobileMenu) — it was just a link to the profile page, redundant
+- Match Me: added empty-state cards prompting "Take the Quiz" or "Re-run Onboarding" for users with no RIASEC scores; added "Also factored into your matches" panel showing RIASEC bars, passions, dream roles, and dream companies
+- Match Me (understand-me edge function): now fetches RIASEC scores, work values, industry interests, role preferences, dream companies and passions from DB and injects them into the AI prompt — matches now weighted by personality and stated preferences
+- CV Builder redesigned: replaced html2canvas screenshot with proper jsPDF text-based two-column A4 layout (navy sidebar + white main column); Preview button fixed (opens blob URL directly)
+- CV Builder: fixed duplication — work-experience "Things" (kind=Role) are now excluded from Projects & Achievements so jobs don't appear twice
+- CV Builder: company and school logos pre-fetched in parallel (Clearbit API, with fallback name guessing); embedded as 6mm squares next to each experience and education entry
 
 ### Current state
 - Live at: www.howdoyoudo.co.uk
 - 25,694+ live jobs
 - ElevenLabs voice working (premium users only)
-- RIASEC quiz working in MyProfile and Onboarding
+- RIASEC quiz → profile flow working end-to-end
+- Match Me uses full personality + preferences context
+- CV Builder produces clean, professional A4 PDF with logos
 
 ### Left for next session / Woody
 - Add `A @ 216.198.79.1` DNS record in 123-reg (fixes bare howdoyoudo.co.uk → still may hit old Lovable)
@@ -55,6 +63,7 @@ This file is updated by Claude at the start and end of every session.
 - Voxpops video needs permanent Supabase Storage upload (currently Lovable CDN)
 - Email users migration notice (send-account-migration needs rewrite for Google vs email users)
 - Test ElevenLabs voice end-to-end on a premium account
+- CV Builder: consider adding a "Review & Edit" step before PDF generation so users can make final tweaks without re-opening every section
 
 ---
 <!-- Add new sessions above this line, keep most recent at top -->
