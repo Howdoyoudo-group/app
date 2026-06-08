@@ -20,8 +20,16 @@ function htmlShell(title: string, bodyHtml: string, ctaLabel: string): string {
 <body style="margin:0;padding:0;background:#f5f5f0;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;color:#1a1a1a;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f0;"><tr><td align="center" style="padding:32px 16px 40px;">
     <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:2px solid #1a1a1a;">
-      <tr><td style="background:#1a1a1a;padding:24px 32px;">
-        <p style="margin:0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:28px;font-weight:400;color:#ffffff;letter-spacing:-0.5px;line-height:1;">howdoyoudo<span style="color:#00e600;">?</span></p>
+      <tr><td style="background:#ffffff;padding:28px 32px 8px 32px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" style="border:3px solid #0a0a0a;border-radius:20px;background:#ffffff;display:inline-table;">
+          <tr><td style="padding:18px 28px 16px;">
+            <p style="margin:0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:38px;font-weight:400;color:#0a0a0a;line-height:0.92;letter-spacing:-1px;">How do</p>
+            <p style="margin:0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:38px;font-weight:400;color:#0a0a0a;line-height:0.92;letter-spacing:-1px;">you do<span style="color:#00e600;">?</span></p>
+          </td></tr>
+        </table>
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin-left:140px;">
+          <tr><td width="0" height="0" style="width:0;height:0;border-left:14px solid transparent;border-right:0px solid transparent;border-top:18px solid #0a0a0a;font-size:0;line-height:0;">&nbsp;</td></tr>
+        </table>
       </td></tr>
       <tr><td style="padding:32px 32px 16px;"><h2 style="margin:0;font-size:20px;font-weight:800;">${title}</h2></td></tr>
       <tr><td style="padding:0 32px 24px;font-size:15px;line-height:1.55;color:#333;">${bodyHtml}</td></tr>

@@ -16,10 +16,27 @@ export const EMAIL_HEAD_FONTS = `<link rel="preconnect" href="https://fonts.goog
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">`;
 
-/** Dark header row with howdoyoudo? logo lockup — drop inside a <table> */
+/**
+ * Header row — speech bubble logo lockup matching the homepage hero.
+ * White background, thick black border bubble, "How do / you do?" in Dela Gothic One, green ?
+ * Drop inside a <table role="presentation">.
+ */
 export function emailHeader(): string {
-  return `<tr><td style="background:${BRAND_DARK};padding:24px 32px;">
-    <p style="margin:0;font-family:${BRAND_FONT};font-size:28px;font-weight:400;color:#ffffff;letter-spacing:-0.5px;line-height:1;">howdoyoudo<span style="color:${BRAND_GREEN};">?</span></p>
+  return `<tr><td style="background:#ffffff;padding:28px 32px 8px 32px;">
+    <!--[if mso]><table role="presentation" cellpadding="0" cellspacing="0"><tr><td style="border:3px solid ${BRAND_DARK};padding:18px 24px 16px;"><![endif]-->
+    <table role="presentation" cellpadding="0" cellspacing="0" style="border:3px solid ${BRAND_DARK};border-radius:20px;background:#ffffff;display:inline-table;">
+      <tr><td style="padding:18px 28px 16px;">
+        <p style="margin:0;font-family:${BRAND_FONT};font-size:38px;font-weight:400;color:${BRAND_DARK};line-height:0.92;letter-spacing:-1px;">How do</p>
+        <p style="margin:0;font-family:${BRAND_FONT};font-size:38px;font-weight:400;color:${BRAND_DARK};line-height:0.92;letter-spacing:-1px;">you do<span style="color:${BRAND_GREEN};">?</span></p>
+      </td></tr>
+    </table>
+    <!--[if mso]></td></tr></table><![endif]-->
+    <!-- Bubble tail (CSS triangle — renders in Gmail/Apple Mail/mobile) -->
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin-left:140px;">
+      <tr>
+        <td width="0" height="0" style="width:0;height:0;border-left:14px solid transparent;border-right:0px solid transparent;border-top:18px solid ${BRAND_DARK};font-size:0;line-height:0;mso-line-height-rule:exactly;">&nbsp;</td>
+      </tr>
+    </table>
   </td></tr>`;
 }
 
@@ -58,7 +75,7 @@ export function brandedEmail({
 <body style="margin:0;padding:0;background:#f5f5f0;font-family:${BRAND_BODY_FONT};">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f0;">
   <tr><td align="center" style="padding:32px 16px 40px;">
-    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:2px solid ${BRAND_DARK};">
+    <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:3px solid ${BRAND_DARK};">
       ${emailHeader()}
       <tr><td style="padding:36px 32px 0 32px;">
         <h1 style="margin:0 0 20px 0;font-size:26px;font-weight:800;color:${BRAND_DARK};line-height:1.1;font-family:${BRAND_FONT};">${title}</h1>
