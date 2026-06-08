@@ -1750,32 +1750,12 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
               <Input placeholder="Home address" value={homeAddress} onChange={(e) => setHomeAddress(e.target.value)} className="font-body bg-background rounded-xl" />
               <Input placeholder="Personal link (Insta, TikTok, portfolio)" value={personalLink} onChange={(e) => setPersonalLink(e.target.value)} className="font-body bg-background rounded-xl md:col-span-2" />
             </div>
-            <div className="rounded-2xl border border-dashed border-border bg-muted/30 p-3 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-display font-700 uppercase tracking-widest text-muted-foreground">
-                <LinkIcon className="w-3.5 h-3.5" /> Import from LinkedIn
-              </div>
-              <p className="font-body text-xs text-muted-foreground">
-                Paste your public LinkedIn URL - we'll pre-fill your story, skills, education and work history.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Input
-                  placeholder="https://www.linkedin.com/in/your-handle"
-                  value={linkedinUrl}
-                  onChange={(e) => setLinkedinUrl(e.target.value)}
-                  className="font-body bg-background rounded-xl flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={importFromLinkedIn}
-                  disabled={importingLinkedin || !user}
-                  className="font-body gap-2 rounded-full"
-                >
-                  {importingLinkedin ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                  {importingLinkedin ? "Importing…" : "Import"}
-                </Button>
-              </div>
-            </div>
+            <Input
+              placeholder="LinkedIn URL (e.g. https://www.linkedin.com/in/your-handle)"
+              value={linkedinUrl}
+              onChange={(e) => setLinkedinUrl(e.target.value)}
+              className="font-body bg-background rounded-xl"
+            />
           </Card>
 
           {/* Video */}
