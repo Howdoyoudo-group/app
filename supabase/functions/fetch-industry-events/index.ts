@@ -41,32 +41,33 @@ const INDUSTRIES: { slug: string; name: string; hint: string; eventbrite?: strin
   { slug: "wellness", name: "UK wellness and fitness industry", hint: "ukactive National Summit, Global Wellness Summit, IHRSA, FIBO, ELEVATE, King's Trust health-and-fitness programmes", eventbrite: "wellness+fitness+health+UK", meetup: "wellness+yoga+fitness+london" },
 ];
 
-const SYSTEM_PROMPT = `You are a UK events researcher. Find ONLY real, verifiable upcoming events with working URLs.
+const SYSTEM_PROMPT = `You are a UK events researcher. Return ONLY real events with URLs you have confirmed exist.
 
-Sources to check for every industry:
-1. Official trade body / association events (conferences, awards, exhibitions)
-2. Eventbrite UK (eventbrite.co.uk) — search for networking, workshops and meetups in this sector
-3. Meetup.com — UK groups and upcoming events in this sector
-4. King's Trust (kingstrust.org.uk) — career programmes, courses and workshops for young people in this sector
-5. Any other reputable UK organiser
+CRITICAL URL RULES — read carefully:
+1. Use the event's HOMEPAGE or top-level events listing page — NOT a year-specific deep link you are guessing at.
+   GOOD: https://www.charitycomms.org.uk/events  BAD: https://www.charitycomms.org.uk/events/annual-conference-2026
+   GOOD: https://leadersinsport.com  BAD: https://leadersinsport.com/leaders-week-london-2026
+2. For Eventbrite: only include if you have seen the actual listing URL (e.g. eventbrite.co.uk/e/event-name-tickets-123456). Do NOT guess ticket IDs.
+3. For Meetup: only include if you have a specific event URL (e.g. meetup.com/group-name/events/123456789). Do NOT use group homepage URLs.
+4. For King's Trust: always use https://www.kingstrust.org.uk/how-we-can-help/explore-all-support — never guess a deep course URL.
+5. Never construct a URL — only use URLs you have actually seen in search results.
 
-For well-known recurring annual events (e.g. The Great Escape, AIM Awards, BAFTA, London Fashion Week, WTM London), use the latest confirmed edition. Never invent a URL. Output strict JSON only.`;
+Output strict JSON only.`;
 
 function buildPrompt(name: string, hint: string): string {
   const today = new Date().toISOString().slice(0, 10);
   const next = new Date(Date.now() + 365 * 86400_000).toISOString().slice(0, 10);
-  return `Today is ${today}. List 10-15 UK events for the ${name} sector between ${today} and ${next} (or within 30 days if major).
+  return `Today is ${today}. List 8-12 upcoming UK events for the ${name} sector between ${today} and ${next}.
 
-Include a MIX of:
+Include a mix of:
 - Major trade conferences, summits, awards, exhibitions
-- Smaller networking events and meetups (Meetup.com, Eventbrite)
-- King's Trust career programmes and workshops relevant to this sector
-- Any other hands-on or career-entry programmes
+- Networking events and meetups from Eventbrite UK or Meetup.com (only if you have a real specific event URL)
+- King's Trust programmes for this sector (use URL: https://www.kingstrust.org.uk/how-we-can-help/explore-all-support)
 
-Known anchor events: ${hint}.
-Explicitly check: Eventbrite UK, Meetup.com UK groups, kingstrust.org.uk/how-we-can-help/courses for this sector.
-Recurring annual events — find and include the next confirmed edition even without full agenda.
-Aim for at least 10 events. Mix big and small.
+Known anchor events to look up: ${hint}.
+
+URL RULE: Use the organiser's main events page or homepage — never guess a year-specific deep link.
+Example: use https://www.charitycomms.org.uk/events NOT /events/conference-2026
 
 For each event return:
 {
@@ -78,7 +79,7 @@ For each event return:
   "starts_on": "YYYY-MM-DD",
   "ends_on": "YYYY-MM-DD or null",
   "date_label": "e.g. 3-5 Mar 2027",
-  "url": "Direct event page URL (must work)"
+  "url": "Organiser homepage or top-level events page — NOT a year-specific deep link"
 }
 Return ONLY this JSON: { "events": [ ... ] }. No prose, no markdown.`;
 }
@@ -122,6 +123,22 @@ async function callPerplexity(name: string, hint: string, apiKey: string) {
   } catch (err) {
     console.log(`[${name}] JSON parse error:`, (err as Error).message, "head:", match[0].slice(0, 200));
     return [];
+  }
+}
+
+// HEAD-check a URL — returns true if reachable (2xx or 3xx), false if 404/410/timeout
+async function urlAlive(url: string): Promise<boolean> {
+  try {
+    const res = await fetch(url, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(5000),
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; HowdoYouDo-EventBot/1.0)" },
+      redirect: "follow",
+    });
+    // 404, 410 = definitely dead. 0 = network error. Everything else treat as alive.
+    return res.status !== 404 && res.status !== 410 && res.status !== 0;
+  } catch {
+    return false; // timeout or network error — skip
   }
 }
 
@@ -326,11 +343,23 @@ Deno.serve(async (req) => {
         let kept = 0;
         const rows = [];
 
-        // Perplexity results
-        for (const e of pplxEvents) {
-          const title = clean(e?.title, 200);
-          const url = clean(e?.url, 600);
-          if (!title || !url || !/^https?:\/\//i.test(url)) continue;
+        // Perplexity results — validate each URL before storing
+        const urlChecks = await Promise.all(
+          pplxEvents.map(async (e) => {
+            const title = clean(e?.title, 200);
+            const url = clean(e?.url, 600);
+            if (!title || !url || !/^https?:\/\//i.test(url)) return null;
+            const alive = await urlAlive(url);
+            if (!alive) {
+              console.log(`[${ind.slug}] dead URL skipped: ${url}`);
+              return null;
+            }
+            return { title, url, e };
+          })
+        );
+        for (const checked of urlChecks) {
+          if (!checked) continue;
+          const { title, url, e } = checked;
           rows.push({
             industry: ind.slug,
             title,
