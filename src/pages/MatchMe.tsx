@@ -7,6 +7,62 @@ import { supabase } from "@/integrations/supabase/client";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import heroBg from "@/assets/hero-bg-industries.jpg";
+import howdyMascot from "@/assets/howdy-mascot.png";
+import doodleDivider from "@/assets/email-doodle-divider.png";
+
+// Industry doodle icons
+import iconBakery from "@/assets/email-icon-bakery.png";
+import iconBeauty from "@/assets/email-icon-beauty.png";
+import iconBeer from "@/assets/email-icon-beer.png";
+import iconCars from "@/assets/email-icon-cars.png";
+import iconCharity from "@/assets/email-icon-charity.png";
+import iconCinema from "@/assets/email-icon-cinema.png";
+import iconCoffee from "@/assets/email-icon-coffee.png";
+import iconEstateAgency from "@/assets/email-icon-estate-agency.png";
+import iconFashion from "@/assets/email-icon-fashion.png";
+import iconFootball from "@/assets/email-icon-football.png";
+import iconFootwear from "@/assets/email-icon-footwear.png";
+import iconGaming from "@/assets/email-icon-gaming.png";
+import iconGrocery from "@/assets/email-icon-grocery.png";
+import iconHospitality from "@/assets/email-icon-hospitality.png";
+import iconInteriorDesign from "@/assets/email-icon-interior-design.png";
+import iconJewellery from "@/assets/email-icon-jewellery.png";
+import iconJournalism from "@/assets/email-icon-journalism.png";
+import iconMusic from "@/assets/email-icon-music.png";
+import iconPets from "@/assets/email-icon-pets.png";
+import iconPhysiotherapy from "@/assets/email-icon-physiotherapy.png";
+import iconPsychotherapy from "@/assets/email-icon-psychotherapy.png";
+import iconTeaching from "@/assets/email-icon-teaching.png";
+import iconTravel from "@/assets/email-icon-travel.png";
+import iconWellness from "@/assets/email-icon-wellness.png";
+
+const INDUSTRY_ICONS: Record<string, string> = {
+  "Bakery": iconBakery,
+  "Beauty": iconBeauty,
+  "Beer & Drinks": iconBeer,
+  "Cars": iconCars,
+  "Charity": iconCharity,
+  "Cinema & Film": iconCinema,
+  "Coffee": iconCoffee,
+  "Estate Agency": iconEstateAgency,
+  "Fashion": iconFashion,
+  "Football": iconFootball,
+  "Footwear": iconFootwear,
+  "Gaming": iconGaming,
+  "Grocery": iconGrocery,
+  "Hospitality": iconHospitality,
+  "Interior Design": iconInteriorDesign,
+  "Jewellery": iconJewellery,
+  "Journalism": iconJournalism,
+  "Music": iconMusic,
+  "Pets": iconPets,
+  "Physiotherapy": iconPhysiotherapy,
+  "Psychotherapy": iconPsychotherapy,
+  "Teaching": iconTeaching,
+  "Travel": iconTravel,
+  "Wellness": iconWellness,
+};
 
 interface RoleMatch {
   role: string;
@@ -155,27 +211,37 @@ export default function MatchMe() {
     <>
       <SEO title="Match Me | Howdoyoudo?" description="Discover the roles, industries and opportunities that match who you are." />
       <main className="min-h-screen bg-background">
-        {/* Hero */}
-        <section className="px-4 sm:px-6 lg:px-10 pt-8 pb-12 max-w-5xl mx-auto">
-          <motion.div {...fadeUp} className="text-center mb-10">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border-2 border-primary bg-primary/10 mb-4">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
-              <span className="font-display font-700 text-xs uppercase tracking-widest">Your matches</span>
-            </div>
-            <h1 className="font-display font-900 text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-foreground">
-              {firstName ? `Here's where you\ncould go, ${firstName}.` : "Here's where\nyou could go."}
-            </h1>
-            <p className="font-body text-base md:text-lg text-muted-foreground mt-4 max-w-xl mx-auto">
-              Based on your profile, personality and what you've told us — these are the paths that fit.
-            </p>
-          </motion.div>
 
+        {/* ── Hero with doodle backdrop ── */}
+        <section className="relative overflow-hidden border-b border-border">
+          <img src={heroBg} alt="" aria-hidden className="absolute inset-0 w-full h-full object-cover opacity-[0.07] pointer-events-none select-none" />
+          <div className="relative px-4 sm:px-6 lg:px-10 pt-10 pb-14 max-w-5xl mx-auto text-center">
+            <motion.div {...fadeUp}>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border-2 border-primary bg-primary/10 mb-5">
+                <Sparkles className="w-3.5 h-3.5 text-primary" />
+                <span className="font-display font-700 text-xs uppercase tracking-widest">Your matches</span>
+              </div>
+              <h1 className="font-display font-900 text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-foreground">
+                {firstName ? `Here's where you\ncould go, ${firstName}.` : "Here's where\nyou could go."}
+              </h1>
+              <p className="font-body text-base md:text-lg text-muted-foreground mt-4 max-w-xl mx-auto">
+                Based on your profile, personality and what you've told us — these are the paths that fit.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* ── Page body ── */}
+        <div className="px-4 sm:px-6 lg:px-10 max-w-5xl mx-auto py-10 space-y-14">
+
+          {/* Loading */}
           {loading && (
-            <div className="flex justify-center py-16">
+            <div className="flex justify-center py-20">
               <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
             </div>
           )}
 
+          {/* Not signed in */}
           {!loading && !user && (
             <motion.div {...fadeUp} className="text-center py-16 border-2 border-dashed border-foreground/20 rounded-3xl">
               <User className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -187,6 +253,7 @@ export default function MatchMe() {
             </motion.div>
           )}
 
+          {/* No results yet — prompt to unlock */}
           {!loading && user && !hasResults && (
             <motion.div {...fadeUp} className="space-y-4">
               <div className="border-2 border-dashed border-foreground/20 rounded-3xl p-8 text-center">
@@ -227,7 +294,6 @@ export default function MatchMe() {
                 </div>
               </div>
 
-              {/* Show what we already know about them */}
               {profile.hasInterests && (
                 <div className="border-2 border-foreground/10 rounded-3xl p-6 bg-muted/30">
                   <p className="font-display font-700 text-xs uppercase tracking-widest text-muted-foreground mb-4">What you've already told us</p>
@@ -282,43 +348,40 @@ export default function MatchMe() {
             </motion.div>
           )}
 
+          {/* ── Results ── */}
           {!loading && hasResults && (
-            <div className="space-y-12">
+            <div className="space-y-14">
 
               {/* Role Matches */}
               {results!.roleMatches && results!.roleMatches.length > 0 && (
                 <motion.section {...fadeUp}>
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
                       <Briefcase className="w-4 h-4 text-primary" />
                     </div>
                     <div>
                       <h2 className="font-display font-900 text-xl uppercase tracking-wide">Role Matches</h2>
-                      <p className="font-body text-xs text-muted-foreground">Jobs that fit who you are</p>
+                      <p className="font-body text-xs text-muted-foreground">Roles that fit who you are</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {results!.roleMatches.slice(0, 6).map((m) => (
-                      <div key={m.slug} className="border-2 border-foreground bg-background rounded-2xl p-4 flex flex-col gap-3">
+                      <div key={m.slug} className="relative border-2 border-foreground bg-background rounded-2xl p-4 flex flex-col gap-3 overflow-hidden">
+                        {/* Percentage bar — subtle bg decoration */}
+                        <div className="absolute bottom-0 left-0 h-0.5 bg-primary/30 transition-all" style={{ width: `${m.percentage}%` }} />
                         <div>
-                          <div className="flex items-center justify-between mb-1">
-                            <span className="font-display font-900 text-sm uppercase tracking-wide">{m.role}</span>
-                            <span className="font-display font-900 text-lg text-primary">{m.percentage}%</span>
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <span className="font-display font-900 text-sm uppercase tracking-wide leading-tight">{m.role}</span>
+                            <span className="font-display font-900 text-base text-primary shrink-0">{m.percentage}%</span>
                           </div>
                           <p className="font-body text-xs text-muted-foreground line-clamp-2">{m.reason}</p>
                         </div>
-                        <div className="flex gap-2 mt-auto pt-1 border-t border-border">
-                          <Link
-                            to={`/roles/${m.slug}`}
-                            className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors"
-                          >
-                            Explore role →
+                        <div className="flex gap-2 mt-auto pt-2 border-t border-border">
+                          <Link to={`/roles/${m.slug}`} className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors">
+                            Explore →
                           </Link>
-                          <span className="text-border">·</span>
-                          <Link
-                            to={`/marketplace?role=${encodeURIComponent(m.role)}`}
-                            className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80 transition-opacity"
-                          >
+                          <span className="text-border select-none">·</span>
+                          <Link to={`/marketplace?role=${encodeURIComponent(m.role)}`} className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80 transition-opacity">
                             Find jobs →
                           </Link>
                         </div>
@@ -328,11 +391,11 @@ export default function MatchMe() {
                 </motion.section>
               )}
 
-              {/* Industry Recommendations */}
+              {/* Industry Recommendations — with doodle icons */}
               {results!.industryFit && results!.industryFit.length > 0 && (
                 <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.1 }}>
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
                       <Building2 className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
@@ -343,31 +406,35 @@ export default function MatchMe() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {results!.industryFit.slice(0, 4).map((ind) => {
                       const slug = INDUSTRY_SLUGS[ind.industry];
+                      const icon = INDUSTRY_ICONS[ind.industry];
                       return (
-                        <div key={ind.industry} className="border-2 border-foreground bg-background rounded-2xl p-4 flex flex-col gap-3">
-                          <div>
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="font-display font-900 text-sm uppercase tracking-wide">{ind.industry}</span>
-                              <span className="font-display font-900 text-lg text-blue-500">{ind.confidence}%</span>
+                        <div key={ind.industry} className="relative border-2 border-foreground bg-background rounded-2xl p-5 flex flex-col gap-3 overflow-hidden">
+                          {/* Doodle icon — large, faded, decorative */}
+                          {icon && (
+                            <img
+                              src={icon}
+                              alt=""
+                              aria-hidden
+                              className="absolute -right-3 -top-3 w-24 h-24 object-contain opacity-10 pointer-events-none select-none rotate-6"
+                            />
+                          )}
+                          <div className="relative">
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <span className="font-display font-900 text-base uppercase tracking-wide leading-tight">{ind.industry}</span>
+                              <span className="font-display font-900 text-base text-blue-500 shrink-0">{ind.confidence}%</span>
                             </div>
                             <p className="font-body text-xs text-muted-foreground line-clamp-2">{ind.reason}</p>
                           </div>
-                          <div className="flex gap-2 mt-auto pt-1 border-t border-border">
+                          <div className="flex gap-2 mt-auto pt-2 border-t border-border relative">
                             {slug && (
                               <>
-                                <Link
-                                  to={`/${slug}`}
-                                  className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors"
-                                >
-                                  Explore industry →
+                                <Link to={`/${slug}`} className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors">
+                                  Explore →
                                 </Link>
-                                <span className="text-border">·</span>
+                                <span className="text-border select-none">·</span>
                               </>
                             )}
-                            <Link
-                              to={`/marketplace?industry=${encodeURIComponent(ind.industry)}`}
-                              className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80 transition-opacity"
-                            >
+                            <Link to={`/marketplace?industry=${encodeURIComponent(ind.industry)}`} className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80 transition-opacity">
                               Browse jobs →
                             </Link>
                           </div>
@@ -378,11 +445,45 @@ export default function MatchMe() {
                 </motion.section>
               )}
 
+              {/* ── Doodle divider ── */}
+              <div className="flex items-center justify-center py-2">
+                <img src={doodleDivider} alt="" aria-hidden className="w-full max-w-md opacity-40 select-none pointer-events-none" />
+              </div>
+
+              {/* ── Howdy Jobs promo ── */}
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.15 }}>
+                <Link
+                  to="/my-jobs?tab=jobs"
+                  className="group relative flex flex-col sm:flex-row items-center gap-6 bg-foreground text-background rounded-3xl p-6 md:p-8 overflow-hidden hover:-translate-y-0.5 transition-transform"
+                >
+                  {/* Howdy mascot */}
+                  <img
+                    src={howdyMascot}
+                    alt="Howdy"
+                    className="w-28 h-28 sm:w-36 sm:h-36 object-contain shrink-0 drop-shadow-xl"
+                  />
+                  <div className="flex-1 text-center sm:text-left">
+                    <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/20 mb-3">
+                      <span className="font-display font-700 text-xs uppercase tracking-widest text-primary">New in Jobs</span>
+                    </div>
+                    <h2 className="font-display font-900 text-2xl md:text-3xl uppercase tracking-wide text-background mb-2">
+                      Howdy Jobs
+                    </h2>
+                    <p className="font-body text-sm text-background/70 max-w-md">
+                      Jobs ranked by how well they match your personality, passions, and background. Not just any job — the right one for you.
+                    </p>
+                    <div className="inline-flex items-center gap-2 mt-4 font-display font-900 text-sm uppercase tracking-wide text-primary group-hover:gap-3 transition-all">
+                      See my Howdy Jobs <ArrowRight className="w-4 h-4" />
+                    </div>
+                  </div>
+                </Link>
+              </motion.section>
+
               {/* Unexpected Ideas */}
               {results!.roleMatches && results!.roleMatches.length > 6 && (
                 <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.2 }}>
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-9 h-9 rounded-xl bg-yellow-100 flex items-center justify-center">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-9 h-9 rounded-xl bg-yellow-100 flex items-center justify-center shrink-0">
                       <Lightbulb className="w-4 h-4 text-yellow-600" />
                     </div>
                     <div>
@@ -392,17 +493,24 @@ export default function MatchMe() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {results!.roleMatches.slice(6, 9).map((m) => (
-                      <Link
-                        key={m.slug}
-                        to={`/roles/${m.slug}`}
-                        className="group border-2 border-dashed border-yellow-300 bg-yellow-50 rounded-2xl p-4 hover:bg-primary hover:border-foreground hover:-translate-y-0.5 transition-all"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-display font-900 text-sm uppercase tracking-wide">{m.role}</span>
-                          <Lightbulb className="w-4 h-4 text-yellow-500 group-hover:text-foreground transition-colors" />
+                      <div key={m.slug} className="border-2 border-dashed border-yellow-300 bg-yellow-50 rounded-2xl p-4 flex flex-col gap-3">
+                        <div>
+                          <div className="flex items-start justify-between gap-2 mb-1">
+                            <span className="font-display font-900 text-sm uppercase tracking-wide leading-tight">{m.role}</span>
+                            <Lightbulb className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
+                          </div>
+                          <p className="font-body text-xs text-muted-foreground line-clamp-2">{m.reason}</p>
                         </div>
-                        <p className="font-body text-xs text-muted-foreground group-hover:text-foreground/80 line-clamp-2">{m.reason}</p>
-                      </Link>
+                        <div className="flex gap-2 mt-auto pt-2 border-t border-yellow-200">
+                          <Link to={`/roles/${m.slug}`} className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors">
+                            Explore →
+                          </Link>
+                          <span className="text-border select-none">·</span>
+                          <Link to={`/marketplace?role=${encodeURIComponent(m.role)}`} className="font-display font-700 text-xs uppercase tracking-wide text-yellow-600 hover:opacity-80 transition-opacity">
+                            Find jobs →
+                          </Link>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </motion.section>
@@ -410,8 +518,8 @@ export default function MatchMe() {
 
               {/* Side Hustle Suggestions */}
               <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.3 }}>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
                     <Zap className="w-4 h-4 text-purple-600" />
                   </div>
                   <div>
@@ -436,7 +544,7 @@ export default function MatchMe() {
                 </Link>
               </motion.section>
 
-              {/* Business Ideas */}
+              {/* Start Something */}
               <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.4 }}>
                 <div className="border-2 border-foreground rounded-3xl p-6 md:p-8 bg-primary/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div className="flex items-start gap-4">
@@ -451,17 +559,15 @@ export default function MatchMe() {
                     </div>
                   </div>
                   <Button asChild variant="outline" className="rounded-full shrink-0 border-2 border-foreground">
-                    <Link to="/starting-a-business">Explore starting a business <ArrowRight className="w-4 h-4 ml-2" /></Link>
+                    <Link to="/starting-a-business">Explore <ArrowRight className="w-4 h-4 ml-1" /></Link>
                   </Button>
                 </div>
               </motion.section>
 
-              {/* Skills + profile link */}
+              {/* Transferable Skills */}
               {results!.transferableSkills && results!.transferableSkills.length > 0 && (
                 <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.5 }}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <h2 className="font-display font-900 text-xl uppercase tracking-wide">Your Transferable Skills</h2>
-                  </div>
+                  <h2 className="font-display font-900 text-xl uppercase tracking-wide mb-4">Your Transferable Skills</h2>
                   <div className="flex flex-wrap gap-2">
                     {results!.transferableSkills.map((skill) => (
                       <span key={skill} className="px-3 py-1.5 rounded-full border-2 border-foreground font-display font-700 text-xs uppercase tracking-wide bg-background">
@@ -472,7 +578,7 @@ export default function MatchMe() {
                 </motion.section>
               )}
 
-              {/* Profile context: RIASEC, passions, dream roles, dream companies */}
+              {/* Also factored in — RIASEC, passions, dream roles, dream companies */}
               {(profile.hasQuiz || profile.hasInterests || profile.targetCompanies.length > 0) && (
                 <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.55 }}>
                   <div className="border-2 border-foreground/10 rounded-3xl p-6 bg-muted/30 space-y-5">
@@ -487,15 +593,13 @@ export default function MatchMe() {
                           {(Object.entries(profile.riasecScores) as [string, number][])
                             .sort((a, b) => b[1] - a[1])
                             .map(([k, v]) => (
-                              <div key={k} className="flex items-center gap-2">
-                                <div className="flex-1">
-                                  <div className="flex justify-between mb-0.5">
-                                    <span className="font-display font-700 text-xs">{RIASEC_LABELS[k]?.label ?? k}</span>
-                                    <span className="font-display font-700 text-xs text-primary">{Math.round(v)}</span>
-                                  </div>
-                                  <div className="h-1.5 bg-border rounded-full overflow-hidden">
-                                    <div className="h-full bg-primary rounded-full" style={{ width: `${Math.max(0, Math.min(100, v))}%` }} />
-                                  </div>
+                              <div key={k} className="flex-1">
+                                <div className="flex justify-between mb-0.5">
+                                  <span className="font-display font-700 text-xs">{RIASEC_LABELS[k]?.label ?? k}</span>
+                                  <span className="font-display font-700 text-xs text-primary">{Math.round(v)}</span>
+                                </div>
+                                <div className="h-1.5 bg-border rounded-full overflow-hidden">
+                                  <div className="h-full bg-primary rounded-full" style={{ width: `${Math.max(0, Math.min(100, v))}%` }} />
                                 </div>
                               </div>
                             ))}
@@ -555,7 +659,7 @@ export default function MatchMe() {
                     </div>
 
                     {!profile.hasQuiz && (
-                      <div className="flex items-center gap-3 pt-1 border-t border-border">
+                      <div className="flex items-center gap-3 pt-2 border-t border-border">
                         <Brain className="w-4 h-4 text-primary shrink-0" />
                         <p className="font-body text-xs text-muted-foreground flex-1">
                           Take the personality quiz to make your matches even more accurate — it only takes 2 minutes.
@@ -569,7 +673,8 @@ export default function MatchMe() {
                 </motion.section>
               )}
 
-              <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.6 }} className="pt-4 pb-2 flex flex-col sm:flex-row gap-3">
+              {/* Bottom CTAs */}
+              <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.6 }} className="pb-4 flex flex-col sm:flex-row gap-3">
                 <Button asChild size="lg" className="rounded-full">
                   <Link to="/my-profile">Update my profile <ArrowRight className="w-4 h-4 ml-2" /></Link>
                 </Button>
@@ -580,7 +685,8 @@ export default function MatchMe() {
 
             </div>
           )}
-        </section>
+
+        </div>
       </main>
       <Footer />
     </>
