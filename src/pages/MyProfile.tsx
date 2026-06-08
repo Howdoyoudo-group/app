@@ -768,6 +768,10 @@ const MyProfile = () => {
   };
 
   const [sendingReset, setSendingReset] = useState(false);
+  const [unsubscribing, setUnsubscribing] = useState(false);
+  const [unsubscribed, setUnsubscribed] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const handleSendPasswordReset = async () => {
     if (!user?.email) return;
     setSendingReset(true);
@@ -777,6 +781,40 @@ const MyProfile = () => {
     setSendingReset(false);
     if (error) toast.error(error.message);
     else toast.success("Password reset email sent. Check your inbox.");
+  };
+
+  const handleUnsubscribeAll = async () => {
+    if (!user?.email) return;
+    setUnsubscribing(true);
+    const { error } = await supabase
+      .from("suppressed_emails")
+      .upsert({ email: user.email, reason: "user_requested", suppressed_at: new Date().toISOString() } as any, { onConflict: "email" });
+    setUnsubscribing(false);
+    if (error) {
+      toast.error("Something went wrong. Please try again.");
+    } else {
+      setUnsubscribed(true);
+      toast.success("You've been unsubscribed from all emails.");
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!user) return;
+    if (deleteConfirmText.toLowerCase() !== "delete") return;
+    setDeletingAccount(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/delete-account`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` },
+      });
+      if (!res.ok) throw new Error("Request failed");
+      await supabase.auth.signOut();
+      navigate("/");
+      toast.success("Your account has been deleted.");
+    } catch {
+      setDeletingAccount(false);
+      toast.error("Failed to delete account. Please contact support@howdoyoudo.co.uk");
+    }
   };
 
   const handlePhotoUpload = async (file: File) => {
@@ -1107,6 +1145,52 @@ const MyProfile = () => {
                     <p className="text-xs text-muted-foreground mt-1">{mentorBio.length}/400</p>
                   </div>
                 )}
+              </CollapsibleEdit>
+
+              <CollapsibleEdit title="✉️ Unsubscribe from all emails">
+                <p className="font-body text-sm text-muted-foreground mb-3">
+                  Stop all digest, newsletter and notification emails from Howdoyoudo. Your account and data are kept — you can re-subscribe at any time by toggling industries above.
+                </p>
+                {unsubscribed ? (
+                  <p className="font-body text-sm text-primary font-600">✓ You're unsubscribed from all emails.</p>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={handleUnsubscribeAll}
+                    disabled={unsubscribing}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 border-2 border-foreground font-display font-700 text-xs uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors rounded-2xl disabled:opacity-50"
+                  >
+                    {unsubscribing ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MailX className="w-3.5 h-3.5" />}
+                    Unsubscribe from all emails
+                  </button>
+                )}
+              </CollapsibleEdit>
+
+              <CollapsibleEdit title="🗑️ Delete my account">
+                <p className="font-body text-sm text-muted-foreground mb-1">
+                  This <strong>permanently deletes</strong> your account, profile, and all your data. This cannot be undone.
+                </p>
+                <p className="font-body text-sm text-muted-foreground mb-3">
+                  Type <strong>delete</strong> below to confirm, then press the button.
+                </p>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <input
+                    type="text"
+                    value={deleteConfirmText}
+                    onChange={(e) => setDeleteConfirmText(e.target.value)}
+                    placeholder='Type "delete" to confirm'
+                    className="rounded-xl border-2 border-border bg-background px-3 py-2 font-body text-sm focus:outline-none focus:ring-2 focus:ring-destructive/30 focus:border-destructive w-48"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleDeleteAccount}
+                    disabled={deletingAccount || deleteConfirmText.toLowerCase() !== "delete"}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 border-2 border-destructive text-destructive font-display font-700 text-xs uppercase tracking-wider hover:bg-destructive hover:text-destructive-foreground transition-colors rounded-2xl disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    {deletingAccount ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Trash2 className="w-3.5 h-3.5" />}
+                    Delete my account
+                  </button>
+                </div>
               </CollapsibleEdit>
 
               <CollapsibleEdit title="🚪 Sign out">
