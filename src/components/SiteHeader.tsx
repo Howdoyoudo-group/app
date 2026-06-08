@@ -403,6 +403,7 @@ const COMMUNITY: DropdownItem[] = [
   { label: "Events", to: "/events", description: "What's on in your industry" },
   { label: "Mentors", to: "/mentoring", description: "Learn from people already doing it" },
   { label: "Help", divider: true },
+  { label: "The King's Trust", href: "https://www.kingstrust.org.uk", description: "Helping young people succeed" },
   { label: "The Mix", href: "https://www.themix.org.uk", description: "Free support for under 25s" },
   { label: "Shout", href: "https://www.giveusashout.org", description: "24/7 crisis text line" },
   { label: "National Careers Service", href: "https://nationalcareers.service.gov.uk", description: "Free careers guidance" },

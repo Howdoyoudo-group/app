@@ -346,6 +346,8 @@ const CVBuilder = () => {
 
   // ATS CV
   const [showAts, setShowAts] = useState(false);
+  const [cvScore, setCvScore] = useState<{ score: number; grade: string; suggestions: string[] } | null>(null);
+  const [scoringCv, setScoringCv] = useState(false);
   const [jobDescription, setJobDescription] = useState("");
   const [atsResult, setAtsResult] = useState<{ cvText: string; keywords: string[]; score: number } | null>(null);
   const [generatingAts, setGeneratingAts] = useState(false);
@@ -843,7 +845,11 @@ const CVBuilder = () => {
       });
     }
 
-    const passionList = passions.split(",").map((p) => p.trim()).filter(Boolean);
+    // Merge passions + industry interests for sidebar
+    const passionList = [
+      ...passions.split(",").map((p) => p.trim()).filter(Boolean),
+      ...interests.split(",").map((p) => p.trim()).filter(Boolean),
+    ].filter((v, i, a) => a.indexOf(v) === i); // dedupe
     if (passionList.length > 0) {
       sbHeading("Interests");
       passionList.forEach((p) => {
@@ -970,9 +976,12 @@ const CVBuilder = () => {
 
         // Description bullets
         if (w.description) {
+          // Split only on newlines and explicit bullet chars — NOT hyphens
+          // (hyphens appear in date ranges like "Jun 2022 – Aug 2023")
           const bullets = w.description
-            .split(/[\n•·\-]+/)
-            .map((s) => s.trim())
+            .split(/\n+/)
+            .flatMap((line) => line.split(/^[•·]\s*/m))
+            .map((s) => s.replace(/^[-–—]\s+/, "").trim())
             .filter(Boolean);
           bullets.forEach((b) => {
             const bLines = pdf.splitTextToSize(b, textW - 4) as string[];
@@ -1181,6 +1190,152 @@ const CVBuilder = () => {
       toast.error("Could not generate PDF.");
     } finally {
       setGeneratingPdf(false);
+    }
+  };
+
+  const downloadWord = () => {
+    // Build a clean Word-compatible HTML document
+    const allSkills = Object.values(skills).flat();
+    const validExp = experience.filter((w) => w.company || w.title);
+    const expTitleSet = new Set(validExp.map((w) => w.title?.toLowerCase().trim()).filter(Boolean));
+    const validThings = things.filter((t) => t.title && t.kind !== "Role" && !expTitleSet.has(t.title.toLowerCase().trim()));
+    const validEd = education.filter((e) => e.school || e.qualification);
+    const validQ = qualifications.filter((q) => q.name);
+    const passionMerged = [
+      ...passions.split(",").map((p) => p.trim()).filter(Boolean),
+      ...interests.split(",").map((p) => p.trim()).filter(Boolean),
+    ].filter((v, i, a) => a.indexOf(v) === i);
+
+    const sect = (title: string, body: string) =>
+      body.trim() ? `<h2 style="font-size:12pt;text-transform:uppercase;letter-spacing:1pt;border-bottom:1pt solid #10b981;padding-bottom:3pt;margin-top:16pt;margin-bottom:6pt;">${title}</h2>${body}` : "";
+
+    const expHtml = validExp.map((w) => `
+      <p style="margin:0 0 1pt 0;">
+        <strong>${w.title || ""}${w.company ? ` · ${w.company}` : ""}</strong>
+        ${w.dates ? `<span style="color:#666;float:right;">${w.dates}</span>` : ""}
+      </p>
+      ${w.location ? `<p style="margin:0 0 3pt 0;color:#666;font-size:9pt;">${w.location}</p>` : ""}
+      ${w.description ? `<p style="margin:0 0 8pt 0;font-size:10pt;">${w.description.replace(/\n/g, "<br>")}</p>` : ""}
+    `).join("");
+
+    const thingsHtml = validThings.map((t) => `
+      <p style="margin:0 0 1pt 0;"><strong>${t.title}</strong>${t.when ? ` <span style="color:#666;">(${t.when})</span>` : ""}</p>
+      ${t.description ? `<p style="margin:0 0 8pt 0;font-size:10pt;">${t.description}</p>` : ""}
+    `).join("");
+
+    const edHtml = validEd.map((e) => `
+      <p style="margin:0 0 1pt 0;"><strong>${e.school || e.qualification}</strong>${e.dates ? ` <span style="color:#666;">(${e.dates})</span>` : ""}</p>
+      ${e.school && e.qualification ? `<p style="margin:0 0 1pt 0;font-size:10pt;">${e.qualification}${e.grade ? ` — ${e.grade}` : ""}</p>` : ""}
+    `).join("");
+
+    const html = `
+<!DOCTYPE html><html><head><meta charset="UTF-8">
+<style>
+  body { font-family: Arial, Helvetica, sans-serif; font-size: 11pt; color: #1a1a1a; margin: 1.5cm 2cm; line-height: 1.5; }
+  h1 { font-size: 22pt; margin: 0 0 4pt 0; }
+  h2 { font-size: 10pt; }
+  p { margin: 0 0 6pt 0; }
+  .tagline { color: #10b981; font-size: 11pt; margin-bottom: 14pt; }
+  .contact { color: #555; font-size: 9pt; margin-bottom: 14pt; }
+  .skill { display: inline-block; border: 1pt solid #1a1a1a; padding: 1pt 6pt; margin: 2pt; font-size: 9pt; }
+</style>
+</head><body>
+<h1>${fullName || "Your Name"}</h1>
+${lookingFor ? `<p class="tagline">${lookingFor}</p>` : ""}
+<p class="contact">${[email, phone, location || homeAddress, linkedinUrl, personalLink].filter(Boolean).join("  ·  ")}</p>
+
+${(aiOverview || intro) ? sect("Profile", `<p style="font-size:10.5pt;">${(aiOverview || intro).replace(/\n/g, "<br>")}</p>`) : ""}
+${validExp.length ? sect("Experience", expHtml) : ""}
+${validThings.length ? sect("Projects & Achievements", thingsHtml) : ""}
+${validEd.length ? sect("Education", edHtml) : ""}
+${validQ.length ? sect("Qualifications", validQ.map((q) => `<p>${q.name}${q.issuer ? ` · ${q.issuer}` : ""}${q.year ? ` (${q.year})` : ""}</p>`).join("")) : ""}
+${allSkills.length ? sect("Skills", `<p>${allSkills.map((s) => `<span class="skill">${s}</span>`).join("")}</p>`) : ""}
+${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</p>`) : ""}
+<p style="margin-top:24pt;font-size:8pt;color:#aaa;">References available on request · Created with Howdoyoudo.co.uk</p>
+</body></html>`;
+
+    const blob = new Blob(["﻿", html], { type: "application/msword" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(fullName || "cv").toLowerCase().replace(/[^a-z0-9]+/g, "-")}-howdoyoudo.doc`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success("Word document downloaded.");
+  };
+
+  const scoreCv = async () => {
+    setScoringCv(true);
+    setCvScore(null);
+    try {
+      const allSkills = Object.values(skills).flat();
+      const validExp = experience.filter((w) => w.company || w.title);
+      const validEd = education.filter((e) => e.school || e.qualification);
+      const validQ = qualifications.filter((q) => q.name);
+      const passionMerged = [
+        ...passions.split(",").map((p) => p.trim()).filter(Boolean),
+        ...interests.split(",").map((p) => p.trim()).filter(Boolean),
+      ].filter(Boolean);
+
+      const cvSummary = [
+        `Name: ${fullName || "not provided"}`,
+        `Looking for: ${lookingFor || "not specified"}`,
+        `Profile/intro: ${(aiOverview || intro || "").slice(0, 300)}`,
+        `Experience entries: ${validExp.length}`,
+        ...validExp.map((w) => `  - ${w.title || ""} at ${w.company || ""} (${w.dates || ""}) — ${(w.description || "").slice(0, 120)}`),
+        `Skills: ${allSkills.join(", ") || "none"}`,
+        `Interests/passions: ${passionMerged.join(", ") || "none"}`,
+        `Education entries: ${validEd.length}`,
+        ...validEd.map((e) => `  - ${e.qualification || ""} at ${e.school || ""} (${e.grade || ""})`),
+        `Qualifications: ${validQ.map((q) => q.name).join(", ") || "none"}`,
+        `Photo: ${photoUrl ? "yes" : "no"}`,
+        `Contact details: ${[email, phone, location].filter(Boolean).length}/3 provided`,
+        `LinkedIn: ${linkedinUrl ? "yes" : "no"}`,
+      ].join("\n");
+
+      const { data, error } = await supabase.functions.invoke("score-cv", {
+        body: { cvSummary },
+      });
+
+      if (error || !data?.score) {
+        // Fallback: score locally based on completeness
+        let score = 0;
+        if (fullName) score += 5;
+        if (email) score += 5;
+        if (phone) score += 3;
+        if (linkedinUrl) score += 5;
+        if (photoUrl) score += 5;
+        if ((aiOverview || intro).length > 50) score += 10;
+        if (lookingFor) score += 5;
+        if (validExp.length >= 1) score += 15;
+        if (validExp.length >= 2) score += 5;
+        if (validExp.some((w) => w.description && w.description.length > 50)) score += 10;
+        if (allSkills.length >= 3) score += 10;
+        if (allSkills.length >= 6) score += 5;
+        if (validEd.length >= 1) score += 10;
+        if (passionMerged.length >= 2) score += 5;
+        if (validQ.length >= 1) score += 2;
+
+        const suggestions: string[] = [];
+        if (!photoUrl) suggestions.push("Add a professional photo — CVs with photos get more attention.");
+        if (!(aiOverview || intro) || (aiOverview || intro).length < 50) suggestions.push("Write a personal profile (2–3 sentences) — it's the first thing recruiters read.");
+        if (!lookingFor) suggestions.push("Add a job title or tagline so employers know what role you're targeting.");
+        if (validExp.length === 0) suggestions.push("Add at least one work experience entry, including part-time or voluntary work.");
+        if (validExp.some((w) => !w.description || w.description.length < 30)) suggestions.push("Expand your job descriptions — use specific achievements and numbers where possible.");
+        if (allSkills.length < 4) suggestions.push("Add more skills — aim for 6–10 relevant to the roles you're applying for.");
+        if (!linkedinUrl) suggestions.push("Add your LinkedIn URL to make it easy for recruiters to find you.");
+        if (passionMerged.length === 0) suggestions.push("Add interests or passions — they help employers see the person behind the CV.");
+        if (validEd.length === 0) suggestions.push("Add your education — even if it's just your secondary school.");
+
+        setCvScore({ score, grade: score >= 80 ? "A" : score >= 65 ? "B" : score >= 50 ? "C" : "D", suggestions: suggestions.slice(0, 5) });
+      } else {
+        setCvScore(data);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Could not score CV right now.");
+    } finally {
+      setScoringCv(false);
     }
   };
 
@@ -2064,7 +2219,10 @@ const CVBuilder = () => {
               {generatingPdf ? "Building…" : "Preview CV"}
             </Button>
             <Button variant="outline" onClick={downloadPdf} disabled={generatingPdf} className="font-body gap-2 rounded-full">
-              {generatingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Download CV
+              {generatingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Download PDF
+            </Button>
+            <Button variant="outline" onClick={downloadWord} className="font-body gap-2 rounded-full">
+              <Download className="w-4 h-4" /> Download Word
             </Button>
             <Button variant="outline" onClick={emailProfile} disabled={emailing || !user} className="font-body gap-2 rounded-full">
               {emailing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />} Email me a copy
@@ -2076,7 +2234,64 @@ const CVBuilder = () => {
             >
               <Sparkles className="w-4 h-4" /> ATS CV Generator
             </Button>
+            <Button
+              variant="outline"
+              onClick={scoreCv}
+              disabled={scoringCv}
+              className="font-body gap-2 rounded-full border-foreground hover:bg-foreground hover:text-background"
+            >
+              {scoringCv ? <Loader2 className="w-4 h-4 animate-spin" /> : <Award className="w-4 h-4" />}
+              {scoringCv ? "Scoring…" : "Score my CV"}
+            </Button>
           </div>
+
+          {/* CV Score Panel */}
+          {cvScore && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="border-2 border-foreground rounded-2xl p-5 bg-background"
+            >
+              <div className="flex items-start gap-5">
+                {/* Score circle */}
+                <div className={`shrink-0 w-20 h-20 rounded-full border-4 flex flex-col items-center justify-center ${
+                  cvScore.score >= 80 ? "border-primary bg-primary/10" :
+                  cvScore.score >= 65 ? "border-blue-400 bg-blue-50" :
+                  cvScore.score >= 50 ? "border-yellow-400 bg-yellow-50" :
+                  "border-red-400 bg-red-50"
+                }`}>
+                  <span className="font-display font-900 text-2xl leading-none">{cvScore.score}</span>
+                  <span className="font-display font-700 text-xs text-muted-foreground">/100</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="font-display font-900 text-base uppercase tracking-wide">CV Score — Grade {cvScore.grade}</h3>
+                    <span className={`font-display font-700 text-xs px-2 py-0.5 rounded-full border ${
+                      cvScore.score >= 80 ? "border-primary text-primary bg-primary/10" :
+                      cvScore.score >= 65 ? "border-blue-400 text-blue-600 bg-blue-50" :
+                      cvScore.score >= 50 ? "border-yellow-400 text-yellow-700 bg-yellow-50" :
+                      "border-red-400 text-red-600 bg-red-50"
+                    }`}>
+                      {cvScore.score >= 80 ? "Strong" : cvScore.score >= 65 ? "Good" : cvScore.score >= 50 ? "Fair" : "Needs work"}
+                    </span>
+                  </div>
+                  {cvScore.suggestions.length > 0 && (
+                    <div>
+                      <p className="font-display font-700 text-xs uppercase tracking-widest text-muted-foreground mb-2">Suggestions to improve</p>
+                      <ul className="space-y-1.5">
+                        {cvScore.suggestions.map((s, i) => (
+                          <li key={i} className="flex items-start gap-2 font-body text-xs">
+                            <span className="shrink-0 w-4 h-4 rounded-full bg-primary/20 text-primary flex items-center justify-center font-700 text-[10px] mt-0.5">{i + 1}</span>
+                            {s}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* ATS CV Panel */}
           {showAts && (
