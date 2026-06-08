@@ -409,6 +409,7 @@ const CVBuilder = () => {
         if (mergedPassions.length) setPassions((p) => p || mergedPassions.join(", "));
         if (pb.intro) setIntro(pb.intro);
         if (pb.personalLink) setPersonalLink(pb.personalLink);
+        if (pb.linkedinUrl) setLinkedinUrl(pb.linkedinUrl);
         if (pb.videoUrl) setVideoUrl(pb.videoUrl);
         if (pb.skills && typeof pb.skills === "object") {
           setSkills({
@@ -534,6 +535,7 @@ const CVBuilder = () => {
       const profileBuilder = {
         intro,
         personalLink,
+        linkedinUrl,
         videoUrl,
         skills,
         passions: passionsArr,
@@ -787,6 +789,15 @@ const CVBuilder = () => {
       if (mY + needed > PH - MB) newPage();
     };
 
+    // ── Safe logo helper — used in both sidebar and main column ──────────────
+    const addLogoSafe = (logo: string, x: number, y: number, w: number, h: number) => {
+      try {
+        const fmt = logo.startsWith("data:image/jpeg") || logo.startsWith("data:image/jpg")
+          ? "JPEG" : "PNG";
+        pdf.addImage(logo, fmt, x, y, w, h);
+      } catch { /* unsupported format — skip */ }
+    };
+
     // ── Draw first page sidebar background ────────────────────────────────────
     drawSidebarBg();
 
@@ -931,14 +942,6 @@ const CVBuilder = () => {
       pdf.text(pLines, MX, mY);
       mY += pLines.length * lineH(9.5);
     }
-
-    const addLogoSafe = (logo: string, x: number, y: number, w: number, h: number) => {
-      try {
-        const fmt = logo.startsWith("data:image/jpeg") || logo.startsWith("data:image/jpg")
-          ? "JPEG" : "PNG";
-        pdf.addImage(logo, fmt, x, y, w, h);
-      } catch { /* unsupported format — skip */ }
-    };
 
     // Experience
     if (validExp.length > 0) {
