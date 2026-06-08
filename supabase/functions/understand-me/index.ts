@@ -189,6 +189,14 @@ Combine both signals thoughtfully. Use formal language for career-derived insigh
 
   return `You are an expert UK career analyst. Analyse the person's background and map them to roles and industries.
 
+PROFILE CONTEXT SECTION — CRITICAL INSTRUCTIONS:
+The input may include a "PROFILE CONTEXT" section containing the person's RIASEC personality scores, work values, stated industry interests, dream roles, dream companies, and passions. These are self-reported signals from structured onboarding questions — treat them as STRONG matching signals alongside the CV/LinkedIn data:
+- RIASEC scores: directly inform roleMatches (e.g. high Artistic → creative roles; high Enterprising → leadership/sales)
+- Dream roles and target companies: weight roleMatches and industryFit strongly toward these
+- Stated industry interests: boost confidence scores for matching industries
+- Work values: factor into "reason" explanations (e.g. "values creativity and autonomy, which suits this role")
+- Passions and hobbies: can indicate cultural fit for certain industries even without formal experience
+
 ABSOLUTE RULE - ZERO HALLUCINATION TOLERANCE:
 1. You must ONLY use information that is EXPLICITLY and LITERALLY stated in the input text below.
 2. Do NOT infer, guess, assume, or fill in ANY details from your training data or general knowledge.
@@ -312,8 +320,90 @@ serve(async (req) => {
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
+    // Pull the user's profile context (RIASEC, passions, dream roles, companies) from the DB.
+    // We use the service key so RLS doesn't block us reading our own profile data.
+    let profileContextSection = "";
+    try {
+      const { data: profileData } = await svcClient
+        .from("profiles")
+        .select("riasec_scores, work_values, industry_interests, role_preferences, job_preferences")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (profileData) {
+        const lines: string[] = [];
+        const riasec = profileData.riasec_scores as Record<string, number> | null;
+        const workVals = profileData.work_values as Record<string, number> | null;
+        const industryInterests: string[] = profileData.industry_interests || [];
+        const rolePrefs: string[] = profileData.role_preferences || [];
+        const jp: any = profileData.job_preferences || {};
+        const pb: any = jp.profileBuilder || {};
+
+        const passionArr: string[] = [
+          ...(Array.isArray(jp.passions) ? jp.passions : []),
+          ...(typeof jp.passionsText === "string"
+            ? jp.passionsText.split(/[,\n]+/).map((s: string) => s.trim()).filter(Boolean)
+            : []),
+          ...(Array.isArray(pb.passions) ? pb.passions : []),
+        ];
+        const passions = Array.from(new Set(passionArr)).slice(0, 15);
+        const targetCompanies: string[] = Array.isArray(pb.targetCompanies) ? pb.targetCompanies : [];
+        const targetRoles: string[] = Array.isArray(pb.targetRoles) ? pb.targetRoles : [];
+
+        if (riasec) {
+          const riasecLabels: Record<string, string> = {
+            R: "Realistic (practical, hands-on)",
+            I: "Investigative (analytical, curious)",
+            A: "Artistic (creative, expressive)",
+            S: "Social (helpful, people-focused)",
+            E: "Enterprising (leadership, persuasive)",
+            C: "Conventional (organised, detail-focused)",
+          };
+          const sorted = (Object.entries(riasec) as [string, number][])
+            .sort((a, b) => b[1] - a[1]);
+          lines.push(
+            `RIASEC personality scores: ${sorted.map(([k, v]) => `${riasecLabels[k] ?? k}=${Math.round(v)}`).join(", ")}`,
+            `Top personality type: ${riasecLabels[sorted[0][0]] ?? sorted[0][0]} — weight role and industry matches toward this type strongly.`,
+          );
+        }
+
+        if (workVals) {
+          const topVals = (Object.entries(workVals) as [string, number][])
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(([k, v]) => `${k} (${Math.round(v)}%)`)
+            .join(", ");
+          lines.push(`Work values (what matters most to them): ${topVals}`);
+        }
+
+        if (industryInterests.length > 0) {
+          lines.push(`Stated industry interests: ${industryInterests.join(", ")} — weight industry matches toward these`);
+        }
+
+        const allDreamRoles = Array.from(new Set([...rolePrefs, ...targetRoles])).slice(0, 8);
+        if (allDreamRoles.length > 0) {
+          lines.push(`Dream / target job roles: ${allDreamRoles.join(", ")} — use these as strong signals for roleMatches`);
+        }
+
+        if (targetCompanies.length > 0) {
+          lines.push(`Dream companies they want to work for: ${targetCompanies.join(", ")} — use for industryFit signals`);
+        }
+
+        if (passions.length > 0) {
+          lines.push(`Passions and hobbies: ${passions.join(", ")} — factor into industry and role fit`);
+        }
+
+        if (lines.length > 0) {
+          profileContextSection = `=== PROFILE CONTEXT (from onboarding & quiz — treat as strong signals) ===\n${lines.join("\n")}`;
+        }
+      }
+    } catch (e) {
+      console.warn("Could not fetch profile context:", e);
+    }
+
     // Build combined text from all available sources
     const sections: string[] = [];
+    if (profileContextSection) sections.push(profileContextSection);
 
     // Extract CV text if uploaded
     if (filePath) {

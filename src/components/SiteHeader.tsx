@@ -340,7 +340,6 @@ const INSPIRE: DropdownItem[] = [
 ];
 
 const DISCOVER: DropdownItem[] = [
-  { label: "Yourself", to: "/my-profile", description: "Interests, personality, strengths & values" },
   { label: "Industries", href: "/#series", description: "Explore 30+ sectors" },
   { label: "Roles", to: "/roles", description: "By job, not just by title" },
   { label: "Side Hustles", to: "/side-hustles", description: "Turn what you love into income" },
