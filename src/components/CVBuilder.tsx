@@ -38,9 +38,9 @@ import jsPDF from "jspdf";
 
 type Thing = { id: string; title: string; kind: string; when: string; description: string; link?: string };
 type Proof = { id: string; label: string; url: string };
-type Education = { id: string; school: string; qualification: string; dates: string; grade: string; link?: string };
+type Education = { id: string; school: string; qualification: string; dates: string; grade: string; link?: string; logoUrl?: string };
 type Qualification = { id: string; name: string; issuer: string; year: string };
-type WorkExperience = { id: string; company: string; title: string; dates: string; location: string; description: string; link?: string };
+type WorkExperience = { id: string; company: string; title: string; dates: string; location: string; description: string; link?: string; logoUrl?: string };
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -434,6 +434,7 @@ const CVBuilder = () => {
             dates: e.dates || "",
             grade: e.grade || "",
             link: e.link || "",
+            logoUrl: e.logoUrl || "",
           })));
         }
         if (Array.isArray(pb.qualifications) && pb.qualifications.length) {
@@ -453,6 +454,7 @@ const CVBuilder = () => {
             location: w.location || "",
             description: w.description || "",
             link: w.link || "",
+            logoUrl: w.logoUrl || "",
           })));
         }
       }
@@ -576,11 +578,77 @@ const CVBuilder = () => {
     }
   };
 
+  // Fetch a logo image and return it as a base64 data URL.
+  // Tries stored logoUrl first, then Clearbit from the link domain, then guessed domain.
+  const fetchLogoDataUrl = async (entry: {
+    logoUrl?: string; link?: string; company?: string; school?: string;
+  }): Promise<string | null> => {
+    const tryFetch = async (url: string): Promise<string | null> => {
+      try {
+        const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
+        if (!res.ok) return null;
+        const ct = res.headers.get("content-type") || "";
+        if (!ct.startsWith("image/")) return null;
+        const blob = await res.blob();
+        return await new Promise<string | null>((resolve) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve((reader.result as string) || null);
+          reader.onerror = () => resolve(null);
+          reader.readAsDataURL(blob);
+        });
+      } catch { return null; }
+    };
+
+    if (entry.logoUrl) { const r = await tryFetch(entry.logoUrl); if (r) return r; }
+
+    const linkStr = entry.link || "";
+    if (linkStr) {
+      try {
+        const url = linkStr.startsWith("http") ? linkStr : `https://${linkStr}`;
+        const domain = new URL(url).hostname.replace(/^www\./, "");
+        const r = await tryFetch(`https://logo.clearbit.com/${domain}`);
+        if (r) return r;
+      } catch { /* ignore */ }
+    }
+
+    const name = (entry.company || entry.school || "").toLowerCase()
+      .replace(/\b(ltd|limited|plc|inc|llc|group|uk|the|of|and)\b/g, " ")
+      .replace(/[^a-z0-9]+/g, "").trim().slice(0, 20);
+    if (name.length >= 3) {
+      const r = await tryFetch(`https://logo.clearbit.com/${name}.com`);
+      if (r) return r;
+    }
+    return null;
+  };
+
   // Build a properly formatted two-column A4 CV using jsPDF text API.
   // Left sidebar (dark navy): contact, skills, interests, education.
   // Right main (white): name, profile, experience, qualifications.
   const buildPdf = async (): Promise<jsPDF | null> => {
     const allSkills = Object.values(skills).flat();
+
+    // ── Deduplication ─────────────────────────────────────────────────────────
+    // Filter out "things" that are really work-experience entries (kind=Role or
+    // title matches an experience entry) — prevents the same job appearing twice.
+    const validExp = experience.filter((w) => w.company || w.title);
+    const expTitleSet = new Set(
+      validExp.map((w) => w.title?.toLowerCase().trim()).filter(Boolean),
+    );
+    const validThings = things.filter(
+      (t) =>
+        t.title &&
+        t.kind !== "Role" &&
+        !expTitleSet.has(t.title.toLowerCase().trim()),
+    );
+    const validEd = education.filter((e) => e.school || e.qualification);
+    const validQ = qualifications.filter((q) => q.name);
+
+    // ── Pre-fetch logos in parallel ───────────────────────────────────────────
+    const [expLogos, edLogos] = await Promise.all([
+      Promise.all(validExp.map((w) => fetchLogoDataUrl(w))),
+      Promise.all(validEd.map((e) => fetchLogoDataUrl(e))),
+    ]);
+
     const pdf = new jsPDF("p", "mm", "a4");
 
     // ── Page geometry ──────────────────────────────────────────────────────────
@@ -792,10 +860,13 @@ const CVBuilder = () => {
     }
 
     // Education in sidebar if short
-    const validEd = education.filter((e) => e.school || e.qualification);
     if (validEd.length > 0 && validEd.length <= 2) {
       sbHeading("Education");
-      validEd.forEach((e) => {
+      validEd.forEach((e, ei) => {
+        const eLogo = edLogos[ei];
+        if (eLogo && sY + 7 < PH - MB) {
+          try { pdf.addImage(eLogo, "PNG", SP + 2.5, sY - 5, 5, 5); } catch { /* skip */ }
+        }
         if (sY + lineH(7.5) + lineH(7) > PH - MB) return;
         sbText(e.school || e.qualification, 7.5, "bold", WHITE, 0);
         if (e.school && e.qualification) sbText(e.qualification, 7, "normal", OFF_WHITE, 0);
@@ -844,24 +915,32 @@ const CVBuilder = () => {
     }
 
     // Experience
-    const validExp = experience.filter((w) => w.company || w.title);
     if (validExp.length > 0) {
       mnHeading("Experience");
-      validExp.forEach((w) => {
+      validExp.forEach((w, wi) => {
+        const logo = expLogos[wi];
+        const logoW = 6;
+        const textX = logo ? MX + logoW + 2 : MX;
+        const textW = logo ? MW - logoW - 2 : MW;
+
         const label = w.title && w.company ? `${w.title}` : (w.title || w.company);
         const dateStr = w.dates || "";
-        // Estimate space needed
         const descLines = w.description
-          ? (pdf.splitTextToSize(w.description, MW) as string[]).length
+          ? (pdf.splitTextToSize(w.description, textW) as string[]).length
           : 0;
-        const needed = lineH(10) + lineH(8.5) * (descLines + 1) + 5;
+        const needed = (logo ? logoW + 2 : 0) + lineH(10) + lineH(8.5) * (descLines + 1) + 5;
         ensureMain(needed);
 
-        // Role title (left) + dates (right) on same y
+        // Logo
+        if (logo) {
+          try { pdf.addImage(logo, "PNG", MX, mY - 5, logoW, logoW); } catch { /* skip */ }
+        }
+
+        // Role title (left) + dates (right)
         pdf.setFontSize(10);
         pdf.setFont("helvetica", "bold");
         pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
-        pdf.text(label, MX, mY);
+        pdf.text(label, textX, mY);
         if (dateStr) {
           pdf.setFontSize(8.5);
           pdf.setFont("helvetica", "normal");
@@ -877,25 +956,25 @@ const CVBuilder = () => {
           pdf.setFontSize(8.5);
           pdf.setFont("helvetica", "normal");
           pdf.setTextColor(GREEN[0], GREEN[1], GREEN[2]);
-          pdf.text(compLoc, MX, mY);
+          pdf.text(compLoc, textX, mY);
           mY += lineH(8.5);
         }
 
-        // Description — split on newlines for bullet-style
+        // Description bullets
         if (w.description) {
           const bullets = w.description
             .split(/[\n•·\-]+/)
             .map((s) => s.trim())
             .filter(Boolean);
           bullets.forEach((b) => {
-            const bLines = pdf.splitTextToSize(b, MW - 4) as string[];
+            const bLines = pdf.splitTextToSize(b, textW - 4) as string[];
             ensureMain(bLines.length * lineH(8.5) + 1);
             pdf.setFillColor(MID[0], MID[1], MID[2]);
-            pdf.circle(MX + 1, mY - 1.2, 0.7, "F");
+            pdf.circle(textX + 1, mY - 1.2, 0.7, "F");
             pdf.setFontSize(8.5);
             pdf.setFont("helvetica", "normal");
             pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
-            pdf.text(bLines, MX + 4, mY);
+            pdf.text(bLines, textX + 4, mY);
             mY += bLines.length * lineH(8.5) + 0.5;
           });
         }
@@ -904,8 +983,7 @@ const CVBuilder = () => {
       });
     }
 
-    // Things I've done (projects / achievements)
-    const validThings = things.filter((t) => t.title);
+    // Things I've done (projects / achievements) — roles already excluded above
     if (validThings.length > 0) {
       mnHeading("Projects & Achievements");
       validThings.forEach((t) => {
@@ -948,13 +1026,21 @@ const CVBuilder = () => {
     // Education (in main column if more than 2 entries)
     if (validEd.length > 2) {
       mnHeading("Education");
-      validEd.forEach((e) => {
+      validEd.forEach((e, ei) => {
+        const eLogo = edLogos[ei];
+        const logoW = 6;
+        const textX = eLogo ? MX + logoW + 2 : MX;
         ensureMain(lineH(10) + lineH(8.5) * 2 + 4);
         const label = e.school || e.qualification;
+
+        if (eLogo) {
+          try { pdf.addImage(eLogo, "PNG", MX, mY - 5, logoW, logoW); } catch { /* skip */ }
+        }
+
         pdf.setFontSize(10);
         pdf.setFont("helvetica", "bold");
         pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
-        pdf.text(label, MX, mY);
+        pdf.text(label, textX, mY);
         if (e.dates) {
           pdf.setFontSize(8.5);
           pdf.setFont("helvetica", "normal");
@@ -967,14 +1053,14 @@ const CVBuilder = () => {
           pdf.setFontSize(8.5);
           pdf.setFont("helvetica", "normal");
           pdf.setTextColor(GREEN[0], GREEN[1], GREEN[2]);
-          pdf.text(e.qualification, MX, mY);
+          pdf.text(e.qualification, textX, mY);
           mY += lineH(8.5);
         }
         if (e.grade) {
           pdf.setFontSize(8);
           pdf.setFont("helvetica", "normal");
           pdf.setTextColor(MID[0], MID[1], MID[2]);
-          pdf.text(`Grade: ${e.grade}`, MX, mY);
+          pdf.text(`Grade: ${e.grade}`, textX, mY);
           mY += lineH(8);
         }
         mY += 3;
@@ -982,7 +1068,6 @@ const CVBuilder = () => {
     }
 
     // Qualifications
-    const validQ = qualifications.filter((q) => q.name);
     if (validQ.length > 0) {
       mnHeading("Qualifications & Certifications");
       validQ.forEach((q) => {
