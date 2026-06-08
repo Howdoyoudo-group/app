@@ -951,18 +951,28 @@ const CVBuilder = () => {
         }
 
         // Role title (left) + dates (right)
-        pdf.setFontSize(10);
-        pdf.setFont("helvetica", "bold");
-        pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
-        pdf.text(label, textX, mY);
+        // Measure the date first so the title never overruns it
+        const dateGap = 4; // min gap between title and date
+        let dateTw = 0;
         if (dateStr) {
           pdf.setFontSize(8.5);
           pdf.setFont("helvetica", "normal");
-          pdf.setTextColor(MID[0], MID[1], MID[2]);
-          const tw = (pdf.getStringUnitWidth(dateStr) * 8.5) / (72 / 25.4);
-          pdf.text(dateStr, PW - 10 - tw, mY);
+          dateTw = (pdf.getStringUnitWidth(dateStr) * 8.5) / (72 / 25.4);
         }
-        mY += lineH(10);
+        const titleMaxW = textW - (dateTw > 0 ? dateTw + dateGap : 0);
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "bold");
+        pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+        const titleLines = pdf.splitTextToSize(label, titleMaxW) as string[];
+        pdf.text(titleLines, textX, mY);
+        if (dateStr) {
+          // Align date to the top line of the title
+          pdf.setFontSize(8.5);
+          pdf.setFont("helvetica", "normal");
+          pdf.setTextColor(MID[0], MID[1], MID[2]);
+          pdf.text(dateStr, PW - 10 - dateTw, mY);
+        }
+        mY += lineH(10) * titleLines.length;
 
         // Company + location
         const compLoc = [w.company, w.location].filter(Boolean).join(", ");
