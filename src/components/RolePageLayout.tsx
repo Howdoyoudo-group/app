@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowLeft, HeartHandshake } from "lucide-react";
 import RoleLearnSection from "@/components/RoleLearnSection";
 import MentoringPanel from "@/components/MentoringPanel";
+import RoleNCSPanel from "@/components/RoleNCSPanel";
 import SEO, { roleDesc, breadcrumbJsonLd } from "@/components/SEO";
 import ReorderListenSections from "@/components/ReorderListenSections";
 
@@ -70,6 +71,20 @@ const RolePageLayout = ({ name, description, tabs, category }: RolePageLayoutPro
         result = [...tabs.slice(0, applyIndex), learnTab, ...tabs.slice(applyIndex)];
       }
     }
+    // Auto-inject NCS data panel at the top of the "plan" tab for every role
+    result = result.map((tab) => {
+      if (tab.id !== "plan") return tab;
+      return {
+        ...tab,
+        content: (
+          <>
+            <RoleNCSPanel slug={roleSlug} />
+            {tab.content}
+          </>
+        ),
+      };
+    });
+
     // Auto-inject Mentor tab for every role
     if (!result.some((t) => t.id === "mentor")) {
       const mentorTab: RoleTab = {

@@ -1,3 +1,4 @@
+// v3 — speech bubble header
 /**
  * Shared email branding for all Howdoyoudo transactional emails.
  * - Font: Dela Gothic One (loaded via Google Fonts)

@@ -129,7 +129,7 @@ Deno.serve(async (req) => {
 
     if (!tokRes.ok) {
       const t = await tokRes.clone().text();
-      if (tokRes.status === 400 && t.includes("invalid_agent_id")) {
+      if (t.includes("invalid_agent_id") || t.includes("agent_not_found")) {
         const fallbackAgentId = await findFirstAgentId(ELEVENLABS_API_KEY);
         if (fallbackAgentId && fallbackAgentId !== ELEVENLABS_AGENT_ID) {
           tokRes = await mintConversationToken(ELEVENLABS_API_KEY, fallbackAgentId);
