@@ -238,9 +238,14 @@ export default function MatchMe() {
                           <Building2 className="w-3 h-3" /> Industries
                         </p>
                         <div className="flex flex-wrap gap-1.5">
-                          {profile.industryInterests.map((ind) => (
-                            <span key={ind} className="px-2.5 py-1 rounded-full border border-foreground/20 font-display font-700 text-xs bg-background">{ind}</span>
-                          ))}
+                          {profile.industryInterests.map((ind) => {
+                            const slug = INDUSTRY_SLUGS[ind];
+                            return slug ? (
+                              <Link key={ind} to={`/${slug}`} className="px-2.5 py-1 rounded-full border border-foreground/20 font-display font-700 text-xs bg-background hover:bg-foreground hover:text-background transition-colors">{ind} →</Link>
+                            ) : (
+                              <span key={ind} className="px-2.5 py-1 rounded-full border border-foreground/20 font-display font-700 text-xs bg-background">{ind}</span>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
@@ -294,17 +299,30 @@ export default function MatchMe() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {results!.roleMatches.slice(0, 6).map((m) => (
-                      <Link
-                        key={m.slug}
-                        to={`/roles/${m.slug}`}
-                        className="group border-2 border-foreground bg-background rounded-2xl p-4 hover:bg-primary hover:-translate-y-0.5 transition-all"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="font-display font-900 text-sm uppercase tracking-wide">{m.role}</span>
-                          <span className="font-display font-900 text-lg text-primary group-hover:text-foreground transition-colors">{m.percentage}%</span>
+                      <div key={m.slug} className="border-2 border-foreground bg-background rounded-2xl p-4 flex flex-col gap-3">
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="font-display font-900 text-sm uppercase tracking-wide">{m.role}</span>
+                            <span className="font-display font-900 text-lg text-primary">{m.percentage}%</span>
+                          </div>
+                          <p className="font-body text-xs text-muted-foreground line-clamp-2">{m.reason}</p>
                         </div>
-                        <p className="font-body text-xs text-muted-foreground group-hover:text-foreground/80 line-clamp-2">{m.reason}</p>
-                      </Link>
+                        <div className="flex gap-2 mt-auto pt-1 border-t border-border">
+                          <Link
+                            to={`/roles/${m.slug}`}
+                            className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors"
+                          >
+                            Explore role →
+                          </Link>
+                          <span className="text-border">·</span>
+                          <Link
+                            to={`/marketplace?role=${encodeURIComponent(m.role)}`}
+                            className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80 transition-opacity"
+                          >
+                            Find jobs →
+                          </Link>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 </motion.section>
@@ -325,19 +343,35 @@ export default function MatchMe() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {results!.industryFit.slice(0, 4).map((ind) => {
                       const slug = INDUSTRY_SLUGS[ind.industry];
-                      const inner = (
-                        <div className="group border-2 border-foreground bg-background rounded-2xl p-4 hover:bg-primary hover:-translate-y-0.5 transition-all cursor-pointer">
-                          <div className="flex items-center justify-between mb-2">
-                            <span className="font-display font-900 text-sm uppercase tracking-wide">{ind.industry}</span>
-                            <span className="font-display font-900 text-lg text-blue-500 group-hover:text-foreground transition-colors">{ind.confidence}%</span>
+                      return (
+                        <div key={ind.industry} className="border-2 border-foreground bg-background rounded-2xl p-4 flex flex-col gap-3">
+                          <div>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-display font-900 text-sm uppercase tracking-wide">{ind.industry}</span>
+                              <span className="font-display font-900 text-lg text-blue-500">{ind.confidence}%</span>
+                            </div>
+                            <p className="font-body text-xs text-muted-foreground line-clamp-2">{ind.reason}</p>
                           </div>
-                          <p className="font-body text-xs text-muted-foreground group-hover:text-foreground/80 line-clamp-2">{ind.reason}</p>
+                          <div className="flex gap-2 mt-auto pt-1 border-t border-border">
+                            {slug && (
+                              <>
+                                <Link
+                                  to={`/${slug}`}
+                                  className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors"
+                                >
+                                  Explore industry →
+                                </Link>
+                                <span className="text-border">·</span>
+                              </>
+                            )}
+                            <Link
+                              to={`/marketplace?industry=${encodeURIComponent(ind.industry)}`}
+                              className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80 transition-opacity"
+                            >
+                              Browse jobs →
+                            </Link>
+                          </div>
                         </div>
-                      );
-                      return slug ? (
-                        <Link key={ind.industry} to={`/${slug}`}>{inner}</Link>
-                      ) : (
-                        <div key={ind.industry}>{inner}</div>
                       );
                     })}
                   </div>
@@ -489,7 +523,13 @@ export default function MatchMe() {
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {profile.rolePreferences.map((r) => (
-                              <span key={r} className="px-2.5 py-1 rounded-full border border-foreground/20 font-display font-700 text-xs bg-background">{r}</span>
+                              <Link
+                                key={r}
+                                to={`/marketplace?role=${encodeURIComponent(r)}`}
+                                className="px-2.5 py-1 rounded-full border border-primary/40 font-display font-700 text-xs bg-primary/5 text-primary hover:bg-primary hover:text-foreground transition-colors"
+                              >
+                                {r} →
+                              </Link>
                             ))}
                           </div>
                         </div>
@@ -501,7 +541,13 @@ export default function MatchMe() {
                           </p>
                           <div className="flex flex-wrap gap-1.5">
                             {profile.targetCompanies.map((c) => (
-                              <span key={c} className="px-2.5 py-1 rounded-full border border-foreground/20 font-display font-700 text-xs bg-background">{c}</span>
+                              <Link
+                                key={c}
+                                to={`/marketplace?company=${encodeURIComponent(c)}`}
+                                className="px-2.5 py-1 rounded-full border border-foreground/20 font-display font-700 text-xs bg-background hover:bg-foreground hover:text-background transition-colors"
+                              >
+                                {c} →
+                              </Link>
                             ))}
                           </div>
                         </div>
@@ -528,7 +574,7 @@ export default function MatchMe() {
                   <Link to="/my-profile">Update my profile <ArrowRight className="w-4 h-4 ml-2" /></Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="rounded-full border-2 border-foreground">
-                  <Link to="/marketplace">Browse jobs</Link>
+                  <Link to="/my-jobs">Browse my jobs <ArrowRight className="w-4 h-4 ml-2" /></Link>
                 </Button>
               </motion.div>
 
