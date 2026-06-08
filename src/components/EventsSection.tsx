@@ -32,6 +32,7 @@ const TYPE_COLORS: Record<string, string> = {
   awards: "bg-primary text-primary-foreground",
   networking: "bg-muted text-foreground",
   exhibition: "bg-foreground text-background",
+  programme: "bg-primary/20 text-primary",
 };
 
 function nameToSlug(name: string): string | undefined {
@@ -80,9 +81,19 @@ const EventsSection = ({ industry, searchQuery, industrySlug }: EventsSectionPro
     return () => { cancelled = true; };
   }, [slug]);
 
+  const programmes = useMemo(
+    () => events.filter((e) => e.event_type?.toLowerCase() === "programme"),
+    [events],
+  );
+
+  const datedEvents = useMemo(
+    () => events.filter((e) => e.event_type?.toLowerCase() !== "programme"),
+    [events],
+  );
+
   const grouped = useMemo(() => {
     const groups = new Map<string, IndustryEvent[]>();
-    for (const e of events) {
+    for (const e of datedEvents) {
       const key = e.starts_on
         ? new Date(e.starts_on + "T00:00:00").toLocaleString("en-GB", { month: "long", year: "numeric" })
         : "Date TBC";
@@ -90,7 +101,7 @@ const EventsSection = ({ industry, searchQuery, industrySlug }: EventsSectionPro
       groups.get(key)!.push(e);
     }
     return Array.from(groups.entries());
-  }, [events]);
+  }, [datedEvents]);
 
   return (
     <motion.div
@@ -135,6 +146,7 @@ const EventsSection = ({ industry, searchQuery, industrySlug }: EventsSectionPro
         </div>
       )}
 
+      {/* Dated events grouped by month */}
       {!loading && grouped.map(([month, list]) => (
         <div key={month} className="mb-10">
           <h3 className="font-display font-700 text-base mb-4 text-muted-foreground uppercase tracking-wide">
@@ -195,6 +207,56 @@ const EventsSection = ({ industry, searchQuery, industrySlug }: EventsSectionPro
           </div>
         </div>
       ))}
+
+      {/* Ongoing programmes (King's Trust etc) — no fake date, shown separately */}
+      {!loading && programmes.length > 0 && (
+        <div className="mb-10">
+          <h3 className="font-display font-700 text-base mb-4 text-muted-foreground uppercase tracking-wide">
+            Programmes & opportunities
+          </h3>
+          <div className="grid gap-4 md:grid-cols-2">
+            {programmes.map((e) => (
+              <a
+                key={e.id}
+                href={e.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group border border-primary/30 bg-primary/5 p-5 hover:border-primary transition-colors flex gap-4"
+              >
+                {/* "OPEN" badge instead of date */}
+                <div className="shrink-0 w-16 text-center border border-primary/30 bg-primary/10 py-2 self-start">
+                  <div className="font-display font-700 text-xs leading-none text-primary uppercase tracking-widest pt-1">OPEN</div>
+                  <div className="font-display text-[9px] tracking-widest mt-1 text-primary/60">Rolling</div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] font-display font-700 uppercase tracking-widest px-2 py-0.5 bg-primary/20 text-primary">
+                      programme
+                    </span>
+                  </div>
+                  <h4 className="font-display font-700 text-sm leading-snug group-hover:text-primary transition-colors flex items-start gap-1">
+                    {e.title}
+                    <ExternalLink className="w-3 h-3 mt-1 shrink-0 opacity-60" />
+                  </h4>
+                  {e.description && (
+                    <p className="font-body text-xs text-muted-foreground mt-1.5 line-clamp-2">
+                      {e.description}
+                    </p>
+                  )}
+                  <div className="flex items-center gap-3 mt-2 text-[11px] text-muted-foreground font-body flex-wrap">
+                    {e.organizer && <span>{e.organizer}</span>}
+                    {e.location && (
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin className="w-3 h-3" /> {e.location}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
 
       {!loading && events.length > 0 && (
         <p className="text-[11px] text-muted-foreground font-body mt-2 inline-flex items-center gap-1.5">

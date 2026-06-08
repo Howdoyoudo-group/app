@@ -360,16 +360,18 @@ Deno.serve(async (req) => {
         for (const checked of urlChecks) {
           if (!checked) continue;
           const { title, url, e } = checked;
+          // King's Trust URLs are rolling programmes — ignore any AI-generated date
+          const isKingsTrust = url.includes("kingstrust.org.uk");
           rows.push({
             industry: ind.slug,
             title,
             description: clean(e?.description, 400),
-            event_type: clean(e?.event_type, 40),
-            organizer: clean(e?.organizer, 200),
-            location: clean(e?.location, 120),
-            starts_on: isoDate(e?.starts_on),
-            ends_on: isoDate(e?.ends_on),
-            date_label: clean(e?.date_label, 80),
+            event_type: isKingsTrust ? "programme" : clean(e?.event_type, 40),
+            organizer: isKingsTrust ? "King's Trust" : clean(e?.organizer, 200),
+            location: isKingsTrust ? "UK-wide" : clean(e?.location, 120),
+            starts_on: isKingsTrust ? null : isoDate(e?.starts_on),
+            ends_on: isKingsTrust ? null : isoDate(e?.ends_on),
+            date_label: isKingsTrust ? "Rolling" : clean(e?.date_label, 80),
             url,
             source: "perplexity",
             fetched_at: new Date().toISOString(),
