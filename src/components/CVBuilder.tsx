@@ -22,6 +22,7 @@ import {
   Loader2,
   Eye,
   Briefcase,
+  Pencil,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
@@ -348,6 +349,7 @@ const CVBuilder = () => {
   const [showAts, setShowAts] = useState(false);
   const [cvScore, setCvScore] = useState<{ score: number; grade: string; suggestions: string[] } | null>(null);
   const [scoringCv, setScoringCv] = useState(false);
+  const [mobileTab, setMobileTab] = useState<"edit" | "preview">("edit");
   const [jobDescription, setJobDescription] = useState("");
   const [atsResult, setAtsResult] = useState<{ cvText: string; keywords: string[]; score: number } | null>(null);
   const [generatingAts, setGeneratingAts] = useState(false);
@@ -1761,8 +1763,32 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
 
   return (
     <div className="space-y-6">
-      {/* Progress */}
-      <div className="rounded-3xl border border-border bg-card p-4 md:p-5 shadow-sm print:hidden">
+      {/* Mobile Edit / Preview tabs — only visible below lg */}
+      <div className="flex lg:hidden print:hidden rounded-2xl border border-border bg-card p-1 gap-1">
+        <button
+          onClick={() => setMobileTab("edit")}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-display font-700 uppercase tracking-widest transition-colors ${
+            mobileTab === "edit"
+              ? "bg-foreground text-background"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Pencil className="w-3.5 h-3.5" /> Edit
+        </button>
+        <button
+          onClick={() => setMobileTab("preview")}
+          className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-display font-700 uppercase tracking-widest transition-colors ${
+            mobileTab === "preview"
+              ? "bg-foreground text-background"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          <Eye className="w-3.5 h-3.5" /> Preview
+        </button>
+      </div>
+
+      {/* Progress — only show on edit tab on mobile */}
+      <div className={`rounded-3xl border border-border bg-card p-4 md:p-5 shadow-sm print:hidden ${mobileTab === "preview" ? "hidden lg:block" : ""}`}>
         <div className="flex items-center justify-between mb-2 text-xs font-display font-700 uppercase tracking-widest text-muted-foreground gap-2 flex-wrap">
           {["Story", "Video", "Skills", "Proof", "Preview"].map((s, i) => (
             <span
@@ -1781,7 +1807,7 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* ── Form ── */}
-        <div className="space-y-6 print:hidden">
+        <div className={`space-y-6 print:hidden ${mobileTab === "preview" ? "hidden lg:block" : ""}`}>
           {/* Personal */}
           <Card title="Personal Details" icon={Sparkles}>
             <div className="flex items-center gap-4">
@@ -2392,7 +2418,20 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
         </div>
 
         {/* ── Preview ── */}
-        <div className="lg:sticky lg:top-8 lg:self-start" ref={previewRef}>
+        <div className={`lg:sticky lg:top-8 lg:self-start ${mobileTab === "edit" ? "hidden lg:block" : ""}`} ref={previewRef}>
+          {/* Mobile action strip at top of preview tab */}
+          <div className="flex flex-wrap gap-2 mb-4 lg:hidden print:hidden">
+            <Button onClick={saveProfile} disabled={saving || !user} className="font-body gap-2 rounded-full flex-1">
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+              {saving ? "Saving…" : "Save"}
+            </Button>
+            <Button variant="outline" onClick={downloadPdf} disabled={generatingPdf} className="font-body gap-2 rounded-full flex-1">
+              {generatingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} PDF
+            </Button>
+            <Button variant="outline" onClick={downloadWord} className="font-body gap-2 rounded-full flex-1">
+              <Download className="w-4 h-4" /> Word
+            </Button>
+          </div>
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
