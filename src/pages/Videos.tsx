@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
+import SiteNav from "@/components/SiteNav";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -47,6 +48,7 @@ export default function Videos() {
         description="Watch career stories, industry explainers and inspiration from real people who've done it."
       />
 
+      <SiteNav />
       <main className="min-h-screen bg-background">
         <section className="px-4 sm:px-6 lg:px-10 pt-8 pb-16 max-w-5xl mx-auto">
 
@@ -75,15 +77,18 @@ export default function Videos() {
             <div className="grid grid-cols-1 gap-6">
               {FEATURED_VIDEOS.map((v) => (
                 <div key={v.title} className="border-2 border-foreground rounded-2xl overflow-hidden">
-                  <video
-                    src={v.src}
-                    controls
-                    playsInline
-                    muted
-                    preload="metadata"
-                    controlsList="nodownload noplaybackrate"
-                    className="w-full aspect-video object-cover bg-foreground/5"
-                  />
+                  {/* cap height on desktop so Short Stories stay visible without scrolling */}
+                  <div className="relative w-full" style={{ paddingTop: "min(56.25%, 420px)" }}>
+                    <video
+                      src={v.src}
+                      controls
+                      playsInline
+                      muted
+                      preload="metadata"
+                      controlsList="nodownload noplaybackrate"
+                      className="absolute inset-0 w-full h-full object-cover bg-foreground/5"
+                    />
+                  </div>
                   <div className="p-4">
                     <span className="inline-block font-display font-700 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary border border-foreground mb-2">
                       {v.tag}
@@ -107,13 +112,13 @@ export default function Videos() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {SHORT_FILMS.map((film) => (
                 <div key={film.id} className="border-2 border-foreground rounded-2xl overflow-hidden">
-                  <div className="aspect-video bg-black overflow-hidden">
+                  <div className="relative w-full bg-black" style={{ paddingTop: "56.25%" }}>
                     <video
                       src={film.url}
                       controls
                       playsInline
                       preload="metadata"
-                      className="w-full h-full object-contain"
+                      className="absolute inset-0 w-full h-full object-contain"
                     />
                   </div>
                   <div className="p-4">
