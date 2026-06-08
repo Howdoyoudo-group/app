@@ -34,7 +34,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { GraduationCap, Award } from "lucide-react";
 import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+
 
 type Thing = { id: string; title: string; kind: string; when: string; description: string; link?: string };
 type Proof = { id: string; label: string; url: string };
@@ -576,136 +576,454 @@ const CVBuilder = () => {
     }
   };
 
+  // Build a properly formatted two-column A4 CV using jsPDF text API.
+  // Left sidebar (dark navy): contact, skills, interests, education.
+  // Right main (white): name, profile, experience, qualifications.
   const buildPdf = async (): Promise<jsPDF | null> => {
-    const el = previewRef.current?.querySelector("[data-profile-preview]") as HTMLElement | null;
-    if (!el) {
-      toast.error("Preview not ready yet.");
-      return null;
-    }
-
-    // Hide elements marked data-pdf-hide (e.g. video intro) during capture.
-    const hidden = Array.from(el.querySelectorAll<HTMLElement>("[data-pdf-hide]"));
-    const prevDisplay = hidden.map((h) => h.style.display);
-    hidden.forEach((h) => { h.style.display = "none"; });
-
-    let canvas;
-    try {
-      // Capture the element's full scroll height - sticky/scaled containers can
-      // otherwise crop the canvas to the viewport, which truncates the PDF.
-      const fullHeight = Math.max(el.scrollHeight, el.offsetHeight, el.clientHeight);
-      const fullWidth = Math.max(el.scrollWidth, el.offsetWidth, el.clientWidth);
-
-      canvas = await html2canvas(el, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        windowWidth: fullWidth,
-        windowHeight: fullHeight,
-        width: fullWidth,
-        height: fullHeight,
-        scrollX: 0,
-        scrollY: -window.scrollY,
-      });
-    } finally {
-      hidden.forEach((h, i) => { h.style.display = prevDisplay[i]; });
-    }
-
+    const allSkills = Object.values(skills).flat();
     const pdf = new jsPDF("p", "mm", "a4");
-    const pageWidth = 210; // mm
-    const pageHeight = 297; // mm
 
-    // Slice the canvas into A4-sized chunks so each page is a fresh image
-    // - this keeps content from rendering off-page and avoids the single-image
-    // overflow approach that was hiding later sections.
-    const pxPerMm = canvas.width / pageWidth;
-    const pageHeightPx = Math.floor(pageHeight * pxPerMm);
+    // ── Page geometry ──────────────────────────────────────────────────────────
+    const PW = 210;
+    const PH = 297;
+    const SB = 68; // sidebar width
+    const SP = 8;  // sidebar inner padding
+    const SW = SB - SP * 2; // sidebar text width
+    const MX = SB + 10; // main column x start
+    const MW = PW - MX - 10; // main column width
+    const MT = 14; // margin top
+    const MB = 14; // margin bottom
 
-    let renderedPx = 0;
-    let pageIndex = 0;
-    while (renderedPx < canvas.height) {
-      const sliceHeight = Math.min(pageHeightPx, canvas.height - renderedPx);
-      const sliceCanvas = document.createElement("canvas");
-      sliceCanvas.width = canvas.width;
-      sliceCanvas.height = sliceHeight;
-      const ctx = sliceCanvas.getContext("2d");
-      if (!ctx) break;
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, sliceCanvas.width, sliceCanvas.height);
-      ctx.drawImage(
-        canvas,
-        0, renderedPx, canvas.width, sliceHeight,
-        0, 0, canvas.width, sliceHeight,
-      );
-      const sliceImg = sliceCanvas.toDataURL("image/jpeg", 0.92);
-      const sliceHeightMm = sliceHeight / pxPerMm;
-      if (pageIndex > 0) pdf.addPage();
-      pdf.addImage(sliceImg, "JPEG", 0, 0, pageWidth, sliceHeightMm);
-      renderedPx += sliceHeight;
-      pageIndex += 1;
+    // ── Colours (RGB) ─────────────────────────────────────────────────────────
+    const NAVY = [22, 37, 58]; // sidebar bg
+    const WHITE = [255, 255, 255];
+    const OFF_WHITE = [230, 235, 240]; // sidebar muted text
+    const GREEN = [16, 185, 129]; // accent
+    const DARK = [20, 20, 20]; // main text
+    const MID = [90, 90, 90]; // secondary text
+    const LIGHT = [160, 160, 160]; // tertiary
+
+    const rgb = (c: number[]) => ({ r: c[0], g: c[1], b: c[2] });
+
+    // ── State for each column ──────────────────────────────────────────────────
+    let sY = MT; // sidebar cursor
+    let mY = MT; // main cursor
+
+    // ── Helpers ───────────────────────────────────────────────────────────────
+    const drawSidebarBg = () => {
+      pdf.setFillColor(NAVY[0], NAVY[1], NAVY[2]);
+      pdf.rect(0, 0, SB, PH, "F");
+    };
+
+    const newPage = () => {
+      pdf.addPage();
+      drawSidebarBg();
+      sY = MT;
+      mY = MT;
+    };
+
+    const lineH = (size: number) => size * 0.3528 * 1.45;
+
+    // Write text in sidebar column; returns height consumed.
+    const sbText = (
+      text: string,
+      size: number,
+      style: "normal" | "bold" = "normal",
+      color: number[] = WHITE,
+      extraGap = 0,
+    ) => {
+      pdf.setFontSize(size);
+      pdf.setFont("helvetica", style);
+      pdf.setTextColor(color[0], color[1], color[2]);
+      const lines = pdf.splitTextToSize(text, SW) as string[];
+      pdf.text(lines, SP, sY);
+      const h = lines.length * lineH(size) + extraGap;
+      sY += h;
+      return h;
+    };
+
+    // Write text in main column; returns height consumed.
+    const mnText = (
+      text: string,
+      x: number,
+      size: number,
+      style: "normal" | "bold" = "normal",
+      color: number[] = DARK,
+      width = MW,
+      extraGap = 0,
+    ) => {
+      pdf.setFontSize(size);
+      pdf.setFont("helvetica", style);
+      pdf.setTextColor(color[0], color[1], color[2]);
+      const lines = pdf.splitTextToSize(text, width) as string[];
+      pdf.text(lines, x, mY);
+      const h = lines.length * lineH(size) + extraGap;
+      mY += h;
+      return h;
+    };
+
+    // Right-aligned text (for dates)
+    const mnTextRight = (text: string, size: number, color: number[] = MID) => {
+      pdf.setFontSize(size);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(color[0], color[1], color[2]);
+      const tw = (pdf.getStringUnitWidth(text) * size) / (72 / 25.4);
+      pdf.text(text, PW - 10 - tw, mY);
+    };
+
+    // Sidebar section heading
+    const sbHeading = (label: string) => {
+      if (sY + 10 > PH - MB) return; // no space
+      sY += 3;
+      pdf.setFillColor(GREEN[0], GREEN[1], GREEN[2]);
+      pdf.rect(SP, sY, 18, 0.5, "F");
+      sY += 3;
+      pdf.setFontSize(7);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(GREEN[0], GREEN[1], GREEN[2]);
+      pdf.text(label.toUpperCase(), SP, sY);
+      sY += lineH(7) + 1;
+    };
+
+    // Main section heading with green underline
+    const mnHeading = (label: string) => {
+      if (mY + 10 > PH - MB) newPage();
+      mY += 4;
+      pdf.setFontSize(9);
+      pdf.setFont("helvetica", "bold");
+      pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+      pdf.text(label.toUpperCase(), MX, mY);
+      mY += lineH(9);
+      pdf.setDrawColor(GREEN[0], GREEN[1], GREEN[2]);
+      pdf.setLineWidth(0.5);
+      pdf.line(MX, mY, PW - 10, mY);
+      mY += 3;
+    };
+
+    // Ensure main column has room for `needed` mm
+    const ensureMain = (needed: number) => {
+      if (mY + needed > PH - MB) newPage();
+    };
+
+    // ── Draw first page sidebar background ────────────────────────────────────
+    drawSidebarBg();
+
+    // ── SIDEBAR: contact info ─────────────────────────────────────────────────
+    // Small HDYD branding at top of sidebar
+    sY += 4;
+    pdf.setFontSize(7);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(GREEN[0], GREEN[1], GREEN[2]);
+    pdf.text("HOWDOYOUDO.CO.UK", SP, sY);
+    sY += lineH(7) + 2;
+
+    // Photo circle placeholder / actual photo
+    const PHOTO_R = 18; // radius mm
+    const PHOTO_CX = SB / 2;
+    const PHOTO_CY = sY + PHOTO_R + 2;
+    if (photoUrl) {
+      try {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        await new Promise<void>((res, rej) => {
+          img.onload = () => res();
+          img.onerror = () => rej();
+          img.src = photoUrl;
+          setTimeout(rej, 4000);
+        });
+        const c = document.createElement("canvas");
+        const size = PHOTO_R * 2 * 10;
+        c.width = size; c.height = size;
+        const ctx = c.getContext("2d")!;
+        ctx.beginPath();
+        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, 0, 0, size, size);
+        const dataUrl = c.toDataURL("image/jpeg", 0.85);
+        pdf.addImage(dataUrl, "JPEG", PHOTO_CX - PHOTO_R, sY + 2, PHOTO_R * 2, PHOTO_R * 2);
+      } catch {
+        // If image load fails, draw a circle placeholder
+        pdf.setFillColor(40, 60, 90);
+        pdf.circle(PHOTO_CX, PHOTO_CY, PHOTO_R, "F");
+      }
+    } else {
+      pdf.setFillColor(40, 60, 90);
+      pdf.circle(PHOTO_CX, PHOTO_CY, PHOTO_R, "F");
     }
+    sY += PHOTO_R * 2 + 6;
+
+    sbHeading("Contact");
+    if (email) sbText(email, 7.5, "normal", OFF_WHITE, 1);
+    if (phone) sbText(phone, 7.5, "normal", OFF_WHITE, 1);
+    if (location || homeAddress) sbText(location || homeAddress, 7.5, "normal", OFF_WHITE, 1);
+    if (personalLink) sbText(personalLink.replace(/^https?:\/\//i, ""), 7.5, "normal", GREEN, 1);
+    if (linkedinUrl) sbText(linkedinUrl.replace(/^https?:\/\//i, ""), 7.5, "normal", GREEN, 1);
+
+    if (allSkills.length > 0) {
+      sbHeading("Skills");
+      allSkills.forEach((s) => {
+        if (sY + lineH(7.5) > PH - MB) return;
+        // Small bullet
+        pdf.setFillColor(GREEN[0], GREEN[1], GREEN[2]);
+        pdf.circle(SP + 1.5, sY - 1.2, 0.9, "F");
+        pdf.setFontSize(7.5);
+        pdf.setFont("helvetica", "normal");
+        pdf.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+        const lines = pdf.splitTextToSize(s, SW - 5) as string[];
+        pdf.text(lines, SP + 4.5, sY);
+        sY += lines.length * lineH(7.5) + 0.5;
+      });
+    }
+
+    const passionList = passions.split(",").map((p) => p.trim()).filter(Boolean);
+    if (passionList.length > 0) {
+      sbHeading("Interests");
+      passionList.forEach((p) => {
+        if (sY + lineH(7.5) > PH - MB) return;
+        pdf.setFillColor(OFF_WHITE[0], OFF_WHITE[1], OFF_WHITE[2]);
+        pdf.circle(SP + 1.5, sY - 1.2, 0.9, "F");
+        pdf.setFontSize(7.5);
+        pdf.setFont("helvetica", "normal");
+        pdf.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+        const lines = pdf.splitTextToSize(p, SW - 5) as string[];
+        pdf.text(lines, SP + 4.5, sY);
+        sY += lines.length * lineH(7.5) + 0.5;
+      });
+    }
+
+    // Education in sidebar if short
+    const validEd = education.filter((e) => e.school || e.qualification);
+    if (validEd.length > 0 && validEd.length <= 2) {
+      sbHeading("Education");
+      validEd.forEach((e) => {
+        if (sY + lineH(7.5) + lineH(7) > PH - MB) return;
+        sbText(e.school || e.qualification, 7.5, "bold", WHITE, 0);
+        if (e.school && e.qualification) sbText(e.qualification, 7, "normal", OFF_WHITE, 0);
+        if (e.dates) sbText(e.dates, 7, "normal", [GREEN[0], GREEN[1], GREEN[2]], 0);
+        if (e.grade) sbText(e.grade, 7, "normal", OFF_WHITE, 0);
+        sY += 2;
+      });
+    }
+
+    // ── MAIN COLUMN ───────────────────────────────────────────────────────────
+
+    // Name
+    mY += 2;
+    pdf.setFontSize(22);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+    pdf.text(fullName || "Your Name", MX, mY);
+    mY += lineH(22);
+
+    // Looking-for / tagline
+    if (lookingFor.trim()) {
+      pdf.setFontSize(9);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(GREEN[0], GREEN[1], GREEN[2]);
+      pdf.text(lookingFor.trim(), MX, mY);
+      mY += lineH(9) + 1;
+    }
+
+    // Thin green line under header
+    pdf.setDrawColor(GREEN[0], GREEN[1], GREEN[2]);
+    pdf.setLineWidth(0.4);
+    pdf.line(MX, mY, PW - 10, mY);
+    mY += 4;
+
+    // Profile / overview
+    const profileText = (aiOverview || intro || "").trim();
+    if (profileText) {
+      mnHeading("Profile");
+      const pLines = pdf.splitTextToSize(profileText, MW) as string[];
+      ensureMain(pLines.length * lineH(9.5));
+      pdf.setFontSize(9.5);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+      pdf.text(pLines, MX, mY);
+      mY += pLines.length * lineH(9.5);
+    }
+
+    // Experience
+    const validExp = experience.filter((w) => w.company || w.title);
+    if (validExp.length > 0) {
+      mnHeading("Experience");
+      validExp.forEach((w) => {
+        const label = w.title && w.company ? `${w.title}` : (w.title || w.company);
+        const dateStr = w.dates || "";
+        // Estimate space needed
+        const descLines = w.description
+          ? (pdf.splitTextToSize(w.description, MW) as string[]).length
+          : 0;
+        const needed = lineH(10) + lineH(8.5) * (descLines + 1) + 5;
+        ensureMain(needed);
+
+        // Role title (left) + dates (right) on same y
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "bold");
+        pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+        pdf.text(label, MX, mY);
+        if (dateStr) {
+          pdf.setFontSize(8.5);
+          pdf.setFont("helvetica", "normal");
+          pdf.setTextColor(MID[0], MID[1], MID[2]);
+          const tw = (pdf.getStringUnitWidth(dateStr) * 8.5) / (72 / 25.4);
+          pdf.text(dateStr, PW - 10 - tw, mY);
+        }
+        mY += lineH(10);
+
+        // Company + location
+        const compLoc = [w.company, w.location].filter(Boolean).join(", ");
+        if (compLoc) {
+          pdf.setFontSize(8.5);
+          pdf.setFont("helvetica", "normal");
+          pdf.setTextColor(GREEN[0], GREEN[1], GREEN[2]);
+          pdf.text(compLoc, MX, mY);
+          mY += lineH(8.5);
+        }
+
+        // Description — split on newlines for bullet-style
+        if (w.description) {
+          const bullets = w.description
+            .split(/[\n•·\-]+/)
+            .map((s) => s.trim())
+            .filter(Boolean);
+          bullets.forEach((b) => {
+            const bLines = pdf.splitTextToSize(b, MW - 4) as string[];
+            ensureMain(bLines.length * lineH(8.5) + 1);
+            pdf.setFillColor(MID[0], MID[1], MID[2]);
+            pdf.circle(MX + 1, mY - 1.2, 0.7, "F");
+            pdf.setFontSize(8.5);
+            pdf.setFont("helvetica", "normal");
+            pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+            pdf.text(bLines, MX + 4, mY);
+            mY += bLines.length * lineH(8.5) + 0.5;
+          });
+        }
+
+        mY += 3;
+      });
+    }
+
+    // Things I've done (projects / achievements)
+    const validThings = things.filter((t) => t.title);
+    if (validThings.length > 0) {
+      mnHeading("Projects & Achievements");
+      validThings.forEach((t) => {
+        const needed = lineH(10) + lineH(8.5) + 5;
+        ensureMain(needed);
+
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "bold");
+        pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+        pdf.text(t.title, MX, mY);
+        if (t.when) {
+          pdf.setFontSize(8.5);
+          pdf.setFont("helvetica", "normal");
+          pdf.setTextColor(MID[0], MID[1], MID[2]);
+          const tw = (pdf.getStringUnitWidth(t.when) * 8.5) / (72 / 25.4);
+          pdf.text(t.when, PW - 10 - tw, mY);
+        }
+        mY += lineH(10);
+
+        if (t.kind) {
+          pdf.setFontSize(8);
+          pdf.setFont("helvetica", "normal");
+          pdf.setTextColor(GREEN[0], GREEN[1], GREEN[2]);
+          pdf.text(t.kind, MX, mY);
+          mY += lineH(8);
+        }
+        if (t.description) {
+          const dLines = pdf.splitTextToSize(t.description, MW) as string[];
+          ensureMain(dLines.length * lineH(8.5));
+          pdf.setFontSize(8.5);
+          pdf.setFont("helvetica", "normal");
+          pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+          pdf.text(dLines, MX, mY);
+          mY += dLines.length * lineH(8.5);
+        }
+        mY += 3;
+      });
+    }
+
+    // Education (in main column if more than 2 entries)
+    if (validEd.length > 2) {
+      mnHeading("Education");
+      validEd.forEach((e) => {
+        ensureMain(lineH(10) + lineH(8.5) * 2 + 4);
+        const label = e.school || e.qualification;
+        pdf.setFontSize(10);
+        pdf.setFont("helvetica", "bold");
+        pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+        pdf.text(label, MX, mY);
+        if (e.dates) {
+          pdf.setFontSize(8.5);
+          pdf.setFont("helvetica", "normal");
+          pdf.setTextColor(MID[0], MID[1], MID[2]);
+          const tw = (pdf.getStringUnitWidth(e.dates) * 8.5) / (72 / 25.4);
+          pdf.text(e.dates, PW - 10 - tw, mY);
+        }
+        mY += lineH(10);
+        if (e.school && e.qualification) {
+          pdf.setFontSize(8.5);
+          pdf.setFont("helvetica", "normal");
+          pdf.setTextColor(GREEN[0], GREEN[1], GREEN[2]);
+          pdf.text(e.qualification, MX, mY);
+          mY += lineH(8.5);
+        }
+        if (e.grade) {
+          pdf.setFontSize(8);
+          pdf.setFont("helvetica", "normal");
+          pdf.setTextColor(MID[0], MID[1], MID[2]);
+          pdf.text(`Grade: ${e.grade}`, MX, mY);
+          mY += lineH(8);
+        }
+        mY += 3;
+      });
+    }
+
+    // Qualifications
+    const validQ = qualifications.filter((q) => q.name);
+    if (validQ.length > 0) {
+      mnHeading("Qualifications & Certifications");
+      validQ.forEach((q) => {
+        ensureMain(lineH(8.5) * 2 + 1);
+        const qLine = [q.name, q.issuer && `· ${q.issuer}`, q.year && `(${q.year})`].filter(Boolean).join(" ");
+        pdf.setFontSize(8.5);
+        pdf.setFont("helvetica", "normal");
+        pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+        pdf.setFillColor(MID[0], MID[1], MID[2]);
+        pdf.circle(MX + 1, mY - 1.2, 0.7, "F");
+        pdf.text(qLine, MX + 4, mY);
+        mY += lineH(8.5) + 0.5;
+      });
+    }
+
+    // References line
+    ensureMain(lineH(8.5));
+    mY += 4;
+    pdf.setFontSize(8);
+    pdf.setFont("helvetica", "italic");
+    pdf.setTextColor(LIGHT[0], LIGHT[1], LIGHT[2]);
+    pdf.text("References available on request.", MX, mY);
 
     return pdf;
   };
 
-  const previewProfile = () => {
-    const el = previewRef.current?.querySelector("[data-profile-preview]") as HTMLElement | null;
-    if (!el) {
-      toast.error("Preview not ready yet.");
-      return;
-    }
-
-    // On mobile (or anywhere a popup would be blocked), scroll the inline preview into view.
-    const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches;
-    if (isMobile) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      toast.success("Scroll down - your profile preview is below.");
-      return;
-    }
-
-    const win = window.open("", "_blank", "noopener,noreferrer");
-    if (!win) {
-      // Popup blocked on desktop - fall back to scrolling to the inline preview.
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-      toast.message("Popups are blocked - showing the inline preview instead.");
-      return;
-    }
+  const previewProfile = async () => {
+    setGeneratingPdf(true);
     try {
-      // Clone all stylesheets and <style> tags so the preview window matches the app exactly.
-      const styles = Array.from(
-        document.querySelectorAll('link[rel="stylesheet"], style')
-      )
-        .map((n) => n.outerHTML)
-        .join("\n");
-
-      const title = `${fullName || "Profile"} - Preview`;
-      const html = `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>${title.replace(/[<>&]/g, "")}</title>
-  ${styles}
-  <style>
-    html, body { background: hsl(var(--background, 0 0% 100%)); margin: 0; }
-    body { padding: 24px; display: flex; justify-content: center; }
-    .preview-shell { width: 100%; max-width: 880px; }
-    [data-pdf-hide] { } /* keep video etc visible in preview */
-  </style>
-</head>
-<body>
-  <div class="preview-shell">${el.outerHTML}</div>
-</body>
-</html>`;
-      win.document.open();
-      win.document.write(html);
-      win.document.close();
+      const pdf = await buildPdf();
+      if (!pdf) return;
+      const url = pdf.output("bloburl") as unknown as string;
+      window.open(url, "_blank", "noopener,noreferrer");
     } catch (err) {
       console.error(err);
-      win.close();
-      toast.error("Could not open preview.");
+      toast.error("Could not generate CV preview.");
+    } finally {
+      setGeneratingPdf(false);
     }
   };
+
 
   const generateAtsCv = async () => {
     if (!user) { toast.error("Sign in to generate an ATS CV."); return; }
@@ -1648,11 +1966,12 @@ const CVBuilder = () => {
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
               {saving ? "Saving…" : "Save profile"}
             </Button>
-            <Button variant="outline" onClick={previewProfile} className="font-body gap-2 rounded-full">
-              <Eye className="w-4 h-4" /> Preview
+            <Button variant="outline" onClick={previewProfile} disabled={generatingPdf} className="font-body gap-2 rounded-full">
+              {generatingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />}
+              {generatingPdf ? "Building…" : "Preview CV"}
             </Button>
             <Button variant="outline" onClick={downloadPdf} disabled={generatingPdf} className="font-body gap-2 rounded-full">
-              {generatingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Save as PDF
+              {generatingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} Download CV
             </Button>
             <Button variant="outline" onClick={emailProfile} disabled={emailing || !user} className="font-body gap-2 rounded-full">
               {emailing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />} Email me a copy
