@@ -117,7 +117,8 @@ const NAV_SECTIONS: NavSection[] = [
 const PROFILE_ITEMS: NavItem[] = [
   { label: "Edit Profile", to: "/my-profile" },
   { label: "Take the Quiz", to: "/onboarding" },
-  { label: "Privacy & Account", to: "/terms" },
+  { label: "Account Settings", to: "/my-profile" },
+  { label: "Privacy & Terms", to: "/terms" },
 ];
 
 type Props = {

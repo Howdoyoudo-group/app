@@ -107,7 +107,7 @@ const TermsAndPrivacy = () => {
               <li>Improve our platform content and user experience</li>
               <li>Communicate important updates about our services</li>
             </ul>
-            <p>We will <strong>never</strong> sell your personal data to third parties.</p>
+            <p>We will never sell your personal data — information that identifies you — to third parties. We may share aggregated, anonymised, and de-identified insights (such as industry interest trends or platform usage patterns) with partners, researchers, or employers. This information cannot be used to identify you individually.</p>
           </div>
         </section>
 
@@ -254,8 +254,18 @@ const TermsAndPrivacy = () => {
           </div>
           <div className="space-y-3 text-foreground/80 font-body text-sm leading-relaxed">
             <p>
-              We use essential cookies to ensure the platform functions correctly. We do not currently use
-              advertising or tracking cookies. If this changes, we will update this policy and seek your consent.
+              Cookies are small text files stored on your device when you visit our platform. We use the following types:
+            </p>
+            <ul className="list-disc list-inside space-y-1.5 ml-2">
+              <li><strong>Essential cookies</strong> — required for the platform to function, including keeping you signed in and maintaining your session. You cannot opt out of these without stopping use of the service.</li>
+              <li><strong>Functional cookies</strong> — remember your preferences such as industry selections and notification settings to improve your experience.</li>
+              <li><strong>Analytics cookies</strong> — we may use anonymised analytics to understand how people use the platform and improve it. This data does not identify you personally.</li>
+            </ul>
+            <p>
+              We do not currently use advertising or behavioural tracking cookies. If this changes, we will update this policy and ask for your explicit consent before setting any such cookies.
+            </p>
+            <p>
+              You can manage or delete cookies through your browser settings at any time. Disabling essential cookies may affect your ability to use the platform. For more information, visit <a href="https://www.allaboutcookies.org" target="_blank" rel="noopener noreferrer" className="text-primary underline">allaboutcookies.org</a>.
             </p>
           </div>
         </section>
