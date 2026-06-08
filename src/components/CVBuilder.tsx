@@ -159,18 +159,19 @@ const LogoBubble = ({
 }) => {
   // Build a chain of logo sources to try in order
   const sources: string[] = [];
+  const LOGO_DEV = "pk_X-1ZO13GSgeOoUrIuJ6GMQ";
   const explicitHost = hostFrom(url);
   if (isImageUrl(url)) sources.push(url!);
   if (explicitHost) {
+    sources.push(`https://img.logo.dev/${explicitHost}?token=${LOGO_DEV}&size=128&format=png`);
     sources.push(`https://logo.clearbit.com/${explicitHost}`);
     sources.push(`https://www.google.com/s2/favicons?domain_url=https://${explicitHost}&sz=128`);
-    sources.push(`https://icons.duckduckgo.com/ip3/${explicitHost}.ico`);
   }
   guessDomains(name).forEach((guessed) => {
     if (!guessed || guessed === explicitHost) return;
+    sources.push(`https://img.logo.dev/${guessed}?token=${LOGO_DEV}&size=128&format=png`);
     sources.push(`https://logo.clearbit.com/${guessed}`);
     sources.push(`https://www.google.com/s2/favicons?domain_url=https://${guessed}&sz=128`);
-    sources.push(`https://icons.duckduckgo.com/ip3/${guessed}.ico`);
   });
 
   const [idx, setIdx] = useState(0);
@@ -587,42 +588,51 @@ const CVBuilder = () => {
   const fetchLogoDataUrl = async (entry: {
     logoUrl?: string; link?: string; company?: string; school?: string;
   }): Promise<string | null> => {
-    const tryFetch = async (url: string): Promise<string | null> => {
+    // If there's a stored logoUrl (uploaded by user), try fetching it directly first
+    if (entry.logoUrl) {
       try {
-        const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
-        if (!res.ok) return null;
-        const ct = res.headers.get("content-type") || "";
-        if (!ct.startsWith("image/")) return null;
-        const blob = await res.blob();
-        return await new Promise<string | null>((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve((reader.result as string) || null);
-          reader.onerror = () => resolve(null);
-          reader.readAsDataURL(blob);
-        });
-      } catch { return null; }
-    };
+        const res = await fetch(entry.logoUrl, { signal: AbortSignal.timeout(4000) });
+        if (res.ok) {
+          const ct = res.headers.get("content-type") || "";
+          if (ct.startsWith("image/")) {
+            const blob = await res.blob();
+            return await new Promise<string | null>((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve((reader.result as string) || null);
+              reader.onerror = () => resolve(null);
+              reader.readAsDataURL(blob);
+            });
+          }
+        }
+      } catch { /* fall through */ }
+    }
 
-    if (entry.logoUrl) { const r = await tryFetch(entry.logoUrl); if (r) return r; }
+    // Use our server-side proxy to avoid CORS issues with Clearbit/logo.dev
+    const proxyBase = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-logo`;
+    const params = new URLSearchParams();
 
     const linkStr = entry.link || "";
     if (linkStr) {
       try {
         const url = linkStr.startsWith("http") ? linkStr : `https://${linkStr}`;
-        const domain = new URL(url).hostname.replace(/^www\./, "");
-        const r = await tryFetch(`https://logo.clearbit.com/${domain}`);
-        if (r) return r;
-      } catch { /* ignore */ }
+        params.set("domain", new URL(url).hostname.replace(/^www\./, ""));
+      } catch { /* ignore bad URLs */ }
     }
 
-    const name = (entry.company || entry.school || "").toLowerCase()
-      .replace(/\b(ltd|limited|plc|inc|llc|group|uk|the|of|and)\b/g, " ")
-      .replace(/[^a-z0-9]+/g, "").trim().slice(0, 20);
-    if (name.length >= 3) {
-      const r = await tryFetch(`https://logo.clearbit.com/${name}.com`);
-      if (r) return r;
-    }
-    return null;
+    const name = (entry.company || entry.school || "").trim();
+    if (name && !params.has("domain")) params.set("name", name);
+    else if (name) params.set("name", name); // send name too for better guessing
+
+    if (!params.has("domain") && !params.has("name")) return null;
+
+    try {
+      const res = await fetch(`${proxyBase}?${params.toString()}`, {
+        signal: AbortSignal.timeout(6000),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return data.dataUrl || null;
+    } catch { return null; }
   };
 
   // Build a properly formatted two-column A4 CV using jsPDF text API.
