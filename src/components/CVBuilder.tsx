@@ -1112,64 +1112,28 @@ const CVBuilder = () => {
       });
     }
 
-    // Personal section — interests, passions, RIASEC, industries
-    const personalPassions = [
-      ...passions.split(",").map((p) => p.trim()).filter(Boolean),
-      ...interests.split(",").map((p) => p.trim()).filter(Boolean),
-    ].filter((v, i, a) => a.indexOf(v) === i);
+    // Personal section — hobbies/passions outside of work (e.g. tennis, skiing, baking)
+    const personalHobbies = passions
+      .split(",")
+      .map((p) => p.trim())
+      .filter(Boolean);
 
-    const industryList = interests
-      ? interests.split(",").map((s) => s.trim()).filter(Boolean)
-      : [];
-
-    // RIASEC top dimension label
-    let riasecLabel = "";
-    if (riasecScores) {
-      const top = Object.entries(riasecScores).sort((a, b) => b[1] - a[1])[0];
-      const labels: Record<string, string> = {
-        R: "Realistic — practical, hands-on problem solver",
-        I: "Investigative — analytical, curious, research-driven",
-        A: "Artistic — creative, expressive, imaginative",
-        S: "Social — people-focused, empathetic, collaborative",
-        E: "Enterprising — persuasive, ambitious, leadership-oriented",
-        C: "Conventional — organised, detail-oriented, structured",
-      };
-      if (top) riasecLabel = labels[top[0]] || "";
-    }
-
-    const hasPersonal = personalPassions.length > 0 || riasecLabel || industryList.length > 0;
-    if (hasPersonal) {
+    if (personalHobbies.length > 0) {
       mY += 4;
       mnHeading("Personal");
 
-      // Compose a natural summary sentence
-      const parts: string[] = [];
-      if (personalPassions.length > 0) {
-        const listed = personalPassions.length === 1
-          ? personalPassions[0]
-          : personalPassions.slice(0, -1).join(", ") + " and " + personalPassions.at(-1);
-        parts.push(`Outside of work, interests include ${listed}.`);
-      }
-      if (industryList.length > 0 && industryList.join("") !== personalPassions.join("")) {
-        const listed = industryList.length === 1
-          ? industryList[0]
-          : industryList.slice(0, -1).join(", ") + " and " + industryList.at(-1);
-        parts.push(`Passionate about the ${listed} ${industryList.length === 1 ? "industry" : "industries"}.`);
-      }
-      if (riasecLabel) {
-        parts.push(`Career personality: ${riasecLabel}.`);
-      }
+      const listed = personalHobbies.length === 1
+        ? personalHobbies[0]
+        : personalHobbies.slice(0, -1).join(", ") + " and " + personalHobbies.at(-1);
+      const personalText = `Outside of work, ${listed.charAt(0).toLowerCase()}${listed.slice(1)}.`;
 
-      const personalText = parts.join("  ");
-      if (personalText) {
-        ensureMain(lineH(8.5) * 4);
-        pdf.setFontSize(8.5);
-        pdf.setFont("helvetica", "normal");
-        pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
-        const pLines = pdf.splitTextToSize(personalText, MW) as string[];
-        pdf.text(pLines, MX, mY);
-        mY += pLines.length * lineH(8.5) + 2;
-      }
+      ensureMain(lineH(8.5) * 3);
+      pdf.setFontSize(8.5);
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+      const pLines = pdf.splitTextToSize(personalText, MW) as string[];
+      pdf.text(pLines, MX, mY);
+      mY += pLines.length * lineH(8.5) + 2;
     }
 
     // References line
@@ -1875,8 +1839,8 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
           <Card title="Your Story" icon={Heart} delay={0.1}>
             <Textarea placeholder="Short intro - who are you?" value={intro} onChange={(e) => setIntro(e.target.value)} className="font-body bg-background min-h-[80px] rounded-xl" />
             <div className="space-y-1.5">
-              <label className="font-body text-xs text-muted-foreground">What you love (from onboarding - edit any time)</label>
-              <Textarea placeholder="e.g. tennis, vinyl, baking, climbing" value={passions} onChange={(e) => setPassions(e.target.value)} className="font-body bg-background min-h-[60px] rounded-xl" />
+              <label className="font-body text-xs text-muted-foreground">Hobbies &amp; interests outside work — appears in Personal section of your CV</label>
+              <Textarea placeholder="e.g. skiing, tennis, vinyl, baking, climbing, travel" value={passions} onChange={(e) => setPassions(e.target.value)} className="font-body bg-background min-h-[60px] rounded-xl" />
             </div>
             <Textarea placeholder="What are you interested in? (e.g. music, sustainability, coding)" value={interests} onChange={(e) => setInterests(e.target.value)} className="font-body bg-background min-h-[60px] rounded-xl" />
             <Textarea placeholder="What kind of work are you looking for? (e.g. internship, weekend job, apprenticeship)" value={lookingFor} onChange={(e) => setLookingFor(e.target.value)} className="font-body bg-background min-h-[60px] rounded-xl" />
