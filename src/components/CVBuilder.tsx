@@ -1110,6 +1110,66 @@ const CVBuilder = () => {
       });
     }
 
+    // Personal section — interests, passions, RIASEC, industries
+    const personalPassions = [
+      ...passions.split(",").map((p) => p.trim()).filter(Boolean),
+      ...interests.split(",").map((p) => p.trim()).filter(Boolean),
+    ].filter((v, i, a) => a.indexOf(v) === i);
+
+    const industryList = interests
+      ? interests.split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+
+    // RIASEC top dimension label
+    let riasecLabel = "";
+    if (riasecScores) {
+      const top = Object.entries(riasecScores).sort((a, b) => b[1] - a[1])[0];
+      const labels: Record<string, string> = {
+        R: "Realistic — practical, hands-on problem solver",
+        I: "Investigative — analytical, curious, research-driven",
+        A: "Artistic — creative, expressive, imaginative",
+        S: "Social — people-focused, empathetic, collaborative",
+        E: "Enterprising — persuasive, ambitious, leadership-oriented",
+        C: "Conventional — organised, detail-oriented, structured",
+      };
+      if (top) riasecLabel = labels[top[0]] || "";
+    }
+
+    const hasPersonal = personalPassions.length > 0 || riasecLabel || industryList.length > 0;
+    if (hasPersonal) {
+      mY += 4;
+      mnHeading("Personal");
+
+      // Compose a natural summary sentence
+      const parts: string[] = [];
+      if (personalPassions.length > 0) {
+        const listed = personalPassions.length === 1
+          ? personalPassions[0]
+          : personalPassions.slice(0, -1).join(", ") + " and " + personalPassions.at(-1);
+        parts.push(`Outside of work, interests include ${listed}.`);
+      }
+      if (industryList.length > 0 && industryList.join("") !== personalPassions.join("")) {
+        const listed = industryList.length === 1
+          ? industryList[0]
+          : industryList.slice(0, -1).join(", ") + " and " + industryList.at(-1);
+        parts.push(`Passionate about the ${listed} ${industryList.length === 1 ? "industry" : "industries"}.`);
+      }
+      if (riasecLabel) {
+        parts.push(`Career personality: ${riasecLabel}.`);
+      }
+
+      const personalText = parts.join("  ");
+      if (personalText) {
+        ensureMain(lineH(8.5) * 4);
+        pdf.setFontSize(8.5);
+        pdf.setFont("helvetica", "normal");
+        pdf.setTextColor(DARK[0], DARK[1], DARK[2]);
+        const pLines = pdf.splitTextToSize(personalText, MW) as string[];
+        pdf.text(pLines, MX, mY);
+        mY += pLines.length * lineH(8.5) + 2;
+      }
+    }
+
     // References line
     ensureMain(lineH(8.5));
     mY += 4;
