@@ -863,9 +863,9 @@ const CVBuilder = () => {
     if (validEd.length > 0 && validEd.length <= 2) {
       sbHeading("Education");
       validEd.forEach((e, ei) => {
-        const eLogo = edLogos[ei];
+        const eLogo = edLogos[ei] || null;
         if (eLogo && sY + 7 < PH - MB) {
-          try { pdf.addImage(eLogo, "PNG", SP + 2.5, sY - 5, 5, 5); } catch { /* skip */ }
+          addLogoSafe(eLogo, SP + 2.5, sY - 5, 5, 5);
         }
         if (sY + lineH(7.5) + lineH(7) > PH - MB) return;
         sbText(e.school || e.qualification, 7.5, "bold", WHITE, 0);
@@ -914,26 +914,34 @@ const CVBuilder = () => {
       mY += pLines.length * lineH(9.5);
     }
 
+    const addLogoSafe = (logo: string, x: number, y: number, w: number, h: number) => {
+      try {
+        const fmt = logo.startsWith("data:image/jpeg") || logo.startsWith("data:image/jpg")
+          ? "JPEG" : "PNG";
+        pdf.addImage(logo, fmt, x, y, w, h);
+      } catch { /* unsupported format — skip */ }
+    };
+
     // Experience
     if (validExp.length > 0) {
       mnHeading("Experience");
       validExp.forEach((w, wi) => {
-        const logo = expLogos[wi];
+        const logo = expLogos[wi] || null;
         const logoW = 6;
         const textX = logo ? MX + logoW + 2 : MX;
         const textW = logo ? MW - logoW - 2 : MW;
 
-        const label = w.title && w.company ? `${w.title}` : (w.title || w.company);
+        const label = w.title && w.company ? `${w.title}` : (w.title || w.company || "");
         const dateStr = w.dates || "";
         const descLines = w.description
           ? (pdf.splitTextToSize(w.description, textW) as string[]).length
           : 0;
-        const needed = (logo ? logoW + 2 : 0) + lineH(10) + lineH(8.5) * (descLines + 1) + 5;
+        const needed = lineH(10) + lineH(8.5) * (descLines + 1) + 5;
         ensureMain(needed);
 
-        // Logo
+        // Logo (drawn at current mY position, not offset above)
         if (logo) {
-          try { pdf.addImage(logo, "PNG", MX, mY - 5, logoW, logoW); } catch { /* skip */ }
+          addLogoSafe(logo, MX, mY - 4, logoW, logoW);
         }
 
         // Role title (left) + dates (right)
@@ -1034,7 +1042,7 @@ const CVBuilder = () => {
         const label = e.school || e.qualification;
 
         if (eLogo) {
-          try { pdf.addImage(eLogo, "PNG", MX, mY - 5, logoW, logoW); } catch { /* skip */ }
+          addLogoSafe(eLogo, MX, mY - 4, logoW, logoW);
         }
 
         pdf.setFontSize(10);
