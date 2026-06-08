@@ -594,10 +594,10 @@ const Onboarding = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
-              onClick={() => { launchHowdyTour(); navigate("/"); }}
+              onClick={() => navigate("/my-profile")}
               className="bg-primary text-primary-foreground px-6 py-3 font-display font-700 text-sm uppercase tracking-wider shadow-[3px_3px_0_hsl(var(--foreground))] hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all"
             >
-              Take the 90-sec tour
+              View my profile
             </button>
             <button
               onClick={() => navigate("/my-jobs")}
@@ -606,10 +606,10 @@ const Onboarding = () => {
               See my jobs
             </button>
             <button
-              onClick={() => navigate("/my-profile")}
+              onClick={() => { launchHowdyTour(); navigate("/"); }}
               className="border-2 border-foreground text-foreground px-6 py-3 font-display font-700 text-sm uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
             >
-              View my profile
+              Take the 90-sec tour
             </button>
           </div>
         </motion.div>
