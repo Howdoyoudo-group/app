@@ -135,7 +135,19 @@ type RealMember = {
   photo_url: string | null;
   home_town: string | null;
   industry_interests: string[] | null;
+  created_at: string | null;
 };
+
+function joinedLabel(created_at: string | null): string {
+  if (!created_at) return "New member";
+  const days = Math.floor((Date.now() - new Date(created_at).getTime()) / 86_400_000);
+  if (days === 0) return "Joined today";
+  if (days === 1) return "Joined yesterday";
+  if (days < 7) return `Joined ${days} days ago`;
+  if (days < 30) return `Joined ${Math.floor(days / 7)} week${Math.floor(days / 7) > 1 ? "s" : ""} ago`;
+  if (days < 365) return `Joined ${Math.floor(days / 30)} month${Math.floor(days / 30) > 1 ? "s" : ""} ago`;
+  return "Long-time member";
+}
 
 const Community = () => {
   const { user } = useAuth();
@@ -476,15 +488,11 @@ const Community = () => {
 
           <Card className="p-5 border-2 border-foreground/10">
             <div className="flex items-center gap-2 mb-3 flex-wrap">
-              <span className="w-2 h-2 rounded-full" style={{ background: LIME }} />
-              <span className="font-display text-xs tracking-[0.2em] uppercase">Who's around?</span>
+              <span className="font-display text-xs tracking-[0.2em] uppercase">New Members</span>
               <RealTag />
-              <span className="text-foreground/40 text-[10px]">+</span>
-              <DummyTag />
             </div>
             <div className="space-y-3">
-              {/* Real members (from opted-in profiles) */}
-              {realMembers.slice(0, 4).map((m, i) => {
+              {realMembers.slice(0, 4).map((m) => {
                 const name = m.first_name || "Member";
                 return (
                   <div key={`real-${m.id}`} className="flex items-center gap-3">
@@ -500,7 +508,7 @@ const Community = () => {
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-sm truncate">{name}</div>
                       <div className="text-xs text-muted-foreground truncate">
-                        {industryLabel === "the community" ? "Member" : industryLabel}
+                        {joinedLabel(m.created_at)}
                         {m.home_town ? ` · ${m.home_town}` : ""}
                       </div>
                     </div>
@@ -527,24 +535,7 @@ const Community = () => {
                 );
               })}
 
-              {/* Dummy fillers — only enough to reach 4 visible rows */}
-              {around.slice(0, Math.max(0, 4 - realMembers.length)).map((p, i) => (
-                <div key={`dummy-${i}`} className="flex items-center gap-3 opacity-70">
-                  <Avatar name={p.name} />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm truncate">{p.name}</div>
-                    <div className="text-xs text-muted-foreground truncate">
-                      {industryLabel === "the community" ? "Member" : industryLabel} · {p.loc}
-                    </div>
-                    <div className="text-[11px] mt-0.5 flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-foreground/30" />
-                      <span className="text-muted-foreground">{p.status}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-
-              {realMembers.length === 0 && around.length === 0 && (
+              {realMembers.length === 0 && (
                 <p className="text-sm text-muted-foreground">No members to show yet.</p>
               )}
             </div>

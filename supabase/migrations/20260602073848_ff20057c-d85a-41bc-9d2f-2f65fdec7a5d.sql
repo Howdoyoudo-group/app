@@ -1,6 +1,8 @@
 
+DROP FUNCTION IF EXISTS public.get_public_member_preview(text, integer);
+
 CREATE OR REPLACE FUNCTION public.get_public_member_preview(_industry text DEFAULT NULL, _limit integer DEFAULT 12)
-RETURNS TABLE(id uuid, first_name text, photo_url text, home_town text, industry_interests text[])
+RETURNS TABLE(id uuid, first_name text, photo_url text, home_town text, industry_interests text[], created_at timestamptz)
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
@@ -11,7 +13,8 @@ AS $$
     split_part(trim(p.full_name), ' ', 1) AS first_name,
     p.photo_url,
     p.home_town,
-    p.industry_interests
+    p.industry_interests,
+    p.created_at
   FROM public.profiles p
   WHERE p.member_directory_opt_in = true
     AND COALESCE(p.full_name, '') <> ''
@@ -22,7 +25,7 @@ AS $$
         WHERE lower(trim(i)) = lower(trim(_industry))
       )
     )
-  ORDER BY (p.photo_url IS NOT NULL) DESC, p.updated_at DESC NULLS LAST
+  ORDER BY p.created_at DESC NULLS LAST
   LIMIT GREATEST(LEAST(_limit, 50), 1);
 $$;
 
