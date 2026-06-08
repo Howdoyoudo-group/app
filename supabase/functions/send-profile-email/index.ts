@@ -9,7 +9,7 @@ const corsHeaders = {
 const SENDER_DOMAIN = "notify.howdoyoudo.group";
 const FROM_EMAIL = `hello@${SENDER_DOMAIN}`;
 const FROM_NAME = "How Do You Do";
-const SITE_URL = "https://howdoyoudo.group";
+const SITE_URL = "https://www.howdoyoudo.co.uk";
 
 function escape(value: string): string {
   return value.replace(/[&<>"']/g, (c) => (
@@ -26,23 +26,26 @@ function base64ToBytes(b64: string): Uint8Array {
 
 function buildHtml(firstName: string, downloadUrl: string): string {
   return `<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Your How Do You Do profile</title></head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;color:#1a1a1a;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:40px 20px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-  <tr><td style="padding:0 0 24px 0;border-bottom:2px solid #1a1a1a;">
-    <h1 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.5px;">howdoyoudo<span style="color:#00e600;">?</span></h1>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Your Howdoyoudo profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0;padding:0;background:#f5f5f0;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;color:#1a1a1a;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f0;"><tr><td align="center" style="padding:32px 16px 40px;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:2px solid #1a1a1a;">
+  <tr><td style="background:#1a1a1a;padding:24px 32px;">
+    <p style="margin:0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:28px;font-weight:400;color:#ffffff;letter-spacing:-0.5px;line-height:1;">howdoyoudo<span style="color:#00e600;">?</span></p>
   </td></tr>
-  <tr><td style="padding:32px 0 12px 0;">
-    <h2 style="margin:0 0 12px 0;font-size:24px;font-weight:800;">Hey ${escape(firstName)} - here's your profile.</h2>
-    <p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;color:#333;">A PDF copy of your How Do You Do profile is ready to download. Share it with employers, save it for yourself, or just keep a backup.</p>
+  <tr><td style="padding:36px 32px 12px 32px;">
+    <h2 style="margin:0 0 12px 0;font-size:24px;font-weight:800;">Hey ${escape(firstName)} — here's your profile.</h2>
+    <p style="margin:0 0 24px 0;font-size:15px;line-height:1.6;color:#333;">A PDF copy of your Howdoyoudo profile is ready to download. Share it with employers, save it for yourself, or just keep a backup.</p>
     <p style="margin:0 0 32px 0;">
-      <a href="${escape(downloadUrl)}" style="display:inline-block;background:#00e600;color:#1a1a1a;font-weight:800;text-decoration:none;padding:14px 24px;border:2px solid #1a1a1a;border-radius:999px;font-size:14px;letter-spacing:0.5px;">Download your profile (PDF)</a>
+      <a href="${escape(downloadUrl)}" style="display:inline-block;background:#1a1a1a;color:#ffffff;font-weight:700;text-decoration:none;padding:14px 28px;font-size:13px;letter-spacing:1px;text-transform:uppercase;">Download your profile (PDF)</a>
     </p>
-    <p style="margin:0 0 8px 0;font-size:12px;color:#777;">This download link is private to you and expires in 7 days. You can always re-generate it from your profile builder.</p>
+    <p style="margin:0 0 8px 0;font-size:12px;color:#777;">This link is private to you and expires in 7 days. You can re-generate it from your profile builder anytime.</p>
   </td></tr>
-  <tr><td style="padding:32px 0;border-top:1px solid #eee;font-size:12px;color:#999;">
-    Sent by <a href="${SITE_URL}" style="color:#00e600;text-decoration:none;">How Do You Do</a> - unpacking the industries we love and live in.
+  <tr><td style="padding:20px 32px;background:#1a1a1a;border-top:3px solid #00e600;">
+    <p style="margin:0 0 4px 0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:18px;color:#ffffff;">howdoyoudo<span style="color:#00e600;">?</span></p>
+    <p style="margin:0;font-size:12px;color:#999;"><a href="${SITE_URL}" style="color:#00e600;text-decoration:none;">www.howdoyoudo.co.uk</a> · Unpacking the industries we love and live in.</p>
   </td></tr>
 </table>
 </td></tr></table>

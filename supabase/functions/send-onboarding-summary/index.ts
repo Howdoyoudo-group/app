@@ -69,20 +69,22 @@ function buildHtml(profile: ProfileRow, suggestedRoles: string[]): string {
   const passionsHtml = passions.length ? passions.map(pill).join("") : "";
 
   return `<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>You're all set, ${escape(firstName)}</title></head>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>You're all set, ${escape(firstName)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+</head>
 <body style="margin:0;padding:0;background-color:#f5f5f0;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f0;"><tr><td align="center" style="padding:32px 16px 40px;">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:2px solid #1a1a1a;">
 
   <!-- Header -->
-  <tr><td style="background:#1a1a1a;padding:0;">
-    <img src="https://www.howdoyoudo.co.uk/assets/email-header-dark-cropped.jpg" alt="Howdoyoudo" width="600" style="display:block;width:100%;max-width:600px;border:0;" />
+  <tr><td style="background:#1a1a1a;padding:28px 36px;">
+    <p style="margin:0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:32px;font-weight:400;color:#ffffff;letter-spacing:-0.5px;line-height:1;">howdoyoudo<span style="color:#00e600;">?</span></p>
   </td></tr>
 
   <!-- Intro -->
   <tr><td style="padding:36px 36px 8px 36px;">
-    <h2 style="margin:0 0 8px 0;font-size:28px;font-weight:800;color:#1a1a1a;line-height:1.1;font-family:'Arial Black',Impact,'Helvetica Neue',Arial,sans-serif;">You're all set, ${escape(firstName)}<span style="color:#10b981;">.</span></h2>
-    <p style="margin:0;font-size:12px;color:#10b981;text-transform:uppercase;letter-spacing:3px;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;font-weight:700;">A quick snapshot of you</p>
+    <h2 style="margin:0 0 8px 0;font-size:28px;font-weight:800;color:#1a1a1a;line-height:1.1;font-family:'Arial Black',Impact,'Helvetica Neue',Arial,sans-serif;">You're all set, ${escape(firstName)}<span style="color:#00e600;">.</span></h2>
+    <p style="margin:0;font-size:12px;color:#00e600;text-transform:uppercase;letter-spacing:3px;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;font-weight:700;">A quick snapshot of you</p>
   </td></tr>
 
   <tr><td style="padding:16px 36px 8px 36px;">
@@ -92,8 +94,8 @@ function buildHtml(profile: ProfileRow, suggestedRoles: string[]): string {
   </td></tr>
 
   <tr><td style="padding:0 36px 0 36px;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:20px;background:#f5f5f0;border-left:4px solid #10b981;">
-    <h3 style="margin:0 0 10px 0;font-size:11px;color:#10b981;text-transform:uppercase;letter-spacing:2px;font-weight:700;">Industries you're tracking</h3>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:20px;background:#f5f5f0;border-left:4px solid #00e600;">
+    <h3 style="margin:0 0 10px 0;font-size:11px;color:#00e600;text-transform:uppercase;letter-spacing:2px;font-weight:700;">Industries you're tracking</h3>
     <div style="line-height:1.8;">${industriesHtml}</div>
     ${industries.length ? `<p style="margin:12px 0 0 0;font-size:13px;color:#666;">You'll get a daily morning briefing for these. UK weekdays.</p>` : ""}
   </td></tr></table>
@@ -123,15 +125,15 @@ function buildHtml(profile: ProfileRow, suggestedRoles: string[]): string {
   ${suggestedRoles.length ? `
   <tr><td style="padding:24px 36px 0 36px;">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:24px;background:#1a1a1a;">
-    <h3 style="margin:0 0 14px 0;font-size:11px;color:#10b981;text-transform:uppercase;letter-spacing:2px;font-weight:700;">Roles that may match you</h3>
+    <h3 style="margin:0 0 14px 0;font-size:11px;color:#00e600;text-transform:uppercase;letter-spacing:2px;font-weight:700;">Roles that may match you</h3>
     ${suggestedRoles.map((r) => `<p style="margin:6px 0;font-size:15px;color:#ffffff;font-weight:bold;font-family:'Arial Black',Impact,Arial,sans-serif;">→ ${escape(r)}</p>`).join("")}
-    <p style="margin:18px 0 0 0;"><a href="${SITE_URL}/my-jobs" style="color:#10b981;font-size:13px;text-decoration:underline;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">See your matched jobs →</a></p>
+    <p style="margin:18px 0 0 0;"><a href="${SITE_URL}/my-jobs" style="color:#00e600;font-size:13px;text-decoration:underline;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">See your matched jobs →</a></p>
   </td></tr></table>
   </td></tr>
   ` : ""}
 
   <tr><td style="padding:32px 36px 0 36px;">
-    <h3 style="margin:0 0 14px 0;font-size:11px;color:#10b981;text-transform:uppercase;letter-spacing:2px;font-weight:700;">3 ways to get the most from Howdoyoudo</h3>
+    <h3 style="margin:0 0 14px 0;font-size:11px;color:#00e600;text-transform:uppercase;letter-spacing:2px;font-weight:700;">3 ways to get the most from Howdoyoudo</h3>
     <p style="margin:8px 0;font-size:14px;color:#333;line-height:1.7;">
       <strong style="color:#1a1a1a;">1. Watch your inbox.</strong> Daily UK morning briefings for the industries you picked.
     </p>
@@ -149,11 +151,11 @@ function buildHtml(profile: ProfileRow, suggestedRoles: string[]): string {
   </td></tr>
 
   <!-- Footer -->
-  <tr><td style="padding:24px 36px;background:#1a1a1a;border-top:2px solid #10b981;">
-    <p style="margin:0 0 6px 0;font-size:13px;color:#ffffff;font-weight:700;font-family:'Arial Black',Impact,Arial,sans-serif;">howdoyoudo<span style="color:#10b981;">?</span></p>
+  <tr><td style="padding:24px 36px;background:#1a1a1a;border-top:2px solid #00e600;">
+    <p style="margin:0 0 6px 0;font-size:16px;color:#ffffff;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;">howdoyoudo<span style="color:#00e600;">?</span></p>
     <p style="margin:0;font-size:12px;color:#999;line-height:1.6;">
       We're really glad you're here. Reply to this email anytime — a real person reads it.<br>
-      <a href="${SITE_URL}" style="color:#10b981;text-decoration:none;">www.howdoyoudo.co.uk</a>
+      <a href="${SITE_URL}" style="color:#00e600;text-decoration:none;">www.howdoyoudo.co.uk</a>
     </p>
   </td></tr>
 

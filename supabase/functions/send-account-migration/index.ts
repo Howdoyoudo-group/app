@@ -11,24 +11,23 @@ const FROM_EMAIL = `hello@${SENDER_DOMAIN}`;
 const FROM_NAME = "How Do You Do";
 
 const STORAGE_BASE = "https://siqwclmzncubkrwabmvb.supabase.co/storage/v1/object/public/email-assets";
-const SITE_URL = "https://howdoyoudo.group";
+const SITE_URL = "https://www.howdoyoudo.co.uk";
 
 function buildEmailHtml(name: string, jobCount: number): string {
   const rawFirst = name.split(" ")[0] || "there";
   const firstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
-<body style="margin:0;padding:0;background-color:#f4f4f4;font-family:Trebuchet MS,Arial,sans-serif;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f4f4f4;padding:40px 20px;">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0;padding:0;background-color:#f5f5f0;font-family:'Trebuchet MS',Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f0;padding:32px 16px 40px;">
 <tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff;">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#ffffff;border:2px solid #1a1a1a;">
 
-<!-- Header matching homepage brand -->
-<tr><td style="background-color:#ffffff;background-image:url('${STORAGE_BASE}/hero-bg.jpg');background-size:cover;background-position:center top;padding:35px 40px;text-align:left;">
-  <h1 style="margin:0;font-family:Arial Black,Impact,Arial,sans-serif;font-size:32px;font-weight:900;color:#1a1a1a;letter-spacing:-1px;line-height:0.9;">
-    How do<br>you do<span style="color:#00e600;">?</span>
-  </h1>
+<!-- Header -->
+<tr><td style="background:#1a1a1a;padding:24px 32px;">
+  <p style="margin:0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:28px;font-weight:400;color:#ffffff;letter-spacing:-0.5px;line-height:1;">howdoyoudo<span style="color:#00e600;">?</span></p>
 </td></tr>
 
 <!-- Greeting -->

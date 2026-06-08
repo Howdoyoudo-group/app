@@ -14,20 +14,23 @@ const APP_URL = "https://howdoyoudo.group/my-jobs";
 type EventType = "connection_request" | "new_message" | "mentor_request";
 
 function htmlShell(title: string, bodyHtml: string, ctaLabel: string): string {
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${title}</title></head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:Arial,sans-serif;color:#1a1a1a;">
-  <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:40px 20px;">
-    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-      <tr><td style="padding:0 0 24px;border-bottom:2px solid #1a1a1a;">
-        <h1 style="margin:0;font-size:22px;font-weight:800;">howdoyoudo<span style="color:#00e600;">?</span></h1>
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${title}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0;padding:0;background:#f5f5f0;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;color:#1a1a1a;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f0;"><tr><td align="center" style="padding:32px 16px 40px;">
+    <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:2px solid #1a1a1a;">
+      <tr><td style="background:#1a1a1a;padding:24px 32px;">
+        <p style="margin:0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:28px;font-weight:400;color:#ffffff;letter-spacing:-0.5px;line-height:1;">howdoyoudo<span style="color:#00e600;">?</span></p>
       </td></tr>
-      <tr><td style="padding:32px 0 16px;"><h2 style="margin:0;font-size:20px;font-weight:800;">${title}</h2></td></tr>
-      <tr><td style="padding:0 0 24px;font-size:15px;line-height:1.55;color:#333;">${bodyHtml}</td></tr>
-      <tr><td style="padding:8px 0 32px;">
-        <a href="${APP_URL}" style="display:inline-block;background:#00e600;color:#1a1a1a;font-weight:800;text-decoration:none;padding:14px 22px;border:2px solid #1a1a1a;border-radius:6px;">${ctaLabel}</a>
+      <tr><td style="padding:32px 32px 16px;"><h2 style="margin:0;font-size:20px;font-weight:800;">${title}</h2></td></tr>
+      <tr><td style="padding:0 32px 24px;font-size:15px;line-height:1.55;color:#333;">${bodyHtml}</td></tr>
+      <tr><td style="padding:8px 32px 32px;">
+        <a href="${APP_URL}" style="display:inline-block;background:#1a1a1a;color:#ffffff;font-weight:700;text-decoration:none;padding:14px 24px;font-size:13px;letter-spacing:1px;text-transform:uppercase;">${ctaLabel}</a>
       </td></tr>
-      <tr><td style="padding:24px 0 0;border-top:1px solid #eee;font-size:12px;color:#888;">
-        You're receiving this because you're a member of How Do You Do. Manage your visibility in Inbox → Members.
+      <tr><td style="padding:20px 32px;background:#1a1a1a;border-top:3px solid #00e600;">
+        <p style="margin:0 0 4px 0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:18px;color:#ffffff;">howdoyoudo<span style="color:#00e600;">?</span></p>
+        <p style="margin:0;font-size:12px;color:#999;">You're receiving this because you're a Howdoyoudo member. <a href="https://www.howdoyoudo.co.uk" style="color:#00e600;text-decoration:none;">www.howdoyoudo.co.uk</a></p>
       </td></tr>
     </table>
   </td></tr></table>

@@ -14,13 +14,14 @@ const NOTIFY_TO = "AndrewHarrison@howdoyoudo.group";
 function buildHtml(data: Record<string, string>): string {
   return `<!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8"><title>New Employer Enquiry</title></head>
-<body style="margin:0;padding:0;background:#ffffff;font-family:Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#ffffff;">
-    <tr><td align="center" style="padding:40px 20px;">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
-        <tr><td style="padding:0 0 24px;border-bottom:2px solid #1a1a1a;">
-          <h1 style="margin:0;font-size:22px;font-weight:800;color:#1a1a1a;">howdoyoudo<span style="color:#00e600;">?</span></h1>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0;padding:0;background:#f5f5f0;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f0;">
+    <tr><td align="center" style="padding:32px 16px 40px;">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:2px solid #1a1a1a;">
+        <tr><td style="background:#1a1a1a;padding:24px 32px;">
+          <p style="margin:0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:28px;font-weight:400;color:#ffffff;letter-spacing:-0.5px;line-height:1;">howdoyoudo<span style="color:#00e600;">?</span></p>
         </td></tr>
         <tr><td style="padding:32px 0 16px;">
           <h2 style="margin:0;font-size:20px;font-weight:800;color:#1a1a1a;">New Employer Enquiry</h2>

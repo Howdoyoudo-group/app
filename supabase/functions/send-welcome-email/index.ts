@@ -18,22 +18,21 @@ function buildWelcomeHtml(name: string): string {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome to How Do You Do</title>
+  <title>Welcome to Howdoyoudo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
 </head>
-<body style="margin:0;padding:0;background-color:#ffffff;font-family:'Arial Black',Impact,'Helvetica Neue',Arial,sans-serif;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#ffffff;">
+<body style="margin:0;padding:0;background-color:#f5f5f0;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f0;">
     <tr>
-      <td align="center" style="padding:40px 20px;">
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+      <td align="center" style="padding:32px 16px 40px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:2px solid #1a1a1a;">
           <tr>
-            <td style="padding:0 0 32px 0;border-bottom:2px solid #1a1a1a;">
-              <h1 style="margin:0;font-size:22px;font-weight:800;color:#1a1a1a;letter-spacing:-0.5px;">
-                howdoyoudo<span style="color:#00e600;">?</span>
-              </h1>
+            <td style="background:#1a1a1a;padding:24px 32px;">
+              <p style="margin:0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:28px;font-weight:400;color:#ffffff;letter-spacing:-0.5px;line-height:1;">howdoyoudo<span style="color:#00e600;">?</span></p>
             </td>
           </tr>
           <tr>
-            <td style="padding:40px 0 24px 0;">
+            <td style="padding:36px 32px 24px 32px;">
               <h2 style="margin:0 0 8px 0;font-size:26px;font-weight:800;color:#1a1a1a;line-height:1.1;">
                 How do you do, ${firstName}<span style="color:#00e600;">?</span>
               </h2>
@@ -83,20 +82,18 @@ function buildWelcomeHtml(name: string): string {
             </td>
           </tr>
           <tr>
-            <td style="padding:36px 0;">
-              <a href="https://howdoyoudo.group"
-                 style="display:inline-block;background-color:#00e600;color:#ffffff;text-decoration:none;padding:14px 32px;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;font-size:14px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">
+            <td style="padding:32px 32px 0 32px;">
+              <a href="https://www.howdoyoudo.co.uk"
+                 style="display:inline-block;background:#1a1a1a;color:#ffffff;text-decoration:none;padding:14px 32px;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">
                 Explore the site
               </a>
             </td>
           </tr>
           <tr>
-            <td style="padding:24px 0 0 0;border-top:1px solid #e0e0e0;">
-              <p style="margin:0;font-size:13px;color:#999;line-height:1.6;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;">
-                You're receiving this because you joined the How Do You Do community.
-              </p>
-              <p style="margin:8px 0 0 0;font-size:13px;color:#999;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;">
-                <a href="https://howdoyoudo.group" style="color:#00e600;text-decoration:none;">howdoyoudo.group</a>
+            <td style="padding:20px 32px;background:#1a1a1a;border-top:3px solid #00e600;">
+              <p style="margin:0 0 4px 0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:18px;color:#ffffff;">howdoyoudo<span style="color:#00e600;">?</span></p>
+              <p style="margin:0;font-size:12px;color:#999;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;">
+                <a href="https://www.howdoyoudo.co.uk" style="color:#00e600;text-decoration:none;">www.howdoyoudo.co.uk</a>
               </p>
             </td>
           </tr>
@@ -129,7 +126,7 @@ WHAT YOU WON'T GET
 ✗ A dull recruitment platform or earnest corporate speak
 ✗ Spam. We email when there's something worth reading.
 
-Explore the site: https://howdoyoudo.group
+Explore the site: https://www.howdoyoudo.co.uk
 
 -
 howdoyoudo.group`;
