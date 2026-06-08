@@ -21,11 +21,11 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
 
   // Bar / coffee
   { test: /\bbarista\b/i, slug: "barista" },
-  { test: /\bbartender|barback|mixologist\b/i, slug: "bartender" },
+  { test: /\b(bartender|barback|mixologist)\b/i, slug: "bartender" },
 
   // Teaching
   { test: /\b(teacher|headteacher|head of department|lecturer|tutor)\b/i, slug: "teacher" },
-  { test: /\bteaching assistant|ta\b/i, slug: "teaching-assistant" },
+  { test: /\b(teaching assistant|ta)\b/i, slug: "teaching-assistant" },
 
   // Health
   { test: /\b(nurse|staff nurse|matron)\b/i, slug: "nurse" },
