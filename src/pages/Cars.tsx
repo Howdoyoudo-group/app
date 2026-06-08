@@ -49,6 +49,8 @@ const carsStages: CareerStage[] = [
     { name: "Warranty Administrator", description: "Processes manufacturer warranty claims and ensures compliance with brand standards.", salary: "£24k–£35k" },
     { name: "MOT Tester", description: "Conducts annual roadworthiness inspections to legal standards.", salary: "£26k–£38k" },
     { name: "Body Shop Manager", description: "Runs the accident repair centre, managing technicians, insurance claims, and turnaround times.", salary: "£30k–£48k" },
+    { name: "Breakdown Mechanic", description: "Responds to roadside breakdowns, diagnosing and fixing faults on the spot or arranging recovery. Often employed by the AA, RAC, or fleet operators.", salary: "£28k–£42k" },
+    { name: "Driving Instructor", description: "Teaches learner drivers in a structured programme leading to their practical test. Most are self-employed through a franchise or run independently.", salary: "£25k–£45k" },
   ]},
   { title: "Distribution & Logistics", icon: Truck, roles: [
     { name: "Fleet Manager", description: "Manages company vehicle fleets, handling procurement, maintenance schedules, and compliance.", salary: "£32k–£55k" },
@@ -56,6 +58,7 @@ const carsStages: CareerStage[] = [
     { name: "Import/Export Specialist", description: "Manages customs, compliance, and logistics for vehicles entering and leaving the UK market.", salary: "£28k–£45k" },
     { name: "Used Car Buyer", description: "Sources and values pre-owned vehicles for dealer stock through auctions and part-exchanges.", salary: "£28k–£50k" },
     { name: "Remarketing Manager", description: "Manages the disposal and resale of ex-fleet, ex-lease, and trade-in vehicles.", salary: "£30k–£50k" },
+    { name: "Driver", description: "Delivers vehicles, parts, or goods across the UK. Roles range from dealership delivery drivers to HGV operators moving car transporters and fleet vehicles.", salary: "£24k–£40k" },
   ]},
   { title: "Retail & Sales", icon: Store, roles: [
     { name: "Sales Executive", description: "Sells new and used vehicles to retail customers, managing the full buying journey.", salary: "£25k–£50k OTE" },
