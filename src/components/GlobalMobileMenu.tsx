@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Menu, X, ChevronRight, ArrowLeft } from "lucide-react";
+import { Menu, X, ChevronRight, ArrowLeft, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -110,6 +110,7 @@ const NAV_SECTIONS: NavSection[] = [
       { label: "The Mix", href: "https://www.themix.org.uk", description: "Free support for under 25s" },
       { label: "Shout", href: "https://www.giveusashout.org", description: "24/7 crisis text line" },
       { label: "National Careers Service", href: "https://nationalcareers.service.gov.uk", description: "Free careers guidance" },
+      { label: "The King's Trust", href: "https://www.kingstrust.org.uk", description: "Helping young people succeed" },
     ],
   },
 ];
@@ -130,6 +131,7 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
   const [open, setOpen] = useState(false);
   const [openSection, setOpenSection] = useState<string | null>(null);
   const [openSubSection, setOpenSubSection] = useState<string | null>(null);
+  const [openHelpSection, setOpenHelpSection] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const location = useLocation();
 
@@ -308,16 +310,25 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                       {activeSection.label}
                     </div>
 
-                    {activeSection.items.map((item) => {
+                    {(() => {
+                      let inHelp = false;
+                      return activeSection.items.map((item) => {
                       if (item.divider) {
+                        inHelp = true;
                         return (
-                          <div key={item.label} className="flex items-center gap-2 px-3 pt-3 pb-1">
+                          <button
+                            key={item.label}
+                            onClick={() => setOpenHelpSection((v) => !v)}
+                            className="w-full flex items-center gap-2 px-3 pt-3 pb-1"
+                          >
                             <div className="h-px flex-1 bg-foreground/15" />
                             <span className="font-display font-700 text-[9px] uppercase tracking-[0.18em] text-foreground/40">{item.label}</span>
+                            <ChevronDown className={`w-3 h-3 text-foreground/40 transition-transform ${openHelpSection ? "rotate-180" : ""}`} />
                             <div className="h-px flex-1 bg-foreground/15" />
-                          </div>
+                          </button>
                         );
                       }
+                      if (inHelp && !openHelpSection) return null;
                       const isComingSoon = item.badge === "Coming Soon";
                       const inner = (
                         <>
@@ -364,7 +375,8 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                           {inner}
                         </a>
                       );
-                    })}
+                    });
+                    })()}
                   </motion.div>
                 )}
 

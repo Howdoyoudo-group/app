@@ -167,20 +167,24 @@ const CollapsibleEdit = ({
   title: string;
   defaultOpen?: boolean;
   children: React.ReactNode;
-}) => (
-  <details
-    open={defaultOpen}
-    className="bg-card border border-border rounded-2xl p-4 md:p-5 mb-3 group"
-  >
-    <summary className="list-none cursor-pointer flex items-center justify-between">
-      <span className="font-display font-700 text-sm uppercase tracking-wider text-foreground">
-        {title}
-      </span>
-      <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-open:rotate-180" />
-    </summary>
-    <div className="mt-4">{children}</div>
-  </details>
-);
+}) => {
+  const [open, setOpen] = React.useState(defaultOpen);
+  return (
+    <details
+      open={open}
+      onToggle={(e) => setOpen((e.currentTarget as HTMLDetailsElement).open)}
+      className="bg-card border border-border rounded-2xl p-4 md:p-5 mb-3 group"
+    >
+      <summary className="list-none cursor-pointer flex items-center justify-between">
+        <span className="font-display font-700 text-sm uppercase tracking-wider text-foreground">
+          {title}
+        </span>
+        <ChevronDown className="w-4 h-4 text-muted-foreground transition-transform group-open:rotate-180" />
+      </summary>
+      <div className="mt-4">{children}</div>
+    </details>
+  );
+};
 
 const MyProfile = () => {
   const { user, loading: authLoading } = useAuth();
