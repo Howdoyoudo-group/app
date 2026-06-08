@@ -655,6 +655,15 @@ const categories: Category[] = [
       { name: "Young Minds", description: "The UK's leading charity fighting for young people's mental health.", url: "https://www.youngminds.org.uk", tags: ["Young people", "UK"] },
     ],
   },
+  {
+    slug: "neurodiversity-disability",
+    icon: <img src={learningMentoring} alt="" className="w-7 h-7" style={{ filter: "brightness(0)" }} />,
+    title: "Neurodiversity & Disability",
+    resources: [
+      { name: "Exceptional Individuals", description: "Neurodiversity recruitment and career coaching for ADHD, autism, dyslexia and dyspraxia.", url: "https://exceptionalindividuals.com", tags: ["Neurodiversity", "Jobs"] },
+      { name: "Evenbreak", description: "Disability job board run by and for disabled people.", url: "https://www.evenbreak.com/uk/", tags: ["Disability", "Jobs"] },
+    ],
+  },
 ];
 
 const fadeUp = {

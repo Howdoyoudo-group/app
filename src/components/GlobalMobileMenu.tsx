@@ -84,6 +84,7 @@ const NAV_SECTIONS: NavSection[] = [
         items: [
           { label: "Social Mobility", to: "/resources/social-mobility", description: "Programmes and support" },
           { label: "Careers Advice", to: "/resources/careers", description: "Guidance and next steps" },
+          { label: "Neurodiversity & Disability", to: "/resources/neurodiversity-disability", description: "Jobs, support and inclusive employers" },
         ],
       },
     ],

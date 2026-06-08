@@ -469,6 +469,37 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
       { name: "The Mix", description: "Free support for under 25s in the UK — mental health, relationships, money, jobs and more. Chat, phone or email.", url: "https://www.themix.org.uk", tags: ["Under 25", "Free", "UK"] },
     ],
   },
+  {
+    slug: "neurodiversity-disability",
+    title: "Neurodiversity & Disability",
+    description: "Support, resources and job opportunities for neurodivergent people and those with disabilities — from career coaching to inclusive employers actively looking for you.",
+    icon: learningMentoring,
+    watch: [
+      { name: "ADHD Foundation (YouTube)", description: "Videos on understanding ADHD in education and the workplace, and how to thrive with neurodivergent traits.", url: "https://www.youtube.com/@ADHDFoundation" },
+      { name: "Ambitious About Autism (YouTube)", description: "Films and guides on employment, education and life for autistic people and their families.", url: "https://www.youtube.com/@AmbitiousAboutAutism" },
+      { name: "Neurodiversity in the Workplace - TEDx", description: "Personal stories and practical insight into how neurodivergent people bring distinct strengths to work.", url: "https://www.youtube.com/results?search_query=neurodiversity+workplace+tedx" },
+    ],
+    listen: [
+      { name: "ADHD reWired Podcast", description: "Practical strategies for managing ADHD at work and in life — hugely popular in the neurodivergent community.", url: "https://open.spotify.com/search/adhd%20rewired" },
+      { name: "Autism & ADHD at Work (Exceptional Individuals Podcast)", description: "First-hand stories and expert advice on navigating the workplace as a neurodivergent person.", url: "https://open.spotify.com/search/exceptional%20individuals%20neurodiversity" },
+      { name: "The Disability Download (Scope)", description: "Conversations on disability, employment, rights and lived experience from the UK disability charity Scope.", url: "https://open.spotify.com/search/disability%20download%20scope" },
+    ],
+    read: [
+      { name: "National Autistic Society - Employment", description: "Comprehensive guidance for autistic jobseekers — finding the right role, requesting reasonable adjustments, and what support you're entitled to at work.", url: "https://www.autism.org.uk/advice-and-guidance/employment" },
+      { name: "Exceptional Individuals - Resources", description: "Practical articles and guides on neurodiversity at work, disclosure, adjustments and how to present your strengths to employers.", url: "https://exceptionalindividuals.com/about-us/blog/" },
+      { name: "Scope - Employment support", description: "UK disability charity with guides on rights, adjustments, Access to Work funding and navigating the job market as a disabled person.", url: "https://www.scope.org.uk/advice-and-support/career-and-employment/" },
+      { name: "ACAS - Disability at work", description: "Official UK workplace guidance on disability discrimination, reasonable adjustments and your legal rights as a disabled employee.", url: "https://www.acas.org.uk/disability-at-work" },
+    ],
+    help: [
+      { name: "Exceptional Individuals", description: "UK neurodiversity recruitment and career coaching specialists — helping people with ADHD, autism, dyslexia and dyspraxia find roles with inclusive employers.", url: "https://exceptionalindividuals.com", tags: ["Neurodiversity", "UK", "Jobs"] },
+      { name: "Evenbreak", description: "The only global disability job board run by and for people with lived experience of disability — connects disabled candidates with employers who genuinely want to hire them.", url: "https://www.evenbreak.com/uk/", tags: ["Disability", "Jobs", "UK"] },
+      { name: "Neurodiversity Jobs UK", description: "Specialist job board connecting neurodivergent, autistic and ADHD professionals with employers who actively seek diverse talent.", url: "https://neurodiversityjobs.co.uk", tags: ["Neurodiversity", "Jobs", "UK"] },
+      { name: "Disability Jobs UK", description: "Careers platform connecting disabled jobseekers with Disability Confident employers committed to inclusive hiring.", url: "https://disabilityjob.co.uk", tags: ["Disability", "Jobs", "UK"] },
+      { name: "National Autistic Society", description: "The UK's leading autism charity — employment support, reasonable adjustment guidance, and a directory of autism-friendly employers.", url: "https://www.autism.org.uk/advice-and-guidance/employment", tags: ["Autism", "Free", "UK"] },
+      { name: "Access to Work (Gov.uk)", description: "Government grant scheme that pays for practical support to help disabled people and those with health conditions start or stay in work — up to £69,260 a year.", url: "https://www.gov.uk/access-to-work", tags: ["Funding", "Government", "UK"] },
+      { name: "Scope", description: "UK disability charity offering employment advice, helpline support and information on your workplace rights.", url: "https://www.scope.org.uk", tags: ["Disability", "UK", "Free"] },
+    ],
+  },
 ];
 
 export const getResourceTopic = (slug: string) =>
