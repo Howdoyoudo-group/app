@@ -190,6 +190,146 @@ const NavDropdown = ({
 };
 
 /* -------------------------------------------------------------------------- */
+/*  Grouped (accordion) dropdown — used for Level Up                          */
+/* -------------------------------------------------------------------------- */
+
+type NavGroup = {
+  label: string;
+  items: DropdownItem[];
+};
+
+const GroupedNavDropdown = ({
+  label,
+  groups,
+}: {
+  label: string;
+  groups: NavGroup[];
+}) => {
+  const [open, setOpen] = useState(false);
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+        setExpandedGroup(null);
+      }
+    };
+    const onEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") { setOpen(false); setExpandedGroup(null); }
+    };
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onEsc);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onEsc);
+    };
+  }, [open]);
+
+  const closeAll = () => { setOpen(false); setExpandedGroup(null); };
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => { setOpen((v) => !v); setExpandedGroup(null); }}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className="group relative inline-flex items-center gap-1 font-display font-900 text-sm lg:text-base uppercase tracking-wide text-foreground hover:text-primary transition-colors whitespace-nowrap"
+      >
+        <span className="relative">
+          {label}
+          <Underline />
+        </span>
+        <ChevronDown
+          size={16}
+          strokeWidth={3}
+          className={`transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            role="menu"
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute left-0 top-full mt-3 z-50 w-72 bg-background border-2 border-foreground rounded-2xl shadow-[6px_6px_0_0_hsl(var(--foreground))] p-2"
+          >
+            {groups.map((group) => {
+              const isExpanded = expandedGroup === group.label;
+              return (
+                <div key={group.label}>
+                  {/* Group header */}
+                  <button
+                    type="button"
+                    onClick={() => setExpandedGroup(isExpanded ? null : group.label)}
+                    className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-primary transition-colors border-2 border-transparent hover:border-foreground"
+                  >
+                    <span className="font-display font-900 text-sm uppercase tracking-wide text-foreground">
+                      {group.label}
+                    </span>
+                    <ChevronDown
+                      size={14}
+                      strokeWidth={3}
+                      className={`text-foreground/40 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                    />
+                  </button>
+
+                  {/* Expanded items */}
+                  <AnimatePresence>
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.18 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pl-3 pr-1 pb-1 pt-0.5 space-y-0.5">
+                          {group.items.map((item) => {
+                            const isComingSoon = item.badge === "Coming Soon";
+                            const inner = (
+                              <div className={`px-3 py-2 rounded-lg border-2 border-transparent ${isComingSoon ? "opacity-50 cursor-not-allowed" : "hover:bg-primary hover:border-foreground transition-colors"}`}>
+                                <div className="font-display font-900 text-xs uppercase tracking-wide text-foreground flex items-center gap-2">
+                                  {item.label}
+                                  {item.badge && (
+                                    <span className={`font-display font-700 text-[9px] uppercase tracking-wide px-1.5 py-0.5 border rounded-full leading-none ${isComingSoon ? "bg-foreground/10 text-foreground/50 border-foreground/20" : "bg-primary text-foreground border-foreground"}`}>
+                                      {item.badge}
+                                    </span>
+                                  )}
+                                </div>
+                                {item.description && (
+                                  <div className="font-body text-xs text-foreground/60 mt-0.5">{item.description}</div>
+                                )}
+                              </div>
+                            );
+                            if (isComingSoon) return <div key={item.label} aria-disabled="true">{inner}</div>;
+                            return item.to ? (
+                              <Link key={item.label} to={item.to} onClick={closeAll} className="block">{inner}</Link>
+                            ) : (
+                              <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" onClick={closeAll} className="block">{inner}</a>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
+
+/* -------------------------------------------------------------------------- */
 /*  Groups                                                                     */
 /* -------------------------------------------------------------------------- */
 
@@ -208,30 +348,46 @@ const DISCOVER: DropdownItem[] = [
   { label: "Match Me", to: "/match-me", description: "See where you could go", badge: "New" },
 ];
 
-const LEVEL_UP: DropdownItem[] = [
-  { label: "Skills", divider: true },
-  { label: "Skills Passport", to: "/skills-passport", description: "Industry modules, badges & more" },
-  { label: "Skills Assessment", to: "/skills-passport", description: "Find out what you're good at", badge: "Coming Soon" },
-  { label: "Skill Gaps", to: "/skills-passport", description: "See what you need to learn", badge: "Coming Soon" },
-  { label: "Learning Hub", divider: true },
-  { label: "Further Education", to: "/resources/education", description: "University, college & courses" },
-  { label: "Online Learning", to: "/resources/online-courses", description: "Learn at your own pace" },
-  { label: "Mentoring", to: "/resources/mentoring", description: "Find a mentor to guide you" },
-  { label: "Interview Skills", to: "/resources/interview-skills", description: "Prep and practice" },
-  { label: "Employability", to: "/resources/employability", description: "Confidence & communication" },
-  { label: "Financial Skills", to: "/resources/money", description: "Money, budgeting & tax" },
-  { label: "Resilience & Confidence", to: "/resources/resilience-confidence", description: "Bounce back and back yourself" },
-  { label: "Experience", divider: true },
-  { label: "Practice Interviews", to: "/learning", description: "AI mock interviews with Howdy", badge: "Coming Soon" },
-  { label: "Internships & Grad Schemes", to: "/resources/internships-graduates", description: "Structured programmes" },
-  { label: "Work Experience", to: "/resources/work-experience", description: "Get your foot in the door" },
-  { label: "Apprenticeships", to: "/resources/apprenticeships", description: "Earn while you learn" },
-  { label: "Volunteering", to: "/resources/volunteering", description: "Build skills and make a difference" },
-  { label: "How to Stand Out", to: "/how-to-stand-out", description: "Side hustles, projects, leadership & skills" },
-  { label: "Support", divider: true },
-  { label: "Social Mobility", to: "/resources/social-mobility", description: "Programmes and support" },
-  { label: "Careers Advice", to: "/resources/careers", description: "Guidance and next steps" },
-  { label: "Neurodiversity & Disability", to: "/resources/neurodiversity-disability", description: "Jobs, support and inclusive employers" },
+const LEVEL_UP_GROUPS: NavGroup[] = [
+  {
+    label: "Skills",
+    items: [
+      { label: "Skills Passport", to: "/skills-passport", description: "Industry modules, badges & more" },
+      { label: "Skills Assessment", to: "/skills-passport", description: "Find out what you're good at", badge: "Coming Soon" },
+      { label: "Skill Gaps", to: "/skills-passport", description: "See what you need to learn", badge: "Coming Soon" },
+    ],
+  },
+  {
+    label: "Learning Hub",
+    items: [
+      { label: "Further Education", to: "/resources/education", description: "University, college & courses" },
+      { label: "Online Learning", to: "/resources/online-courses", description: "Learn at your own pace" },
+      { label: "Mentoring", to: "/resources/mentoring", description: "Find a mentor to guide you" },
+      { label: "Interview Skills", to: "/resources/interview-skills", description: "Prep and practice" },
+      { label: "Employability", to: "/resources/employability", description: "Confidence & communication" },
+      { label: "Financial Skills", to: "/resources/money", description: "Money, budgeting & tax" },
+      { label: "Resilience & Confidence", to: "/resources/resilience-confidence", description: "Bounce back and back yourself" },
+    ],
+  },
+  {
+    label: "Experience",
+    items: [
+      { label: "Practice Interviews", to: "/learning", description: "AI mock interviews with Howdy", badge: "Coming Soon" },
+      { label: "Internships & Grad Schemes", to: "/resources/internships-graduates", description: "Structured programmes" },
+      { label: "Work Experience", to: "/resources/work-experience", description: "Get your foot in the door" },
+      { label: "Apprenticeships", to: "/resources/apprenticeships", description: "Earn while you learn" },
+      { label: "Volunteering", to: "/resources/volunteering", description: "Build skills and make a difference" },
+      { label: "How to Stand Out", to: "/how-to-stand-out", description: "Side hustles, projects, leadership & skills" },
+    ],
+  },
+  {
+    label: "Support",
+    items: [
+      { label: "Social Mobility", to: "/resources/social-mobility", description: "Programmes and support" },
+      { label: "Careers Advice", to: "/resources/careers", description: "Guidance and next steps" },
+      { label: "Neurodiversity & Disability", to: "/resources/neurodiversity-disability", description: "Jobs, support and inclusive employers" },
+    ],
+  },
 ];
 
 const JOBS: DropdownItem[] = [
@@ -352,7 +508,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
           <div className="hidden md:flex items-center gap-4 lg:gap-6">
             <NavDropdown label="Inspire" items={INSPIRE} />
             <NavDropdown label="Discover" items={DISCOVER} />
-            <NavDropdown label="Level Up" items={LEVEL_UP} wide />
+            <GroupedNavDropdown label="Level Up" groups={LEVEL_UP_GROUPS} />
             <NavDropdown label="Jobs" items={JOBS} />
             <NavDropdown label="Community" items={COMMUNITY} />
           </div>
