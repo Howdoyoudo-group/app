@@ -1525,11 +1525,12 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
       .eq("id", user!.id);
   };
 
-  // Persist updated experience/education directly to DB (used after logo upload
-  // so we don't rely on React state having flushed before saving)
-  const persistLogoUpdate = async (
-    updatedExp: WorkExperience[],
-    updatedEd: Education[],
+  // Patch a single entry's logoUrl in the DB by matching company+title+dates (stable keys).
+  // Reads fresh from DB so concurrent uploads don't overwrite each other.
+  const patchLogoInDb = async (
+    kind: "experience" | "education",
+    matchKey: { company?: string; school?: string; title?: string; qualification?: string; dates?: string },
+    logoUrl: string,
   ): Promise<boolean> => {
     if (!user) return false;
     try {
@@ -1538,39 +1539,54 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
         .select("job_preferences")
         .eq("id", user.id)
         .maybeSingle();
-      if (fetchErr) {
-        console.error("[CVBuilder] persistLogoUpdate fetch error:", fetchErr);
-        return false;
-      }
+      if (fetchErr) return false;
+
       const currentPrefs = (existing?.job_preferences as any) || {};
       const currentPb = currentPrefs.profileBuilder || {};
-      const expToSave = updatedExp
-        .filter((w) => w.company || w.title)
-        .map(({ id: _id, ...rest }) => rest);
-      const edToSave = updatedEd
-        .filter((e) => e.school || e.qualification)
-        .map(({ id: _id, ...rest }) => rest);
-      console.log("[CVBuilder] persistLogoUpdate saving exp:", JSON.stringify(expToSave.map(w => ({ company: w.company, logoUrl: w.logoUrl }))));
-      const { error: saveErr } = await supabase
-        .from("profiles")
-        .update({
-          job_preferences: {
-            ...currentPrefs,
-            profileBuilder: {
-              ...currentPb,
-              experience: expToSave,
-              education: edToSave,
-            },
-          },
-        })
-        .eq("id", user.id);
-      if (saveErr) {
-        console.error("[CVBuilder] persistLogoUpdate save error:", saveErr);
-        return false;
+
+      if (kind === "experience") {
+        const arr: any[] = currentPb.experience || [];
+        let patched = false;
+        const updated = arr.map((w: any) => {
+          const sameCompany = matchKey.company && w.company === matchKey.company;
+          const sameTitle = matchKey.title && w.title === matchKey.title;
+          const sameDates = matchKey.dates && w.dates === matchKey.dates;
+          // Match on at least two stable fields to handle duplicate company names
+          const isMatch = (sameCompany && sameTitle) || (sameCompany && sameDates) || (sameTitle && sameDates);
+          if (isMatch && !patched) {
+            patched = true;
+            return { ...w, logoUrl };
+          }
+          return w;
+        });
+        if (!patched && arr.length > 0) return false; // no matching entry
+        const { error } = await supabase
+          .from("profiles")
+          .update({ job_preferences: { ...currentPrefs, profileBuilder: { ...currentPb, experience: updated } } })
+          .eq("id", user.id);
+        return !error;
+      } else {
+        const arr: any[] = currentPb.education || [];
+        let patched = false;
+        const updated = arr.map((e: any) => {
+          const sameSchool = matchKey.school && e.school === matchKey.school;
+          const sameQual = matchKey.qualification && e.qualification === matchKey.qualification;
+          const sameDates = matchKey.dates && e.dates === matchKey.dates;
+          const isMatch = (sameSchool && sameQual) || (sameSchool && sameDates) || (sameQual && sameDates);
+          if (isMatch && !patched) {
+            patched = true;
+            return { ...e, logoUrl };
+          }
+          return e;
+        });
+        if (!patched && arr.length > 0) return false;
+        const { error } = await supabase
+          .from("profiles")
+          .update({ job_preferences: { ...currentPrefs, profileBuilder: { ...currentPb, education: updated } } })
+          .eq("id", user.id);
+        return !error;
       }
-      return true;
-    } catch (e) {
-      console.error("[CVBuilder] persistLogoUpdate exception:", e);
+    } catch {
       return false;
     }
   };
@@ -1589,6 +1605,8 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
       toast.error("Logo must be smaller than 2MB.");
       return;
     }
+    const entry = experience.find((x) => x.id === id);
+    if (!entry) return;
     try {
       const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
       const path = `${user.id}/logos/${id}-${Date.now()}.${ext || "png"}`;
@@ -1606,15 +1624,11 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
         toast.error("Could not read logo URL.");
         return;
       }
-      // Build updated array synchronously so we can save it immediately
-      const updatedExp = experience.map((x) => (x.id === id ? { ...x, logoUrl: url } : x));
-      setExperience(updatedExp);
-      const ok = await persistLogoUpdate(updatedExp, education);
-      if (ok) {
-        toast.success("Logo saved.");
-      } else {
-        toast.error("Logo uploaded but could not save — please hit Save profile.");
-      }
+      // Update React state immediately
+      setExperience((prev) => prev.map((x) => (x.id === id ? { ...x, logoUrl: url } : x)));
+      // Patch just this entry in DB (reads fresh, no stale-closure race condition)
+      const ok = await patchLogoInDb("experience", { company: entry.company, title: entry.title, dates: entry.dates }, url);
+      toast[ok ? "success" : "error"](ok ? "Logo saved." : "Logo uploaded but could not save — please hit Save profile.");
     } catch {
       toast.error("Something went wrong.");
     }
@@ -1634,6 +1648,8 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
       toast.error("Logo must be smaller than 2MB.");
       return;
     }
+    const entry = education.find((x) => x.id === id);
+    if (!entry) return;
     try {
       const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
       const path = `${user.id}/logos/edu-${id}-${Date.now()}.${ext || "png"}`;
@@ -1651,15 +1667,11 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
         toast.error("Could not read logo URL.");
         return;
       }
-      // Build updated array synchronously so we can save it immediately
-      const updatedEd = education.map((x) => (x.id === id ? { ...x, logoUrl: url } : x));
-      setEducation(updatedEd);
-      const ok = await persistLogoUpdate(experience, updatedEd);
-      if (ok) {
-        toast.success("Logo saved.");
-      } else {
-        toast.error("Logo uploaded but could not save — please hit Save profile.");
-      }
+      // Update React state immediately
+      setEducation((prev) => prev.map((x) => (x.id === id ? { ...x, logoUrl: url } : x)));
+      // Patch just this entry in DB (reads fresh, no stale-closure race condition)
+      const ok = await patchLogoInDb("education", { school: entry.school, qualification: entry.qualification, dates: entry.dates }, url);
+      toast[ok ? "success" : "error"](ok ? "Logo saved." : "Logo uploaded but could not save — please hit Save profile.");
     } catch {
       toast.error("Something went wrong.");
     }
