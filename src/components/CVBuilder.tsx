@@ -151,15 +151,19 @@ const guessDomains = (name: string): string[] => {
 const LogoBubble = ({
   name,
   url,
+  logoUrl,
   size = 44,
 }: {
   name: string;
   url?: string;
+  logoUrl?: string;
   size?: number;
 }) => {
   // Build a chain of logo sources to try in order
   const sources: string[] = [];
   const LOGO_DEV = "pk_X-1ZO13GSgeOoUrIuJ6GMQ";
+  // Uploaded logo takes highest priority
+  if (logoUrl) sources.push(logoUrl);
   const explicitHost = hostFrom(url);
   if (isImageUrl(url)) sources.push(url!);
   if (explicitHost) {
@@ -175,7 +179,7 @@ const LogoBubble = ({
   });
 
   const [idx, setIdx] = useState(0);
-  useEffect(() => setIdx(0), [name, url]);
+  useEffect(() => setIdx(0), [name, url, logoUrl]);
   const src = sources[idx];
 
   if (src) {
@@ -2241,7 +2245,7 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
                   <Textarea placeholder="What did you do? (1-2 sentences)" value={w.description} onChange={(e) => setExperience(experience.map((x) => x.id === w.id ? { ...x, description: e.target.value } : x))} className="font-body bg-background min-h-[60px] rounded-xl md:col-span-2" />
                   <div className="md:col-span-2 space-y-2">
                     <div className="flex items-center gap-3">
-                      <LogoBubble name={w.company || "?"} url={w.link} size={40} />
+                      <LogoBubble name={w.company || "?"} url={w.link} logoUrl={w.logoUrl} size={40} />
                       <Input
                         placeholder="Company website (we'll use it for the logo)"
                         value={w.link || ""}
@@ -2342,7 +2346,7 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
                   <Input placeholder="Grade / result (optional)" value={ed.grade} onChange={(e) => setEducation(education.map((x) => x.id === ed.id ? { ...x, grade: e.target.value } : x))} className="font-body bg-background rounded-xl md:col-span-2" />
                   <div className="md:col-span-2 space-y-2">
                     <div className="flex items-center gap-3">
-                      <LogoBubble name={ed.school || "?"} url={ed.link} size={40} />
+                      <LogoBubble name={ed.school || "?"} url={ed.link} logoUrl={ed.logoUrl} size={40} />
                       <Input
                         placeholder="School website (e.g. https://www.ucl.ac.uk)"
                         value={ed.link || ""}
@@ -2778,7 +2782,7 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
                         : (w.company ? `https://www.google.com/search?q=${encodeURIComponent(w.company)}` : null);
                       return (
                         <div key={w.id} className="rounded-2xl bg-muted/40 p-3 flex gap-3 items-start">
-                          <LogoBubble name={w.company || w.title} url={w.link} size={44} />
+                          <LogoBubble name={w.company || w.title} url={w.link} logoUrl={w.logoUrl} size={44} />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2 flex-wrap">
                               {href ? (
@@ -2814,7 +2818,7 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
                         : (e.school ? `https://www.google.com/search?q=${encodeURIComponent(e.school)}` : null);
                       return (
                         <div key={e.id} className="rounded-2xl bg-muted/40 p-3 flex gap-3 items-start">
-                          <LogoBubble name={e.school || e.qualification} url={e.link} size={44} />
+                          <LogoBubble name={e.school || e.qualification} url={e.link} logoUrl={e.logoUrl} size={44} />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between gap-2 flex-wrap">
                               {href ? (
