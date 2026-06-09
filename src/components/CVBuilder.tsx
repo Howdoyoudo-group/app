@@ -270,6 +270,7 @@ const mapCvExtraction = (data: any) => ({
     dates: e.dates || "",
     grade: e.grade || "",
     link: e.link || "",
+    logoUrl: e.logoUrl || "",
   })) as Education[],
   qualifications: ((data?.qualifications || []) as any[]).map((q) => ({
     id: uid(),
@@ -285,6 +286,7 @@ const mapCvExtraction = (data: any) => ({
     location: w.location || "",
     description: w.description || "",
     link: w.link || "",
+    logoUrl: w.logoUrl || "",
   })) as WorkExperience[],
 });
 
@@ -1554,7 +1556,7 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
         toast.error("Could not read logo URL.");
         return;
       }
-      setExperience((prev) => prev.map((x) => (x.id === id ? { ...x, link: url } : x)));
+      setExperience((prev) => prev.map((x) => (x.id === id ? { ...x, logoUrl: url } : x)));
       toast.success("Logo added.");
     } catch {
       toast.error("Something went wrong.");
@@ -1592,7 +1594,7 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
         toast.error("Could not read logo URL.");
         return;
       }
-      setEducation((prev) => prev.map((x) => (x.id === id ? { ...x, link: url } : x)));
+      setEducation((prev) => prev.map((x) => (x.id === id ? { ...x, logoUrl: url } : x)));
       toast.success("Logo added.");
     } catch {
       toast.error("Something went wrong.");
