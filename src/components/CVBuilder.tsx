@@ -781,7 +781,7 @@ const CVBuilder = () => {
       pdf.setDrawColor(GREEN[0], GREEN[1], GREEN[2]);
       pdf.setLineWidth(0.5);
       pdf.line(MX, mY, PW - 10, mY);
-      mY += 3;
+      mY += 6;
     };
 
     // Ensure main column has room for `needed` mm
