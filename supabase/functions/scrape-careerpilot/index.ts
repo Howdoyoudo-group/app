@@ -110,11 +110,35 @@ function parseEntryRoutes(md: string): EntryRoute[] {
   const apprSection = md.match(/##+ Apprenticeship[\s\S]*?(?=##+ |\Z)/i)?.[0] ?? "";
 
   // Named apprenticeship standard lines — look for Level N patterns
+  const FILLER_PREFIX = /^(?:you\s+(?:might|may|can|could)|to\s+do|apply\s+for|complete\s+a|do\s+a|there\s+is|this\s+is)/i;
+
   const apprLines = apprSection.match(/[-*•]\s+(.+)/g) ?? [];
   for (const line of apprLines) {
-    const text = line.replace(/^[-*•]\s+/, "").trim();
+    // Strip markdown bold/italic and link syntax before processing
+    const text = line.replace(/^[-*•]\s+/, "").replace(/\*+/g, "").replace(/_+/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1").trim();
     // Skip lines that are just noise / too long (likely prose not a list item)
     if (text.length > 150) continue;
+
+    // If the line starts with a filler phrase, try to extract the actual apprenticeship name.
+    // CareerPilot writes prose like:
+    //   "You might be able to apply for a Registered Nurse Level 6 Degree Apprenticeship"
+    //   "You could apply to do a Food and Beverage Team Member Level 2 Apprenticeship"
+    //   "You can get into this job through a Healthcare Support Worker Level 2 Apprenticeship"
+    if (FILLER_PREFIX.test(text)) {
+      // Pattern: look for the name immediately AFTER "apply for a/an", "do a/an", "through a/an"
+      // "[apply for / do / through] a[n] [Name] Level N [type] Apprenticeship"
+      const proseM = text.match(/(?:apply\s+(?:for|to\s+do)\s+a[n]?\s+|do\s+a[n]?\s+|through\s+a[n]?\s+|complete\s+a[n]?\s+)([A-Z][a-zA-Z\s&'-]{3,45}?)\s+Level\s+(\d)/i);
+      if (proseM) {
+        const level = parseInt(proseM[2]);
+        const name = proseM[1].trim();
+        if (name.length > 3 && name.length < 50) {
+          routes.push({ type: "apprenticeship", name, level });
+        }
+      }
+      continue; // Don't process this line further as a regular bullet
+    }
+
+    // Regular named-standard bullet line (e.g. "Chef de Partie Level 3 (2 years)")
     // Extract level
     const levelM = text.match(/Level\s+(\d)/i);
     const level = levelM ? parseInt(levelM[1]) : undefined;
@@ -134,16 +158,49 @@ function parseEntryRoutes(md: string): EntryRoute[] {
     }
   }
 
-  // If the section exists but no bullets found, add a generic apprenticeship entry
+  // Final fallback: if no apprenticeships found yet, scan full section for "[Name] Level N Apprenticeship" patterns
   if (apprSection.length > 30 && routes.filter(r => r.type === "apprenticeship").length === 0) {
-    // Try inline mentions like "Production Chef or Commis Chef Level 2"
-    const inlineAppr = apprSection.match(/([\w\s&'-]+Level\s+\d[\w\s]*)/gi) ?? [];
-    for (const m of inlineAppr.slice(0, 4)) {
+    // Strip markdown from section before scanning
+    const cleanSection = apprSection.replace(/\*+/g, "").replace(/_+/g, "").replace(/\[([^\]]+)\]\([^)]+\)/g, "$1");
+    // Try: "([Name] Level N [type] Apprenticeship)" anywhere in the section
+    const allMatches = [...cleanSection.matchAll(/([A-Za-z][a-zA-Z\s&'-]{3,45}?)\s+Level\s+(\d)\s+(?:Intermediate|Advanced|Higher|Degree)?\s*Apprenticeship/gi)];
+    for (const m of allMatches.slice(0, 4)) {
+      const rawName = m[1].trim();
+      // Skip if starts with common filler words
+      if (/^(?:you|a |an |the |to |for |do |apply|might|may|can|could|able|this|there|through|complete|get|working)/i.test(rawName)) continue;
+      const level = parseInt(m[2]);
+      if (rawName.length > 3 && rawName.length < 50) {
+        routes.push({ type: "apprenticeship", name: rawName, level });
+      }
+    }
+  }
+
+  // Last resort prose extraction if still nothing
+  if (apprSection.length > 30 && routes.filter(r => r.type === "apprenticeship").length === 0) {
+    // Extract "[Name] Level N [type] Apprenticeship" patterns from prose
+    const proseMatches = apprSection.match(/([A-Z][a-zA-Z\s&'-]{3,60}?)\s+Level\s+(\d)\s+(?:Intermediate|Advanced|Higher|Degree)?\s*Apprenticeship/g) ?? [];
+    for (const m of proseMatches.slice(0, 4)) {
       const levelM = m.match(/Level\s+(\d)/i);
       const level = levelM ? parseInt(levelM[1]) : undefined;
-      const name = m.replace(/Level\s+\d[\w\s]*/i, "").trim();
-      if (name.length > 3) {
+      const name = m
+        .replace(/Level\s+\d\s*(Intermediate|Advanced|Higher|Degree)?\s*Apprenticeship/i, "")
+        .replace(/^(?:a|an|the|do|apply for a?|to do a?)\s+/i, "")
+        .replace(/[*_]/g, "").trim();
+      if (name.length > 3 && name.length < 80) {
         routes.push({ type: "apprenticeship", name, ...(level !== undefined && { level }) });
+      }
+    }
+    // Also catch "a [Name] apprenticeship" without level
+    if (routes.filter(r => r.type === "apprenticeship").length === 0) {
+      const noLevelMatch = apprSection.match(/(?:apply for|do|complete)\s+a\s+([A-Z][a-zA-Z\s&'-]{3,60}?)\s+[Aa]pprenticeship/g) ?? [];
+      for (const m of noLevelMatch.slice(0, 3)) {
+        const name = m
+          .replace(/^(?:apply for|do|complete)\s+a\s+/i, "")
+          .replace(/\s+[Aa]pprenticeship$/, "")
+          .replace(/[*_]/g, "").trim();
+        if (name.length > 3 && name.length < 80) {
+          routes.push({ type: "apprenticeship", name });
+        }
       }
     }
   }

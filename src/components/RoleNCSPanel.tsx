@@ -77,6 +77,26 @@ const LEVEL_COLOURS: Record<number, string> = {
   7: "bg-pink-100 text-pink-800 border-pink-200",
 };
 
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+/**
+ * CareerPilot sometimes stores apprenticeship names as the full prose sentence:
+ * "You might be able to apply for a Registered Nurse Level 6 Degree Apprenticeship"
+ * This strips the leading filler, leaving just the standard name.
+ */
+function cleanApprName(name: string): string {
+  if (!name) return name;
+  return name
+    // Strip leading "You [might/can] [be able to] [apply for a / do a / complete a]"
+    .replace(/^You\s+(?:might|may|can|could)\s+(?:be\s+able\s+to\s+)?(?:apply\s+(?:for|to\s+do)\s+an?\s+|do\s+an?\s+|complete\s+an?\s+)?/i, "")
+    // Strip "apply for a / to do a / through a / complete a" prefix
+    .replace(/^(?:apply\s+(?:for\s+)?(?:to\s+do\s+)?|to\s+do\s+|through\s+|complete\s+|do\s+)an?\s+/i, "")
+    // Strip trailing "Level N [type] Apprenticeship" if it leaked into the name
+    .replace(/\s+Level\s+\d.*$/i, "")
+    .replace(/\s+[Aa]pprenticeship.*$/i, "")
+    .trim();
+}
+
 // ── Sub-components ────────────────────────────────────────────────────────────
 
 function ApprenticeshipCard({ route }: { route: CPEntryRoute }) {
@@ -90,7 +110,7 @@ function ApprenticeshipCard({ route }: { route: CPEntryRoute }) {
         </span>
       )}
       <div className="min-w-0">
-        <p className="font-display font-700 text-xs leading-tight">{route.name}</p>
+        <p className="font-display font-700 text-xs leading-tight">{route.name ? cleanApprName(route.name) : ""}</p>
         <div className="flex flex-wrap gap-x-3 mt-0.5">
           {route.duration && (
             <span className="font-body text-[11px] text-muted-foreground">{route.duration}</span>
