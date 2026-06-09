@@ -893,11 +893,32 @@ const CVBuilder = () => {
       sbHeading("Education");
       validEd.forEach((e, ei) => {
         const eLogo = edLogos[ei] || null;
-        if (eLogo && sY + 7 < PH - MB) {
-          addLogoSafe(eLogo, SP + 2.5, sY - 5, 5, 5);
-        }
+        const LOGO_SZ = 5;
+        const LOGO_GAP = 1.5; // gap between logo and text
+        const textX = eLogo ? SP + LOGO_SZ + LOGO_GAP : SP;
+        const textW = eLogo ? SW - LOGO_SZ - LOGO_GAP : SW;
+
         if (sY + lineH(7.5) + lineH(7) > PH - MB) return;
-        sbText(e.school || e.qualification, 7.5, "bold", WHITE, 0);
+
+        // Draw logo aligned to top of the school name line
+        if (eLogo) {
+          addLogoSafe(eLogo, SP, sY - LOGO_SZ + 1, LOGO_SZ, LOGO_SZ);
+        }
+
+        // School name — indented if logo present
+        pdf.setFontSize(7.5);
+        pdf.setFont("helvetica", "bold");
+        pdf.setTextColor(WHITE[0], WHITE[1], WHITE[2]);
+        const schoolLines = pdf.splitTextToSize(e.school || e.qualification, textW) as string[];
+        pdf.text(schoolLines, textX, sY);
+        sY += schoolLines.length * lineH(7.5);
+
+        // Ensure logo doesn't extend below school text block
+        if (eLogo) {
+          const logoBottom = (sY - schoolLines.length * lineH(7.5)) - LOGO_SZ + 1 + LOGO_SZ;
+          if (sY < logoBottom) sY = logoBottom;
+        }
+
         if (e.school && e.qualification) sbText(e.qualification, 7, "normal", OFF_WHITE, 0);
         if (e.dates) sbText(e.dates, 7, "normal", [GREEN[0], GREEN[1], GREEN[2]], 0);
         if (e.grade) sbText(e.grade, 7, "normal", OFF_WHITE, 0);
