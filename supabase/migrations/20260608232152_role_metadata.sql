@@ -19,5 +19,15 @@ CREATE TABLE IF NOT EXISTS public.role_metadata (
 
 ALTER TABLE public.role_metadata ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Public read role_metadata"
-  ON public.role_metadata FOR SELECT USING (true);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename = 'role_metadata'
+      AND policyname = 'Public read role_metadata'
+  ) THEN
+    CREATE POLICY "Public read role_metadata"
+      ON public.role_metadata FOR SELECT USING (true);
+  END IF;
+END $$;
