@@ -144,7 +144,7 @@ const Employers = () => {
               curious<span className="text-primary">.</span>
             </h1>
             <p className="mt-6 font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              For employers, brands and investors we introduce you to brilliant talent – with expertly and uniquely curated profiles, starting with what people love and the things they are curious about. We bring a scale audience and fast efficient access to the best talent UK wide, including not just those looking for a role but uniquely those inspired to change.
+              How do you find brilliant talent? – we deliver expertly and uniquely curated profiles, starting with what people love and the things they are curious and passionate about. We bring a scale audience and fast efficient access to the best talent UK wide, including not just those looking for a role but uniquely those inspired to change and want to stand out from the crowd.
             </p>
           </motion.div>
 
