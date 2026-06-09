@@ -1762,10 +1762,14 @@ async function fetchReedJobs(industry: string, keywords: string[], apiKey: strin
   // Reed pagination: 100 per page via resultsToTake. We sweep up to MAX_PAGES
   // pages per keyword (so up to 100 × MAX_PAGES per keyword) and stop early
   // when a page returns < pageSize results (last page reached).
-  // Big-pool industries (teaching, health) get deeper sweeps; everything else
-  // still gets 3 pages = up to 300 jobs/keyword (vs old 50).
-  const DEEP_SWEEP_INDUSTRIES = new Set(["teaching", "health", "wellness", "physiotherapy", "hospitality", "retail", "influencing"]);
-  const MAX_PAGES = isGradPass ? 2 : (DEEP_SWEEP_INDUSTRIES.has(industry) ? 8 : 3);
+  // Deep-sweep industries have large job pools → more pages per keyword.
+  // Standard: 5 pages = up to 500 jobs/keyword. Deep: 12 pages = up to 1,200/keyword.
+  const DEEP_SWEEP_INDUSTRIES = new Set([
+    "teaching", "health", "wellness", "physiotherapy", "hospitality",
+    "charity", "money", "estate-agency", "travel", "cars", "farming",
+    "interior-design", "beauty", "fashion", "psychotherapy",
+  ]);
+  const MAX_PAGES = isGradPass ? 2 : (DEEP_SWEEP_INDUSTRIES.has(industry) ? 12 : 5);
   const PAGE_SIZE = 100;
   for (const kw of searchKeywords) {
     try {

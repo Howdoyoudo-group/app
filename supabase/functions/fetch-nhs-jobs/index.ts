@@ -175,9 +175,10 @@ function parseUkDate(s: string | null): string | null {
   return d.toISOString();
 }
 
-async function fetchPage(page: number): Promise<string | null> {
+async function fetchPage(page: number, keyword = ""): Promise<string | null> {
+  const kw = encodeURIComponent(keyword);
   const url =
-    `https://www.jobs.nhs.uk/candidate/search/results?language=en&keyword=&location=&distance=10` +
+    `https://www.jobs.nhs.uk/candidate/search/results?language=en&keyword=${kw}&location=&distance=10` +
     `&page=${page}&sort=publicationDateDesc`;
   try {
     const res = await fetch(url, {
@@ -208,44 +209,75 @@ Deno.serve(async (req) => {
     Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  let body: { maxPages?: number } = {};
+  let body: { maxPages?: number; keywords?: string[] } = {};
   try {
     body = await req.json();
   } catch {
     // empty body is fine
   }
-  // NHS Jobs publishes ~12k live vacancies (~1,200 result pages of 10).
-  // Default to 60 pages (~600 jobs) per run, ceiling 200 (~2,000) to stay
-  // well within the 150s edge-function budget. Two daily runs give us
-  // strong coverage and rapid expiry detection on the freshest postings.
-  const maxPages = Math.min(Math.max(body.maxPages ?? 60, 1), 200);
 
-  const collected: ParsedJob[] = [];
-  for (let p = 1; p <= maxPages; p++) {
-    const html = await fetchPage(p);
-    if (!html) break;
-    const blocks = splitResults(html);
-    if (blocks.length === 0) break;
-    for (const b of blocks) {
-      const parsed = parseResult(b);
-      if (parsed) collected.push(parsed);
+  // NHS Jobs has ~12k live vacancies. A single empty-keyword search sorted by
+  // date only shows the most recent. To cover the full catalogue we search
+  // across ~15 specialty keywords (each returning up to maxPages × 10 results)
+  // and dedup by URL. With maxPages=80 per keyword, 15 keywords → up to 12,000
+  // jobs — matching the old site's 9,945.
+  //
+  // Each keyword run does at most maxPages HTTP fetches. The full set runs in
+  // background via EdgeRuntime.waitUntil so we don't hit the 150s gateway limit.
+  const maxPages = Math.min(Math.max(body.maxPages ?? 80, 1), 200);
+
+  // Core NHS specialties — each covers a distinct slice of the 12k job catalogue.
+  const NHS_KEYWORDS = body.keywords ?? [
+    "",            // generic / newest — catches senior leadership & admin
+    "nurse",
+    "nursing",
+    "doctor",
+    "consultant",
+    "therapist",
+    "physiotherapist",
+    "pharmacist",
+    "paramedic",
+    "radiographer",
+    "admin",
+    "manager",
+    "healthcare assistant",
+    "midwife",
+    "mental health",
+  ];
+
+  const allCollected: ParsedJob[] = [];
+  const globalSeen = new Set<string>(); // dedup across keyword runs
+
+  const runKeyword = async (keyword: string) => {
+    const localCollected: ParsedJob[] = [];
+    for (let p = 1; p <= maxPages; p++) {
+      const html = await fetchPage(p, keyword);
+      if (!html) break;
+      const blocks = splitResults(html);
+      if (blocks.length === 0) break;
+      for (const b of blocks) {
+        const parsed = parseResult(b);
+        if (parsed && !globalSeen.has(parsed.url)) {
+          globalSeen.add(parsed.url);
+          localCollected.push(parsed);
+        }
+      }
+      if (blocks.length < 10) break; // last page
     }
-    // Stop early if NHS returned a short page (last page).
-    if (blocks.length < 10) break;
-  }
+    console.log(`NHS Jobs keyword="${keyword || '(all)'}": ${localCollected.length} unique jobs`);
+    allCollected.push(...localCollected);
+  };
 
-  console.log(`NHS Jobs: collected ${collected.length} listings across up to ${maxPages} pages`);
+  // Run keyword searches sequentially (polite to NHS servers, avoids rate limits)
+  const work = (async () => {
+    for (const kw of NHS_KEYWORDS) {
+      await runKeyword(kw);
+    }
 
-  // De-dupe by URL within this run
-  const seen = new Set<string>();
-  const unique = collected.filter((j) => {
-    if (seen.has(j.url)) return false;
-    seen.add(j.url);
-    return true;
-  });
+    console.log(`NHS Jobs: total unique collected = ${allCollected.length}`);
 
-  // Map to jobs schema
-  const rows = unique.map((j) => {
+    // Map to jobs schema
+    const rows = allCollected.map((j) => {
     const { stage, level } = classifyNhsRole(j.title);
     const description = [
       j.salary ? `Salary: ${j.salary}` : null,
@@ -276,37 +308,45 @@ Deno.serve(async (req) => {
     };
   });
 
-  let inserted = 0;
-  let errored = 0;
-  for (let i = 0; i < rows.length; i += 50) {
-    const batch = rows.slice(i, i + 50);
-    const { data, error } = await supabase
-      .from("jobs")
-      .upsert(batch, { onConflict: "url", ignoreDuplicates: true })
-      .select("id");
-    if (error) {
-      // Likely a (title,company,location) unique-violation; retry per row.
-      for (const row of batch) {
-        const { data: oneData, error: oneErr } = await supabase
-          .from("jobs")
-          .upsert([row], { onConflict: "url", ignoreDuplicates: true })
-          .select("id");
-        if (oneErr) errored++;
-        else inserted += oneData?.length || 0;
+    let inserted = 0;
+    let errored = 0;
+    for (let i = 0; i < rows.length; i += 50) {
+      const batch = rows.slice(i, i + 50);
+      const { data, error } = await supabase
+        .from("jobs")
+        .upsert(batch, { onConflict: "url", ignoreDuplicates: true })
+        .select("id");
+      if (error) {
+        for (const row of batch) {
+          const { data: oneData, error: oneErr } = await supabase
+            .from("jobs")
+            .upsert([row], { onConflict: "url", ignoreDuplicates: true })
+            .select("id");
+          if (oneErr) errored++;
+          else inserted += oneData?.length || 0;
+        }
+      } else {
+        inserted += data?.length || 0;
       }
-    } else {
-      inserted += data?.length || 0;
     }
+
+    console.log(`NHS Jobs: inserted=${inserted} errored=${errored}`);
+  })();
+
+  // Run in background so we don't hit the 150s gateway timeout
+  if (typeof EdgeRuntime !== "undefined" && (EdgeRuntime as any)?.waitUntil) {
+    (EdgeRuntime as any).waitUntil(work);
+  } else {
+    await work;
   }
 
   return new Response(
     JSON.stringify({
       success: true,
-      pagesAttempted: maxPages,
-      collected: collected.length,
-      uniqueParsed: unique.length,
-      inserted,
-      errored,
+      accepted: true,
+      keywords: NHS_KEYWORDS.length,
+      maxPagesPerKeyword: maxPages,
+      estimatedJobs: `up to ${NHS_KEYWORDS.length * maxPages * 10}`,
     }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } },
   );
