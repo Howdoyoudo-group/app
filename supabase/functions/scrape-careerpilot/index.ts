@@ -198,14 +198,23 @@ function parseEntryRoutes(md: string): EntryRoute[] {
   return routes;
 }
 
-function parseCareerProgression(md: string): string[] {
-  // CareerPilot uses "Career path and progression" as the heading
-  const section = md.match(/##+ Career path and progression[\s\S]*?(?=##+ |\Z)/i)?.[0]
+function extractProgressionSection(md: string): string {
+  return (
+    md.match(/##+ Career path and progression[\s\S]*?(?=##+ |\Z)/i)?.[0]
     ?? md.match(/##+ Career progression[\s\S]*?(?=##+ |\Z)/i)?.[0]
-    ?? "";
+    ?? ""
+  ).replace(/##+ [^\n]+\n?/, "").trim();
+}
+
+// Extract career steps from CareerPilot's prose-format progression sections.
+// CareerPilot writes prose like: "progress from commis chef... to sous chef...
+// As a head chef, you could train to move into restaurant management."
+// We store the raw progression text so it can be displayed directly.
+function parseCareerProgressionFallback(md: string): string[] {
+  const section = extractProgressionSection(md);
   if (!section) return [];
 
-  // Try bullet list first
+  // Try bullet list
   const bullets = section.match(/[-*•]\s+([^\n]+)/g);
   if (bullets && bullets.length >= 2) {
     return bullets
@@ -213,34 +222,6 @@ function parseCareerProgression(md: string): string[] {
       .filter(s => s.length > 2 && s.length < 80)
       .slice(0, 8);
   }
-
-  // CareerPilot often has a prose paragraph: "you could progress from commis chef ... to sous chef ... to head chef"
-  // Try to extract job titles from the paragraph
-  const prose = section
-    .replace(/##+ Career[^\n]*\n/i, "")
-    .replace(/\n/g, " ")
-    .trim();
-
-  // Extract role names between "from", "to", commas
-  // Pattern: "progress from [role], [role] to [role], [role]"
-  const progressMatch = prose.match(/(?:progress(?:ing)?\s+from\s+|progress\s+to\s+|,\s*|;\s*|\bto\s+)([a-z][a-z\s'-]{2,40}?)(?=\s*(?:,|;|\bto\b|\bpreparing\b|\bsupervising\b|\brunning\b|\bwith\b|\.$|$))/gi);
-  if (progressMatch && progressMatch.length >= 2) {
-    const steps = progressMatch
-      .map(m => m.replace(/^(?:progress(?:ing)?\s+from\s+|progress\s+to\s+|,\s*|;\s*|\bto\s+)/i, "").replace(/[*_]/g, "").trim())
-      .filter(s => s.length > 3 && s.length < 50 && !/^(a|an|the|with|you|could)$/i.test(s))
-      .slice(0, 8);
-    if (steps.length >= 2) return steps;
-  }
-
-  // Last resort: split on " to " for short prose
-  if (prose.length < 500) {
-    const parts = prose.split(/\bto\b/)
-      .map(s => s.replace(/[*_,\.]/g, "").replace(/\(.*?\)/g, "").trim())
-      .filter(s => s.length > 3 && s.length < 60 && !/^(with experience you could progress from being|you can|supervising|preparing|running|when the)/.test(s.toLowerCase()))
-      .slice(0, 8);
-    if (parts.length >= 2) return parts;
-  }
-
   return [];
 }
 
@@ -251,17 +232,24 @@ function parseRelatedRoles(md: string): Array<{ title: string; salary_range: str
     ?? "";
   if (!section) return [];
 
-  const lines = section.match(/[-*•]\s+([^\n]+)/g) ?? [];
+  // CareerPilot shows related jobs as cards — Firecrawl may render them as:
+  // "**Barista** - Salary range: £19,000 to £24,000" or just bold text
+  const lines = section.match(/(?:[-*•]\s+|\*\*)[^\n]+/g) ?? [];
   return lines
     .map(line => {
-      const text = line.replace(/^[-*•]\s+/, "").replace(/[*_[\]()]/g, "").trim();
-      // "Head Chef £23,000 to £50,000" or "Head Chef (£23,000-£50,000)"
-      const salaryM = text.match(/(£[\d,]+(?:\s*(?:to|–|-)\s*£[\d,]+)?)/);
-      const salary_range = salaryM ? salaryM[1].trim() : "";
-      const title = text.replace(/(£[\d,]+(?:\s*(?:to|–|-)\s*£[\d,]+)?)/, "").trim();
+      const text = line.replace(/^[-*•]\s+/, "").replace(/[*_[\]]/g, "").trim();
+      // Extract salary
+      const salaryM = text.match(/£[\d,]+\s*(?:to|–|-)\s*£[\d,]+/);
+      const salary_range = salaryM ? salaryM[0].trim() : "";
+      // Extract title — everything before salary or "- Salary"
+      const title = text
+        .replace(/[-–]\s*Salary[^:]*:.*$/, "")
+        .replace(/£[\d,]+.*$/, "")
+        .replace(/[()]/g, "")
+        .trim();
       return { title, salary_range };
     })
-    .filter(r => r.title.length > 2 && r.title.length < 60)
+    .filter(r => r.title.length > 2 && r.title.length < 60 && !/^(salary|range|the|a|an)$/i.test(r.title))
     .slice(0, 5);
 }
 
@@ -314,7 +302,7 @@ async function scrapeSlug(
 
   const { min: cpSalaryMin, max: cpSalaryMax } = parseSalary(md);
   const cpEntryRoutes = parseEntryRoutes(md);
-  const cpCareerProgression = parseCareerProgression(md);
+  const cpCareerProgression = parseCareerProgressionFallback(md);
   const cpRelatedRoles = parseRelatedRoles(md);
   const cpWorkEnvironment = parseWorkEnvironment(md);
   const cpGrowth = parseGrowthOutlook(md);

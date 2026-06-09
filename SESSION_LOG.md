@@ -35,6 +35,39 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-09 (session 2) — Andrew (main branch)
+
+### What was done
+- **New OG image** — replaced old rounded rectangle with hand-drawn wobble speech bubble matching the site's SVG bezier path from Hero.tsx. PIL bezier approximation, mascot left, logo inside bubble, green underline + decorative dots. Image now served from howdoyoudo.co.uk (v=8) not old Lovable CDN.
+- **CareerPilot data enrichment** — scraped ~35 job profiles from careerpilot.org.uk (UK govt site closing 2026). New `scrape-careerpilot` edge function uses Firecrawl to parse:
+  - Named apprenticeship routes with Level badges (L2/L3/L4/L6) and durations
+  - T Levels (e.g. "T Level in Catering", "T Level in Digital Production")
+  - A level requirements per route
+  - BTEC routes where present
+  - Salary min/max ranges (preferenced over NCS single figures)
+  - Work environment descriptions
+  - Career progression and related roles (parsers in place, may need refinement)
+- New migration `20260609111938_careerpilot_columns.sql` adds `cp_*` columns to `role_metadata`
+- Updated `RoleNCSPanel.tsx` to show T Level cards with tooltip, colour-coded apprenticeship cards (L2=blue, L3=green, L4=yellow, L6=purple), career ladder (horizontal desktop / numbered vertical mobile), related role chips, work environment badge
+- Fixed `20260608232152_role_metadata.sql` policy creation to use idempotent DO block (was failing on `db push` because table already existed)
+
+### Current state
+- 35 roles scraped — entry routes (apprenticeships, T Levels, A levels, salary ranges) all populating
+- Career progression text parsing needs improvement (CareerPilot writes prose not lists)
+- `/roles/chef` shows: 4 apprenticeship routes, T Level in Catering, A level route, salary £22k–£40k, work environment
+- `/roles/nurse` shows: Registered Nurse L6 degree apprenticeship, T Level in Adult Nursing, "2–3 A levels inc. science"
+- `/roles/it-technology` shows: 5 apprenticeships (L3–L7), T Level in Digital, salary £30k–£75k
+
+### Left for next session / Woody
+- **Career progression** — CareerPilot writes prose ("from commis chef... to sous chef...") not lists. Could either: (a) run a one-off Gemini extraction pass on the stored text, or (b) just skip progression ladder for now since entry routes are the bigger value
+- Trigger `scrape-careerpilot` again if more roles need refreshing (it's idempotent)
+- Check Supabase cron health — all 14 crons should be active (they silently stopped on June 5)
+- Add `A @ 216.198.79.1` DNS record in 123-reg (fixes bare howdoyoudo.co.uk)
+- Twilio keys needed for WhatsApp
+- Voxpops video needs permanent Supabase Storage upload
+
+---
+
 ## 2026-06-09 — Andrew (main branch)
 
 ### What was done
