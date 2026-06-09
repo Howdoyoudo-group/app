@@ -96,6 +96,7 @@ const KNOWN_LOGO_DOMAINS: Record<string, string> = {
   "university of edinburgh": "ed.ac.uk",
   "university of manchester": "manchester.ac.uk",
   "university of leeds": "leeds.ac.uk",
+  "leeds university": "leeds.ac.uk",
   "university of bristol": "bristol.ac.uk",
   "university of birmingham": "birmingham.ac.uk",
   "university of nottingham": "nottingham.ac.uk",
