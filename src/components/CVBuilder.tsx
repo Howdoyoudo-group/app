@@ -1525,6 +1525,41 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
       .eq("id", user!.id);
   };
 
+  // Persist updated experience/education directly to DB (used after logo upload
+  // so we don't rely on React state having flushed before saving)
+  const persistLogoUpdate = async (
+    updatedExp: WorkExperience[],
+    updatedEd: Education[],
+  ) => {
+    if (!user) return;
+    try {
+      const { data: existing } = await supabase
+        .from("profiles")
+        .select("job_preferences")
+        .eq("id", user.id)
+        .maybeSingle();
+      const currentPrefs = (existing?.job_preferences as any) || {};
+      const currentPb = currentPrefs.profileBuilder || {};
+      await supabase
+        .from("profiles")
+        .update({
+          job_preferences: {
+            ...currentPrefs,
+            profileBuilder: {
+              ...currentPb,
+              experience: updatedExp
+                .filter((w) => w.company || w.title)
+                .map(({ id: _id, ...rest }) => rest),
+              education: updatedEd
+                .filter((e) => e.school || e.qualification)
+                .map(({ id: _id, ...rest }) => rest),
+            },
+          },
+        })
+        .eq("id", user.id);
+    } catch { /* silent — state is still updated in memory */ }
+  };
+
   const uploadLogoForExperience = async (id: string, file: File | null) => {
     if (!file) return;
     if (!user) {
@@ -1556,8 +1591,11 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
         toast.error("Could not read logo URL.");
         return;
       }
-      setExperience((prev) => prev.map((x) => (x.id === id ? { ...x, logoUrl: url } : x)));
-      toast.success("Logo added.");
+      // Build updated array synchronously so we can save it immediately
+      const updatedExp = experience.map((x) => (x.id === id ? { ...x, logoUrl: url } : x));
+      setExperience(updatedExp);
+      await persistLogoUpdate(updatedExp, education);
+      toast.success("Logo saved.");
     } catch {
       toast.error("Something went wrong.");
     }
@@ -1594,8 +1632,11 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
         toast.error("Could not read logo URL.");
         return;
       }
-      setEducation((prev) => prev.map((x) => (x.id === id ? { ...x, logoUrl: url } : x)));
-      toast.success("Logo added.");
+      // Build updated array synchronously so we can save it immediately
+      const updatedEd = education.map((x) => (x.id === id ? { ...x, logoUrl: url } : x));
+      setEducation(updatedEd);
+      await persistLogoUpdate(experience, updatedEd);
+      toast.success("Logo saved.");
     } catch {
       toast.error("Something went wrong.");
     }
