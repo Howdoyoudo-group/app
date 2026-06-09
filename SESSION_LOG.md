@@ -5,6 +5,27 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-09 (session 3) — Andrew (main branch)
+
+### What was done
+- **Fixed apprenticeship name display** — Added `cleanApprName()` helper to `RoleNCSPanel.tsx` that strips leading prose filler from CareerPilot apprenticeship names. Some roles (nurse, bartender, hotel-manager) had names stored as full sentences like "You might be able to apply for a Registered Nurse Level 6 Degree Apprenticeship" — the helper reduces these to just "Registered Nurse". Handles multiple patterns: "You might/may/can/could be able to apply for a...", "apply for a...", "to do a...", "through a...", "complete a...". Also strips any trailing " Level N Apprenticeship" if it leaked into the name. Client-side fix so it corrects all already-scraped data with no re-scrape needed.
+- Committed latest `scrape-careerpilot/index.ts` (was deployed but not in git since 8e1ec10)
+
+### Current state
+- Apprenticeship cards on all role pages now show clean professional titles
+- 35 roles have CareerPilot data; entry routes, T Levels, A levels, salaries all correct
+
+### Left for next session / Woody
+- **Career progression** — CareerPilot writes prose not lists; all `cp_career_progression` = null. Skip for now or do a one-off Gemini pass.
+- **Related roles** — `cp_related_roles` = null for most roles; section parser may not be finding the right format.
+- Trigger `scrape-careerpilot` again for any roles that need refreshing (it's idempotent)
+- Check Supabase cron health — all 14 crons should be active
+- Add `A @ 216.198.79.1` DNS record in 123-reg (bare domain fix)
+- Twilio keys for WhatsApp
+- Voxpops video permanent upload to Supabase Storage
+
+---
+
 ## 2026-06-06 — Woody (main branch)
 
 ### What was done
