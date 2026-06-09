@@ -177,12 +177,11 @@ const Educators = () => {
           </motion.div>
 
           {/* Stats */}
-          <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="mt-12 grid grid-cols-3 gap-4">
             {[
               { label: "Industries unpacked", value: String(INDUSTRY_COUNT) },
               { label: "Resource topics", value: String(RESOURCE_TOPICS.length) },
               { label: "Live UK jobs", value: "Daily" },
-              { label: "Cost to use", value: "Free" },
             ].map((s) => (
               <div key={s.label} className="bg-card rounded-xl border border-border p-5">
                 <div className="font-display text-2xl md:text-3xl text-foreground">{s.value}</div>
