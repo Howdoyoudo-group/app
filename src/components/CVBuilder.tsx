@@ -188,7 +188,6 @@ const LogoBubble = ({
       <img
         src={src}
         alt={`${name} logo`}
-        loading="lazy"
         onError={() => setIdx((i) => i + 1)}
         style={{ width: size, height: size }}
         className="rounded-xl object-contain bg-card border border-border p-1 shrink-0"
