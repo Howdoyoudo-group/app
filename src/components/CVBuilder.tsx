@@ -1530,34 +1530,49 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
   const persistLogoUpdate = async (
     updatedExp: WorkExperience[],
     updatedEd: Education[],
-  ) => {
-    if (!user) return;
+  ): Promise<boolean> => {
+    if (!user) return false;
     try {
-      const { data: existing } = await supabase
+      const { data: existing, error: fetchErr } = await supabase
         .from("profiles")
         .select("job_preferences")
         .eq("id", user.id)
         .maybeSingle();
+      if (fetchErr) {
+        console.error("[CVBuilder] persistLogoUpdate fetch error:", fetchErr);
+        return false;
+      }
       const currentPrefs = (existing?.job_preferences as any) || {};
       const currentPb = currentPrefs.profileBuilder || {};
-      await supabase
+      const expToSave = updatedExp
+        .filter((w) => w.company || w.title)
+        .map(({ id: _id, ...rest }) => rest);
+      const edToSave = updatedEd
+        .filter((e) => e.school || e.qualification)
+        .map(({ id: _id, ...rest }) => rest);
+      console.log("[CVBuilder] persistLogoUpdate saving exp:", JSON.stringify(expToSave.map(w => ({ company: w.company, logoUrl: w.logoUrl }))));
+      const { error: saveErr } = await supabase
         .from("profiles")
         .update({
           job_preferences: {
             ...currentPrefs,
             profileBuilder: {
               ...currentPb,
-              experience: updatedExp
-                .filter((w) => w.company || w.title)
-                .map(({ id: _id, ...rest }) => rest),
-              education: updatedEd
-                .filter((e) => e.school || e.qualification)
-                .map(({ id: _id, ...rest }) => rest),
+              experience: expToSave,
+              education: edToSave,
             },
           },
         })
         .eq("id", user.id);
-    } catch { /* silent — state is still updated in memory */ }
+      if (saveErr) {
+        console.error("[CVBuilder] persistLogoUpdate save error:", saveErr);
+        return false;
+      }
+      return true;
+    } catch (e) {
+      console.error("[CVBuilder] persistLogoUpdate exception:", e);
+      return false;
+    }
   };
 
   const uploadLogoForExperience = async (id: string, file: File | null) => {
@@ -1594,8 +1609,12 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
       // Build updated array synchronously so we can save it immediately
       const updatedExp = experience.map((x) => (x.id === id ? { ...x, logoUrl: url } : x));
       setExperience(updatedExp);
-      await persistLogoUpdate(updatedExp, education);
-      toast.success("Logo saved.");
+      const ok = await persistLogoUpdate(updatedExp, education);
+      if (ok) {
+        toast.success("Logo saved.");
+      } else {
+        toast.error("Logo uploaded but could not save — please hit Save profile.");
+      }
     } catch {
       toast.error("Something went wrong.");
     }
@@ -1635,8 +1654,12 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
       // Build updated array synchronously so we can save it immediately
       const updatedEd = education.map((x) => (x.id === id ? { ...x, logoUrl: url } : x));
       setEducation(updatedEd);
-      await persistLogoUpdate(experience, updatedEd);
-      toast.success("Logo saved.");
+      const ok = await persistLogoUpdate(experience, updatedEd);
+      if (ok) {
+        toast.success("Logo saved.");
+      } else {
+        toast.error("Logo uploaded but could not save — please hit Save profile.");
+      }
     } catch {
       toast.error("Something went wrong.");
     }
