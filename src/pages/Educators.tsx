@@ -156,13 +156,10 @@ const Educators = () => {
               </span>
             </div>
             <h1 className="font-display text-4xl md:text-6xl lg:text-7xl leading-tight tracking-tight text-foreground">
-              Careers content<br />
-              that actually lands<span className="text-primary">.</span>
+              How do you inspire<span className="text-primary">?</span>
             </h1>
             <p className="mt-6 font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Everything we make is free for educators to use with students - industries unpacked simply, career maps,
-              CV and interview tools, employability resources, and live UK jobs. Designed for the way young people
-              actually choose what they want to do.
+              We aim to lift the bar for educators and give you much more fun content to share with students — funny content, industries unpacked simply, job ideas, CV tips, interview tools, employability resources, and live UK jobs. Designed for the way young people actually choose what they want to do.
             </p>
 
             <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
