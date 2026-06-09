@@ -35,6 +35,36 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-09 — Andrew (main branch)
+
+### What was done
+- **Fixed Career Map role resolver bug** — "AI data analyst" was routing to "teaching assistant" due to regex alternation precedence: `/\bteaching assistant|ta\b/i` matched "ta" in "data". Fixed by wrapping alternatives: `/\b(teaching assistant|ta)\b/i`. Same fix for bartender/barback/mixologist alias.
+- **Fixed King's Trust events showing fabricated dates** — Perplexity was hallucinating specific dates for rolling programmes. Two-layer fix: (1) `fetch-industry-events` now force-sets `event_type="programme"` and `starts_on=null` for any kingstrust.org.uk URL; (2) `EventsSection.tsx` renders programme-type events in a separate "Programmes & opportunities" section with "Rolling" badge instead of a date box. Cleared 12 DB records with bad dates.
+- **Implemented NCS data integration** — Scraped National Careers Service profiles for 57 role slugs. New `role_metadata` table stores salary starter/experienced, hours/week, work pattern, entry routes, tasks, skills. New `scrape-ncs-roles` edge function uses Firecrawl. New `RoleNCSPanel.tsx` component shows in the Plan tab on all role pages.
+- **Fixed CV Builder PDF crash** — `addLogoSafe` const was called before its declaration (temporal dead zone ReferenceError). Moved definition before first use. Fixed PDF generation for users with 1-2 education entries.
+- **Fixed CV Builder LinkedIn not saving** — `linkedinUrl` was missing from the `profileBuilder` JSON blob in `saveProfile()`. Added field and hydration.
+- **Fixed double header on /videos page** — Added `/videos` to `skipRoutes` in `GlobalHomeButton.tsx`.
+- **Fixed stale news feed (3-day gap)** — `breaking_news`, `articles`, and `daily_briefings` tables all stopped updating on June 5 (Supabase cron failure). Manually triggered `refresh-all-content` and `generate-daily-briefings` to repopulate. Fixed service key issue in `fetch-rss-news` and `scrape-articles` — both were using `SUPABASE_SERVICE_ROLE_KEY` instead of `HDYD_SERVICE_JWT` (project standard). Redeployed both functions.
+
+### Current state
+- Live at: www.howdoyoudo.co.uk
+- Content pipeline manually re-triggered and refreshed (news, articles, briefings all updated today)
+- Career map resolver working correctly
+- King's Trust events show as rolling programmes, no fabricated dates
+- NCS data populated for ~57 roles — visible on Role Plan tab
+- CV Builder PDF working, LinkedIn saves correctly
+- /videos page has single header
+
+### Left for next session / Woody
+- **Check Supabase cron health** — all 14 crons should be active in Dashboard → Database → Cron Jobs. The 3-day gap suggests pg_cron silently stopped. Worth reviewing and re-enabling if any are paused.
+- Add `A @ 216.198.79.1` DNS record in 123-reg (fixes bare howdoyoudo.co.uk → still may hit old Lovable)
+- Twilio keys needed for WhatsApp
+- Voxpops video needs permanent Supabase Storage upload (currently Lovable CDN)
+- Email users migration notice (send-account-migration needs rewrite for Google vs email users)
+- NCS scrape: verify data quality on role pages (chef, nurse, teacher) — some roles may have sparse entry routes. Can re-trigger `scrape-ncs-roles` for any specific slugs.
+
+---
+
 ## 2026-06-08 — Andrew (main branch)
 
 ### What was done

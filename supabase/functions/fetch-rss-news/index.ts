@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseKey = Deno.env.get('HDYD_SERVICE_JWT') || Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
     const context = INDUSTRY_CONTEXT[industry];
     const displayName = industry.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
