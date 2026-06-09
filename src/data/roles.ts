@@ -6,6 +6,8 @@ export interface RoleDefinition {
   description: string;
   industries: string[];
   category: RoleCategory;
+  /** Extra search terms — synonyms, job titles, related terms */
+  keywords?: string[];
 }
 
 export const roles: RoleDefinition[] = [
@@ -16,6 +18,7 @@ export const roles: RoleDefinition[] = [
     description: "Every role at the frontier labs - engineering, research, commercial, policy, ops, people and events at Anthropic, OpenAI, Google DeepMind and beyond.",
     industries: ["Beauty", "Cars", "Charity", "Film and TV", "Coffee", "Estate Agency", "Fashion", "Football", "Footwear", "Formula 1", "Gaming", "Grocery", "Hospitality", "Influencing", "Interior Design", "Jewellery", "Journalism", "Music", "Pets", "Travel", "Wellness"],
     category: "business",
+    keywords: ["artificial intelligence", "machine learning", "ml", "llm", "chatgpt", "prompt engineer", "deep learning", "neural network"],
   },
   {
     title: "Commercial",
@@ -23,6 +26,7 @@ export const roles: RoleDefinition[] = [
     description: "Pricing, partnerships, and revenue strategy - turning industry knowledge into business growth.",
     industries: ["Cars", "Fashion", "Film and TV", "Football", "Formula 1", "Grocery", "Influencing", "Music", "Hospitality", "Footwear", "Beer", "Estate Agency", "Gaming", "Journalism", "Jewellery", "Travel"],
     category: "business",
+    keywords: ["business development", "partnerships", "biz dev", "revenue", "commercial manager", "commercial director"],
   },
   {
     title: "Creative",
@@ -30,6 +34,7 @@ export const roles: RoleDefinition[] = [
     description: "Design, content, and visual identity - the craft behind how industries look and feel.",
     industries: ["Beauty", "Fashion", "Coffee", "Film and TV", "Formula 1", "Influencing", "Music", "Hospitality", "Interior Design", "Footwear", "Beer", "Gaming", "Journalism", "Jewellery"],
     category: "business",
+    keywords: ["designer", "art director", "creative director", "graphic design", "visual", "branding", "content creator", "copywriter"],
   },
   {
     title: "E-commerce",
@@ -37,6 +42,7 @@ export const roles: RoleDefinition[] = [
     description: "Online retail, digital storefronts, and conversion - where technology meets the customer.",
     industries: ["Beauty", "Fashion", "Coffee", "Grocery", "Footwear", "Influencing", "Wellness", "Bakery", "Beer", "Interior Design", "Gaming", "Jewellery", "Pets", "Travel"],
     category: "business",
+    keywords: ["ecom", "online retail", "shopify", "amazon", "digital retail", "conversion", "trading"],
   },
   {
     title: "Finance / Accounting",
@@ -44,6 +50,7 @@ export const roles: RoleDefinition[] = [
     description: "Budgets, forecasting, and financial strategy - the numbers behind every industry.",
     industries: ["Beauty", "Cars", "Fashion", "Coffee", "Farming", "Film and TV", "Football", "Formula 1", "Grocery", "Health", "Horse Racing", "Influencing", "Money", "Music", "Hospitality", "Footwear", "Wellness", "Bakery", "Beer", "Charity", "Estate Agency", "Interior Design", "Gaming", "Journalism", "Jewellery", "Pets", "Travel"],
     category: "business",
+    keywords: ["accountant", "accountancy", "CFO", "FD", "financial controller", "treasurer", "bookkeeper", "auditor", "tax", "ACA", "ACCA", "CIMA", "management accounts"],
   },
   {
     title: "IT & Technology",
@@ -51,6 +58,7 @@ export const roles: RoleDefinition[] = [
     description: "Software engineering, data, and platform - the people who build and run the technology behind every modern business.",
     industries: ["Beauty", "Cars", "Charity", "Film and TV", "Coffee", "Estate Agency", "Farming", "Fashion", "Football", "Footwear", "Formula 1", "Gaming", "Grocery", "Health", "Horse Racing", "Hospitality", "Influencing", "Interior Design", "Jewellery", "Journalism", "Money", "Music", "Pets", "Travel", "Wellness"],
     category: "business",
+    keywords: ["developer", "software engineer", "coder", "programmer", "web developer", "frontend", "backend", "fullstack", "devops", "SRE", "engineer", "tech", "infrastructure", "cloud", "cybersecurity", "security", "QA", "test engineer", "iOS", "android", "mobile developer"],
   },
   {
     title: "Legal & Compliance",
@@ -58,6 +66,7 @@ export const roles: RoleDefinition[] = [
     description: "Contracts, regulation, and risk - making sure industries operate within the rules.",
     industries: ["Cars", "Fashion", "Film and TV", "Football", "Formula 1", "Grocery", "Music", "Hospitality", "Footwear", "Beer", "Charity", "Estate Agency", "Gaming", "Journalism", "Jewellery", "Travel"],
     category: "business",
+    keywords: ["lawyer", "solicitor", "barrister", "attorney", "legal counsel", "in-house counsel", "compliance officer", "paralegal", "legal executive", "contract", "GDPR", "regulation", "risk", "legal advisor", "legal manager"],
   },
   {
     title: "Marketing",
@@ -65,6 +74,7 @@ export const roles: RoleDefinition[] = [
     description: "Brand strategy, digital campaigns, and storytelling - the people who shape how industries talk to the world.",
     industries: ["Beauty", "Cars", "Fashion", "Coffee", "Farming", "Film and TV", "Football", "Formula 1", "Grocery", "Health", "Horse Racing", "Influencing", "Money", "Music", "Hospitality", "Footwear", "Wellness", "Bakery", "Beer", "Charity", "Estate Agency", "Interior Design", "Teaching", "Physiotherapy", "Psychotherapy", "Gaming", "Journalism", "Jewellery", "Pets", "Travel"],
     category: "business",
+    keywords: ["digital marketing", "SEO", "paid media", "PPC", "social media", "brand manager", "campaign manager", "CMO", "growth", "CRM", "email marketing", "influencer marketing", "PR", "communications", "press"],
   },
   {
     title: "Operations",
@@ -72,6 +82,7 @@ export const roles: RoleDefinition[] = [
     description: "Supply chains, logistics, and the systems that keep industries running day to day.",
     industries: ["Beauty", "Cars", "Fashion", "Coffee", "Farming", "Film and TV", "Football", "Formula 1", "Grocery", "Health", "Horse Racing", "Influencing", "Hospitality", "Footwear", "Wellness", "Bakery", "Beer", "Estate Agency", "Interior Design", "Gaming", "Journalism", "Jewellery", "Pets", "Travel"],
     category: "business",
+    keywords: ["logistics", "supply chain", "procurement", "COO", "ops manager", "facilities", "office manager", "planning", "forecasting"],
   },
   {
     title: "People & Culture",
@@ -79,6 +90,7 @@ export const roles: RoleDefinition[] = [
     description: "Recruitment, culture, and talent development - the people who look after the people.",
     industries: ["Beauty", "Cars", "Fashion", "Coffee", "Farming", "Film and TV", "Football", "Formula 1", "Grocery", "Health", "Horse Racing", "Influencing", "Money", "Music", "Hospitality", "Footwear", "Wellness", "Bakery", "Beer", "Charity", "Estate Agency", "Interior Design", "Teaching", "Gaming", "Journalism", "Jewellery", "Pets", "Travel"],
     category: "business",
+    keywords: ["HR", "human resources", "recruiter", "recruitment", "talent acquisition", "L&D", "learning development", "HRBP", "people manager", "CHRO", "employee relations"],
   },
   {
     title: "Product",
@@ -86,6 +98,7 @@ export const roles: RoleDefinition[] = [
     description: "From concept to launch - the people who build what customers actually use.",
     industries: ["Beauty", "Cars", "Fashion", "Coffee", "Film and TV", "Formula 1", "Grocery", "Influencing", "Music", "Footwear", "Wellness", "Beer", "Gaming", "Jewellery", "Pets", "Travel"],
     category: "business",
+    keywords: ["product manager", "PM", "product owner", "PO", "UX", "user experience", "UI designer", "product design", "roadmap", "agile", "scrum"],
   },
   {
     title: "Project & Programme Management",
@@ -93,6 +106,7 @@ export const roles: RoleDefinition[] = [
     description: "Planning, delivery, and coordination - keeping complex projects on track across sectors.",
     industries: ["Cars", "Fashion", "Coffee", "Film and TV", "Football", "Formula 1", "Grocery", "Influencing", "Music", "Hospitality", "Footwear", "Wellness", "Interior Design", "Charity", "Gaming", "Travel"],
     category: "business",
+    keywords: ["project manager", "programme manager", "PMO", "prince2", "PMP", "delivery manager", "change manager", "transformation"],
   },
   {
     title: "Sales",
@@ -100,6 +114,7 @@ export const roles: RoleDefinition[] = [
     description: "Client relationships, revenue growth, and deal-making across every sector.",
     industries: ["Beauty", "Cars", "Fashion", "Coffee", "Formula 1", "Grocery", "Influencing", "Hospitality", "Footwear", "Wellness", "Beer", "Estate Agency", "Interior Design", "Gaming", "Journalism", "Jewellery", "Pets", "Travel"],
     category: "business",
+    keywords: ["account manager", "account executive", "BDM", "SDR", "sales rep", "business development", "key account", "sales director", "inside sales"],
   },
   {
     title: "Strategy",
@@ -107,6 +122,7 @@ export const roles: RoleDefinition[] = [
     description: "Market analysis, growth planning, and long-term thinking - shaping where industries go next.",
     industries: ["Cars", "Fashion", "Coffee", "Film and TV", "Football", "Formula 1", "Grocery", "Influencing", "Music", "Hospitality", "Beer", "Gaming", "Journalism", "Travel"],
     category: "business",
+    keywords: ["strategist", "consultant", "management consultant", "McKinsey", "BCG", "corporate development", "M&A", "analyst"],
   },
   // Craft & industry roles
   {
@@ -115,6 +131,7 @@ export const roles: RoleDefinition[] = [
     description: "The craft of coffee - from espresso technique to customer experience on the shop floor.",
     industries: ["Coffee"],
     category: "craft",
+    keywords: ["coffee", "cafe", "espresso", "latte", "coffee shop"],
   },
   {
     title: "Bartender / Front of House",
@@ -122,6 +139,7 @@ export const roles: RoleDefinition[] = [
     description: "The face of hospitality - service, drinks craft, and creating the atmosphere people come back for.",
     industries: ["Hospitality", "Beer"],
     category: "craft",
+    keywords: ["waiter", "waitress", "bar staff", "mixologist", "cocktail", "front of house", "FOH", "server", "hospitality", "bar work"],
   },
   {
     title: "Charity Fundraiser",
@@ -129,6 +147,7 @@ export const roles: RoleDefinition[] = [
     description: "Securing the income that powers good causes - from individual giving to corporate partnerships and major gifts.",
     industries: ["Charity"],
     category: "craft",
+    keywords: ["fundraising", "nonprofit", "NGO", "donations", "major gifts", "grant", "philanthropy", "third sector"],
   },
   {
     title: "Chef / Baker",
@@ -136,6 +155,7 @@ export const roles: RoleDefinition[] = [
     description: "Recipe development, kitchen leadership, and the craft of making food people love.",
     industries: ["Hospitality", "Bakery"],
     category: "craft",
+    keywords: ["cook", "kitchen", "sous chef", "head chef", "baker", "pastry", "culinary", "commis", "food", "restaurant"],
   },
   {
     title: "Estate Agent",
@@ -143,6 +163,7 @@ export const roles: RoleDefinition[] = [
     description: "Valuations, viewings, and negotiation - the face of property transactions.",
     industries: ["Estate Agency"],
     category: "craft",
+    keywords: ["realtor", "property", "sales negotiator", "valuer", "property consultant", "sales agent", "residential sales"],
   },
   {
     title: "Fitness Instructor",
@@ -150,6 +171,7 @@ export const roles: RoleDefinition[] = [
     description: "Group classes, gym floor coaching, and getting people moving - the front line of the fitness industry.",
     industries: ["Wellness"],
     category: "craft",
+    keywords: ["gym instructor", "PT", "group fitness", "spin", "pilates", "yoga teacher", "fitness coach"],
   },
   {
     title: "Garment Technologist",
@@ -157,6 +179,7 @@ export const roles: RoleDefinition[] = [
     description: "The technical backbone of fashion - fit, construction, and quality from sample to factory floor.",
     industries: ["Fashion", "Footwear"],
     category: "craft",
+    keywords: ["GT", "clothing technologist", "quality", "fit technologist", "apparel tech", "pattern", "grading"],
   },
   {
     title: "Hotel Manager",
@@ -164,6 +187,7 @@ export const roles: RoleDefinition[] = [
     description: "Running the day-to-day of a hotel - guest experience, team leadership, and commercial performance under one roof.",
     industries: ["Hospitality", "Travel"],
     category: "craft",
+    keywords: ["general manager", "GM", "hospitality manager", "accommodation", "front desk", "rooms division"],
   },
   {
     title: "Mortgage Advisor",
@@ -171,6 +195,7 @@ export const roles: RoleDefinition[] = [
     description: "Helping buyers find and secure the right mortgage - a regulated, advice-led role inside estate agencies, banks, and brokers.",
     industries: ["Estate Agency"],
     category: "craft",
+    keywords: ["mortgage broker", "financial advisor", "home loan", "lending", "CeMAP"],
   },
   {
     title: "Personal Trainer",
@@ -178,6 +203,7 @@ export const roles: RoleDefinition[] = [
     description: "Coaching, programming, and guiding people through physical transformation.",
     industries: ["Wellness"],
     category: "craft",
+    keywords: ["PT", "personal training", "1-2-1 coaching", "strength coach", "fitness coach", "gym"],
   },
   {
     title: "Physiotherapist",
@@ -185,6 +211,7 @@ export const roles: RoleDefinition[] = [
     description: "Rehabilitation, movement science, and hands-on patient care.",
     industries: ["Physiotherapy", "Wellness"],
     category: "craft",
+    keywords: ["physio", "physiotherapy", "MSK", "rehab", "sports therapist", "musculoskeletal", "CSP"],
   },
   {
     title: "Producer",
@@ -192,6 +219,7 @@ export const roles: RoleDefinition[] = [
     description: "Bringing creative projects to life - from music tracks to film productions.",
     industries: ["Music", "Film and TV", "Gaming", "Influencing"],
     category: "craft",
+    keywords: ["music producer", "film producer", "executive producer", "TV producer", "content producer", "media"],
   },
   {
     title: "Psychotherapist",
@@ -199,6 +227,7 @@ export const roles: RoleDefinition[] = [
     description: "Talk therapy, mental health support, and guiding people through personal challenges.",
     industries: ["Psychotherapy"],
     category: "craft",
+    keywords: ["therapist", "counsellor", "counselor", "mental health", "CBT", "BACP", "UKCP", "psychologist", "clinical psychologist", "talking therapy"],
   },
   {
     title: "Stylist / Designer",
@@ -206,6 +235,7 @@ export const roles: RoleDefinition[] = [
     description: "Trend forecasting, garment design, and shaping the visual identity of brands.",
     industries: ["Beauty", "Fashion", "Interior Design", "Jewellery"],
     category: "craft",
+    keywords: ["fashion designer", "hairdresser", "hair stylist", "makeup artist", "MUA", "nail technician", "beauty", "colorist"],
   },
   {
     title: "Teacher",
@@ -213,6 +243,7 @@ export const roles: RoleDefinition[] = [
     description: "Lesson planning, classroom leadership, and shaping the next generation.",
     industries: ["Teaching"],
     category: "craft",
+    keywords: ["educator", "lecturer", "tutor", "professor", "secondary teacher", "primary teacher", "NQT", "ECT", "PGCE", "QTS", "supply teacher", "SENCO"],
   },
   // Audit-recommended additions (high job-volume roles)
   {
@@ -357,6 +388,7 @@ export const roles: RoleDefinition[] = [
     description: "Patient care, clinical skills and ward leadership - across NHS hospitals, GP surgeries and community settings.",
     industries: ["Health"],
     category: "craft",
+    keywords: ["nursing", "RN", "registered nurse", "staff nurse", "ward nurse", "community nurse", "district nurse", "NMC", "NHS", "healthcare", "clinical"],
   },
   {
     title: "Doctor / GP",
@@ -364,6 +396,7 @@ export const roles: RoleDefinition[] = [
     description: "Diagnosis, treatment and care - from hospital consultants to community general practitioners.",
     industries: ["Health"],
     category: "craft",
+    keywords: ["GP", "physician", "medic", "consultant", "medicine", "surgeon", "junior doctor", "FY1", "FY2", "registrar", "MBBS"],
   },
   {
     title: "Healthcare Assistant",
@@ -371,6 +404,7 @@ export const roles: RoleDefinition[] = [
     description: "Frontline patient care, observations and ward support - a vital first step into the health workforce.",
     industries: ["Health"],
     category: "frontline",
+    keywords: ["HCA", "nursing assistant", "healthcare support worker", "ward assistant", "clinical support"],
   },
   {
     title: "Midwife",
@@ -378,6 +412,7 @@ export const roles: RoleDefinition[] = [
     description: "Antenatal care, birth and postnatal support - guiding families through one of life's biggest moments.",
     industries: ["Health"],
     category: "craft",
+    keywords: ["midwifery", "maternity", "obstetrics", "antenatal", "postnatal", "birth"],
   },
   {
     title: "Care Worker",
@@ -385,6 +420,7 @@ export const roles: RoleDefinition[] = [
     description: "Day-to-day support and personal care for people in residential homes, the community or supported living - the backbone of UK adult social care.",
     industries: ["Health"],
     category: "frontline",
+    keywords: ["carer", "support worker", "care assistant", "social care", "domiciliary", "residential care", "elderly care", "home care"],
   },
   // ─── Horse Racing ───
   {

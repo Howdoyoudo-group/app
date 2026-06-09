@@ -1265,8 +1265,23 @@ const MyFeed = ({ industries, targetCompanies = [] }: Props) => {
                             <span className="font-display font-900 text-base text-foreground">{day}</span>
                             <span className="font-display text-[9px] font-700 tracking-wider text-foreground/70">{mon}</span>
                           </>
+                        ) : ev.dateLabel ? (
+                          // No exact date — show label text (e.g. "Oct 2025", "TBC") instead of icon
+                          (() => {
+                            // Try to parse month from label like "October 2025" or "Oct 25"
+                            const parts = ev.dateLabel.trim().split(/\s+/);
+                            const monthPart = parts[0]?.slice(0, 3).toUpperCase();
+                            const yearPart = parts[1]?.slice(-2);
+                            return (
+                              <>
+                                <span className="font-display font-700 text-[10px] text-foreground text-center px-0.5 leading-tight">{monthPart}</span>
+                                {yearPart && <span className="font-display text-[8px] text-foreground/60">{yearPart}</span>}
+                              </>
+                            );
+                          })()
                         ) : (
-                          <CalendarDays className="w-4 h-4 text-foreground" />
+                          // No date info at all — show "TBC"
+                          <span className="font-display font-700 text-[9px] text-foreground/60 tracking-wide">TBC</span>
                         )}
                       </div>
                       <a href={ev.url} target="_blank" rel="noopener noreferrer" className="flex-1 min-w-0 group">

@@ -238,7 +238,7 @@ const Roles = () => {
     return roles.filter((r) => {
       if (category !== "all" && r.category !== category) return false;
       if (industry !== "all" && !r.industries.includes(industry)) return false;
-      if (q && !r.title.toLowerCase().includes(q) && !r.description.toLowerCase().includes(q)) return false;
+      if (q && !r.title.toLowerCase().includes(q) && !r.description.toLowerCase().includes(q) && !r.keywords?.some((k) => k.toLowerCase().includes(q))) return false;
       return true;
     });
   }, [search, category, industry]);
