@@ -41,7 +41,7 @@ type Thing = { id: string; title: string; kind: string; when: string; descriptio
 type Proof = { id: string; label: string; url: string };
 type Education = { id: string; school: string; qualification: string; dates: string; grade: string; link?: string; logoUrl?: string };
 type Qualification = { id: string; name: string; issuer: string; year: string };
-type WorkExperience = { id: string; company: string; title: string; dates: string; location: string; description: string; link?: string; logoUrl?: string };
+type WorkExperience = { id: string; company: string; title: string; type?: string; dates: string; location: string; description: string; link?: string; logoUrl?: string };
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
@@ -282,6 +282,7 @@ const mapCvExtraction = (data: any) => ({
     id: uid(),
     company: w.company || "",
     title: w.title || "",
+    type: w.type || "",
     dates: w.dates || "",
     location: w.location || "",
     description: w.description || "",
@@ -312,6 +313,8 @@ const CVBuilder = () => {
 
   // Video
   const [videoUrl, setVideoUrl] = useState<string>("");
+  const [videoLinkInput, setVideoLinkInput] = useState<string>("");
+  const [uploadingVideo, setUploadingVideo] = useState(false);
 
   // Things
   const [things, setThings] = useState<Thing[]>([
@@ -458,6 +461,7 @@ const CVBuilder = () => {
             id: uid(),
             company: w.company || "",
             title: w.title || "",
+            type: w.type || "",
             dates: w.dates || "",
             location: w.location || "",
             description: w.description || "",
@@ -513,6 +517,43 @@ const CVBuilder = () => {
   const onUpload = (file: File | null, set: (v: string) => void) => {
     if (!file) return;
     set(URL.createObjectURL(file));
+  };
+
+  // Upload a video file to Supabase Storage and save the URL
+  const uploadVideoFile = async (file: File | null) => {
+    if (!file || !user) return;
+    if (!file.type.startsWith("video/")) { toast.error("Please choose a video file."); return; }
+    if (file.size > 200 * 1024 * 1024) { toast.error("Video must be under 200MB."); return; }
+    setUploadingVideo(true);
+    try {
+      const ext = (file.name.split(".").pop() || "mp4").toLowerCase().replace(/[^a-z0-9]/g, "");
+      const path = `${user.id}/video/intro.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) { toast.error("Could not upload video."); return; }
+      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+      if (pub?.publicUrl) setVideoUrl(pub.publicUrl);
+      else toast.error("Could not read video URL.");
+    } catch { toast.error("Something went wrong."); }
+    finally { setUploadingVideo(false); }
+  };
+
+  // Detect and normalise a pasted video link into an embeddable URL
+  const resolveVideoEmbed = (raw: string): { embed: string; display: string } | null => {
+    if (!raw) return null;
+    // YouTube
+    const ytMatch = raw.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+    if (ytMatch) return { embed: `https://www.youtube.com/embed/${ytMatch[1]}`, display: raw };
+    // Vimeo
+    const vimeoMatch = raw.match(/vimeo\.com\/(\d+)/);
+    if (vimeoMatch) return { embed: `https://player.vimeo.com/video/${vimeoMatch[1]}`, display: raw };
+    // Loom
+    const loomMatch = raw.match(/loom\.com\/share\/([a-zA-Z0-9]+)/);
+    if (loomMatch) return { embed: `https://www.loom.com/embed/${loomMatch[1]}`, display: raw };
+    // TikTok — can't embed easily, just store the URL
+    if (raw.includes("tiktok.com")) return { embed: raw, display: raw };
+    // Supabase Storage (direct video file)
+    if (raw.includes("supabase.co")) return { embed: raw, display: raw };
+    return null;
   };
 
   const saveProfile = async () => {
@@ -1012,8 +1053,8 @@ const CVBuilder = () => {
         }
         mY += lineH(10) * titleLines.length;
 
-        // Company + location
-        const compLoc = [w.company, w.location].filter(Boolean).join(", ");
+        // Company + type + location
+        const compLoc = [w.company, w.type, w.location].filter(Boolean).join(" · ");
         if (compLoc) {
           pdf.setFontSize(8.5);
           pdf.setFont("helvetica", "normal");
@@ -1923,28 +1964,67 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
           {/* Video */}
           <Card title="Video Intro" icon={Video} delay={0.05}>
             <p className="font-body text-xs text-muted-foreground">
-              Upload a 30 to 60 second intro. Tell employers what you're into, what you're good at,
-              and what kind of opportunity you're looking for.
+              A 30–60 second intro that shows employers the person behind the CV — something no PDF can do. Works with YouTube, Vimeo, Loom, or upload an MP4/MOV.
             </p>
-            <label className="block">
-              <div className="rounded-2xl border-2 border-dashed border-border bg-background hover:border-primary transition-colors p-6 text-center cursor-pointer">
-                {videoUrl ? (
-                  <video src={videoUrl} controls className="w-full max-h-64 rounded-xl mx-auto" />
-                ) : (
-                  <div className="flex flex-col items-center gap-2">
-                    <Upload className="w-6 h-6 text-primary" />
-                    <span className="font-display font-700 text-sm">Upload your video</span>
-                    <span className="font-body text-xs text-muted-foreground">MP4, MOV - up to 60 seconds</span>
+            {/* Existing video preview */}
+            {videoUrl && (() => {
+              const resolved = resolveVideoEmbed(videoUrl);
+              const isIframe = resolved && (videoUrl.includes("youtube") || videoUrl.includes("youtu.be") || videoUrl.includes("vimeo") || videoUrl.includes("loom"));
+              return (
+                <div className="space-y-2">
+                  {isIframe ? (
+                    <iframe src={resolved!.embed} className="w-full aspect-video rounded-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                  ) : (
+                    <video src={videoUrl} controls className="w-full max-h-64 rounded-xl" />
+                  )}
+                  <button onClick={() => setVideoUrl("")} className="font-body text-xs text-muted-foreground underline hover:text-destructive">Remove video</button>
+                </div>
+              );
+            })()}
+            {/* Link input */}
+            {!videoUrl && (
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Paste a YouTube, Vimeo or Loom link"
+                    value={videoLinkInput}
+                    onChange={(e) => setVideoLinkInput(e.target.value)}
+                    className="font-body bg-background rounded-xl flex-1"
+                  />
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="font-body text-xs rounded-full shrink-0"
+                    onClick={() => {
+                      const trimmed = videoLinkInput.trim();
+                      if (!trimmed) return;
+                      const resolved = resolveVideoEmbed(trimmed);
+                      if (resolved) { setVideoUrl(trimmed); setVideoLinkInput(""); }
+                      else toast.error("Paste a YouTube, Vimeo or Loom link.");
+                    }}
+                  >
+                    Add link
+                  </Button>
+                </div>
+                <div className="text-center text-xs text-muted-foreground font-body">— or —</div>
+                <label className="block">
+                  <div className="rounded-2xl border-2 border-dashed border-border bg-background hover:border-primary transition-colors p-4 text-center cursor-pointer">
+                    {uploadingVideo ? (
+                      <div className="flex items-center justify-center gap-2 text-xs font-body text-muted-foreground">
+                        <Loader2 className="w-4 h-4 animate-spin text-primary" /> Uploading…
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-1">
+                        <Upload className="w-5 h-5 text-primary" />
+                        <span className="font-display font-700 text-xs">Upload a video file</span>
+                        <span className="font-body text-[11px] text-muted-foreground">MP4 or MOV, up to 200MB</span>
+                      </div>
+                    )}
+                    <input type="file" accept="video/*" className="hidden" disabled={uploadingVideo} onChange={(e) => uploadVideoFile(e.target.files?.[0] || null)} />
                   </div>
-                )}
-                <input
-                  type="file"
-                  accept="video/*"
-                  className="hidden"
-                  onChange={(e) => onUpload(e.target.files?.[0] || null, setVideoUrl)}
-                />
+                </label>
               </div>
-            </label>
+            )}
           </Card>
 
           {/* Story */}
@@ -1960,10 +2040,9 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
 
 
           {/* Things */}
-          <Card title="Things You've Done" icon={Sparkles} delay={0.15}>
+          <Card title="Projects & Achievements" icon={Sparkles} delay={0.15}>
             <p className="font-body text-xs text-muted-foreground">
-              Add projects, side hustles, volunteering, school work, clubs, sport, content, events
-              or part-time jobs. Anything counts.
+              Anything beyond paid work — projects, side hustles, volunteering, clubs, sport, content creation, events. This is where you stand out.
             </p>
             {things.map((t, i) => (
               <div key={t.id} className="rounded-2xl bg-muted/40 p-4 space-y-3">
@@ -1982,7 +2061,7 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
                     onChange={(e) => setThings(things.map((x) => x.id === t.id ? { ...x, kind: e.target.value } : x))}
                     className="font-body bg-background rounded-xl border border-input px-3 h-10 text-sm"
                   >
-                    {["Project", "Side hustle", "Volunteering", "School", "Club", "Sport", "Content", "Event", "Part-time job"].map((k) => (
+                    {["Project", "Side hustle", "Volunteering", "School", "Club", "Sport", "Content", "Event"].map((k) => (
                       <option key={k}>{k}</option>
                     ))}
                   </select>
@@ -2088,7 +2167,7 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
           {/* Work Experience */}
           <Card title="Where You've Worked" icon={Briefcase} delay={0.26}>
             <p className="font-body text-xs text-muted-foreground">
-              Jobs, internships, placements, weekend work or freelance gigs. Upload your CV and we'll fill these in for you.
+              All paid employment — full-time, part-time, internships, placements and freelance. Upload your CV above and we'll auto-fill this for you.
             </p>
             {storedCvPath ? (
               <div className="flex flex-col gap-2">
@@ -2147,8 +2226,18 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
                 <div className="grid gap-3 md:grid-cols-2">
                   <Input placeholder="Company / employer" value={w.company} onChange={(e) => setExperience(experience.map((x) => x.id === w.id ? { ...x, company: e.target.value } : x))} className="font-body bg-background rounded-xl" />
                   <Input placeholder="Job title" value={w.title} onChange={(e) => setExperience(experience.map((x) => x.id === w.id ? { ...x, title: e.target.value } : x))} className="font-body bg-background rounded-xl" />
+                  <select
+                    value={w.type || ""}
+                    onChange={(e) => setExperience(experience.map((x) => x.id === w.id ? { ...x, type: e.target.value } : x))}
+                    className="font-body bg-background rounded-xl border border-input px-3 h-10 text-sm text-muted-foreground"
+                  >
+                    <option value="">Type (optional)</option>
+                    {["Full-time", "Part-time", "Internship", "Placement", "Freelance", "Contract", "Apprenticeship"].map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
+                  </select>
                   <Input placeholder="Dates (e.g. Jun 2022 – Aug 2023)" value={w.dates} onChange={(e) => setExperience(experience.map((x) => x.id === w.id ? { ...x, dates: e.target.value } : x))} className="font-body bg-background rounded-xl" />
-                  <Input placeholder="Location (optional)" value={w.location} onChange={(e) => setExperience(experience.map((x) => x.id === w.id ? { ...x, location: e.target.value } : x))} className="font-body bg-background rounded-xl" />
+                  <Input placeholder="Location (optional)" value={w.location} onChange={(e) => setExperience(experience.map((x) => x.id === w.id ? { ...x, location: e.target.value } : x))} className="font-body bg-background rounded-xl md:col-span-2" />
                   <Textarea placeholder="What did you do? (1-2 sentences)" value={w.description} onChange={(e) => setExperience(experience.map((x) => x.id === w.id ? { ...x, description: e.target.value } : x))} className="font-body bg-background min-h-[60px] rounded-xl md:col-span-2" />
                   <div className="md:col-span-2 space-y-2">
                     <div className="flex items-center gap-3">
@@ -2590,9 +2679,15 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
                 <h4 className="font-display font-700 text-xs uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1.5">
                   <Video className="w-3.5 h-3.5" /> Video intro
                 </h4>
-                {videoUrl ? (
-                  <video src={videoUrl} controls className="w-full rounded-2xl bg-black" />
-                ) : (
+                {videoUrl ? (() => {
+                  const resolved = resolveVideoEmbed(videoUrl);
+                  const isIframe = resolved && (videoUrl.includes("youtube") || videoUrl.includes("youtu.be") || videoUrl.includes("vimeo") || videoUrl.includes("loom"));
+                  return isIframe ? (
+                    <iframe src={resolved!.embed} className="w-full aspect-video rounded-2xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen />
+                  ) : (
+                    <video src={videoUrl} controls className="w-full rounded-2xl bg-black" />
+                  );
+                })() : (
                   <div className="rounded-2xl bg-muted aspect-video flex items-center justify-center text-xs font-body text-muted-foreground">
                     Video intro will appear here
                   </div>
@@ -2695,7 +2790,7 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
                               )}
                               {w.dates && <span className="text-[11px] text-muted-foreground font-body shrink-0">{w.dates}</span>}
                             </div>
-                            {w.location && <p className="text-[11px] text-muted-foreground font-body mt-0.5">{w.location}</p>}
+                            {(w.type || w.location) && <p className="text-[11px] text-muted-foreground font-body mt-0.5">{[w.type, w.location].filter(Boolean).join(" · ")}</p>}
                             {w.description && <p className="text-xs text-foreground font-body mt-1 leading-relaxed">{w.description}</p>}
                           </div>
                         </div>
