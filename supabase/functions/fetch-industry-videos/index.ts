@@ -28,39 +28,130 @@ const WINDOW_SP: Record<"week" | "month", string> = {
   month: "EgIIBA%253D%253D",
 };
 
-// Per-industry YouTube search query. Tuned for UK + careers/business angle so
-// we don't get fancams or kid-content. Falls back to "<industry> industry UK".
-const QUERIES: Record<string, string> = {
-  bakery: "UK bakery business careers",
-  beauty: "UK beauty industry business careers",
-  beer: "UK brewery business careers",
-  cars: "UK automotive industry business careers",
-  charity: "UK charity sector careers jobs",
-  cinema: "UK film TV industry business",
-  coffee: "UK coffee industry business careers",
-  "estate-agency": "UK estate agency property market business careers",
-  farming: "UK farming agriculture business careers",
-  fashion: "UK fashion industry business careers",
-  football: "football business finance Premier League revenue sponsorship broadcast deal club ownership",
-  "formula-1": "Formula 1 business careers",
-  gaming: "UK games industry business careers",
-  grocery: "UK grocery supermarket business careers",
-  health: "UK NHS healthcare careers business",
-  "horse-racing": "UK horse racing industry business careers",
-  hospitality: "UK hospitality industry restaurants hotels business careers",
-  influencing: "UK creator economy influencer marketing business",
-  "interior-design": "UK interior design business careers",
-  jewellery: "UK jewellery industry business careers",
-  journalism: "UK journalism media industry careers",
-  money: "UK fintech banking business careers",
-  music: "UK music industry business careers",
-  pets: "UK pet industry business careers",
-  physiotherapy: "UK physiotherapy careers day in the life",
-  psychotherapy: "UK counselling therapy careers day in the life",
-  teaching: "UK teaching school careers day in the life",
-  travel: "UK travel industry aviation business careers",
-  wellness: "UK fitness gym industry business careers",
-  footwear: "UK footwear sneaker industry business careers",
+// Per-industry YouTube search queries — two angles per industry so we get a
+// richer mix of (a) day-in-the-life / role-focused and (b) business / industry news.
+// Results from both queries are merged and deduplicated before storing.
+const QUERIES: Record<string, string[]> = {
+  bakery: [
+    "day in the life UK baker pastry chef",
+    "UK bakery business careers industry",
+  ],
+  beauty: [
+    "day in the life beauty therapist UK salon",
+    "UK beauty industry business careers",
+  ],
+  beer: [
+    "day in the life UK brewer craft beer",
+    "UK brewery business careers industry",
+  ],
+  cars: [
+    "day in the life UK car mechanic automotive technician",
+    "UK automotive industry business careers",
+  ],
+  charity: [
+    "day in the life UK charity worker fundraiser",
+    "UK charity sector careers jobs",
+  ],
+  cinema: [
+    "day in the life UK film TV production careers",
+    "UK film TV industry business careers",
+  ],
+  coffee: [
+    "day in the life UK barista coffee shop",
+    "UK coffee industry business careers",
+  ],
+  "estate-agency": [
+    "day in the life UK estate agent property",
+    "UK property market estate agency business careers",
+  ],
+  farming: [
+    "day in the life UK farmer agriculture",
+    "UK farming agriculture business careers",
+  ],
+  fashion: [
+    "day in the life UK fashion industry careers",
+    "UK fashion business industry careers",
+  ],
+  football: [
+    "day in the life football club business careers UK",
+    "football business finance Premier League revenue sponsorship broadcast",
+  ],
+  "formula-1": [
+    "day in the life Formula 1 engineer careers",
+    "Formula 1 business motorsport careers UK",
+  ],
+  gaming: [
+    "day in the life UK game developer studio",
+    "UK games industry business careers",
+  ],
+  grocery: [
+    "day in the life UK supermarket buyer category manager",
+    "UK grocery supermarket retail business careers",
+  ],
+  health: [
+    "day in the life NHS careers UK healthcare",
+    "UK NHS healthcare business careers industry",
+  ],
+  "horse-racing": [
+    "day in the life UK jockey racehorse trainer stable",
+    "UK horse racing industry business careers",
+  ],
+  hospitality: [
+    "day in the life UK chef restaurant hotel careers",
+    "UK hospitality industry restaurant hotel business careers",
+  ],
+  influencing: [
+    "day in the life UK content creator influencer marketing",
+    "UK creator economy influencer business careers",
+  ],
+  "interior-design": [
+    "day in the life UK interior designer careers",
+    "UK interior design business careers industry",
+  ],
+  jewellery: [
+    "day in the life UK jeweller goldsmith careers",
+    "UK jewellery industry business careers",
+  ],
+  journalism: [
+    "day in the life UK journalist reporter newsroom",
+    "UK journalism media industry business careers",
+  ],
+  money: [
+    "day in the life UK fintech banking finance careers",
+    "UK fintech banking financial services business careers",
+  ],
+  music: [
+    "day in the life UK music industry careers",
+    "UK music industry business careers record label",
+  ],
+  pets: [
+    "day in the life UK vet veterinary nurse careers",
+    "UK pet industry veterinary business careers",
+  ],
+  physiotherapy: [
+    "day in the life UK physiotherapist NHS private",
+    "UK physiotherapy careers business industry",
+  ],
+  psychotherapy: [
+    "day in the life UK therapist counsellor careers",
+    "UK counselling psychotherapy careers industry",
+  ],
+  teaching: [
+    "day in the life UK teacher school classroom",
+    "UK teaching careers education business industry",
+  ],
+  travel: [
+    "day in the life UK travel agent aviation careers",
+    "UK travel industry aviation tourism business careers",
+  ],
+  wellness: [
+    "day in the life UK personal trainer gym careers",
+    "UK fitness wellness industry business careers",
+  ],
+  footwear: [
+    "day in the life UK footwear shoe industry careers",
+    "UK footwear sneaker industry business careers",
+  ],
 };
 
 const UA =
@@ -342,9 +433,21 @@ async function refreshIndustry(
   slug: string,
   window: "week" | "month",
 ): Promise<number> {
-  const query = QUERIES[slug] || `${slug.replace(/-/g, " ")} industry UK`;
-  const allVids = await searchYouTube(query, window);
-  const vids = allVids.filter((v) => passesIndustryFilter(slug, v));
+  const queries = QUERIES[slug] || [`${slug.replace(/-/g, " ")} industry UK careers`];
+  // Run all queries sequentially (polite to YouTube), then merge + deduplicate.
+  const rawResults: ParsedVideo[] = [];
+  const seen = new Set<string>();
+  for (const q of queries) {
+    const results = await searchYouTube(q, window);
+    for (const v of results) {
+      if (!seen.has(v.youtube_id)) {
+        seen.add(v.youtube_id);
+        rawResults.push(v);
+      }
+    }
+    if (queries.length > 1) await sleep(800);
+  }
+  const vids = rawResults.filter((v) => passesIndustryFilter(slug, v));
   if (vids.length === 0) return 0;
 
 

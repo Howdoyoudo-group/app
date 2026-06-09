@@ -44,6 +44,7 @@ This file is updated by Claude at the start and end of every session.
 - **Fixed CV Builder PDF crash** — `addLogoSafe` const was called before its declaration (temporal dead zone ReferenceError). Moved definition before first use. Fixed PDF generation for users with 1-2 education entries.
 - **Fixed CV Builder LinkedIn not saving** — `linkedinUrl` was missing from the `profileBuilder` JSON blob in `saveProfile()`. Added field and hydration.
 - **Fixed double header on /videos page** — Added `/videos` to `skipRoutes` in `GlobalHomeButton.tsx`.
+- **Refreshed stale industry videos (1-week gap)** — `fetch-industry-videos` wasn't running (cron stopped). Updated search queries from single generic query to two targeted angles per industry: (1) "day in the life [role] UK" and (2) "[industry] business careers UK". Function now runs both queries and deduplicates before storing. Deployed and triggered full 30-industry refresh.
 - **Fixed stale news feed (3-day gap)** — `breaking_news`, `articles`, and `daily_briefings` tables all stopped updating on June 5 (Supabase cron failure). Manually triggered `refresh-all-content` and `generate-daily-briefings` to repopulate. Fixed service key issue in `fetch-rss-news` and `scrape-articles` — both were using `SUPABASE_SERVICE_ROLE_KEY` instead of `HDYD_SERVICE_JWT` (project standard). Redeployed both functions.
 
 ### Current state
