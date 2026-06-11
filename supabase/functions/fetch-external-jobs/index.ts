@@ -5427,6 +5427,113 @@ async function fetchInternshipsJobs(industry: string, rapidApiKey: string) {
   return out;
 }
 
+// ── Glassdoor Jobs via RapidAPI ────────────────────────────────────
+// Uses glassdoor-real-time.p.rapidapi.com/jobs/search — same key as Indeed.
+// Budget: 200 calls/month free. 2 runs/day × 30 days = 60 runs → 3 calls/run max.
+// 3 calls × 30 jobs = ~90 new jobs/run. Targets top-3 industries by keyword volume.
+// Kill switch: GLASSDOOR_RAPIDAPI_ENABLED=false.
+
+const UK_LOCATION_RE_GLASSDOOR = /united kingdom|england|scotland|wales|\bUK\b|\bGB\b|london|manchester|birmingham|leeds|bristol|glasgow|edinburgh|cardiff|belfast|liverpool/i;
+let glassdoorCallsThisRun = 0;
+const GLASSDOOR_MAX_CALLS_PER_RUN = Number(Deno.env.get("GLASSDOOR_MAX_CALLS_PER_RUN") ?? "3");
+
+// Rotate industries so different ones get Glassdoor coverage across runs
+// Sorted by expected job volume
+const GLASSDOOR_INDUSTRY_PRIORITY = [
+  "technology", "finance", "marketing", "business", "hospitality",
+  "healthcare", "media", "fashion", "music", "sport",
+];
+
+async function fetchGlassdoorJobs(industry: string, keywords: string[], indeedKey: string): Promise<any[]> {
+  if (Deno.env.get("GLASSDOOR_RAPIDAPI_ENABLED") === "false") return [];
+  if (glassdoorCallsThisRun >= GLASSDOOR_MAX_CALLS_PER_RUN) return [];
+  // Only run for priority industries to conserve quota
+  const rank = GLASSDOOR_INDUSTRY_PRIORITY.indexOf(industry);
+  if (rank === -1 || rank >= GLASSDOOR_MAX_CALLS_PER_RUN) return [];
+
+  const kw = keywords[0];
+  if (!kw) return [];
+
+  const out: any[] = [];
+  try {
+    const url = new URL("https://glassdoor-real-time.p.rapidapi.com/jobs/search");
+    url.searchParams.set("query", kw);
+    url.searchParams.set("location", "United Kingdom");
+    url.searchParams.set("page", "1");
+
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 30000);
+    let res: Response;
+    try {
+      res = await fetch(url.toString(), {
+        headers: {
+          "x-rapidapi-key": indeedKey,
+          "x-rapidapi-host": "glassdoor-real-time.p.rapidapi.com",
+          "Content-Type": "application/json",
+        },
+        signal: ctrl.signal,
+      });
+    } finally {
+      clearTimeout(timeout);
+    }
+    glassdoorCallsThisRun++;
+
+    if (!res.ok) {
+      console.error(`[${industry}] Glassdoor HTTP ${res.status} for "${kw}"`);
+      await res.text();
+      return out;
+    }
+
+    const json = await res.json();
+    const listings = (json?.data?.jobListings ?? []) as any[];
+
+    for (const item of listings) {
+      const header = item?.jobview?.header ?? {};
+      const job = item?.jobview?.job ?? {};
+
+      const title = (header.normalizedJobTitle || job.jobTitleText || "").trim();
+      const link = (header.jobViewUrl || "").trim();
+      if (!title || !link) continue;
+
+      const company = (header.employer?.name || header.employerNameFromSearch || "Unknown").trim();
+      const loc = (header.locationName || "United Kingdom").trim();
+      if (!UK_LOCATION_RE_GLASSDOOR.test(loc)) continue;
+
+      const ageInDays = header.ageInDays ?? 30;
+      if (ageInDays > 30) continue;
+
+      const postedAt = new Date(Date.now() - ageInDays * 86400000);
+      const expiresAt = new Date(Date.now() + (30 - ageInDays) * 86400000).toISOString();
+
+      // Salary — payPeriodAdjustedPay has p10/p50/p90
+      const pay = header.payPeriodAdjustedPay ?? {};
+      const salaryStr = pay.p50 ? `~£${Math.round(pay.p50 / 1000)}k` : null;
+
+      const { stage, roleCategory } = classifyJob(title, "", industry);
+
+      out.push({
+        title: title.slice(0, 255),
+        company: company.slice(0, 200),
+        industry,
+        value_chain_stage: stage,
+        role_category: roleCategory,
+        location: loc.slice(0, 200),
+        type: "Full-time",
+        work_mode: /remote/i.test(loc) ? "Remote" : "On-site",
+        salary: salaryStr,
+        description: null,
+        url: link,
+        source_url: "glassdoor-rapidapi",
+        career_level: null,
+        expires_at: expiresAt,
+      });
+    }
+  } catch (err) {
+    console.error(`[${industry}] Glassdoor fetch error:`, err);
+  }
+  return out;
+}
+
 // ── Indeed Jobs via RapidAPI ────────────────────────────────────────
 // Uses the "Indeed Job Search" API (indeed12.p.rapidapi.com).
 // Separate key: RAPIDAPI_INDEED_KEY. Kill switch: INDEED_RAPIDAPI_ENABLED=false.
@@ -6613,7 +6720,17 @@ Deno.serve(async (req) => {
         }
       }
 
-      // 11b. Indeed via RapidAPI (indeed12.p.rapidapi.com — separate key)
+      // 11b. Glassdoor via RapidAPI (3 calls/run max, top industries only)
+      if (indeedRapidApiKey && industry !== "remote") {
+        const keywords = INDUSTRY_KEYWORDS[industry] || [];
+        const glassdoorJobs = await fetchGlassdoorJobs(industry, keywords, indeedRapidApiKey);
+        if (glassdoorJobs.length > 0) {
+          allJobs.push(...glassdoorJobs);
+          console.log(`[${industry}] Glassdoor: ${glassdoorJobs.length} jobs (calls used: ${glassdoorCallsThisRun})`);
+        }
+      }
+
+      // 11c. Indeed via RapidAPI (indeed12.p.rapidapi.com — separate key)
       if (indeedRapidApiKey && industry !== "remote") {
         const keywords = INDUSTRY_KEYWORDS[industry] || [];
         const indeedJobs = await fetchIndeedJobs(industry, keywords, indeedRapidApiKey);
