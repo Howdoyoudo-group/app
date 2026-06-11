@@ -5,6 +5,28 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-11 — Andrew (main branch)
+
+### What was done
+- **Diagnosed and restarted stalled daily briefings** — Supabase cron silently stopped again (same issue as June 5). Content pipeline (`breaking_news`, `articles`) stopped updating after June 9 08:00 UTC; `generate-daily-briefings` cron missed June 10 and June 11.
+- **Manually regenerated all 28 industry briefings for June 11** — triggered `generate-daily-briefings` manually; 22/28 ran immediately, 6 (cinema, footwear, fashion, gaming, interior-design, journalism) needed fresh content first. Triggered `fetch-rss-news` and `scrape-articles` per-industry to top up.
+- **Fixed phrase-filter over-blocking bug** — `filterRecentlyCovered` was adding industry-generic bigrams like "interior design" and "athletic footwear" to the phrase blocklist, permanently starving thin-content industries of articles. Added ~16 new entries to `GENERIC_REPEAT_PHRASES` (interior design, footwear market, fashion industry, etc.). Deployed fix.
+- All 28 briefings now live for 2026-06-11.
+
+### Current state
+- 28/28 industry briefings generated for today
+- Phrase-filter bug fixed and deployed
+
+### Left for next session / Woody
+- **URGENT: Check Supabase cron health** — pg_cron is silently stopping every few days (June 5 and June 9 both saw 3-day gaps). Go to Dashboard → Database → Cron Jobs and verify all crons are active. This keeps happening and needs a permanent fix (maybe add a monitoring alert, or re-enable via SQL).
+- Content pipeline (`fetch-rss-news`, `scrape-articles`) also stopped June 9 — may need manual trigger or cron re-enable to catch up on missed runs.
+- Add `A @ 216.198.79.1` DNS record in 123-reg (fixes bare howdoyoudo.co.uk)
+- Twilio keys needed for WhatsApp
+- Voxpops video needs permanent Supabase Storage upload (currently Lovable CDN)
+- Email users migration notice (send-account-migration needs rewrite for Google vs email users)
+
+---
+
 ## 2026-06-09 (session 3) — Andrew (main branch)
 
 ### What was done
