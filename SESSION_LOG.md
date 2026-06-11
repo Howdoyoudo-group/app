@@ -34,6 +34,32 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-07 — Woody (main branch)
+
+### What was done
+- Added 6 gallery photos to The Show page (uploaded to Supabase Storage: the-show/gallery/)
+- Added 3 vox pop videos to The Show page (compressed from 2.5GB MOV → 24MB MP4s, uploaded to the-show/videos/)
+- Fixed video player — switched from link to native video element; videos play inline now
+- Fixed 10-bit H.264 encoding bug (Safari incompatible) — re-encode was started but killed mid-session, needs finishing
+- Added "Coming Soon" badge to The Show in nav dropdown
+- Switched howdoyoudo.group → redirects to www.howdoyoudo.co.uk (308 via Vercel + DNS updated in 123-reg)
+- Supabase access token was expired — regenerated and shared with Andrew
+- **Fixed daily digest emails** — cron was missing `?confirm_full_send=true`, safety gate silently blocked every send since day one. Now fixed.
+- Found industry-health-monitor cron still pointing to OLD Lovable project — not yet fixed
+
+### Current state
+- howdoyoudo.group and www.howdoyoudo.group redirect to www.howdoyoudo.co.uk
+- Daily digest cron fixed
+- Videos on The Show page load but may still fail on desktop Safari (re-encode incomplete)
+
+### Left for next session
+- Finish video re-encode for Safari (10-bit → 8-bit H.264)
+- Fix howdoyoudo.co.uk bare domain — add A record in 123-reg
+- Fix industry-health-monitor cron — URL points to old Lovable project
+- Cancel Lovable HDYD project (keep account — Andrew uses it for other projects)
+
+---
+
 ## 2026-06-09 (session 3) — Andrew (main branch)
 
 ### What was done
