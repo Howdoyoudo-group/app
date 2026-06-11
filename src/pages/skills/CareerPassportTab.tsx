@@ -213,7 +213,7 @@ export default function CareerPassportTab() {
   return (
     <div className="max-w-2xl">
       <div className="mb-6">
-        <h2 className="font-display font-900 text-xl md:text-2xl uppercase tracking-wide mb-1">Career Passport</h2>
+        <h2 className="font-display font-900 text-xl md:text-2xl uppercase tracking-wide mb-1">Skills Passport</h2>
         <p className="font-body text-sm text-muted-foreground">
           Courses and resources matched to your skill gaps. Complete them to raise your readiness score.
         </p>

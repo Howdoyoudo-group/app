@@ -30,7 +30,7 @@ const TABS = [
   { key: "badges",     label: "Badges" },
   { key: "assessment", label: "Skills Assessment" },
   { key: "gaps",       label: "Skill Gaps" },
-  { key: "passport",   label: "Career Passport" },
+  { key: "passport",   label: "Skills Passport" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
