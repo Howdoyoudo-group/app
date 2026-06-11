@@ -1,8 +1,9 @@
 // RoleNCSPanel: displays enriched career data from the National Careers Service
-// and CareerPilot (UK government sources).
+// and CareerPilot (UK government sources), plus a Skills England skills block.
 // Returns null (no output) if no data exists — fully graceful.
 
 import { useEffect, useState } from "react";
+import RoleSkillsBlock from "@/components/RoleSkillsBlock";
 import {
   Clock,
   GraduationCap,
@@ -506,6 +507,11 @@ export default function RoleNCSPanel({ slug }: { slug: string }) {
         <p className="font-body text-[10px] text-muted-foreground/60">
           Sources: National Careers Service & CareerPilot (UK government data). Salaries are UK-wide averages — London typically higher.
         </p>
+      </div>
+
+      {/* ── Skills England skills block ──────────────────────────────────── */}
+      <div className="px-5 pb-5">
+        <RoleSkillsBlock slug={slug} />
       </div>
     </div>
   );
