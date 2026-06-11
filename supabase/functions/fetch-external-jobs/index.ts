@@ -5427,6 +5427,112 @@ async function fetchInternshipsJobs(industry: string, rapidApiKey: string) {
   return out;
 }
 
+// ── Indeed Jobs via RapidAPI ────────────────────────────────────────
+// Uses the "Indeed Job Search" API (indeed-indeed-v2.p.rapidapi.com).
+// Separate key: RAPIDAPI_INDEED_KEY. Kill switch: INDEED_RAPIDAPI_ENABLED=false.
+// Budget: 2 keywords × 3 pages × 30 industries × 2 runs/day = 360 calls/day.
+// Free tier on this endpoint gives ~500 calls/month; upgrade for more.
+
+const UK_LOCATION_RE_INDEED = /united kingdom|england|scotland|wales|northern ireland|\bUK\b|\bGB\b|london|manchester|birmingham|leeds|bristol|glasgow|edinburgh|cardiff|belfast|liverpool|newcastle|sheffield|nottingham|brighton/i;
+let indeedCallsThisRun = 0;
+const INDEED_MAX_CALLS_PER_RUN = Number(Deno.env.get("INDEED_MAX_CALLS_PER_RUN") ?? "300");
+const INDEED_KEYWORDS_PER_INDUSTRY = Number(Deno.env.get("INDEED_KEYWORDS_PER_INDUSTRY") ?? "2");
+const INDEED_PAGES = Number(Deno.env.get("INDEED_PAGES") ?? "3");
+
+async function fetchIndeedJobs(industry: string, keywords: string[], indeedKey: string): Promise<any[]> {
+  if (Deno.env.get("INDEED_RAPIDAPI_ENABLED") === "false") return [];
+  if (!keywords.length) return [];
+
+  const out: any[] = [];
+  const topKeywords = keywords.slice(0, INDEED_KEYWORDS_PER_INDUSTRY);
+
+  for (const kw of topKeywords) {
+    for (let page = 0; page < INDEED_PAGES; page++) {
+      if (indeedCallsThisRun >= INDEED_MAX_CALLS_PER_RUN) {
+        console.warn(`[${industry}] Indeed: cap of ${INDEED_MAX_CALLS_PER_RUN} calls reached`);
+        return out;
+      }
+      try {
+        const url = new URL("https://indeed12.p.rapidapi.com/jobs/search");
+        url.searchParams.set("query", kw);
+        url.searchParams.set("location", "United Kingdom");
+        url.searchParams.set("page_id", String(page + 1));
+        url.searchParams.set("locality", "uk");
+        url.searchParams.set("fromage", "7"); // last 7 days
+
+        const ctrl = new AbortController();
+        const timeout = setTimeout(() => ctrl.abort(), 30000);
+        let res: Response;
+        try {
+          res = await fetch(url.toString(), {
+            headers: {
+              "x-rapidapi-key": indeedKey,
+              "x-rapidapi-host": "indeed12.p.rapidapi.com",
+            },
+            signal: ctrl.signal,
+          });
+        } finally {
+          clearTimeout(timeout);
+        }
+        indeedCallsThisRun++;
+
+        if (!res.ok) {
+          console.error(`[${industry}] Indeed HTTP ${res.status} for "${kw}" page ${page + 1}`);
+          await res.text();
+          continue;
+        }
+
+        const json = await res.json();
+        const hits = Array.isArray(json?.hits) ? json.hits : [];
+
+        for (const j of hits) {
+          const title = (j.title || "").trim();
+          const link = (j.link || j.apply_url || "").trim();
+          if (!title || !link) continue;
+
+          const company = (j.company_name || j.company || "Unknown").trim();
+          const loc = (j.location || j.formatted_location || "United Kingdom").trim();
+          if (!UK_LOCATION_RE_INDEED.test(loc)) continue;
+
+          const desc = String(j.description || j.snippet || "").replace(/<[^>]*>/g, "").trim();
+          const salaryRaw = j.salary || j.formatted_salary || null;
+          const postedAt = j.date ? new Date(j.date) : new Date();
+          const expiresAt = new Date(postedAt.getTime() + 30 * 86400000).toISOString();
+
+          const employment = String(j.job_type || j.employment_type || "").toLowerCase();
+          const jobType = employment.includes("part") ? "Part-time"
+            : employment.includes("contract") ? "Contract"
+            : employment.includes("temp") ? "Contract"
+            : "Full-time";
+
+          const remoteFlag = /remote/i.test(employment) || /remote/i.test(loc);
+          const { stage, roleCategory } = classifyJob(title, desc, industry);
+
+          out.push({
+            title: title.slice(0, 255),
+            company: company.slice(0, 200),
+            industry,
+            value_chain_stage: stage,
+            role_category: roleCategory,
+            location: loc.slice(0, 200),
+            type: jobType,
+            work_mode: remoteFlag ? "Remote" : "On-site",
+            salary: salaryRaw ? String(salaryRaw).slice(0, 100) : null,
+            description: desc.slice(0, 2000) || null,
+            url: link,
+            source_url: "indeed-rapidapi",
+            career_level: null,
+            expires_at: expiresAt,
+          });
+        }
+      } catch (err) {
+        console.error(`[${industry}] Indeed fetch error for "${kw}" page ${page}:`, err);
+      }
+    }
+  }
+  return out;
+}
+
 // ── Generic Lever API scraper ───────────────────────────────────────
 // https://api.lever.co/v0/postings/<company> is a free public REST API, no auth.
 // Each tenant costs exactly 1 HTTP call per refresh.
@@ -6107,6 +6213,7 @@ Deno.serve(async (req) => {
     const reedApiKey = Deno.env.get("REED_API_KEY");
     const joobleApiKey = Deno.env.get("JOOBLE_API_KEY");
     const rapidApiKey = Deno.env.get("RAPIDAPI_KEY");
+    const indeedRapidApiKey = Deno.env.get("RAPIDAPI_INDEED_KEY");
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Reset Adzuna telemetry for this run
@@ -6495,6 +6602,16 @@ Deno.serve(async (req) => {
         if (internJobs.length > 0) {
           allJobs.push(...internJobs);
           console.log(`[${industry}] Internships: ${internJobs.length} jobs (calls used: ${internshipsCallsThisRun})`);
+        }
+      }
+
+      // 11b. Indeed via RapidAPI (indeed12.p.rapidapi.com — separate key)
+      if (indeedRapidApiKey && industry !== "remote") {
+        const keywords = INDUSTRY_KEYWORDS[industry] || [];
+        const indeedJobs = await fetchIndeedJobs(industry, keywords, indeedRapidApiKey);
+        if (indeedJobs.length > 0) {
+          allJobs.push(...indeedJobs);
+          console.log(`[${industry}] Indeed: ${indeedJobs.length} jobs (calls used: ${indeedCallsThisRun})`);
         }
       }
 
