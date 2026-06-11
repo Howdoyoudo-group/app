@@ -86,6 +86,7 @@ interface RecentBriefingContext {
 const RECENT_BRIEFING_LOOKBACK_DAYS = 21;
 
 const GENERIC_REPEAT_PHRASES = new Set([
+  // Football - overly common competition/rights terms
   "premier league",
   "champions league",
   "world cup",
@@ -94,6 +95,28 @@ const GENERIC_REPEAT_PHRASES = new Set([
   "football club",
   "football clubs",
   "broadcasting rights",
+  // Interior design - appears in virtually every article in this industry
+  "interior design",
+  "interior designer",
+  "interior designers",
+  // Footwear - market report boilerplate
+  "athletic footwear",
+  "footwear market",
+  "footwear industry",
+  // Fashion - market report boilerplate
+  "fashion industry",
+  "fashion market",
+  // Gaming - market report boilerplate
+  "gaming market",
+  "gaming industry",
+  "video game",
+  "video games",
+  // Cinema/film - appears in every article
+  "film industry",
+  "film market",
+  // Journalism/media - appears in every article
+  "media industry",
+  "news media",
 ]);
 
 function daysAgoIso(days: number): string {
