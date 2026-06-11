@@ -5,25 +5,32 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
-## 2026-06-11 — Andrew (main branch)
+## 2026-06-11 — Andrew (main branch) [continued session]
 
 ### What was done
-- **Diagnosed and restarted stalled daily briefings** — Supabase cron silently stopped again (same issue as June 5). Content pipeline (`breaking_news`, `articles`) stopped updating after June 9 08:00 UTC; `generate-daily-briefings` cron missed June 10 and June 11.
-- **Manually regenerated all 28 industry briefings for June 11** — triggered `generate-daily-briefings` manually; 22/28 ran immediately, 6 (cinema, footwear, fashion, gaming, interior-design, journalism) needed fresh content first. Triggered `fetch-rss-news` and `scrape-articles` per-industry to top up.
-- **Fixed phrase-filter over-blocking bug** — `filterRecentlyCovered` was adding industry-generic bigrams like "interior design" and "athletic footwear" to the phrase blocklist, permanently starving thin-content industries of articles. Added ~16 new entries to `GENERIC_REPEAT_PHRASES` (interior design, footwear market, fashion industry, etc.). Deployed fix.
-- All 28 briefings now live for 2026-06-11.
+- **Diagnosed and restarted stalled daily briefings** — Supabase cron silently stopped again (same issue as June 5). Content pipeline stopped updating after June 9 08:00 UTC. Manually regenerated all 28 industry briefings. Fixed phrase-filter over-blocking bug in `generate-daily-briefings` and deployed.
+- **Skills England integration (Tasks 1-4 complete):**
+  - DB migration: `role_se_mapping`, `role_skills`, `user_skill_ratings` tables + `se_synced_at` column
+  - `sync-skills-england` edge function: SE API → Jaro-Winkler matching → Firecrawl KSB scraping → Gemini categorisation
+  - `RoleSkillsBlock` component injected into all role Plan tabs (domain bars, skill chips, readiness card, inline 1-5 rating)
+  - `useRoleSkills` and `useSkillGap` hooks
+  - `/skills-passport` page: now has 4 tabs — Badges (existing), Skills Assessment, Skill Gaps, Career Passport
+  - `SiteHeader`: Skills Assessment + Skill Gaps now link to live tabs (removed "Coming Soon")
+  - SE logo attribution on all relevant pages (licence requirement)
 
 ### Current state
-- 28/28 industry briefings generated for today
-- Phrase-filter bug fixed and deployed
+- All 28 briefings live for today
+- Skills England frontend fully built; data will populate once `sync-skills-england` is deployed and run
+- Skills passport tabs accessible at `/skills-passport?tab=assessment|gaps|passport`
 
 ### Left for next session / Woody
-- **URGENT: Check Supabase cron health** — pg_cron is silently stopping every few days (June 5 and June 9 both saw 3-day gaps). Go to Dashboard → Database → Cron Jobs and verify all crons are active. This keeps happening and needs a permanent fix (maybe add a monitoring alert, or re-enable via SQL).
-- Content pipeline (`fetch-rss-news`, `scrape-articles`) also stopped June 9 — may need manual trigger or cron re-enable to catch up on missed runs.
+- **Deploy `sync-skills-england` and add `SKILLSENGLAND_API_KEY` secret** — value: `A7E7211152B54E2AA2F720C97D8C70F7`. Command: `SUPABASE_ACCESS_TOKEN=<token> npx supabase functions deploy sync-skills-england --project-ref wgistckxxbfpsuulbswr` then set the secret in Dashboard → Settings → Secrets. Run the function once to seed data.
+- **Run the DB migration** — apply `supabase/migrations/20260611000000_skills_england.sql` if not auto-applied (check Supabase Dashboard → Database → Migrations).
+- **Task 5 (pending): Badge → skill ratings linkage** — in `grade-badge-quiz` edge function, when a badge is earned auto-upsert `user_skill_ratings` rows for that industry's domain skills with `evidenced=true, source='badge:{industry}'`.
+- **URGENT: Check Supabase cron health** — pg_cron silently stops every few days (June 5, June 9). Add monitoring alert or fix permanently.
 - Add `A @ 216.198.79.1` DNS record in 123-reg (fixes bare howdoyoudo.co.uk)
 - Twilio keys needed for WhatsApp
 - Voxpops video needs permanent Supabase Storage upload (currently Lovable CDN)
-- Email users migration notice (send-account-migration needs rewrite for Google vs email users)
 
 ---
 
