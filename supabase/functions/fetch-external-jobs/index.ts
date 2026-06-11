@@ -5428,16 +5428,19 @@ async function fetchInternshipsJobs(industry: string, rapidApiKey: string) {
 }
 
 // ── Indeed Jobs via RapidAPI ────────────────────────────────────────
-// Uses the "Indeed Job Search" API (indeed-indeed-v2.p.rapidapi.com).
+// Uses the "Indeed Job Search" API (indeed12.p.rapidapi.com).
 // Separate key: RAPIDAPI_INDEED_KEY. Kill switch: INDEED_RAPIDAPI_ENABLED=false.
-// Budget: 2 keywords × 3 pages × 30 industries × 2 runs/day = 360 calls/day.
-// Free tier on this endpoint gives ~500 calls/month; upgrade for more.
+// Rate limit: 10 calls/minute → enforce 6s minimum between calls.
+// Budget: 1 keyword × 2 pages × 30 industries = 60 calls/run (~6 min at 10/min).
+// Two runs/day = 120 calls/day, well within quota.
 
 const UK_LOCATION_RE_INDEED = /united kingdom|england|scotland|wales|northern ireland|\bUK\b|\bGB\b|london|manchester|birmingham|leeds|bristol|glasgow|edinburgh|cardiff|belfast|liverpool|newcastle|sheffield|nottingham|brighton/i;
 let indeedCallsThisRun = 0;
-const INDEED_MAX_CALLS_PER_RUN = Number(Deno.env.get("INDEED_MAX_CALLS_PER_RUN") ?? "300");
-const INDEED_KEYWORDS_PER_INDUSTRY = Number(Deno.env.get("INDEED_KEYWORDS_PER_INDUSTRY") ?? "2");
-const INDEED_PAGES = Number(Deno.env.get("INDEED_PAGES") ?? "3");
+let _indeedLastCallAt = 0;
+const INDEED_RATE_INTERVAL_MS = 6200; // 10/min = 1 per 6s, +200ms safety margin
+const INDEED_MAX_CALLS_PER_RUN = Number(Deno.env.get("INDEED_MAX_CALLS_PER_RUN") ?? "60");
+const INDEED_KEYWORDS_PER_INDUSTRY = Number(Deno.env.get("INDEED_KEYWORDS_PER_INDUSTRY") ?? "1");
+const INDEED_PAGES = Number(Deno.env.get("INDEED_PAGES") ?? "2");
 
 async function fetchIndeedJobs(industry: string, keywords: string[], indeedKey: string): Promise<any[]> {
   if (Deno.env.get("INDEED_RAPIDAPI_ENABLED") === "false") return [];
@@ -5452,6 +5455,11 @@ async function fetchIndeedJobs(industry: string, keywords: string[], indeedKey: 
         console.warn(`[${industry}] Indeed: cap of ${INDEED_MAX_CALLS_PER_RUN} calls reached`);
         return out;
       }
+      // Respect 10 calls/min rate limit
+      const now = Date.now();
+      const wait = _indeedLastCallAt + INDEED_RATE_INTERVAL_MS - now;
+      if (wait > 0) await new Promise((r) => setTimeout(r, wait));
+      _indeedLastCallAt = Date.now();
       try {
         const url = new URL("https://indeed12.p.rapidapi.com/jobs/search");
         url.searchParams.set("query", kw);
