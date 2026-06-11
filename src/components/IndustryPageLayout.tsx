@@ -66,10 +66,53 @@ const IndustryPageLayout = ({
   useTrackPageView({ type: "industry_view", industry: trackingSlug });
 
   // Auto-inject a Mentor tab on every industry so members can find/offer mentoring.
+  // Also inject a Skills passport link at the bottom of every Plan tab.
   const tabsWithMentor = useMemo(() => {
-    if (tabs.some((t) => t.id === "mentor")) return tabs;
+    const withSkills = tabs.map((t) => {
+      if (t.id !== "plan") return t;
+      return {
+        ...t,
+        content: (
+          <>
+            {t.content}
+            <div className="mt-10 border-t border-border/60 pt-8">
+              <p className="font-display font-700 text-xs uppercase tracking-widest text-muted-foreground mb-1">
+                Skills England
+              </p>
+              <h3 className="font-display font-900 text-xl md:text-2xl uppercase tracking-wide mb-2">
+                Know your skills.
+              </h3>
+              <p className="font-body text-sm text-muted-foreground mb-5 max-w-lg">
+                Rate your skills for roles in this industry, see where your gaps are, and get a personalised learning path to close them.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  to="/skills-passport?tab=assessment"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 font-display font-700 text-xs bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-opacity"
+                >
+                  Rate my skills
+                </Link>
+                <Link
+                  to="/skills-passport?tab=gaps"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 font-display font-700 text-xs border-2 border-foreground/20 rounded-full hover:border-primary hover:text-primary transition-colors"
+                >
+                  See my skill gaps
+                </Link>
+                <Link
+                  to="/skills-passport?tab=passport"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 font-display font-700 text-xs border-2 border-foreground/20 rounded-full hover:border-primary hover:text-primary transition-colors"
+                >
+                  Career passport
+                </Link>
+              </div>
+            </div>
+          </>
+        ),
+      };
+    });
+    if (withSkills.some((t) => t.id === "mentor")) return withSkills;
     return [
-      ...tabs,
+      ...withSkills,
       {
         id: "mentor",
         label: "Mentor",

@@ -181,7 +181,32 @@ export default function RoleSkillsBlock({ slug }: { slug: string }) {
   };
 
   if (loading) return null;
-  if (!hasData) return null;
+
+  if (!hasData) {
+    return (
+      <div className="border-t border-border/60 mt-0 pt-6 pb-4">
+        <div className="flex items-start justify-between gap-3 mb-3 flex-wrap">
+          <div>
+            <p className="font-display font-700 text-xs uppercase tracking-widest text-muted-foreground mb-0.5">
+              Skills England
+            </p>
+            <h3 className="font-display font-800 text-base">Skills for this role</h3>
+          </div>
+          <SEAttribution />
+        </div>
+        <p className="font-body text-sm text-muted-foreground mb-4">
+          Structured skill data for this role is coming soon — powered by Skills England.
+        </p>
+        <Link
+          to="/skills-passport?tab=assessment"
+          className="inline-flex items-center gap-1.5 px-4 py-2 font-display font-700 text-xs bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-opacity"
+        >
+          <Star className="w-3 h-3" />
+          Explore skills passport
+        </Link>
+      </div>
+    );
+  }
 
   const filteredSkills = activeFilter === "all" ? skills : skills.filter((s) => s.skill_type === activeFilter);
   const totalDomainSkills = skills.length;
