@@ -871,26 +871,32 @@ const Community = () => {
               >
                 {/* Thumbnail */}
                 <div
-                  className="relative h-[140px] flex items-center justify-center"
-                  style={{ background: `hsl(${talk.hue}, 55%, 88%)` }}
+                  className="relative h-[140px] flex items-center justify-center overflow-hidden"
+                  style={{ background: `hsl(${talk.hue}, 45%, 82%)` }}
                 >
-                  <div className="text-center px-4">
+                  {/* Large avatar */}
+                  <div className="flex flex-col items-center gap-2">
                     <div
-                      className="font-display font-900 text-[28px] leading-none mb-1"
-                      style={{ color: `hsl(${talk.hue}, 60%, 30%)` }}
+                      className="rounded-full flex items-center justify-center font-display text-white shadow-md"
+                      style={{
+                        width: 72,
+                        height: 72,
+                        background: `hsl(${talk.hue}, 60%, 45%)`,
+                        fontSize: 26,
+                      }}
                     >
-                      {talk.speaker.split(" ")[0]}
+                      {talk.speaker.split(" ").map((p: string) => p[0]).join("").slice(0, 2).toUpperCase()}
                     </div>
                     <div
-                      className="font-display text-[10px] uppercase tracking-widest"
-                      style={{ color: `hsl(${talk.hue}, 50%, 40%)` }}
+                      className="font-display font-700 text-[11px] uppercase tracking-widest"
+                      style={{ color: `hsl(${talk.hue}, 55%, 28%)` }}
                     >
                       {talk.industry}
                     </div>
                   </div>
-                  {/* Play button */}
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-colors">
-                    <div className="w-12 h-12 rounded-full bg-background/90 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                  {/* Play button overlay */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity w-12 h-12 rounded-full bg-background/90 flex items-center justify-center shadow-md">
                       <Play className="w-5 h-5 ml-0.5" />
                     </div>
                   </div>
