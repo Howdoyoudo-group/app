@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
-import { Loader2, HeartHandshake, Check, X, Clock } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Loader2, HeartHandshake, Check, X, Clock, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -118,7 +119,10 @@ export default function MentorRequestsInbox() {
       toast({ title: "Couldn't update", description: error.message, variant: "destructive" });
       return;
     }
-    toast({ title: status === "accepted" ? "Accepted — say hi!" : "Declined" });
+    toast({
+      title: status === "accepted" ? "Accepted!" : "Declined",
+      description: status === "accepted" ? "Start a chat to work out a time that suits you both." : undefined,
+    });
     load();
   };
 
@@ -193,6 +197,13 @@ export default function MentorRequestsInbox() {
                             </Button>
                           </div>
                         )}
+                        {req.status === "accepted" && (
+                          <Button size="sm" className="mt-3" asChild>
+                            <Link to={`/community/members?thread=${req.mentee_id}`}>
+                              <MessageCircle className="w-3.5 h-3.5 mr-1" /> Start a chat to work out a time
+                            </Link>
+                          </Button>
+                        )}
                       </div>
                     </li>
                   );
@@ -223,6 +234,13 @@ export default function MentorRequestsInbox() {
                         {req.status === "pending" && (
                           <Button size="sm" variant="ghost" className="mt-2 -ml-2 h-7 px-2 text-xs" disabled={actingOn === req.id} onClick={() => cancel(req)}>
                             <Clock className="w-3 h-3 mr-1" /> Cancel request
+                          </Button>
+                        )}
+                        {req.status === "accepted" && (
+                          <Button size="sm" className="mt-3" asChild>
+                            <Link to={`/community/members?thread=${req.mentor_id}`}>
+                              <MessageCircle className="w-3.5 h-3.5 mr-1" /> Start a chat to work out a time
+                            </Link>
                           </Button>
                         )}
                       </div>
