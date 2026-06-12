@@ -72,6 +72,7 @@ const MEMBER_TALKS = [
     views: "2.4k",
     tag: "Career journey",
     hue: 280,
+    photo: "https://randomuser.me/api/portraits/women/44.jpg",
   },
   {
     id: "talk-2",
@@ -83,6 +84,7 @@ const MEMBER_TALKS = [
     views: "5.1k",
     tag: "Industry insight",
     hue: 45,
+    photo: "https://randomuser.me/api/portraits/men/32.jpg",
   },
   {
     id: "talk-3",
@@ -94,6 +96,7 @@ const MEMBER_TALKS = [
     views: "3.8k",
     tag: "Real talk",
     hue: 200,
+    photo: "https://randomuser.me/api/portraits/women/68.jpg",
   },
   {
     id: "talk-4",
@@ -105,6 +108,7 @@ const MEMBER_TALKS = [
     views: "1.9k",
     tag: "Getting in",
     hue: 12,
+    photo: "https://randomuser.me/api/portraits/men/75.jpg",
   },
   {
     id: "talk-5",
@@ -116,6 +120,7 @@ const MEMBER_TALKS = [
     views: "4.2k",
     tag: "Career journey",
     hue: 160,
+    photo: "https://randomuser.me/api/portraits/women/21.jpg",
   },
   {
     id: "talk-6",
@@ -127,6 +132,7 @@ const MEMBER_TALKS = [
     views: "3.1k",
     tag: "Skills",
     hue: 330,
+    photo: "https://randomuser.me/api/portraits/men/57.jpg",
   },
 ];
 
@@ -874,19 +880,14 @@ const Community = () => {
                   className="relative h-[140px] flex items-center justify-center overflow-hidden"
                   style={{ background: `hsl(${talk.hue}, 45%, 82%)` }}
                 >
-                  {/* Large avatar */}
+                  {/* Speaker photo */}
                   <div className="flex flex-col items-center gap-2">
-                    <div
-                      className="rounded-full flex items-center justify-center font-display text-white shadow-md"
-                      style={{
-                        width: 72,
-                        height: 72,
-                        background: `hsl(${talk.hue}, 60%, 45%)`,
-                        fontSize: 26,
-                      }}
-                    >
-                      {talk.speaker.split(" ").map((p: string) => p[0]).join("").slice(0, 2).toUpperCase()}
-                    </div>
+                    <img
+                      src={talk.photo}
+                      alt={talk.speaker}
+                      className="rounded-full object-cover shadow-md ring-4 ring-white/40"
+                      style={{ width: 80, height: 80 }}
+                    />
                     <div
                       className="font-display font-700 text-[11px] uppercase tracking-widest"
                       style={{ color: `hsl(${talk.hue}, 55%, 28%)` }}
