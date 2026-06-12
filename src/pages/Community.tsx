@@ -9,7 +9,7 @@ import { INDUSTRIES } from "@/data/industries";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Users, Flame, Calendar, ArrowRight, MapPin, MessageCircle,
-  Sparkles, Activity, TrendingUp, Flag, Compass, Inbox,
+  Sparkles, Flag, Compass, Inbox, Star, GraduationCap, Briefcase,
 } from "lucide-react";
 import { ReportUserDialog } from "@/components/ReportUserDialog";
 import { useAuth } from "@/contexts/AuthContext";
@@ -56,6 +56,40 @@ const activityFor = (slug: string, label: string) => {
     const action = ACTIONS[(h + i) % ACTIONS.length](name);
     const ago = ["just now", "12m ago", "1h ago", "2h ago", "5h ago", "1d ago"][i];
     return { name, action, ago, label };
+  });
+};
+
+// ---------- Dummy mentors ----------
+const MENTOR_INDUSTRIES = ["Music","Film & TV","Fashion","Sport","Tech","Marketing","Finance","Creative Arts"];
+const MENTOR_ROLES = ["Senior Producer","Brand Director","Career Coach","Talent Scout","Founder","Industry Mentor","Head of Partnerships","Creative Director"];
+const MENTOR_SPECIALISMS = [
+  "Getting your first industry break",
+  "CV & portfolio reviews",
+  "Navigating creative careers",
+  "Building your personal brand",
+  "Switching industries confidently",
+  "Freelance vs full-time decisions",
+  "Interview prep & pitching yourself",
+  "Networking without the cringe",
+];
+const COACH_PACKAGES = [
+  { title: "60-min Career Clarity Session", price: "£45", tag: "Popular", desc: "Identify where you want to go and map a realistic path to get there." },
+  { title: "CV & Portfolio Power-Up", price: "£35", tag: "Quick win", desc: "A working review of your CV or portfolio with actionable rewrites." },
+  { title: "Mock Interview (industry-specific)", price: "£40", tag: "High impact", desc: "Practise real interview questions with a working industry professional." },
+  { title: "3-Session Starter Package", price: "£110", tag: "Best value", desc: "Three tailored sessions spread across six weeks — goals, strategy, accountability." },
+];
+
+const dummyMentors = (slug: string) => {
+  const h = hash(slug + "mentor");
+  return Array.from({ length: 6 }).map((_, i) => {
+    const firstName = FIRST_NAMES[(h + i * 11) % FIRST_NAMES.length];
+    const surname = ["Okonkwo","Patel","Hughes","Bergström","Walsh","Chen","Adeyemi","Morris"][i % 8];
+    const role = MENTOR_ROLES[(h + i * 3) % MENTOR_ROLES.length];
+    const industry = MENTOR_INDUSTRIES[(h + i * 5) % MENTOR_INDUSTRIES.length];
+    const specialism = MENTOR_SPECIALISMS[(h + i * 7) % MENTOR_SPECIALISMS.length];
+    const rating = [4.8, 4.9, 5.0, 4.7, 4.9, 4.8][i % 6];
+    const sessions = [12, 34, 8, 56, 22, 41][i % 6];
+    return { id: `dummy-mentor-${i}`, name: `${firstName} ${surname}`, role, industry, specialism, rating, sessions };
   });
 };
 
@@ -564,24 +598,39 @@ const Community = () => {
               )}
               {events.slice(0, 6).map((e) => {
                 const indName = INDUSTRIES.find(i => i.slug === e.industry)?.name ?? e.industry;
+                const dateBox = (() => {
+                  if (e.starts_on) {
+                    const d = new Date(e.starts_on + "T00:00:00");
+                    if (!Number.isNaN(d.getTime())) {
+                      return {
+                        day: String(d.getDate()),
+                        mon: d.toLocaleString("en-GB", { month: "short" }).toUpperCase(),
+                      };
+                    }
+                  }
+                  return { day: e.date_label?.split(" ")[0] ?? "TBC", mon: "" };
+                })();
                 return (
                   <a
                     key={e.id}
                     href={e.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="block"
+                    className="block group"
                   >
                     <Card className="p-4 border-2 border-foreground/10 flex items-start gap-4 hover:border-foreground/40 transition-colors">
-                      <div className="rounded-lg bg-[hsl(120,60%,96%)] p-3 shrink-0">
-                        <Calendar className="w-5 h-5" />
+                      <div className="shrink-0 w-14 text-center border-2 border-foreground/15 py-2 rounded-lg self-start">
+                        <div className="font-display font-700 text-2xl leading-none">{dateBox.day}</div>
+                        {dateBox.mon && (
+                          <div className="font-display text-[10px] tracking-widest mt-0.5 text-muted-foreground">{dateBox.mon}</div>
+                        )}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="font-display text-base leading-tight">{e.title}</div>
+                        <div className="font-display text-base leading-tight group-hover:text-primary transition-colors">{e.title}</div>
                         <div className="text-xs text-muted-foreground mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                          <span className="inline-flex items-center gap-1"><Calendar className="w-3 h-3" /> {formatWhen(e)}</span>
                           {e.location && <span className="inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> {e.location}</span>}
                           {selected === "all" && <span className="rounded-full bg-foreground/5 px-2 py-0.5">{indName}</span>}
+                          {e.event_type && <span className="rounded-full bg-foreground/5 px-2 py-0.5 capitalize">{e.event_type}</span>}
                         </div>
                       </div>
                     </Card>
@@ -593,23 +642,38 @@ const Community = () => {
 
           <div>
             <SectionHeader
-              title="What's happening"
+              title={<>Mentors <span style={{ color: LIME }}>&amp;</span> coaching</>}
               dummy
-              action={<span className="text-xs text-muted-foreground inline-flex items-center gap-1"><Activity className="w-3 h-3" /> preview</span>}
+              action={<span className="text-xs text-muted-foreground inline-flex items-center gap-1"><GraduationCap className="w-3 h-3" /> coming soon</span>}
             />
-            <Card className="p-4 border-2 border-foreground/10 divide-y divide-foreground/5">
-              {activity.map((a, i) => (
-                <div key={i} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
-                  <Avatar name={a.name} size={36} />
+            <div className="space-y-3">
+              {dummyMentors(slugKey).slice(0, 4).map((m) => (
+                <Card key={m.id} className="p-4 border-2 border-foreground/10 flex items-start gap-3 opacity-90">
+                  <Avatar name={m.name} size={44} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm">{a.action}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {a.label} · {a.ago}
+                    <div className="font-semibold text-sm truncate flex items-center gap-1.5">
+                      {m.name}
+                      <DummyTag />
+                    </div>
+                    <div className="text-xs text-muted-foreground truncate">{m.role} · {m.industry}</div>
+                    <div className="text-xs mt-1 text-foreground/70 italic truncate">"{m.specialism}"</div>
+                    <div className="flex items-center gap-3 mt-1.5">
+                      <span className="inline-flex items-center gap-1 text-[11px] text-amber-600">
+                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> {m.rating}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">{m.sessions} sessions</span>
                     </div>
                   </div>
-                </div>
+                  <button
+                    type="button"
+                    disabled
+                    className="shrink-0 mt-1 rounded-full border-2 border-foreground/15 px-3 py-1.5 text-[11px] font-semibold opacity-50 cursor-not-allowed"
+                  >
+                    Book
+                  </button>
+                </Card>
               ))}
-            </Card>
+            </div>
           </div>
         </section>
 
@@ -693,6 +757,35 @@ const Community = () => {
               );
             })}
           </div>
+        </section>
+
+        {/* Coaching Marketplace */}
+        <section>
+          <SectionHeader
+            title={<>Coaching <span style={{ color: LIME }}>marketplace</span></>}
+            dummy
+            action={<span className="text-xs text-muted-foreground inline-flex items-center gap-1"><Briefcase className="w-3 h-3" /> coming soon</span>}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {COACH_PACKAGES.map((pkg, i) => (
+              <Card key={i} className="p-5 border-2 border-foreground/10 flex flex-col gap-2 opacity-90">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <div className="font-display font-700 text-sm leading-snug">{pkg.title}</div>
+                  </div>
+                  <div className="shrink-0 font-display font-900 text-lg leading-none" style={{ color: LIME }}>{pkg.price}</div>
+                </div>
+                <p className="text-xs text-muted-foreground leading-snug">{pkg.desc}</p>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="inline-flex items-center rounded-full bg-foreground/5 px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider">{pkg.tag}</span>
+                  <DummyTag />
+                </div>
+              </Card>
+            ))}
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
+            Coaches and pricing are illustrative — real bookings opening soon.
+          </p>
         </section>
 
         {/* Community Chat coming soon */}
