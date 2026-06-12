@@ -708,12 +708,17 @@ const ADZUNA_RATE_LIMIT = 18; // requests per 60s window
 const _adzunaWindow: number[] = [];
 
 // ── Adzuna 429 circuit-breaker ─────────────────────────────────────
-// After ADZUNA_429_THRESHOLD consecutive 429 responses, flag the Adzuna
-// API as exhausted for the remainder of this run. This prevents wasting
-// minutes hammering a rate-limited endpoint while niche industries
-// (horse-racing, jewellery) never get their non-Adzuna sources processed.
-const ADZUNA_429_THRESHOLD = 3;
-let _adzuna429Consecutive = 0;
+// We distinguish two kinds of 429:
+//   • Rate-limit 429  — Adzuna returns Retry-After; we waited and retried,
+//     got 429 again. This is transient. Do NOT count toward the trip counter
+//     — just skip this page and move on.
+//   • Quota-exhausted 429 — no Retry-After on the retry response, meaning
+//     Adzuna's daily 250-call cap is truly hit. Count these. After
+//     ADZUNA_QUOTA_THRESHOLD exhausted responses, trip the breaker.
+// Raising the threshold from 3 → 8 gives headroom for the occasional
+// transient error that slips through the rate-limit retry path.
+const ADZUNA_QUOTA_THRESHOLD = 8;
+let _adzunaQuota429s = 0;   // only quota-exhausted 429s count here
 let _adzunaExhausted = false;
 // Hard per-run cap to protect the daily Adzuna quota (250 hits/day on the
 // free dev plan). Budget: 2 daily-adzuna runs (06:00, 18:00) × 100 = 200,
@@ -801,16 +806,25 @@ async function adzunaFetch(url: string): Promise<Response> {
       res = await fetch(url);
     }
     if (res.status === 429) {
-      _adzuna429Consecutive += 1;
-      if (_adzuna429Consecutive >= ADZUNA_429_THRESHOLD) {
-        _adzunaExhausted = true;
-        console.warn(`⚡ Adzuna circuit-breaker TRIPPED after ${_adzuna429Consecutive} consecutive 429s - skipping all remaining Adzuna calls`);
+      // If the retry response has no Retry-After, the daily quota is exhausted
+      // (not just a per-minute rate limit). Count only those toward the breaker.
+      const isQuotaExhausted = !res.headers.get("retry-after");
+      if (isQuotaExhausted) {
+        _adzunaQuota429s += 1;
+        if (_adzunaQuota429s >= ADZUNA_QUOTA_THRESHOLD) {
+          _adzunaExhausted = true;
+          console.warn(`⚡ Adzuna circuit-breaker TRIPPED: ${_adzunaQuota429s} quota-exhausted 429s — skipping all remaining Adzuna calls this run`);
+        } else {
+          console.warn(`⚡ Adzuna quota 429 (${_adzunaQuota429s}/${ADZUNA_QUOTA_THRESHOLD} before breaker trips)`);
+        }
+      } else {
+        console.warn(`⚡ Adzuna rate-limit 429 (transient, Retry-After present — not counting toward breaker)`);
       }
-      recordAdzunaError(`HTTP 429`, 429);
+      recordAdzunaError(`HTTP 429 (${isQuotaExhausted ? "quota" : "rate-limit"})`, 429);
       return res;
     }
-    // Successful response resets the streak
-    _adzuna429Consecutive = 0;
+    // Successful response resets the quota streak
+    _adzunaQuota429s = 0;
     if (!res.ok) {
       recordAdzunaError(`HTTP ${res.status}`, res.status);
     }
@@ -827,12 +841,17 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
   const isTempPass = opts?.temp === true;
   const isGradPass = opts?.grad === true;
 
-  // For the temp pass, swap in temp-specific keywords and add the
-  // contract_time=contract filter (Adzuna treats temp/casual as contract).
-  // For the grad pass, use graduate keywords and skip the contract filter.
-  // Lever A widening: take more keywords on the standard pass and paginate
-  // up to MAX_PAGES per keyword to pull the long tail Adzuna actually has.
-  const MAX_PAGES = isGradPass || isTempPass ? 5 : 20;
+  // MAX_PAGES is calibrated against the real Adzuna budget (250 calls/day free
+  // plan, 100 per run). With ~5 industries per day-bucket and 16 keywords each,
+  // the per-keyword page budget is roughly 100 ÷ (5 × 16) ≈ 1.25 pages.
+  // Setting MAX_PAGES = 4 means early keywords in a popular industry can go
+  // a bit deeper while the global 100-request cap still terminates the run
+  // before we truly over-spend — and industries processed later in the run
+  // still get at least page 1 per keyword rather than nothing.
+  // Temp/grad passes use 2 pages: they're supplementary and shouldn't crowd
+  // out standard keyword results.
+  // When a publisher account is obtained (25k+ calls/day), raise this to 20.
+  const MAX_PAGES = isGradPass || isTempPass ? 2 : 4;
   // Niche industries have long-tail synonyms (groom, farrier, work rider for
   // horse-racing; sneaker, cordwainer for footwear; etc.) that get truncated
   // by the default 16-keyword cap. Give them more headroom - the global
