@@ -97,7 +97,30 @@ const INDUSTRY_KEYWORDS: Record<string, string[]> = {
     "menu development", "food and beverage manager", "private chef", "events catering",
   ],
   football: ["football", "premier league", "football club", "sports", "sports marketing", "sports commercial", "sports sponsorship", "broadcast rights", "matchday operations", "stadium manager", "sports media", "sports analyst", "performance analyst football", "football academy", "football operations", "club commercial", "fan engagement", "ticketing manager", "EFL", "FA group", "UEFA", "FIFA", "football PR", "football communications", "football partnerships", "football data", "football scouting"],
-  music: ["music producer", "music marketing", "record label", "A&R", "music publishing", "music tour manager", "music venue manager", "live music", "music PR", "music industry", "artist manager music", "music supervisor", "music agent", "music licensing", "music streaming"],
+  music: [
+    // Core / well-known roles
+    "music producer", "record label", "A&R", "music publishing", "music supervisor",
+    "artist manager", "music marketing", "music PR", "music licensing",
+    "music streaming", "music tour manager", "music venue manager", "booking agent",
+    // Entry-level — the gap flagged by users
+    "music assistant", "label assistant", "A&R assistant", "studio assistant",
+    "artist management assistant", "music coordinator", "music administrator",
+    "promotions assistant music", "events coordinator music", "tour coordinator",
+    "ticketing coordinator music", "music runner", "studio runner",
+    // Business of music — rights, royalties, commercial
+    "music rights", "royalty analyst", "royalties music", "music catalogue",
+    "catalogue manager music", "sync supervisor", "sync licensing",
+    "music publishing manager", "label manager", "label coordinator",
+    "music business manager", "streaming operations music", "music data analyst",
+    "music accountant", "entertainment lawyer music", "music contracts",
+    // Performing & live
+    "session musician", "session vocalist", "touring musician",
+    "live performer", "DJ resident", "resident DJ", "club DJ", "live DJ",
+    "DJ booking", "DJ manager", "performing arts music",
+    // Live & technical
+    "live sound engineer", "monitor engineer", "FOH engineer",
+    "stage manager music", "production manager music",
+  ],
   teaching: [
     "teacher", "teaching assistant", "school teacher", "education", "curriculum",
     "secondary teacher", "primary teacher", "SEN teacher", "SEND teacher", "NQT", "ECT",
@@ -417,11 +440,11 @@ const CLASSIFICATION_RULES: Record<string, Record<string, string[]>> = {
   },
   music: {
     "Creation": ["songwriter", "composer", "lyricist", "beat maker", "arranger"],
-    "Recording": ["recording engineer", "studio", "session", "a&r"],
-    "Production": ["mixing", "mastering", "sound design", "audio programmer"],
-    "Distribution": ["distribution", "sync licensing", "royalt", "label"],
-    "Marketing": ["artist manager", "pr ", "publicity", "social media", "playlist", "journalist"],
-    "Live & Exhibition": ["tour", "live sound", "promoter", "festival", "venue", "booking agent"],
+    "Recording & Production": ["recording engineer", "studio", "session musician", "session vocalist", "a&r", "mixing", "mastering", "sound design", "audio programmer"],
+    "Performing & DJs": ["performer", "performing", "live performer", "touring musician", "DJ", "resident DJ", "club DJ", "session player", "orchestra", "conductor"],
+    "Business & Rights": ["royalt", "sync", "music rights", "catalogue", "music publishing", "label manager", "label coordinator", "music contracts", "entertainment lawyer", "music accountant", "streaming operations"],
+    "Marketing & PR": ["artist manager", "pr ", "publicity", "social media", "playlist", "journalist", "music marketing", "music coordinator", "music assistant", "label assistant"],
+    "Live & Events": ["tour", "live sound", "foh engineer", "monitor engineer", "stage manager", "promoter", "festival", "venue", "booking agent", "production manager music"],
   },
   fashion: {
     "Design": ["fashion design", "textile design", "pattern", "creative director", "trend"],
