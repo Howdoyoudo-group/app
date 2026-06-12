@@ -15,9 +15,13 @@ interface CareerJob {
   url: string;
   value_chain_stage: string | null;
   role_category: string | null;
+  career_level: string | null;
   industry: string | null;
   created_at: string;
 }
+
+const CAREER_LEVELS = ["All", "Entry", "Mid", "Senior", "Executive"] as const;
+type CareerLevelFilter = (typeof CAREER_LEVELS)[number];
 
 interface CareerJobsPanelProps {
   open: boolean;
@@ -30,6 +34,7 @@ interface CareerJobsPanelProps {
 const CareerJobsPanel = ({ open, onClose, industry, stage, role }: CareerJobsPanelProps) => {
   const [jobs, setJobs] = useState<CareerJob[]>([]);
   const [loading, setLoading] = useState(false);
+  const [levelFilter, setLevelFilter] = useState<CareerLevelFilter>("All");
 
   useEffect(() => {
     if (!open) return;
@@ -45,10 +50,10 @@ const CareerJobsPanel = ({ open, onClose, industry, stage, role }: CareerJobsPan
         "Formula 1": "formula-1",
       };
       const dbIndustry = slugMap[industry] || industry.toLowerCase();
-      
+
       let query = supabase
         .from("jobs")
-        .select("id, title, company, location, salary, type, description, url, value_chain_stage, role_category, industry, created_at")
+        .select("id, title, company, location, salary, type, description, url, value_chain_stage, role_category, career_level, industry, created_at")
         .ilike("industry", `%${dbIndustry}%`);
 
       if (stage) {
@@ -56,6 +61,9 @@ const CareerJobsPanel = ({ open, onClose, industry, stage, role }: CareerJobsPan
       }
       if (role) {
         query = query.ilike("role_category", `%${role}%`);
+      }
+      if (levelFilter !== "All") {
+        query = query.eq("career_level", levelFilter.toLowerCase());
       }
 
       const { data, error } = await query
@@ -70,7 +78,7 @@ const CareerJobsPanel = ({ open, onClose, industry, stage, role }: CareerJobsPan
     };
 
     fetchJobs();
-  }, [open, industry, stage, role]);
+  }, [open, industry, stage, role, levelFilter]);
 
   return (
     <AnimatePresence>
@@ -90,24 +98,44 @@ const CareerJobsPanel = ({ open, onClose, industry, stage, role }: CareerJobsPan
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
             className="fixed right-0 top-0 bottom-0 w-full max-w-lg bg-background border-l border-border z-50 overflow-y-auto"
           >
-            <div className="sticky top-0 bg-background border-b border-border p-5 flex items-center justify-between z-10">
-              <div>
-                <h2 className="font-display font-700 text-lg text-foreground">
-                  {role || stage || "All"} Jobs
-                </h2>
-                <p className="text-muted-foreground font-body text-xs mt-0.5">
-                  {stage && <span className="text-primary">{stage}</span>}
-                  {stage && role && <span> · </span>}
-                  {role && <span>{role}</span>}
-                  {!stage && !role && <span>{industry}</span>}
-                </p>
+            <div className="sticky top-0 bg-background border-b border-border p-5 z-10">
+              <div className="flex items-center justify-between mb-3">
+                <div>
+                  <h2 className="font-display font-700 text-lg text-foreground">
+                    {role || stage || "All"} Jobs
+                  </h2>
+                  <p className="text-muted-foreground font-body text-xs mt-0.5">
+                    {stage && <span className="text-primary">{stage}</span>}
+                    {stage && role && <span> · </span>}
+                    {role && <span>{role}</span>}
+                    {!stage && !role && <span>{industry}</span>}
+                  </p>
+                </div>
+                <button
+                  onClick={onClose}
+                  className="w-8 h-8 flex items-center justify-center rounded-sm hover:bg-muted transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center rounded-sm hover:bg-muted transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
+              {/* Career level filter pills */}
+              <div className="flex gap-1.5 flex-wrap">
+                {CAREER_LEVELS.map((lvl) => (
+                  <button
+                    key={lvl}
+                    onClick={() => setLevelFilter(lvl)}
+                    className={`px-3 py-1 text-[11px] font-display font-700 uppercase tracking-wide rounded-full border transition-colors ${
+                      levelFilter === lvl
+                        ? lvl === "Entry"
+                          ? "bg-[hsl(120,100%,45%)] text-black border-[hsl(120,100%,45%)]"
+                          : "bg-foreground text-background border-foreground"
+                        : "bg-transparent text-muted-foreground border-border hover:border-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {lvl}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="p-5">
@@ -143,9 +171,17 @@ const CareerJobsPanel = ({ open, onClose, industry, stage, role }: CareerJobsPan
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-display font-700 text-foreground text-sm group-hover:text-primary transition-colors truncate">
-                            {job.title}
-                          </h3>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-display font-700 text-foreground text-sm group-hover:text-primary transition-colors truncate">
+                              {job.title}
+                            </h3>
+                            {job.career_level === "entry" && levelFilter === "All" && (
+                              <span className="shrink-0 text-[9px] font-display font-700 uppercase tracking-wider px-1.5 py-0.5 rounded-sm"
+                                style={{ background: "hsl(120,100%,45%)", color: "#000" }}>
+                                Entry
+                              </span>
+                            )}
+                          </div>
                           <p className="text-muted-foreground font-body text-xs mt-0.5">
                             {job.company}
                           </p>

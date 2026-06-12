@@ -402,8 +402,8 @@ const Hero = () => {
           transition={{ duration: 0.7, delay: 0.35 }}
           className="mt-12 md:mt-12 max-w-none"
         >
-          <p className="font-body font-600 sm:text-lg md:text-2xl leading-snug text-foreground md:whitespace-nowrap text-xl text-left">
-            Start with what you love, and see where it takes you.
+          <p className="font-display font-900 sm:text-2xl md:text-4xl leading-tight text-foreground text-2xl text-left">
+            The home of work <span style={{ color: LIME }}>curiosity</span>.
           </p>
 
           <div className="mt-5 md:mt-8 flex flex-nowrap items-center gap-2 sm:gap-3 md:gap-4 overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
