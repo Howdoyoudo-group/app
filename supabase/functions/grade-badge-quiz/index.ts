@@ -106,6 +106,8 @@ Deno.serve(async (req) => {
             { user_id: user.id, industry, score: correct, earned_at: new Date().toISOString() },
             { onConflict: "user_id,industry" },
           );
+          // Auto-evidence all skills for this industry's roles when badge earned
+          await awardSkillRatings(svc, user.id, industry);
         }
       }
 
@@ -120,6 +122,36 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
 });
+
+async function awardSkillRatings(svc: any, userId: string, industry: string): Promise<void> {
+  try {
+    // Find all role slugs for this industry
+    const { data: roles } = await svc
+      .from("role_metadata")
+      .select("slug")
+      .eq("industry", industry);
+    if (!roles || roles.length === 0) return;
+
+    const slugs = roles.map((r: any) => r.slug);
+    const { data: skills } = await svc
+      .from("role_skills")
+      .select("id")
+      .in("slug", slugs);
+    if (!skills || skills.length === 0) return;
+
+    const ratings = skills.map((s: any) => ({
+      user_id: userId,
+      skill_id: s.id,
+      rating: 4,
+      evidenced: true,
+      source: `badge:${industry}`,
+      updated_at: new Date().toISOString(),
+    }));
+    await svc.from("user_skill_ratings").upsert(ratings, { onConflict: "user_id,skill_id", ignoreDuplicates: false });
+  } catch (e) {
+    console.error("awardSkillRatings error", e);
+  }
+}
 
 async function checkUnlimited(svc: any, userId: string): Promise<boolean> {
   const { data } = await svc.from("user_roles").select("role").eq("user_id", userId);
