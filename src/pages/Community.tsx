@@ -926,7 +926,12 @@ const Community = () => {
               <h2 className="font-display text-xs tracking-[0.2em] uppercase text-foreground/80">
                 Member <span style={{ color: LIME }}>Talks</span>
               </h2>
-              <DummyTag />
+              <span
+                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider"
+                style={{ background: LIME, color: "#000" }}
+              >
+                <Sparkles className="w-2.5 h-2.5" /> Coming soon
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <button
