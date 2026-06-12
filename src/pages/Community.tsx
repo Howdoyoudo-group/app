@@ -9,9 +9,12 @@ import { INDUSTRIES } from "@/data/industries";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Users, Flame, Calendar, ArrowRight, MapPin, MessageCircle,
-  Sparkles, Flag, Compass, Inbox, Star, GraduationCap, Briefcase, Play, ChevronLeft, ChevronRight,
+  Sparkles, Flag, Compass, Inbox, GraduationCap, Briefcase, Play, ChevronLeft, ChevronRight, Send, Loader2,
 } from "lucide-react";
 import { useRef } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
 import { ReportUserDialog } from "@/components/ReportUserDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import howdyMascot from "@/assets/howdy-mascot.png";
@@ -136,19 +139,7 @@ const MEMBER_TALKS = [
   },
 ];
 
-// ---------- Dummy mentors ----------
-const MENTOR_INDUSTRIES = ["Music","Film & TV","Fashion","Sport","Tech","Marketing","Finance","Creative Arts"];
-const MENTOR_ROLES = ["Senior Producer","Brand Director","Career Coach","Talent Scout","Founder","Industry Mentor","Head of Partnerships","Creative Director"];
-const MENTOR_SPECIALISMS = [
-  "Getting your first industry break",
-  "CV & portfolio reviews",
-  "Navigating creative careers",
-  "Building your personal brand",
-  "Switching industries confidently",
-  "Freelance vs full-time decisions",
-  "Interview prep & pitching yourself",
-  "Networking without the cringe",
-];
+// ---------- Coaching marketplace packages (dummy until real bookings live) ----------
 const COACH_PACKAGES = [
   { title: "60-min Career Clarity Session", price: "£45", tag: "Popular", desc: "Identify where you want to go and map a realistic path to get there." },
   { title: "CV & Portfolio Power-Up", price: "£35", tag: "Quick win", desc: "A working review of your CV or portfolio with actionable rewrites." },
@@ -156,19 +147,23 @@ const COACH_PACKAGES = [
   { title: "3-Session Starter Package", price: "£110", tag: "Best value", desc: "Three tailored sessions spread across six weeks — goals, strategy, accountability." },
 ];
 
-const dummyMentors = (slug: string) => {
-  const h = hash(slug + "mentor");
-  return Array.from({ length: 6 }).map((_, i) => {
-    const firstName = FIRST_NAMES[(h + i * 11) % FIRST_NAMES.length];
-    const surname = ["Okonkwo","Patel","Hughes","Bergström","Walsh","Chen","Adeyemi","Morris"][i % 8];
-    const role = MENTOR_ROLES[(h + i * 3) % MENTOR_ROLES.length];
-    const industry = MENTOR_INDUSTRIES[(h + i * 5) % MENTOR_INDUSTRIES.length];
-    const specialism = MENTOR_SPECIALISMS[(h + i * 7) % MENTOR_SPECIALISMS.length];
-    const rating = [4.8, 4.9, 5.0, 4.7, 4.9, 4.8][i % 6];
-    const sessions = [12, 34, 8, 56, 22, 41][i % 6];
-    return { id: `dummy-mentor-${i}`, name: `${firstName} ${surname}`, role, industry, specialism, rating, sessions };
-  });
-};
+// ---------- Real mentor type (mirrors MentoringPanel) ----------
+interface MentorRow {
+  id: string;
+  full_name: string | null;
+  photo_url: string | null;
+  home_town: string | null;
+  career_level: string | null;
+  mentor_bio: string | null;
+  mentor_offers: string[] | null;
+  industry_interests: string[] | null;
+  role_preferences: string[] | null;
+}
+
+function mentorInitials(name: string | null) {
+  if (!name) return "?";
+  return name.split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
+}
 
 // ---------- Types ----------
 interface EventRow {
@@ -270,6 +265,11 @@ const Community = () => {
   const [eventsLoading, setEventsLoading] = useState(true);
   const [realMembers, setRealMembers] = useState<RealMember[]>([]);
   const [reportTarget, setReportTarget] = useState<{ id: string; name: string } | null>(null);
+  const [mentors, setMentors] = useState<MentorRow[]>([]);
+  const [mentorsLoading, setMentorsLoading] = useState(true);
+  const [mentorTarget, setMentorTarget] = useState<MentorRow | null>(null);
+  const [mentorMsg, setMentorMsg] = useState("");
+  const [mentorSending, setMentorSending] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string | null>(null);
   const [userIndustries, setUserIndustries] = useState<string[]>([]);
@@ -374,6 +374,50 @@ const Community = () => {
   }, [selected]);
 
 
+
+  // Real mentors from DB, filtered by selected industry
+  useEffect(() => {
+    let cancelled = false;
+    setMentorsLoading(true);
+    (async () => {
+      const industryName = selected === "all"
+        ? null
+        : INDUSTRIES.find(i => i.slug === selected)?.name ?? null;
+      const { data, error } = await (supabase as any).rpc("get_mentor_directory", {
+        _industry: industryName,
+        _role: null,
+        _limit: 4,
+        _offset: 0,
+      });
+      if (!cancelled) {
+        setMentors(error ? [] : (data as MentorRow[]) || []);
+        setMentorsLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [selected]);
+
+  const sendMentorRequest = async () => {
+    if (!user || !mentorTarget || !mentorMsg.trim()) return;
+    setMentorSending(true);
+    const { error } = await supabase.from("mentor_requests").insert({
+      mentee_id: user.id,
+      mentor_id: mentorTarget.id,
+      message: mentorMsg.trim(),
+    });
+    if (error) {
+      setMentorSending(false);
+      toast({ title: "Couldn't send request", description: error.message, variant: "destructive" });
+      return;
+    }
+    supabase.functions.invoke("notify-member-event", {
+      body: { event: "mentor_request", recipient_id: mentorTarget.id, actor_id: user.id, message: mentorMsg.trim() },
+    }).catch(() => {});
+    setMentorSending(false);
+    toast({ title: "Request sent!", description: `${mentorTarget.full_name} will get an email.` });
+    setMentorTarget(null);
+    setMentorMsg("");
+  };
 
   const industryLabel = useMemo(() => {
     if (selected === "all") return "the community";
@@ -720,37 +764,75 @@ const Community = () => {
 
           <div>
             <SectionHeader
-              title={<>Mentors <span style={{ color: LIME }}>&amp;</span> coaching</>}
-              dummy
-              action={<span className="text-xs text-muted-foreground inline-flex items-center gap-1"><GraduationCap className="w-3 h-3" /> coming soon</span>}
+              title={<>Members offering <span style={{ color: LIME }}>mentoring</span></>}
+              action={
+                <Link to="/mentoring" className="text-xs font-semibold inline-flex items-center gap-1" style={{ color: LIME }}>
+                  See all <ArrowRight className="w-3 h-3" />
+                </Link>
+              }
             />
             <div className="space-y-3">
-              {dummyMentors(slugKey).slice(0, 4).map((m) => (
-                <Card key={m.id} className="p-4 border-2 border-foreground/10 flex items-start gap-3 opacity-90">
-                  <Avatar name={m.name} size={44} />
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm truncate flex items-center gap-1.5">
-                      {m.name}
-                      <DummyTag />
-                    </div>
-                    <div className="text-xs text-muted-foreground truncate">{m.role} · {m.industry}</div>
-                    <div className="text-xs mt-1 text-foreground/70 italic truncate">"{m.specialism}"</div>
-                    <div className="flex items-center gap-3 mt-1.5">
-                      <span className="inline-flex items-center gap-1 text-[11px] text-amber-600">
-                        <Star className="w-3 h-3 fill-amber-400 text-amber-400" /> {m.rating}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground">{m.sessions} sessions</span>
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    disabled
-                    className="shrink-0 mt-1 rounded-full border-2 border-foreground/15 px-3 py-1.5 text-[11px] font-semibold opacity-50 cursor-not-allowed"
-                  >
-                    Book
-                  </button>
+              {mentorsLoading && (
+                <Card className="p-4 border-2 border-foreground/10 flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0" /> Loading mentors…
                 </Card>
-              ))}
+              )}
+              {!mentorsLoading && mentors.length === 0 && (
+                <Card className="p-5 border-2 border-foreground/10 text-center">
+                  <GraduationCap className="w-6 h-6 mx-auto mb-2 text-foreground/30" />
+                  <p className="text-sm text-muted-foreground mb-1">No mentors listed for this industry yet.</p>
+                  <Link to="/mentoring" className="text-xs font-semibold underline" style={{ color: LIME }}>
+                    Browse all mentors →
+                  </Link>
+                </Card>
+              )}
+              {mentors.map((m) => {
+                const name = m.full_name || "Member";
+                return (
+                  <Card key={m.id} className="p-4 border-2 border-foreground/10 flex items-start gap-3">
+                    <div
+                      className="rounded-full overflow-hidden border-2 border-foreground/10 bg-muted flex items-center justify-center font-display font-900 shrink-0 text-sm"
+                      style={{ width: 44, height: 44 }}
+                    >
+                      {m.photo_url
+                        ? <img src={m.photo_url} alt={name} className="w-full h-full object-cover" />
+                        : <span>{mentorInitials(m.full_name)}</span>
+                      }
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="font-semibold text-sm truncate flex items-center gap-1.5">
+                        {name}
+                        <RealTag />
+                      </div>
+                      {m.home_town && (
+                        <div className="text-xs text-muted-foreground truncate">{m.home_town}</div>
+                      )}
+                      {m.mentor_bio && (
+                        <div className="text-xs text-foreground/70 mt-1 line-clamp-2">{m.mentor_bio}</div>
+                      )}
+                      {m.mentor_offers && m.mentor_offers.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {m.mentor_offers.slice(0, 3).map((o) => (
+                            <span key={o} className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">
+                              {o}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!user) { toast({ title: "Sign in to request mentoring" }); return; }
+                        setMentorTarget(m);
+                      }}
+                      className="shrink-0 mt-0.5 rounded-full border-2 border-foreground/20 px-3 py-1.5 text-[11px] font-semibold hover:border-primary hover:text-primary transition-colors whitespace-nowrap"
+                    >
+                      30 min
+                    </button>
+                  </Card>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -1017,6 +1099,30 @@ const Community = () => {
 
 
 
+
+      <Dialog open={!!mentorTarget} onOpenChange={(o) => !o && setMentorTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Request 30 min with {mentorTarget?.full_name}</DialogTitle>
+            <DialogDescription>
+              Say hi and explain what you'd like to chat about. They'll get a notification and can accept or decline.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            placeholder="Hi! I'm starting out in… I'd love to ask you about…"
+            value={mentorMsg}
+            onChange={(e) => setMentorMsg(e.target.value)}
+            rows={5}
+            maxLength={600}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setMentorTarget(null)}>Cancel</Button>
+            <Button disabled={mentorSending || mentorMsg.trim().length < 10} onClick={sendMentorRequest}>
+              {mentorSending ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Send className="w-3.5 h-3.5 mr-1.5" />Send request</>}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {reportTarget && (
         <ReportUserDialog
