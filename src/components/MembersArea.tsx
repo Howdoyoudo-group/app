@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from "react";
+import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -88,15 +89,47 @@ const Avatar = ({ member, size = 48 }: { member: Pick<Member, "full_name" | "pho
 
 export default function MembersArea({ initialThreadUserId }: { initialThreadUserId?: string | null } = {}) {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [view, setView] = useState<View>(
     initialThreadUserId ? { kind: "thread", userId: initialThreadUserId } : { kind: "directory" }
   );
+  // Remember the view we were on before opening a profile so Back returns there
+  const prevViewRef = useRef<View>({ kind: "directory" });
+  // True while we're still on the thread we deep-linked into (e.g. from /inbox)
+  const deepLinkedRef = useRef(!!initialThreadUserId);
 
   // If prop changes (e.g. user navigates with a new ?thread=), open that thread
   useEffect(() => {
-    if (initialThreadUserId) setView({ kind: "thread", userId: initialThreadUserId });
+    if (initialThreadUserId) {
+      deepLinkedRef.current = true;
+      setView({ kind: "thread", userId: initialThreadUserId });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialThreadUserId]);
+
+  const openProfile = (userId: string) => {
+    prevViewRef.current = view;
+    setView({ kind: "profile", userId });
+  };
+
+  const exitThread = () => {
+    // Came here via a ?thread= deep link (e.g. from the Inbox): go back to
+    // wherever the user was. location.key is "default" when this page was the
+    // first entry in the history stack (direct URL open) — then fall through.
+    if (deepLinkedRef.current && location.key !== "default") {
+      navigate(-1);
+      return;
+    }
+    deepLinkedRef.current = false;
+    if (searchParams.has("thread")) {
+      const next = new URLSearchParams(searchParams);
+      next.delete("thread");
+      setSearchParams(next, { replace: true });
+    }
+    setView({ kind: "messages" });
+  };
 
   const [optIn, setOptIn] = useState(true);
   const [bio, setBio] = useState("");
@@ -553,11 +586,11 @@ export default function MembersArea({ initialThreadUserId }: { initialThreadUser
           search={search}
           setSearch={setSearch}
           onSearch={loadDirectory}
-          onOpen={(id) => setView({ kind: "profile", userId: id })}
+          onOpen={openProfile}
           pendingFor={pendingConnectionFor}
           acceptedFor={acceptedConnectionFor}
           onConnect={(id, message) => requestConnection(id, message)}
-          onMessage={(id) => setView({ kind: "thread", userId: id })}
+          onMessage={(id) => { deepLinkedRef.current = false; setView({ kind: "thread", userId: id }); }}
           premiumIds={premiumIds}
         />
       )}
@@ -570,7 +603,7 @@ export default function MembersArea({ initialThreadUserId }: { initialThreadUser
           onAccept={(id) => respondToRequest(id, true)}
           onDecline={(id) => respondToRequest(id, false)}
           onCancel={(id) => removeConnection(id)}
-          onOpenProfile={(id) => setView({ kind: "profile", userId: id })}
+          onOpenProfile={openProfile}
           loading={connLoading}
         />
       )}
@@ -579,15 +612,15 @@ export default function MembersArea({ initialThreadUserId }: { initialThreadUser
         <MessagesListView
           threads={recentThreads}
           cache={profileCache}
-          onOpen={(id) => setView({ kind: "thread", userId: id })}
+          onOpen={(id) => { deepLinkedRef.current = false; setView({ kind: "thread", userId: id }); }}
         />
       )}
 
       {view.kind === "profile" && (
         <ProfileView
           userId={view.userId}
-          onBack={() => setView({ kind: "directory" })}
-          onMessage={(id) => setView({ kind: "thread", userId: id })}
+          onBack={() => setView(prevViewRef.current)}
+          onMessage={(id) => { deepLinkedRef.current = false; setView({ kind: "thread", userId: id }); }}
           pending={!!pendingConnectionFor(view.userId)}
           accepted={!!acceptedConnectionFor(view.userId)}
           onConnect={() => requestConnection(view.userId)}
@@ -605,8 +638,10 @@ export default function MembersArea({ initialThreadUserId }: { initialThreadUser
           onSend={() => sendMessage(view.userId)}
           sending={sending}
           isConnected={!!acceptedConnectionFor(view.userId)}
-          onBack={() => setView({ kind: "messages" })}
-          onOpenProfile={() => setView({ kind: "profile", userId: view.userId })}
+          isPending={!!pendingConnectionFor(view.userId)}
+          onConnect={() => requestConnection(view.userId)}
+          onBack={exitThread}
+          onOpenProfile={() => openProfile(view.userId)}
           threadEndRef={threadEndRef}
           currentUserId={user.id}
         />
@@ -796,7 +831,7 @@ function DirectoryView({
                         size="sm"
                         className="font-display font-900 uppercase flex-1"
                       >
-                        <MessageCircle className="w-4 h-4 mr-1" /> Message
+                        <UserPlus className="w-4 h-4 mr-1" /> Connect
                       </Button>
                     )}
                     <Button onClick={() => onOpen(m.id)} size="sm" variant="ghost" className="font-display font-900 uppercase">
@@ -1036,7 +1071,7 @@ function ProfileView({
 
 function ThreadView({
   otherId, other, messages, loading, composer, setComposer, onSend, sending,
-  isConnected, onBack, onOpenProfile, threadEndRef, currentUserId,
+  isConnected, isPending, onConnect, onBack, onOpenProfile, threadEndRef, currentUserId,
 }: {
   otherId: string;
   other: Member | undefined;
@@ -1047,6 +1082,8 @@ function ThreadView({
   onSend: () => void;
   sending: boolean;
   isConnected: boolean;
+  isPending: boolean;
+  onConnect: () => void;
   onBack: () => void;
   onOpenProfile: () => void;
   threadEndRef: React.RefObject<HTMLDivElement>;
@@ -1069,9 +1106,20 @@ function ThreadView({
           {loading ? (
             <div className="text-center py-12"><Loader2 className="w-5 h-5 animate-spin inline" /></div>
           ) : messages.length === 0 ? (
-            <p className="font-body text-sm text-muted-foreground text-center py-12">
-              {isConnected ? "Say hi 👋" : "You're not connected yet — send a connection request first."}
-            </p>
+            <div className="text-center py-12 space-y-3">
+              <p className="font-body text-sm text-muted-foreground">
+                {isConnected
+                  ? "Say hi 👋"
+                  : isPending
+                    ? "Connection request sent — you can chat once they accept."
+                    : "You're not connected yet — send a connection request to start chatting."}
+              </p>
+              {!isConnected && !isPending && (
+                <Button onClick={onConnect} size="sm" className="font-display font-900 uppercase">
+                  <UserPlus className="w-4 h-4 mr-1" /> Send connection request
+                </Button>
+              )}
+            </div>
           ) : (
             messages.map((m) => {
               const mine = m.sender_id === currentUserId;
@@ -1092,7 +1140,7 @@ function ThreadView({
             value={composer}
             onChange={(e) => setComposer(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); onSend(); } }}
-            placeholder={isConnected ? "Write a message…" : "Connect first to message"}
+            placeholder={isConnected ? "Write a message…" : isPending ? "Waiting for them to accept…" : "Connect first to message"}
             disabled={!isConnected || sending}
             className="border-2 border-foreground rounded-xl"
             maxLength={4000}
