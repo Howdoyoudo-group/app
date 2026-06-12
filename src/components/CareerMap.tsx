@@ -41,10 +41,14 @@ const deriveLevel = (salary: string): string => {
   return "Entry level";
 };
 
+const LEVEL_FILTERS = ["All", "Entry level", "Mid level", "Senior"] as const;
+type LevelFilter = (typeof LEVEL_FILTERS)[number];
+
 const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
   const { user } = useAuth();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
-  
+  const [levelFilter, setLevelFilter] = useState<LevelFilter>("All");
+
   const [jobCount, setJobCount] = useState<number | null>(null);
   const [targetRoles, setTargetRoles] = useState<string[]>([]);
   const [savingRole, setSavingRole] = useState<string | null>(null);
@@ -255,6 +259,26 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
               </button>
             )}
 
+            {/* Career level filter pills */}
+            <div className="flex gap-2 flex-wrap mb-4">
+              {LEVEL_FILTERS.map((lvl) => (
+                <button
+                  key={lvl}
+                  onClick={() => setLevelFilter(lvl)}
+                  className={`px-3 py-1 text-[11px] font-display font-700 uppercase tracking-wide rounded-full border transition-colors ${
+                    levelFilter === lvl
+                      ? lvl === "Entry level"
+                        ? "border-[hsl(120,100%,45%)] text-black"
+                        : "bg-foreground text-background border-foreground"
+                      : "bg-transparent text-muted-foreground border-border hover:border-foreground hover:text-foreground"
+                  }`}
+                  style={levelFilter === lvl && lvl === "Entry level" ? { background: "hsl(120,100%,45%)" } : {}}
+                >
+                  {lvl}
+                </button>
+              ))}
+            </div>
+
             <div
               ref={scrollRef}
               onScroll={() => {
@@ -266,25 +290,27 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
               className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide"
               style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
             >
-              {stages[expandedIndex].roles.map((role, ri) => {
-                const level = deriveLevel(role.salary);
-                const isSaved = targetRoles.includes(role.name);
-                const roleSlug = resolveCareerMapRoleSlug(role.name);
+              {stages[expandedIndex].roles
+                .filter((role) => levelFilter === "All" || deriveLevel(role.salary) === levelFilter)
+                .map((role, ri) => {
+                  const level = deriveLevel(role.salary);
+                  const isSaved = targetRoles.includes(role.name);
+                  const roleSlug = resolveCareerMapRoleSlug(role.name);
 
-                return (
-                  <CareerMapRoleCard
-                    key={role.name}
-                    role={role}
-                    ri={ri}
-                    level={level}
-                    isSaved={isSaved}
-                    savingRole={savingRole}
-                    roleSlug={roleSlug}
-                    industry={industry}
-                    toggleTargetRole={toggleTargetRole}
-                  />
-                );
-              })}
+                  return (
+                    <CareerMapRoleCard
+                      key={role.name}
+                      role={role}
+                      ri={ri}
+                      level={level}
+                      isSaved={isSaved}
+                      savingRole={savingRole}
+                      roleSlug={roleSlug}
+                      industry={industry}
+                      toggleTargetRole={toggleTargetRole}
+                    />
+                  );
+                })}
             </div>
 
 
