@@ -5,6 +5,35 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-12 — Woody (main branch)
+
+### What was done
+- **Regenerated Supabase access token** — old one (sbp_85b5...) was expired; new one saved to memory
+- **Ran DB migration** — applied `20260611000000_skills_england.sql`: created `role_se_mapping`, `role_skills`, `user_skill_ratings` tables + `se_synced_at` column on role_metadata
+- **Deployed `sync-skills-england` edge function** — Andrew had built it; now live on Supabase
+- **Set `SKILLSENGLAND_API_KEY` secret** — value from Andrew's notes now stored as Supabase secret
+- **Triggered initial sync** — `sync-skills-england` running in background to seed all roles; will take ~5-10 mins to complete
+- **Task 5: Badge → skill ratings** — `grade-badge-quiz` now auto-upserts `user_skill_ratings` (rating=4, evidenced=true, source=`badge:{industry}`) for all skills in that industry's roles when badge is passed. Deployed.
+- **Pulled Andrew's 19 commits** — lots of new work: Indeed/Glassdoor job sources, RapidAPI, Community page mentors, Member Talks carousel, Show gallery updates, Skills nav reordering
+
+### Current state
+- Skills England sync running (check `role_se_mapping` row count — should be 50+ when done)
+- Badge-to-skills pipeline live
+- All Andrew's June 12 changes integrated
+
+### Left for next session
+- **Verify sync completed** — check `role_se_mapping` and `role_skills` row counts in Dashboard; re-trigger if 0 rows after 15 mins
+- **URGENT: Fix pg_cron silently stopping** — happens every few days (June 5, June 9 documented). No permanent fix yet
+- Fix howdoyoudo.co.uk bare domain — add A record `@ → 216.198.79.1` in 123-reg DNS
+- Fix old Lovable references in `send-daily-digest` — lines 92, 1244, 2721 still reference old project/domain
+- Fix `industry-health-monitor` cron URL (still points to old Lovable Supabase project)
+- Cancel Lovable HDYD project (keep account — Andrew uses for other projects)
+- Safari video fix — vox pop videos still fail on desktop Safari (10-bit H.264); re-encode needed
+- Twilio keys for WhatsApp
+- Voxpops video (About page) — still served from Lovable CDN
+
+---
+
 ## 2026-06-11 — Andrew (main branch) [continued session]
 
 ### What was done
