@@ -314,6 +314,16 @@ const RSS_JOB_FEEDS: Record<string, { url: string; source: string; tags?: string
     { url: "https://www.musictechjobs.com/feed/", source: "MusicTechJobs" },
     { url: "https://www.musicweek.com/jobs/rss", source: "Music Week" },
     { url: "https://www.musicjobs.com/rss/latest-jobs.xml", source: "MusicJobs.com" },
+    // Arts Jobs (Arts Council England) — covers performers, session musicians,
+    // orchestral/ensemble roles, music educators, venue & production staff.
+    // Filtered to Music discipline; also catches entry-level arts admin.
+    { url: "https://artsjobs.artscouncil.org.uk/vacancies/rss/?discipline=Music", source: "Arts Jobs" },
+    { url: "https://artsjobs.artscouncil.org.uk/vacancies/rss/?discipline=Music+%26+Sound", source: "Arts Jobs" },
+    // Creative Access — diversity-focused, strong on entry-level music &
+    // entertainment roles (label, agency, publishing assistants).
+    { url: "https://creativeaccess.org.uk/feed/", source: "Creative Access" },
+    // Music Ally (music industry digital/streaming news & jobs)
+    { url: "https://musically.com/category/jobs/feed/", source: "Music Ally Jobs" },
   ],
   charity: [
     { url: "https://www.charityjob.co.uk/jobs/rss", source: "CharityJob" },
@@ -1813,6 +1823,7 @@ async function fetchReedJobs(industry: string, keywords: string[], apiKey: strin
     "teaching", "health", "wellness", "physiotherapy", "hospitality",
     "charity", "money", "estate-agency", "travel", "cars", "farming",
     "interior-design", "beauty", "fashion", "psychotherapy",
+    "music", // added: small pool of specialist jobs warrants deeper keyword sweep
   ]);
   const MAX_PAGES = isGradPass ? 2 : (DEEP_SWEEP_INDUSTRIES.has(industry) ? 12 : 5);
   const PAGE_SIZE = 100;
@@ -3001,6 +3012,9 @@ const WORKDAY_TENANTS: Array<{
   },
   { company: "Signet Jewelers",    industry: "fashion",   tenant: "signetjewelers",   wd: "wd1", site: "Signet_Jewelers" },
   { company: "Universal Music",    industry: "music",     tenant: "umusic",           wd: "wd1", site: "UMG_Careers" },
+  { company: "Warner Music Group", industry: "music",     tenant: "warnermusic",      wd: "wd1", site: "Warner_Music" },
+  { company: "Sony Music",         industry: "music",     tenant: "sonymusic",        wd: "wd5", site: "Sony_Music" },
+  { company: "Live Nation",        industry: "music",     tenant: "livenation",       wd: "wd5", site: "Live_Nation" },
   { company: "Medivet",            industry: "pets",      tenant: "medivet",          wd: "wd3", site: "Medivet" },
   { company: "Ramsay Health Care",  industry: "health",    tenant: "ramsayhealthcare", wd: "wd3", site: "Ramsay_Health_Care" },
   { company: "HSBC",               industry: "money",     tenant: "hsbc",             wd: "wd3", site: "HSBC_Careers", allUk: false },
@@ -4818,6 +4832,11 @@ const GREENHOUSE_TENANTS: GreenhouseTenant[] = [
   { board: "skyscanner",       company: "Skyscanner",     industry: "travel",        allUk: false },
   { board: "jdsports",         company: "JD Sports",      industry: "fashion",       allUk: false },
   { board: "dicefm-careers",   company: "DICE",           industry: "music",         allUk: false },
+  { board: "aegpresents",      company: "AEG Presents",   industry: "music",         allUk: false },
+  { board: "bmg",              company: "BMG",            industry: "music",         allUk: false },
+  { board: "prsformusic",      company: "PRS for Music",  industry: "music",         allUk: true  },
+  { board: "concord",          company: "Concord Music",  industry: "music",         allUk: false },
+  { board: "hospitalrecords",  company: "Hospital Records", industry: "music",       allUk: true  },
 ];
 
 async function fetchGreenhouseJobs(tenant: GreenhouseTenant) {
@@ -5705,7 +5724,10 @@ type LeverTenant = {
 };
 
 const LEVER_TENANTS: LeverTenant[] = [
-  { company_slug: "spotify", company: "Spotify", industry: "music", allUk: false },
+  { company_slug: "spotify",    company: "Spotify",    industry: "music", allUk: false },
+  { company_slug: "soundcloud", company: "SoundCloud", industry: "music", allUk: false },
+  { company_slug: "deezer",     company: "Deezer",     industry: "music", allUk: false },
+  { company_slug: "ticketmaster", company: "Ticketmaster", industry: "music", allUk: false },
 ];
 
 async function fetchLeverJobs(tenant: LeverTenant) {
