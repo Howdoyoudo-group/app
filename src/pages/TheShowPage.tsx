@@ -12,7 +12,6 @@ const GALLERY_PHOTOS: { id: number; src?: string; alt: string }[] = [
   { id: 3, src: `${STORAGE}/photo-3.jpg`, alt: "Filming at Tower Bridge" },
   { id: 4, src: `${STORAGE}/photo-4.jpg`, alt: "Interview at the show" },
   { id: 5, src: `${STORAGE}/photo-5.jpg`, alt: "Woody with the Howdoyoudo mic" },
-  { id: 6, src: `${STORAGE}/photo-6.jpg`, alt: "Interview at All Points East" },
   { id: 7, src: `${STORAGE}/photo-7.png`, alt: "What's Next billboard at Shoreditch High Street" },
   { id: 8, src: `${STORAGE}/photo-8.jpg`, alt: "Howdoyoudo t-shirts" },
 ];
