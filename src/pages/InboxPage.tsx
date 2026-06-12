@@ -13,7 +13,6 @@ import {
   ArrowRight,
   MessageCircle,
 } from "lucide-react";
-import SiteHeader from "@/components/SiteHeader";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import MentorRequestsInbox from "@/components/MentorRequestsInbox";
@@ -199,7 +198,6 @@ export default function InboxPage() {
   return (
     <div className="min-h-screen bg-background">
       <SEO path="/inbox" title="Inbox — Howdoyoudo?" />
-      <SiteHeader />
 
       <main className="px-4 sm:px-6 md:px-12 max-w-3xl mx-auto py-10 md:py-16">
         {/* Header */}
