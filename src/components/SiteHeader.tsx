@@ -311,8 +311,10 @@ const GroupedNavDropdown = ({
                             if (isComingSoon) return <div key={item.label} aria-disabled="true">{inner}</div>;
                             return item.to ? (
                               <Link key={item.label} to={item.to} onClick={closeAll} className="block">{inner}</Link>
-                            ) : (
+                            ) : item.href?.startsWith("http") ? (
                               <a key={item.label} href={item.href} target="_blank" rel="noopener noreferrer" onClick={closeAll} className="block">{inner}</a>
+                            ) : (
+                              <a key={item.label} href={item.href} onClick={closeAll} className="block">{inner}</a>
                             );
                           })}
                         </div>
@@ -340,7 +342,7 @@ const INSPIRE: DropdownItem[] = [
 ];
 
 const DISCOVER: DropdownItem[] = [
-  { label: "Industries", href: "/#series", description: "Explore 30+ sectors" },
+  { label: "Industries", to: "/#series", description: "Explore 30+ sectors" },
   { label: "Roles", to: "/roles", description: "By job, not just by title" },
   { label: "Side Hustles", to: "/side-hustles", description: "Turn what you love into income" },
   { label: "Start a Business", to: "/starting-a-business", description: "Your own thing" },
