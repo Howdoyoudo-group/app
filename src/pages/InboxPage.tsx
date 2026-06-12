@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   Inbox,
   Mail,
@@ -10,9 +10,8 @@ import {
   Send,
   Sparkles,
   Users,
-  ArrowRight,
-  MessageCircle,
 } from "lucide-react";
+import MembersArea from "@/components/MembersArea";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
 import MentorRequestsInbox from "@/components/MentorRequestsInbox";
@@ -53,8 +52,6 @@ export default function InboxPage() {
   const [deleteBusyFor, setDeleteBusyFor] = useState<string | null>(null);
   const [consentOpenFor, setConsentOpenFor] = useState<string | null>(null);
   const [shareDefault, setShareDefault] = useState(false);
-  const [memberAlerts, setMemberAlerts] = useState({ connections: 0, messages: 0 });
-
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -63,23 +60,13 @@ export default function InboxPage() {
     }
     let cancelled = false;
     (async () => {
-      const [requestsRes, profileRes, connRes, msgRes] = await Promise.all([
+      const [requestsRes, profileRes] = await Promise.all([
         supabase
           .from("contact_requests")
           .select("id, message, reply_message, replied_at, created_at, status, employer_companies:company_id(name)")
           .eq("candidate_user_id", user.id)
           .order("created_at", { ascending: false }),
         supabase.from("profiles").select("share_details_default").eq("id", user.id).maybeSingle(),
-        supabase
-          .from("member_connections")
-          .select("id", { count: "exact", head: true })
-          .eq("recipient_id", user.id)
-          .eq("status", "pending"),
-        supabase
-          .from("member_messages")
-          .select("id", { count: "exact", head: true })
-          .eq("recipient_id", user.id)
-          .is("read_at", null),
       ]);
       if (cancelled) return;
       setEmployerRequests(
@@ -94,7 +81,6 @@ export default function InboxPage() {
         }))
       );
       setShareDefault(!!(profileRes.data as any)?.share_details_default);
-      setMemberAlerts({ connections: connRes.count || 0, messages: msgRes.count || 0 });
       setLoading(false);
     })();
     return () => {
@@ -192,8 +178,6 @@ export default function InboxPage() {
   }
 
   if (!user) return null;
-
-  const totalMemberAlerts = memberAlerts.connections + memberAlerts.messages;
 
   return (
     <div className="min-h-screen bg-background">
@@ -349,50 +333,15 @@ export default function InboxPage() {
           {/* ── Mentoring requests (incoming & outgoing) ── */}
           <MentorRequestsInbox />
 
-          {/* ── Member connections & chat ── */}
-          <section className="border-2 border-foreground rounded-2xl overflow-hidden">
-            <div className="bg-primary/10 border-b-2 border-foreground px-4 py-3 flex items-center gap-2">
+          {/* ── Member messenger (chats, requests, directory) ── */}
+          <section>
+            <div className="flex items-center gap-2 mb-4">
               <Users className="w-4 h-4 text-foreground" />
               <h2 className="font-display font-900 text-sm uppercase tracking-wider text-foreground">
-                Members
+                Member messages
               </h2>
-              {totalMemberAlerts > 0 && (
-                <span className="ml-auto min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-[#00E600] text-foreground font-display font-900 text-[10px] px-1.5">
-                  {totalMemberAlerts}
-                </span>
-              )}
             </div>
-            <div className="px-4 py-4 space-y-3">
-              <p className="font-body text-sm text-muted-foreground">
-                {totalMemberAlerts > 0 ? (
-                  <>
-                    You have{" "}
-                    {memberAlerts.connections > 0 && (
-                      <strong className="text-foreground">
-                        {memberAlerts.connections} pending connection {memberAlerts.connections === 1 ? "request" : "requests"}
-                      </strong>
-                    )}
-                    {memberAlerts.connections > 0 && memberAlerts.messages > 0 && " and "}
-                    {memberAlerts.messages > 0 && (
-                      <strong className="text-foreground">
-                        {memberAlerts.messages} unread {memberAlerts.messages === 1 ? "message" : "messages"}
-                      </strong>
-                    )}
-                    .
-                  </>
-                ) : (
-                  "No new connection requests or messages from members."
-                )}
-              </p>
-              <Link
-                to="/community/members"
-                className="inline-flex items-center gap-1.5 font-display font-700 text-xs uppercase tracking-wider text-foreground hover:text-primary transition"
-              >
-                <MessageCircle className="w-3.5 h-3.5" />
-                Open member messages
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
-            </div>
+            <MembersArea defaultView="messages" />
           </section>
         </div>
       </main>

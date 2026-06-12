@@ -2,12 +2,10 @@ import SEO from "@/components/SEO";
 import SiteNav from "@/components/SiteNav";
 import Footer from "@/components/Footer";
 import MembersArea from "@/components/MembersArea";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 const CommunityMembers = () => {
-  const [searchParams] = useSearchParams();
-  const threadUserId = searchParams.get("thread");
   return (
     <div className="min-h-screen bg-background">
       <SEO
@@ -34,7 +32,7 @@ const CommunityMembers = () => {
             Find opted-in members, send connection messages and see mentor badges.
           </p>
         </header>
-        <MembersArea initialThreadUserId={threadUserId} />
+        <MembersArea />
       </main>
       <Footer />
     </div>

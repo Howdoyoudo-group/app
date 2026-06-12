@@ -62,6 +62,18 @@ function initials(name: string | null) {
   return name.split(/\s+/).slice(0, 2).map((p) => p[0]?.toUpperCase()).join("");
 }
 
+function dayLabel(iso: string) {
+  const d = new Date(iso);
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
+  const sameDay = (a: Date, b: Date) =>
+    a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+  if (sameDay(d, today)) return "Today";
+  if (sameDay(d, yesterday)) return "Yesterday";
+  return d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+}
+
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.round(diff / 60000);
@@ -87,48 +99,50 @@ const Avatar = ({ member, size = 48 }: { member: Pick<Member, "full_name" | "pho
   </div>
 );
 
-export default function MembersArea({ initialThreadUserId }: { initialThreadUserId?: string | null } = {}) {
+export default function MembersArea({ defaultView = "directory" }: { defaultView?: "directory" | "messages" } = {}) {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [view, setView] = useState<View>(
-    initialThreadUserId ? { kind: "thread", userId: initialThreadUserId } : { kind: "directory" }
-  );
-  // Remember the view we were on before opening a profile so Back returns there
-  const prevViewRef = useRef<View>({ kind: "directory" });
-  // True while we're still on the thread we deep-linked into (e.g. from /inbox)
-  const deepLinkedRef = useRef(!!initialThreadUserId);
 
-  // If prop changes (e.g. user navigates with a new ?thread=), open that thread
-  useEffect(() => {
-    if (initialThreadUserId) {
-      deepLinkedRef.current = true;
-      setView({ kind: "thread", userId: initialThreadUserId });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialThreadUserId]);
+  // The URL is the source of truth for the current view, so browser
+  // back/forward and refresh behave naturally:
+  //   ?thread=<id>  → open chat   ?member=<id> → profile
+  //   ?view=requests|messages|directory → list views
+  const view: View = useMemo(() => {
+    const thread = searchParams.get("thread");
+    if (thread) return { kind: "thread", userId: thread };
+    const member = searchParams.get("member");
+    if (member) return { kind: "profile", userId: member };
+    const v = searchParams.get("view");
+    if (v === "requests") return { kind: "requests" };
+    if (v === "messages") return { kind: "messages" };
+    if (v === "directory") return { kind: "directory" };
+    return { kind: defaultView };
+  }, [searchParams, defaultView]);
 
-  const openProfile = (userId: string) => {
-    prevViewRef.current = view;
-    setView({ kind: "profile", userId });
+  const setView = (next: View, opts?: { replace?: boolean }) => {
+    const p = new URLSearchParams(searchParams);
+    p.delete("thread");
+    p.delete("member");
+    p.delete("view");
+    if (next.kind === "thread") p.set("thread", next.userId);
+    else if (next.kind === "profile") p.set("member", next.userId);
+    else p.set("view", next.kind);
+    setSearchParams(p, opts);
   };
 
-  const exitThread = () => {
-    // Came here via a ?thread= deep link (e.g. from the Inbox): go back to
-    // wherever the user was. location.key is "default" when this page was the
-    // first entry in the history stack (direct URL open) — then fall through.
-    if (deepLinkedRef.current && location.key !== "default") {
+  const openProfile = (userId: string) => setView({ kind: "profile", userId });
+
+  // Back uses real history when there is any (covers deep links from the
+  // Inbox and internally opened threads alike); falls back to messages list
+  // when this page was opened directly as the first history entry.
+  const goBack = () => {
+    if (location.key !== "default") {
       navigate(-1);
-      return;
+    } else {
+      setView({ kind: "messages" }, { replace: true });
     }
-    deepLinkedRef.current = false;
-    if (searchParams.has("thread")) {
-      const next = new URLSearchParams(searchParams);
-      next.delete("thread");
-      setSearchParams(next, { replace: true });
-    }
-    setView({ kind: "messages" });
   };
 
   const [optIn, setOptIn] = useState(true);
@@ -590,7 +604,7 @@ export default function MembersArea({ initialThreadUserId }: { initialThreadUser
           pendingFor={pendingConnectionFor}
           acceptedFor={acceptedConnectionFor}
           onConnect={(id, message) => requestConnection(id, message)}
-          onMessage={(id) => { deepLinkedRef.current = false; setView({ kind: "thread", userId: id }); }}
+          onMessage={(id) => setView({ kind: "thread", userId: id })}
           premiumIds={premiumIds}
         />
       )}
@@ -612,15 +626,15 @@ export default function MembersArea({ initialThreadUserId }: { initialThreadUser
         <MessagesListView
           threads={recentThreads}
           cache={profileCache}
-          onOpen={(id) => { deepLinkedRef.current = false; setView({ kind: "thread", userId: id }); }}
+          onOpen={(id) => setView({ kind: "thread", userId: id })}
         />
       )}
 
       {view.kind === "profile" && (
         <ProfileView
           userId={view.userId}
-          onBack={() => setView(prevViewRef.current)}
-          onMessage={(id) => { deepLinkedRef.current = false; setView({ kind: "thread", userId: id }); }}
+          onBack={goBack}
+          onMessage={(id) => setView({ kind: "thread", userId: id })}
           pending={!!pendingConnectionFor(view.userId)}
           accepted={!!acceptedConnectionFor(view.userId)}
           onConnect={() => requestConnection(view.userId)}
@@ -640,7 +654,7 @@ export default function MembersArea({ initialThreadUserId }: { initialThreadUser
           isConnected={!!acceptedConnectionFor(view.userId)}
           isPending={!!pendingConnectionFor(view.userId)}
           onConnect={() => requestConnection(view.userId)}
-          onBack={exitThread}
+          onBack={goBack}
           onOpenProfile={() => openProfile(view.userId)}
           threadEndRef={threadEndRef}
           currentUserId={user.id}
@@ -1121,13 +1135,28 @@ function ThreadView({
               )}
             </div>
           ) : (
-            messages.map((m) => {
+            messages.map((m, i) => {
               const mine = m.sender_id === currentUserId;
+              const prev = messages[i - 1];
+              const newDay = !prev || dayLabel(prev.created_at) !== dayLabel(m.created_at);
               return (
-                <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[75%] rounded-2xl px-3 py-2 border-2 border-foreground ${mine ? "bg-primary" : "bg-muted/40"}`}>
-                    <p className="font-body text-sm whitespace-pre-wrap break-words">{m.body}</p>
-                    <p className="font-body text-[10px] text-muted-foreground mt-1 text-right">{timeAgo(m.created_at)}</p>
+                <div key={m.id}>
+                  {newDay && (
+                    <div className="flex items-center gap-3 py-2">
+                      <div className="flex-1 h-px bg-foreground/10" />
+                      <span className="font-display font-700 text-[10px] uppercase tracking-wider text-muted-foreground">
+                        {dayLabel(m.created_at)}
+                      </span>
+                      <div className="flex-1 h-px bg-foreground/10" />
+                    </div>
+                  )}
+                  <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
+                    <div className={`max-w-[75%] rounded-2xl px-3 py-2 border-2 border-foreground ${mine ? "bg-primary" : "bg-muted/40"}`}>
+                      <p className="font-body text-sm whitespace-pre-wrap break-words">{m.body}</p>
+                      <p className="font-body text-[10px] text-muted-foreground mt-1 text-right">
+                        {new Date(m.created_at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                      </p>
+                    </div>
                   </div>
                 </div>
               );

@@ -199,7 +199,7 @@ export default function MentorRequestsInbox() {
                         )}
                         {req.status === "accepted" && (
                           <Button size="sm" className="mt-3" asChild>
-                            <Link to={`/community/members?thread=${req.mentee_id}`}>
+                            <Link to={`/inbox?thread=${req.mentee_id}`}>
                               <MessageCircle className="w-3.5 h-3.5 mr-1" /> Start a chat to work out a time
                             </Link>
                           </Button>
@@ -238,7 +238,7 @@ export default function MentorRequestsInbox() {
                         )}
                         {req.status === "accepted" && (
                           <Button size="sm" className="mt-3" asChild>
-                            <Link to={`/community/members?thread=${req.mentor_id}`}>
+                            <Link to={`/inbox?thread=${req.mentor_id}`}>
                               <MessageCircle className="w-3.5 h-3.5 mr-1" /> Start a chat to work out a time
                             </Link>
                           </Button>
