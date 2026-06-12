@@ -167,13 +167,6 @@ const Hero = () => {
           aria-hidden="true"
           className="w-full h-full object-cover opacity-15 md:opacity-20"
         />
-        {/* Mirrored copy - extends doodles across the left half on desktop */}
-        <img
-          src={heroBg}
-          alt=""
-          aria-hidden="true"
-          className="hidden md:block absolute inset-0 w-full h-full object-cover opacity-20 -scale-x-100"
-        />
       </div>
 
       {/* Subtle vignette for depth */}
