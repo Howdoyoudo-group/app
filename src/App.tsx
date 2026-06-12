@@ -37,6 +37,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index.tsx";
 const IndexV2 = lazy(() => import("./pages/IndexV2.tsx"));
 const FeedPage = lazy(() => import("./pages/FeedPage.tsx"));
+const InboxPage = lazy(() => import("./pages/InboxPage.tsx"));
 const EventsPage = lazy(() => import("./pages/EventsPage.tsx"));
 const TheShowPage = lazy(() => import("./pages/TheShowPage.tsx"));
 const HowdyApp = lazy(() => import("./pages/HowdyApp.tsx"));
@@ -433,6 +434,7 @@ const App = () => (
           <Route path="/employer-dashboard" element={<EmployerDashboard />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/feed" element={<FeedPage />} />
+          <Route path="/inbox" element={<InboxPage />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/the-show" element={<TheShowPage />} />
           <Route path="/community" element={<Community />} />

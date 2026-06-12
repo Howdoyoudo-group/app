@@ -101,6 +101,7 @@ const NAV_SECTIONS: NavSection[] = [
   {
     label: "Community",
     items: [
+      { label: "Inbox", to: "/inbox", description: "Messages & employer requests" },
       { label: "Feed", to: "/feed", description: "Industry news, videos & briefings" },
       { label: "People", to: "/community", description: "Members, chat & connections" },
       { label: "Events", to: "/events", description: "What's on in your industry" },
