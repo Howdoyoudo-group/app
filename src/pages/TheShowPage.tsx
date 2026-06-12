@@ -8,7 +8,6 @@ const LIME = "hsl(120, 100%, 45%)";
 const STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/gallery";
 
 const GALLERY_PHOTOS: { id: number; src?: string; alt: string }[] = [
-  { id: 1, src: `${STORAGE}/photo-1.jpg`, alt: "The Howdoyoudo mic" },
   { id: 2, src: `${STORAGE}/photo-2.jpg`, alt: "Live show audience" },
   { id: 3, src: `${STORAGE}/photo-3.jpg`, alt: "Filming at Tower Bridge" },
   { id: 4, src: `${STORAGE}/photo-4.jpg`, alt: "Interview at the show" },
