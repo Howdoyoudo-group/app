@@ -9,8 +9,9 @@ import { INDUSTRIES } from "@/data/industries";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Users, Flame, Calendar, ArrowRight, MapPin, MessageCircle,
-  Sparkles, Flag, Compass, Inbox, Star, GraduationCap, Briefcase,
+  Sparkles, Flag, Compass, Inbox, Star, GraduationCap, Briefcase, Play, ChevronLeft, ChevronRight,
 } from "lucide-react";
+import { useRef } from "react";
 import { ReportUserDialog } from "@/components/ReportUserDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import howdyMascot from "@/assets/howdy-mascot.png";
@@ -58,6 +59,76 @@ const activityFor = (slug: string, label: string) => {
     return { name, action, ago, label };
   });
 };
+
+// ---------- Dummy member talks ----------
+const MEMBER_TALKS = [
+  {
+    id: "talk-1",
+    speaker: "Priya Nair",
+    role: "Creative Director",
+    industry: "Fashion",
+    title: "How I went from intern to creative director in 6 years",
+    duration: "18 min",
+    views: "2.4k",
+    tag: "Career journey",
+    hue: 280,
+  },
+  {
+    id: "talk-2",
+    speaker: "Marcus Webb",
+    role: "Football Agent",
+    industry: "Football",
+    title: "What agents actually do — and how to break in",
+    duration: "24 min",
+    views: "5.1k",
+    tag: "Industry insight",
+    hue: 45,
+  },
+  {
+    id: "talk-3",
+    speaker: "Cleo Adeyemi",
+    role: "Music Producer",
+    industry: "Music",
+    title: "Building a studio career without the connections",
+    duration: "31 min",
+    views: "3.8k",
+    tag: "Real talk",
+    hue: 200,
+  },
+  {
+    id: "talk-4",
+    speaker: "Jamie Thornton",
+    role: "UX Lead",
+    industry: "Gaming",
+    title: "Getting your first games job from the outside",
+    duration: "22 min",
+    views: "1.9k",
+    tag: "Getting in",
+    hue: 12,
+  },
+  {
+    id: "talk-5",
+    speaker: "Sophia Lindqvist",
+    role: "Production Manager",
+    industry: "Film & TV",
+    title: "The real timeline of a TV career — what nobody tells you",
+    duration: "27 min",
+    views: "4.2k",
+    tag: "Career journey",
+    hue: 160,
+  },
+  {
+    id: "talk-6",
+    speaker: "Dev Patel",
+    role: "Brand Strategist",
+    industry: "Marketing",
+    title: "Pitching yourself when you have no case studies yet",
+    duration: "15 min",
+    views: "3.1k",
+    tag: "Skills",
+    hue: 330,
+  },
+];
 
 // ---------- Dummy mentors ----------
 const MENTOR_INDUSTRIES = ["Music","Film & TV","Fashion","Sport","Tech","Marketing","Finance","Creative Arts"];
@@ -185,6 +256,7 @@ function joinedLabel(created_at: string | null): string {
 
 const Community = () => {
   const { user } = useAuth();
+  const talksScrollRef = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState<string>("all");
   const [followers, setFollowers] = useState<Record<string, number>>({});
   const [totalMembers, setTotalMembers] = useState<number>(0);
@@ -756,6 +828,97 @@ const Community = () => {
                 </Card>
               );
             })}
+          </div>
+        </section>
+
+        {/* Member Talks carousel */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <h2 className="font-display text-xs tracking-[0.2em] uppercase text-foreground/80">
+                Member <span style={{ color: LIME }}>Talks</span>
+              </h2>
+              <DummyTag />
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                aria-label="Scroll left"
+                onClick={() => talksScrollRef.current?.scrollBy({ left: -280, behavior: "smooth" })}
+                className="w-8 h-8 rounded-full border-2 border-foreground/15 flex items-center justify-center hover:border-foreground/40 transition"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                aria-label="Scroll right"
+                onClick={() => talksScrollRef.current?.scrollBy({ left: 280, behavior: "smooth" })}
+                className="w-8 h-8 rounded-full border-2 border-foreground/15 flex items-center justify-center hover:border-foreground/40 transition"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          <div
+            ref={talksScrollRef}
+            className="flex gap-4 overflow-x-auto scrollbar-hide snap-x pb-2"
+          >
+            {MEMBER_TALKS.map((talk) => (
+              <div
+                key={talk.id}
+                className="shrink-0 snap-start w-[260px] sm:w-[300px] rounded-2xl border-2 border-foreground/10 overflow-hidden cursor-pointer hover:border-foreground/30 transition-colors group opacity-90"
+              >
+                {/* Thumbnail */}
+                <div
+                  className="relative h-[140px] flex items-center justify-center"
+                  style={{ background: `hsl(${talk.hue}, 55%, 88%)` }}
+                >
+                  <div className="text-center px-4">
+                    <div
+                      className="font-display font-900 text-[28px] leading-none mb-1"
+                      style={{ color: `hsl(${talk.hue}, 60%, 30%)` }}
+                    >
+                      {talk.speaker.split(" ")[0]}
+                    </div>
+                    <div
+                      className="font-display text-[10px] uppercase tracking-widest"
+                      style={{ color: `hsl(${talk.hue}, 50%, 40%)` }}
+                    >
+                      {talk.industry}
+                    </div>
+                  </div>
+                  {/* Play button */}
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/10 transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-background/90 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+                      <Play className="w-5 h-5 ml-0.5" />
+                    </div>
+                  </div>
+                  {/* Duration badge */}
+                  <span className="absolute bottom-2 right-2 rounded bg-black/60 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    {talk.duration}
+                  </span>
+                </div>
+                {/* Info */}
+                <div className="p-3">
+                  <span
+                    className="inline-block rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider mb-1.5"
+                    style={{ background: `hsl(${talk.hue}, 55%, 90%)`, color: `hsl(${talk.hue}, 50%, 30%)` }}
+                  >
+                    {talk.tag}
+                  </span>
+                  <div className="font-display font-700 text-sm leading-snug line-clamp-2 mb-2">
+                    {talk.title}
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-xs text-muted-foreground truncate">
+                      {talk.speaker} · {talk.role}
+                    </div>
+                    <div className="text-[11px] text-muted-foreground shrink-0 ml-2">{talk.views} views</div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 

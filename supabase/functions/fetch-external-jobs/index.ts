@@ -171,19 +171,21 @@ const INDUSTRY_KEYWORDS: Record<string, string[]> = {
   cars: [
     "automotive engineer", "vehicle technician", "MOT tester", "car sales executive",
     "service advisor automotive", "master technician", "EV powertrain", "automotive designer",
-    "dealership manager", "parts advisor", "body shop", "fleet manager",
+    "dealership manager", "parts advisor", "body shop",
     "automotive aftersales", "car mechanic", "vehicle dealership",
     // Expanded keywords
     "automotive", "dealership", "car dealer", "vehicle sales", "used car",
-    "service technician", "diagnostic technician", "vehicle inspector",
+    "service technician automotive", "diagnostic technician", "vehicle inspector",
     "panel beater", "bodyshop technician", "paint sprayer", "vehicle painter",
     "tyre fitter", "vehicle mechanic", "HGV technician", "LCV technician",
     "EV technician", "electric vehicle", "battery engineer", "powertrain engineer",
     "chassis engineer", "vehicle engineer", "calibration engineer",
     "aftersales advisor", "warranty administrator", "workshop controller",
-    "service manager", "sales manager automotive", "business manager dealership",
-    "fleet sales", "motor trade", "car retail", "vehicle preparation",
-    "transport manager", "vehicle logistics", "PDI technician",
+    "sales manager automotive", "business manager dealership",
+    "motor trade", "car retail", "vehicle preparation", "PDI technician",
+    "fleet manager automotive", "automotive fleet",
+    // Note: "transport manager", "fleet manager" (bare), "vehicle logistics" removed
+    // — too broad, pulls in 3PL/logistics roles with no automotive context
   ],
   travel: [
     // Aviation/airline — keep keywords short; Reed treats multi-word phrases
@@ -585,7 +587,8 @@ const ADZUNA_CATEGORY_TO_INDUSTRY: Record<string, string[]> = {
   "teaching-jobs": ["teaching"],
   "charity-voluntary-jobs": ["charity"],
   "property-jobs": ["estate-agency"],
-  "logistics-warehouse-jobs": ["grocery", "cars", "fashion", "footwear", "farming", "formula-1"],
+  "logistics-warehouse-jobs": ["grocery", "fashion", "footwear", "farming", "formula-1"],
+  // "cars" removed — automotive ≠ 3PL/warehouse; was pulling in haulage/logistics roles
   "sales-jobs": ["estate-agency", "cars", "fashion", "formula-1"],
   "travel-jobs": ["travel", "formula-1"],
   "manufacturing-jobs": ["cars", "beer", "coffee", "footwear", "fashion", "farming", "health", "formula-1"],
@@ -1632,7 +1635,7 @@ const REED_TITLE_BLOCKLIST: Record<string, RegExp> = {
   travel: /\b(estate agent|lettings negotiator|conveyancer|mortgage adviser|care assistant|nurse|support worker)\b/i,
   charity: /\b(cyber security|cybersecurity|software engineer|java developer|devops|sre|kafka)\b/i,
   pets: /\b(lecturer|fe teacher|further education|btec|examiner|teacher of|sen teacher|primary teacher|secondary teacher|teaching assistant|tutor|cyber security|cybersecurity|software engineer|java developer|devops|sre|kafka|sap consultant)\b/i,
-  cars: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|cook|chef|catering|kitchen assistant|kitchen porter|hertfordshire catering|school cook|barista|bartender|waiter|waitress)\b/i,
+  cars: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|cook|chef|catering|kitchen assistant|kitchen porter|hertfordshire catering|school cook|barista|bartender|waiter|waitress|warehouse operative|warehouse manager|warehouse supervisor|warehouse team leader|3pl|third.party logistics|logistics coordinator|logistics manager|logistics administrator|transport coordinator|transport planner|transport administrator|freight coordinator|freight manager|haulage|pallet|forklift|class 1 driver|class 2 driver|hgv driver|lgv driver|tramper driver|night trunk driver|delivery driver|multi.?drop driver|van driver|courier|last mile|parcel operative|picker packer|picking packer|fulfilment operative|distribution operative|inventory controller|stock controller)\b/i,
   "formula-1": /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|cook|chef|kitchen assistant|kitchen porter|barista|bartender|waiter|waitress|vehicle technician|mot tester|service advisor|car sales|dealership|used car|tyre fitter|delivery driver|courier|warehouse operative)\b/i,
   teaching: /\b(plumber|electrician|welder|forklift|hgv driver|cyber security|software engineer|paralegal|solicitor|barrister|legal counsel|swim school|lifeguard|marketing executive|marketing manager|marketing assistant|sales executive|recruitment consultant|estate agent|nurse|nursing|care assistant|support worker|psychologist|aspiring child|psychology graduate)\b/i,
   farming: /\b(shepherd['']?s bush|hollister|abercrombie|victoria['']?s secret|brand representative|key lead|hardware field|mechanical supervisor|field sales (?:executive|manager|representative)|field service engineer|mechanical design engineer|test.?commissioning engineer|maintenance technician|maintenance engineer|workshop engineer|technical trainer|criminal lawyer|head of prosecutions|prosecutor|rail engineering|automotive|industrial sales|uber|drive with uber|driver account|deliveroo|amazon flex|care assistant|care worker|carer|support worker|nurse|nursing|social worker|charity lawyer|solicitor|paralegal|barrister|hgv class|delivery driver|courier|warehouse operative|forklift|cleaner|housekeep|draughtsperson|draughtsman|draftsman|cad technician|architectural technician|refrigeration|electrician|plumber|cyber security|software engineer)\b/i,

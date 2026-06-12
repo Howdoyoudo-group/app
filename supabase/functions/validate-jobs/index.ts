@@ -171,6 +171,7 @@ const INDUSTRY_TITLE_BLOCKLIST: Record<string, RegExp> = {
   "food-drink": /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|forklift|wind turbine|gas turbine|power plant|substation|transmission|grid|hvdc|nuclear|electrical engineer|commissioning specialist|wams|epc)\b/i,
   hospitality: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|forklift|wind turbine|gas turbine|power plant|substation|transmission|grid|hvdc|nuclear|electrical engineer|commissioning specialist|wams|epc)\b/i,
   travel: /\b(estate agent|real estate agent|lettings negotiator|property valuer|conveyancer|mortgage adviser)\b/i,
+  cars: /\b(warehouse operative|warehouse manager|warehouse supervisor|3pl|third.party logistics|logistics coordinator|logistics manager|logistics administrator|transport coordinator|transport planner|transport administrator|freight coordinator|freight manager|haulage|pallet|forklift|class 1 driver|class 2 driver|hgv driver|lgv driver|tramper driver|night trunk|delivery driver|multi.?drop driver|van driver|courier driver|last mile|parcel operative|picker packer|fulfilment operative|distribution operative|care assistant|nurse|nursing|social worker|support worker|healthcare|cook|chef|catering|barista|bartender|waiter|waitress)\b/i,
 };
 
 // ── Banned companies: regardless of industry, these should never appear ──
@@ -219,7 +220,10 @@ const INDUSTRY_RELEVANCE_KEYWORDS: Record<string, RegExp> = {
   bakery: /\b(baker|bakery|bakehouse|pastry|patisserie|sourdough|bread|viennoiserie|cake decorator|chocolatier)\b/i,
   beer: /\b(brewer|brewery|beer|ale|lager|cask|keg|cellar|publican|landlord|landlady|tap room|hop|cask ale|craft beer)\b/i,
   travel: /\b(travel|tourism|tour operator|cruise|airline|cabin crew|flight attendant|holiday|hotel|resort|destination|booking|reservations|tour guide|adventure|expedition|hospitality|concierge|spa|wellness retreat)\b/i,
-  cars: /\b(car|automotive|vehicle|motor|mechanic|technician|MOT|garage|dealership|workshop|tyre|tyres|panel beater|paint sprayer|service advisor|parts advisor|salesperson)\b/i,
+  // Intentionally excludes bare "car", "vehicle", "motor" — these match "car allowance",
+  // "company vehicle", "motor insurance" in job descriptions for non-automotive roles.
+  // Relevance is confirmed by genuinely automotive terms in title or description.
+  cars: /\b(automotive|dealership|motor trade|MOT tester|vehicle technician|vehicle mechanic|vehicle inspector|car mechanic|car sales|car dealer|used car|new car|car retail|service advisor|parts advisor|workshop controller|bodyshop|body shop|panel beater|paint sprayer|tyre fitter|tyre technician|EV technician|electric vehicle technician|powertrain|chassis engineer|calibration engineer|vehicle engineer|diagnostics technician|PDI technician|aftersales|warranty administrator|dealership manager|fleet manager automotive|automotive fleet|motor vehicle technician)\b/i,
   pets: /\b(pet|pets|veterinary|vet|animal|dog|cat|grooming|kennel|cattery|pet shop|pet food|aquarium|reptile)\b/i,
   fashion: /\b(fashion|apparel|clothing|garment|textile|tailor|seamstress|pattern cutter|stylist|merchandiser|buyer|visual merchandiser|womenswear|menswear|childrenswear|accessories|jewellery|footwear|luxury|brand|boutique|retail assistant|store manager|sales assistant)\b/i,
   jewellery: /\b(jewell|jewelry|gold|silver|platinum|diamond|gemstone|watchmaker|goldsmith|silversmith|engraver|polisher|setter|valuer|hallmark|bullion|fine jewellery)\b/i,
