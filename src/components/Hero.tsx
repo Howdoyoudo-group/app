@@ -396,7 +396,7 @@ const Hero = () => {
           className="mt-12 md:mt-12 max-w-none"
         >
           <p className="font-display font-900 sm:text-2xl md:text-4xl leading-tight text-foreground text-2xl text-left">
-            The home of work <span style={{ color: LIME }}>curiosity</span>.
+            Start with what you <span style={{ color: LIME }}>love.</span> And see where it takes you.
           </p>
 
           <div className="mt-5 md:mt-8 flex flex-nowrap items-center gap-2 sm:gap-3 md:gap-4 overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
