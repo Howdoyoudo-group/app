@@ -3093,6 +3093,11 @@ const WORKDAY_TENANTS: Array<{
   { company: "Heineken",       industry: "beer",     tenant: "heineken",     wd: "wd3", site: "HNZ" },
   { company: "AB InBev",       industry: "beer",     tenant: "abinbev",      wd: "wd3", site: "AB-InBev" },
   { company: "Carlsberg Group", industry: "beer",    tenant: "carlsberg",    wd: "wd3", site: "External" },
+  { company: "Molson Coors",    industry: "beer",    tenant: "molsoncoors",  wd: "wd5", site: "MolsonCoors" },
+
+  // ===== Health / Pharma =====
+  { company: "Pfizer UK",       industry: "health",   tenant: "npfizer",     wd: "wd5", site: "External" },
+  { company: "Johnson & Johnson", industry: "health", tenant: "jj",          wd: "wd3", site: "External" },
 ];
 
 function isUkLocation(s: string): boolean {
@@ -4917,6 +4922,8 @@ const GREENHOUSE_TENANTS: GreenhouseTenant[] = [
   // Beer
   { board: "brewdog",          company: "BrewDog",          industry: "beer",        allUk: true  },
   { board: "greeneking",       company: "Greene King",      industry: "beer",        allUk: true  },
+  // Footwear
+  { board: "onrunning",        company: "On Running",       industry: "footwear",    allUk: false },
 ];
 
 async function fetchGreenhouseJobs(tenant: GreenhouseTenant) {
