@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 const voxpopsVideo = { url: "https://https-howdoyoudo-group.lovable.app/__l5e/assets-v1/867b66a7-10b5-43f6-9316-a1c231af2265/hdyd-voxpops-v6.mp4#t=0.001" };
-const promoVideo = { url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets/promo-web.mp4#t=0.001" };
+const promoVideo = { url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets/hdyd-explainer-web.mp4#t=0.001" };
 const INDUSTRIES = ["Fashion", "Football", "Music", "Beauty", "Food", "Travel", "Technology", "Beer", "Pets", "Gaming"];
 
 const About = () => {
