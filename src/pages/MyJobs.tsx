@@ -1260,7 +1260,18 @@ const MyJobs = () => {
         toast({ title: "Couldn't save job", description: error.message, variant: "destructive" });
       } else {
         invalidateCache(`myjobs-saved:${user.id}`);
-        toast({ title: "Saved to your list" });
+        toast({
+          title: "Saved to your list",
+          description: "View saved →",
+          action: (
+            <button
+              onClick={() => setInboxTab("saved")}
+              className="text-xs font-display font-700 underline underline-offset-2"
+            >
+              View saved
+            </button>
+          ),
+        } as any);
       }
     }
   }, [user, navigate, savedJobs, jobs]);
@@ -1644,6 +1655,7 @@ const MyJobs = () => {
   const navItems: { value: typeof inboxTab; label: string; icon: React.ReactNode; badge?: number; highlight?: boolean; to?: string }[] = [
     { value: "search",  label: "Jobs",   icon: <Search className="w-[22px] h-[22px]" />, to: "/marketplace" },
     { value: "jobs",    label: "Howdy Jobs",  icon: <img src={howdyMascot} alt="" className="w-7 h-7 object-contain" />, badge: scoredJobs.length },
+    { value: "saved",   label: "Saved", icon: <Bookmark className="w-[22px] h-[22px]" />, badge: savedJobs.length || undefined },
     { value: "links",   label: "Settings", icon: <Globe className="w-[22px] h-[22px]" /> },
   ];
 
