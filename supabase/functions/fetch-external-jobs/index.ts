@@ -309,6 +309,10 @@ for (const spec of INDUSTRY_REGISTRY) {
 const RSS_JOB_FEEDS: Record<string, { url: string; source: string; tags?: string[]; maxItems?: number }[]> = {
   cinema: [
     { url: "https://www.mandy.com/uk/job-search/rss?category=film", source: "Mandy.com" },
+    { url: "https://www.screenskills.com/jobs-and-opportunities/rss/", source: "ScreenSkills" },
+    { url: "https://artsjobs.artscouncil.org.uk/vacancies/rss/?discipline=Film%20%26%20Video", source: "Arts Jobs Film" },
+    { url: "https://www.bcreative.co.uk/jobs/feed/", source: "BCreative Film Jobs" },
+    { url: "https://careers.bbc.co.uk/rss/jobs.xml", source: "BBC Careers" },
   ],
   music: [
     { url: "https://www.musictechjobs.com/feed/", source: "MusicTechJobs" },
@@ -339,6 +343,9 @@ const RSS_JOB_FEEDS: Record<string, { url: string; source: string; tags?: string
   ],
   journalism: [
     { url: "https://pressgazette.co.uk/jobs/feed/", source: "Press Gazette" },
+    { url: "https://www.journalism.co.uk/jobs/rss/", source: "Journalism.co.uk" },
+    { url: "https://www.theguardian.com/guardian-jobs-rss", source: "Guardian Jobs" },
+    { url: "https://artsjobs.artscouncil.org.uk/vacancies/rss/?discipline=Media%20%26%20Film", source: "Arts Jobs Media" },
   ],
   football: [
     { url: "https://www.leisurejobs.com/jobs/rss?category=sport", source: "LeisureJobs Sport" },
@@ -3038,6 +3045,54 @@ const WORKDAY_TENANTS: Array<{
   },
   // Brentford FC - football (Workday wd107)
   { company: "Brentford FC", industry: "football", tenant: "brentfordfootballclub", wd: "wd107", site: "BrentfordFC", allUk: true },
+
+  // ===== Cinema / Film & TV =====
+  { company: "Sky",            industry: "cinema",   tenant: "sky",          wd: "wd3", site: "External",
+    routes: [
+      { match: /\b(news|journalism|reporter|anchor|correspondent|newsroom)\b/i, industry: "journalism" },
+      { match: /\b(sport|premier league|football|f1|formula)\b/i,              industry: "football" },
+    ],
+  },
+  { company: "Netflix",        industry: "cinema",   tenant: "netflix",      wd: "wd1", site: "Netflix_External_Site" },
+  { company: "Warner Bros. Discovery", industry: "cinema", tenant: "wbd",    wd: "wd5", site: "careers",
+    routes: [
+      { match: /\b(hbo|max|streaming|series|drama|comedy|scripted)\b/i, industry: "cinema" },
+      { match: /\b(news|cnbc|cnn|cbs)\b/i, industry: "journalism" },
+    ],
+  },
+  { company: "Paramount",      industry: "cinema",   tenant: "paramount",    wd: "wd3", site: "External" },
+  { company: "Odeon Cinemas",  industry: "cinema",   tenant: "odeon",        wd: "wd3", site: "External", allUk: true },
+  { company: "Electronic Arts", industry: "gaming",  tenant: "ea",           wd: "wd1", site: "EA_Careers" },
+  { company: "Ubisoft",        industry: "gaming",   tenant: "ubisoft",      wd: "wd3", site: "Ubisoft_Careers" },
+
+  // ===== Journalism / Media =====
+  { company: "News UK (Times / Sun)", industry: "journalism", tenant: "newsuk", wd: "wd3", site: "External", allUk: true },
+  { company: "ITV",            industry: "journalism", tenant: "itv",        wd: "wd3", site: "External",
+    routes: [
+      { match: /\b(drama|comedy|entertainment|reality|love island|production)\b/i, industry: "cinema" },
+    ],
+  },
+
+  // ===== Footwear =====
+  { company: "Adidas",         industry: "footwear", tenant: "adidas",       wd: "wd3", site: "adidas-jobs" },
+  { company: "Foot Locker",    industry: "footwear", tenant: "footlocker",   wd: "wd5", site: "FootLockerCareers" },
+  { company: "New Balance",    industry: "footwear", tenant: "newbalance",   wd: "wd3", site: "External" },
+
+  // ===== Jewellery =====
+  { company: "Pandora",        industry: "jewellery", tenant: "pandora",     wd: "wd3", site: "Pandora_Careers" },
+  { company: "Richemont (Cartier/IWC)", industry: "jewellery", tenant: "richemont", wd: "wd3", site: "Richemont" },
+  { company: "LVMH",           industry: "jewellery", tenant: "lvmh",        wd: "wd3", site: "LVMH_Careers",
+    routes: [
+      { match: /\b(fashion|clothing|apparel|leather|handbag|luggage|dior|givenchy|fendi|kenzo|loewe)\b/i, industry: "fashion" },
+      { match: /\b(wine|champagne|moet|hennessy|spirits|cognac|drink)\b/i, industry: "beer" },
+      { match: /\b(perfume|cosmetic|beauty|makeup|skincare|guerlain|benefit|fresh|make up for ever)\b/i, industry: "beauty" },
+    ],
+  },
+
+  // ===== Beer / Drinks =====
+  { company: "Heineken",       industry: "beer",     tenant: "heineken",     wd: "wd3", site: "HNZ" },
+  { company: "AB InBev",       industry: "beer",     tenant: "abinbev",      wd: "wd3", site: "AB-InBev" },
+  { company: "Carlsberg Group", industry: "beer",    tenant: "carlsberg",    wd: "wd3", site: "External" },
 ];
 
 function isUkLocation(s: string): boolean {
@@ -4837,6 +4892,31 @@ const GREENHOUSE_TENANTS: GreenhouseTenant[] = [
   { board: "prsformusic",      company: "PRS for Music",  industry: "music",         allUk: true  },
   { board: "concord",          company: "Concord Music",  industry: "music",         allUk: false },
   { board: "hospitalrecords",  company: "Hospital Records", industry: "music",       allUk: true  },
+  // Music
+  { board: "kobalt",           company: "Kobalt Music",     industry: "music",       allUk: false },
+  { board: "beggarsgroup",     company: "Beggars Group",    industry: "music",       allUk: true  },
+  // Cinema / Film & TV / VFX
+  { board: "framestore",       company: "Framestore",       industry: "cinema",      allUk: true  },
+  { board: "dneg",             company: "DNEG",             industry: "cinema",      allUk: true  },
+  { board: "everymancinema",   company: "Everyman Cinema",  industry: "cinema",      allUk: true  },
+  { board: "themill",          company: "The Mill",         industry: "cinema",      allUk: true  },
+  { board: "cinesite",         company: "Cinesite",         industry: "cinema",      allUk: true  },
+  { board: "lionsgate",        company: "Lionsgate",        industry: "cinema",      allUk: false },
+  // Journalism / Media
+  { board: "reach",            company: "Reach plc",        industry: "journalism",  allUk: true  },
+  { board: "theguardian",      company: "The Guardian",     industry: "journalism",  allUk: true  },
+  { board: "hearstuk",         company: "Hearst UK",        industry: "journalism",  allUk: true  },
+  { board: "gbnews",           company: "GB News",          industry: "journalism",  allUk: true  },
+  { board: "telegraph",        company: "The Telegraph",    industry: "journalism",  allUk: true  },
+  // Footwear
+  { board: "drmartens",        company: "Dr. Martens",      industry: "footwear",    allUk: false },
+  { board: "schuh",            company: "Schuh",            industry: "footwear",    allUk: true  },
+  // Gaming
+  { board: "sega",             company: "SEGA",             industry: "gaming",      allUk: false },
+  { board: "wargaming",        company: "Wargaming",        industry: "gaming",      allUk: false },
+  // Beer
+  { board: "brewdog",          company: "BrewDog",          industry: "beer",        allUk: true  },
+  { board: "greeneking",       company: "Greene King",      industry: "beer",        allUk: true  },
 ];
 
 async function fetchGreenhouseJobs(tenant: GreenhouseTenant) {
@@ -5724,10 +5804,22 @@ type LeverTenant = {
 };
 
 const LEVER_TENANTS: LeverTenant[] = [
-  { company_slug: "spotify",    company: "Spotify",    industry: "music", allUk: false },
-  { company_slug: "soundcloud", company: "SoundCloud", industry: "music", allUk: false },
-  { company_slug: "deezer",     company: "Deezer",     industry: "music", allUk: false },
-  { company_slug: "ticketmaster", company: "Ticketmaster", industry: "music", allUk: false },
+  { company_slug: "spotify",      company: "Spotify",        industry: "music",     allUk: false },
+  { company_slug: "soundcloud",   company: "SoundCloud",     industry: "music",     allUk: false },
+  { company_slug: "deezer",       company: "Deezer",         industry: "music",     allUk: false },
+  { company_slug: "ticketmaster", company: "Ticketmaster",   industry: "music",     allUk: false },
+  // Gaming
+  { company_slug: "rockstargames", company: "Rockstar Games", industry: "gaming",   allUk: false },
+  { company_slug: "take-two",      company: "Take-Two Interactive", industry: "gaming", allUk: false },
+  { company_slug: "rebellion",     company: "Rebellion",     industry: "gaming",    allUk: true  },
+  // Footwear
+  { company_slug: "kurtgeiger",   company: "Kurt Geiger",    industry: "footwear",  allUk: true  },
+  // Journalism
+  { company_slug: "the-economist-group", company: "The Economist", industry: "journalism", allUk: false },
+  { company_slug: "future-plc",   company: "Future plc",     industry: "journalism", allUk: true  },
+  // Cinema
+  { company_slug: "bfi",          company: "BFI",            industry: "cinema",    allUk: true  },
+  { company_slug: "sister-pictures", company: "Sister Pictures", industry: "cinema", allUk: true },
 ];
 
 async function fetchLeverJobs(tenant: LeverTenant) {
