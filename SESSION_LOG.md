@@ -5,6 +5,38 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-13 — Andrew (main branch)
+
+### What was done
+- **Built `detect-ats-boards` edge function** — scans career URLs one company at a time, detects ATS type from URL patterns + page fetching, saves to `ats_detection_results` table
+- **Created `scripts/run-ats-detection.sh`** — local runner that iterates 158 companies and calls the edge function sequentially
+- **Ran full ATS scan** — 43/158 companies detected. New boards found:
+  - Charlotte Tilbury → Workable (`charlotte-tilbury`)
+  - On Running → Greenhouse (`onrunning`)
+  - Molson Coors → Workday (`molsoncoors.wd5`)
+  - Pfizer UK → Workday (`npfizer.wd5`)
+  - Johnson & Johnson → Workday (`jj.wd3`)
+  - BBC → SuccessFactors (not yet integrated)
+  - Universal Pictures → SmartRecruiters (not yet integrated)
+  - Tails.com → Teamtailor (not yet integrated)
+- **Added new boards to scraper** — Molson Coors, Pfizer, J&J (Workday) + On Running (Greenhouse) deployed to fetch-external-jobs
+- Deployed updated `fetch-external-jobs` function
+
+### Current state
+- ATS scan results stored in `ats_detection_results` table
+- 4 new employer boards active in scraper
+
+### Left for next session
+- **Integrate BBC (SuccessFactors)** — needs SuccessFactors API integration
+- **Integrate Universal Pictures (SmartRecruiters)** — add company ID to SmartRecruiters scraper
+- **Integrate Tails.com (Teamtailor)** — build Teamtailor scraper or use their jobs feed
+- **Re-run ATS scan with more companies** — many "not detected" companies need Firecrawl to detect JS-rendered career pages. Check `FIRECRAWL_API_KEY` is set in Supabase secrets
+- **Verify new Workday tenants** — confirm Molson Coors/Pfizer/J&J are returning UK jobs
+- **URGENT: Fix pg_cron silently stopping** — see Woody's note
+- Fix howdoyoudo.co.uk bare domain — add A record `@ → 216.198.79.1` in 123-reg DNS
+
+---
+
 ## 2026-06-12 — Woody (main branch)
 
 ### What was done
