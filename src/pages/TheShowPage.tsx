@@ -25,9 +25,9 @@ const FEATURED_VIDEOS = [
   },
   {
     id: "promo",
-    title: "How Do You Do — The Show",
-    description: "A taste of what we're building. Real people, real industries, no corporate fluff.",
-    url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets/promo-web.mp4#t=0.001",
+    title: "HDYD Explainer Film — Start with what you love",
+    description: "Who we are, what we're building, and why. Watch the full explainer.",
+    url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets/hdyd-explainer-web.mp4#t=0.001",
     muted: true,
   },
 ];
