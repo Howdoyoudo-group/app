@@ -273,8 +273,34 @@ export default function MatchMe() {
           {!loading && user && (
             <div className="space-y-14">
 
+              {/* ── Nav grid of 7 tiles ── */}
+              <motion.div {...fadeUp} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                {[
+                  { num: "01", title: "What we know", desc: "Your signals & profile", href: "#what-we-know", bg: "bg-foreground/5", border: "border-foreground/15", numCol: "text-foreground/30" },
+                  { num: "02", title: "Howdy Jobs", desc: "Jobs ranked for you", href: "#howdy-jobs", bg: "bg-primary/5", border: "border-primary/20", numCol: "text-primary/40" },
+                  { num: "03", title: "Suggested Roles", desc: "Roles from your CV", href: "#suggested-roles", bg: "bg-blue-50/60", border: "border-blue-200", numCol: "text-blue-300" },
+                  { num: "04", title: "Suggested Industries", desc: "Industries from your CV", href: "#suggested-industries", bg: "bg-blue-50/60", border: "border-blue-200", numCol: "text-blue-300" },
+                  { num: "05", title: "Worlds Collide", desc: "Crossover roles", href: "#worlds-collide", bg: "bg-[hsl(120,100%,45%,0.08)]", border: "border-[hsl(120,100%,45%,0.4)]", numCol: "text-[hsl(120,100%,30%,0.4)]" },
+                  { num: "06", title: "What If Machine", desc: "Explore any combination", href: "#what-if-machine", bg: "bg-foreground/5", border: "border-foreground/15", numCol: "text-foreground/30" },
+                  { num: "07", title: "Side Hustles", desc: "Matched to your skills", href: "#side-hustles", bg: "bg-purple-50/60", border: "border-purple-200", numCol: "text-purple-300" },
+                ].map((item) => (
+                  <a
+                    key={item.num}
+                    href={item.href}
+                    className={`group flex flex-col gap-2 p-4 rounded-2xl border-2 ${item.bg} ${item.border} hover:-translate-y-0.5 transition-all`}
+                  >
+                    <span className={`font-display font-900 text-2xl leading-none ${item.numCol}`}>{item.num}</span>
+                    <div>
+                      <p className="font-display font-900 text-sm uppercase tracking-wide leading-tight">{item.title}</p>
+                      <p className="font-body text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                    </div>
+                    <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/50 group-hover:text-foreground transition-colors mt-auto" />
+                  </a>
+                ))}
+              </motion.div>
+
               {/* ── 1. WHAT WE KNOW ── */}
-              <motion.section {...fadeUp}>
+              <motion.section {...fadeUp} id="what-we-know">
                 <div className="flex items-center justify-between gap-3 mb-5">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-xl bg-foreground/10 flex items-center justify-center shrink-0">
@@ -466,7 +492,7 @@ export default function MatchMe() {
               </motion.section>
 
               {/* ── 2. HOWDY JOBS ── */}
-              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.08 }}>
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.08 }} id="howdy-jobs">
                 <Link
                   to="/my-jobs?tab=jobs"
                   className="group relative flex flex-col sm:flex-row items-center gap-6 bg-foreground text-background rounded-3xl p-6 md:p-8 overflow-hidden hover:-translate-y-0.5 transition-transform"
@@ -506,7 +532,7 @@ export default function MatchMe() {
 
               {/* ── 3. SUGGESTED ROLES (from CV) ── */}
               {results?.roleMatches && results.roleMatches.length > 0 && (
-                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.12 }}>
+                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.12 }} id="suggested-roles">
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
                       <Briefcase className="w-4 h-4 text-blue-600" />
@@ -537,7 +563,7 @@ export default function MatchMe() {
 
               {/* ── 4. SUGGESTED INDUSTRIES (from CV) ── */}
               {results?.industryFit && results.industryFit.length > 0 && (
-                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.16 }}>
+                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.16 }} id="suggested-industries">
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
                       <Building2 className="w-4 h-4 text-blue-600" />
@@ -573,7 +599,7 @@ export default function MatchMe() {
               )}
 
               {/* ── 5. WORLDS COLLIDE — tile grid ── */}
-              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.2 }}>
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.2 }} id="worlds-collide">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "hsl(120,100%,45%)" }}>
                     <Shuffle className="w-4 h-4 text-black" />
@@ -656,12 +682,12 @@ export default function MatchMe() {
               </motion.section>
 
               {/* ── 6. THE WHAT IF MACHINE ── */}
-              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.25 }}>
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.25 }} id="what-if-machine">
                 <RoleMixer userIndustries={effectiveIndustryNames} />
               </motion.section>
 
               {/* ── 7. SIDE HUSTLES ── */}
-              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.3 }}>
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.3 }} id="side-hustles">
                 <div className="flex items-center gap-3 mb-2">
                   <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
                     <Zap className="w-4 h-4 text-purple-600" />
