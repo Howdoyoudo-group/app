@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, Briefcase, Building2, Zap, Rocket, User, Heart, Target, Brain, Shuffle, MapPin, Layers, CheckCircle2, ChevronRight } from "lucide-react";
+import {
+  Sparkles, ArrowRight, Briefcase, Building2, Zap, Rocket, User,
+  Heart, Target, Brain, Shuffle, MapPin, Layers, CheckCircle2,
+  ChevronRight, Edit3,
+} from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getMatchingIntersections, type SkillCategory, type IntersectionRole } from "@/data/intersection-roles";
-import { getEffectiveIndustriesTagged, getEffectiveRolesTagged, getCvIndustriesTagged, type TaggedIndustry, type TaggedRole } from "@/lib/profile-matching";
+import { getEffectiveIndustriesTagged, getEffectiveRolesTagged, getCvIndustriesTagged, type TaggedIndustry } from "@/lib/profile-matching";
 import { RoleMixer } from "@/components/RoleMixer";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
@@ -40,13 +44,14 @@ import iconTravel from "@/assets/email-icon-travel.png";
 import iconWellness from "@/assets/email-icon-wellness.png";
 
 const INDUSTRY_ICONS: Record<string, string> = {
-  "Bakery": iconBakery, "Beauty": iconBeauty, "Beer & Drinks": iconBeer, "Cars": iconCars,
-  "Charity": iconCharity, "Cinema & Film": iconCinema, "Coffee": iconCoffee,
-  "Estate Agency": iconEstateAgency, "Fashion": iconFashion, "Football": iconFootball,
-  "Footwear": iconFootwear, "Gaming": iconGaming, "Grocery": iconGrocery,
-  "Hospitality": iconHospitality, "Interior Design": iconInteriorDesign,
-  "Jewellery": iconJewellery, "Journalism": iconJournalism, "Music": iconMusic,
-  "Pets": iconPets, "Physiotherapy": iconPhysiotherapy, "Psychotherapy": iconPsychotherapy,
+  "Bakery": iconBakery, "Beauty": iconBeauty, "Beer & Drinks": iconBeer,
+  "Cars": iconCars, "Charity": iconCharity, "Cinema & Film": iconCinema,
+  "Coffee": iconCoffee, "Estate Agency": iconEstateAgency, "Fashion": iconFashion,
+  "Football": iconFootball, "Footwear": iconFootwear, "Gaming": iconGaming,
+  "Grocery": iconGrocery, "Hospitality": iconHospitality,
+  "Interior Design": iconInteriorDesign, "Jewellery": iconJewellery,
+  "Journalism": iconJournalism, "Music": iconMusic, "Pets": iconPets,
+  "Physiotherapy": iconPhysiotherapy, "Psychotherapy": iconPsychotherapy,
   "Teaching": iconTeaching, "Travel": iconTravel, "Wellness": iconWellness,
 };
 
@@ -56,28 +61,28 @@ interface UnderstandMeResult {
   roleMatches?: RoleMatch[];
   industryFit?: IndustryFit[];
   transferableSkills?: string[];
-  personalityInsights?: string;
 }
 
 const INDUSTRY_SLUGS: Record<string, string> = {
   "Beauty": "beauty", "Beer & Drinks": "beer", "Cars": "cars", "Cinema & Film": "cinema",
   "Coffee": "coffee", "Fashion": "fashion", "Football": "football", "Gaming": "gaming",
   "Grocery": "grocery", "Health": "health", "Hospitality": "hospitality",
-  "Influencing": "influencing", "Interior Design": "interior-design", "Jewellery": "jewellery",
-  "Journalism": "journalism", "Money": "money", "Music": "music", "Pets": "pets",
-  "Physiotherapy": "physiotherapy", "Psychotherapy": "psychotherapy", "Teaching": "teaching",
-  "Travel": "travel", "Wellness": "wellness", "Formula 1": "formula-1", "Farming": "farming",
+  "Influencing": "influencing", "Interior Design": "interior-design",
+  "Jewellery": "jewellery", "Journalism": "journalism", "Money": "money",
+  "Music": "music", "Pets": "pets", "Physiotherapy": "physiotherapy",
+  "Psychotherapy": "psychotherapy", "Teaching": "teaching", "Travel": "travel",
+  "Wellness": "wellness", "Formula 1": "formula-1", "Farming": "farming",
   "Charity": "charity", "Estate Agency": "estate-agency", "Horse Racing": "horse-racing",
   "Bakery": "bakery", "Footwear": "footwear",
 };
 
-const SIDE_HUSTLE_IDEAS: { title: string; desc: string; link: string; tags: SkillCategory[] }[] = [
-  { title: "Freelance Design", desc: "Logos, social graphics, presentations. Start on Fiverr or direct to small businesses.", link: "/side-hustles", tags: ["creative"] },
-  { title: "Content Creation", desc: "Build an audience around something you know. Monetise through brand deals or courses.", link: "/side-hustles", tags: ["creative", "digital"] },
-  { title: "Tutoring & Teaching", desc: "Share what you know. Tutor students, teach skills online, or run workshops.", link: "/side-hustles", tags: ["people"] },
-  { title: "Social Media Management", desc: "Help local businesses grow their online presence — a learnable, in-demand skill.", link: "/side-hustles", tags: ["digital", "creative"] },
-  { title: "Photography & Video", desc: "Events, portraits, product shots. Equipment costs are falling. Talent travels.", link: "/side-hustles", tags: ["creative", "practical"] },
-  { title: "Copywriting & Content", desc: "Write for brands, blogs and websites. One of the most flexible digital skills.", link: "/side-hustles", tags: ["creative", "digital"] },
+const SIDE_HUSTLE_IDEAS: { title: string; desc: string; link: string; tags: SkillCategory[]; why: string }[] = [
+  { title: "Freelance Design", desc: "Logos, social graphics, presentations. Start on Fiverr or direct to small businesses.", link: "/side-hustles", tags: ["creative"], why: "You have Creative skills" },
+  { title: "Content Creation", desc: "Build an audience around something you know. Monetise through brand deals or courses.", link: "/side-hustles", tags: ["creative", "digital"], why: "Matches your Creative + Digital mix" },
+  { title: "Tutoring & Teaching", desc: "Share what you know. Tutor students, teach skills online, or run workshops.", link: "/side-hustles", tags: ["people"], why: "You're a people person" },
+  { title: "Social Media Management", desc: "Help local businesses grow their online presence — a learnable, in-demand skill.", link: "/side-hustles", tags: ["digital", "creative"], why: "Matches your Digital + Creative skills" },
+  { title: "Photography & Video", desc: "Events, portraits, product shots. Equipment costs are falling. Talent travels.", link: "/side-hustles", tags: ["creative", "practical"], why: "Good fit for Creative + Practical skills" },
+  { title: "Copywriting & Content", desc: "Write for brands, blogs and websites. One of the most flexible digital skills.", link: "/side-hustles", tags: ["creative", "digital"], why: "Matches your Creative + Digital mix" },
 ];
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
@@ -110,23 +115,7 @@ interface ProfileContext {
   skillCategories: SkillCategory[];
   hasQuiz: boolean;
   effectiveIndustries: TaggedIndustry[];
-  effectiveRoles: TaggedRole[];
   cvIndustries: TaggedIndustry[];
-}
-
-function Chip({ children, variant = "default" }: { children: React.ReactNode; variant?: "default" | "cv" | "desired" | "passion" | "skill" }) {
-  const styles: Record<string, string> = {
-    default: "bg-background border border-foreground/20 text-foreground",
-    cv: "bg-blue-50 border border-blue-200 text-blue-700",
-    desired: "bg-primary/10 border border-primary/30 text-primary",
-    passion: "bg-amber-50 border border-amber-200 text-amber-800",
-    skill: "bg-purple-50 border border-purple-200 text-purple-700",
-  };
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full font-display font-700 text-xs ${styles[variant]}`}>
-      {children}
-    </span>
-  );
 }
 
 export default function MatchMe() {
@@ -138,7 +127,7 @@ export default function MatchMe() {
     riasecScores: null, passions: [], industryInterests: [],
     rolePreferences: [], targetCompanies: [], selfDeclaredSkills: [],
     careerLevel: null, location: null, skillCategories: [], hasQuiz: false,
-    effectiveIndustries: [], effectiveRoles: [], cvIndustries: [],
+    effectiveIndustries: [], cvIndustries: [],
   });
 
   useEffect(() => {
@@ -167,7 +156,6 @@ export default function MatchMe() {
       const careerLevel: string | null = pb.careerLevel || jp.careerLevel || null;
       const location: string | null = pb.location || jp.location || jp.preferredLocation || null;
 
-      // Flatten self-declared skills from onboarding categories
       const skillsObj: any = pb.skills || {};
       const selfDeclaredSkills: string[] = [
         ...(Array.isArray(skillsObj.creative) ? skillsObj.creative : []),
@@ -180,7 +168,6 @@ export default function MatchMe() {
       const industryInterests: string[] = data?.industry_interests || [];
       const rolePrefs: string[] = data?.role_preferences || [];
 
-      // Derive skill categories from role preferences
       const rolePrefLower = rolePrefs.map((r) => r.toLowerCase());
       const skillCategories: SkillCategory[] = [];
       if (rolePrefLower.some((r) => ["creative", "marketing", "content", "brand", "design", "media", "influenc"].some((k) => r.includes(k)))) skillCategories.push("creative");
@@ -196,49 +183,49 @@ export default function MatchMe() {
 
       const understandMeResults = (data as any)?.understand_me_results || null;
       const effectiveIndustries = getEffectiveIndustriesTagged(industryInterests, understandMeResults);
-      const effectiveRoles = getEffectiveRolesTagged(rolePrefs, understandMeResults);
       const cvIndustries = getCvIndustriesTagged(understandMeResults);
 
       setProfile({
         riasecScores: riasec, passions: uniquePassions, industryInterests,
         rolePreferences: rolePrefs, targetCompanies, selfDeclaredSkills,
         careerLevel, location, skillCategories, hasQuiz: !!riasec,
-        effectiveIndustries, effectiveRoles, cvIndustries,
+        effectiveIndustries, cvIndustries,
       });
       setLoading(false);
     })();
   }, [user]);
 
-  const hasResults = results && (
-    (results.roleMatches && results.roleMatches.length > 0) ||
-    (results.industryFit && results.industryFit.length > 0)
-  );
+  const hasResults = !!(results?.roleMatches?.length || results?.industryFit?.length);
 
-  const sidehustles = [...SIDE_HUSTLE_IDEAS]
-    .map((s) => ({ ...s, score: s.tags.filter((t) => profile.skillCategories.includes(t)).length }))
-    .sort((a, b) => b.score - a.score)
-    .slice(0, 3);
-
-  // Worlds Collide: STATIC ONLY (no AI intersections — they can hallucinate irrelevant industries)
+  // Worlds Collide — static only, uses effective industries (desired > CV fallback)
   const effectiveIndustryNames = profile.effectiveIndustries.map((i) => i.name);
   const industrySlugSet = new Set(effectiveIndustryNames.map((i) => INDUSTRY_SLUGS[i] || i.toLowerCase()));
-  const staticIntersections: IntersectionRole[] = getMatchingIntersections(
+  const worldsCollide: IntersectionRole[] = getMatchingIntersections(
     Array.from(industrySlugSet),
     profile.skillCategories,
     profile.rolePreferences,
   );
 
-  // Top RIASEC traits (sorted descending)
+  // Side hustles — ranked by skill match, with dynamic why text
+  const sidehustles = [...SIDE_HUSTLE_IDEAS]
+    .map((s) => ({
+      ...s,
+      score: s.tags.filter((t) => profile.skillCategories.includes(t)).length,
+      whyText: profile.skillCategories.length > 0
+        ? s.why
+        : "Popular with career changers",
+    }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
+
   const topRiasec = profile.riasecScores
     ? (Object.entries(profile.riasecScores) as [string, number][]).sort((a, b) => b[1] - a[1])
     : [];
 
-  // Signal completeness — what's missing
   const hasDesiredIndustries = profile.industryInterests.length > 0;
   const hasDesiredRoles = profile.rolePreferences.length > 0;
   const hasPassions = profile.passions.length > 0;
   const hasCvData = hasResults;
-  const hasRiasec = profile.hasQuiz;
 
   return (
     <>
@@ -254,7 +241,7 @@ export default function MatchMe() {
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
                 <span className="font-display font-700 text-xs uppercase tracking-widest">Your matches</span>
               </div>
-              <h1 className="font-display font-900 text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-foreground">
+              <h1 className="font-display font-900 text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight">
                 {firstName ? `Here's your picture,\n${firstName}.` : "Here's your\nbig picture."}
               </h1>
               <p className="font-body text-base md:text-lg text-muted-foreground mt-4 max-w-xl mx-auto">
@@ -276,7 +263,7 @@ export default function MatchMe() {
             <motion.div {...fadeUp} className="text-center py-16 border-2 border-dashed border-foreground/20 rounded-3xl">
               <User className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h2 className="font-display font-900 text-2xl mb-2">Sign in to see your matches</h2>
-              <p className="font-body text-muted-foreground mb-6">Create your profile and we'll match you to roles, industries and opportunities.</p>
+              <p className="font-body text-muted-foreground mb-6">Create your profile and we'll match you to roles and opportunities.</p>
               <Button asChild size="lg" className="rounded-full">
                 <Link to="/auth">Sign in / Create account <ArrowRight className="w-4 h-4 ml-2" /></Link>
               </Button>
@@ -286,70 +273,70 @@ export default function MatchMe() {
           {!loading && user && (
             <div className="space-y-14">
 
-              {/* ── 1. SIGNAL DASHBOARD ── */}
+              {/* ── 1. WHAT WE KNOW ── */}
               <motion.section {...fadeUp}>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-9 h-9 rounded-xl bg-foreground/10 flex items-center justify-center shrink-0">
-                    <Layers className="w-4 h-4 text-foreground" />
+                <div className="flex items-center justify-between gap-3 mb-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-foreground/10 flex items-center justify-center shrink-0">
+                      <Layers className="w-4 h-4 text-foreground" />
+                    </div>
+                    <div>
+                      <h2 className="font-display font-900 text-xl uppercase tracking-wide">What Howdy knows about you</h2>
+                      <p className="font-body text-xs text-muted-foreground">The signals we use to match your jobs</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="font-display font-900 text-xl uppercase tracking-wide">What Howdy knows about you</h2>
-                    <p className="font-body text-xs text-muted-foreground">All the signals we use to rank your matches</p>
-                  </div>
+                  <Link to="/my-profile" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-foreground/20 font-display font-700 text-xs uppercase tracking-wide hover:bg-foreground hover:text-background transition-colors shrink-0">
+                    <Edit3 className="w-3 h-3" /> Edit
+                  </Link>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-                  {/* From your CV */}
+                  {/* From CV */}
                   <div className="border-2 border-blue-200 rounded-2xl p-4 bg-blue-50/40 space-y-4">
-                    <p className="font-display font-700 text-[10px] uppercase tracking-widest text-blue-600">From your CV (Understand Me)</p>
-
+                    <div className="flex items-center justify-between">
+                      <p className="font-display font-700 text-[10px] uppercase tracking-widest text-blue-600">From your CV</p>
+                      {!hasCvData && (
+                        <Link to="/my-profile" className="font-display font-700 text-[10px] uppercase tracking-widest text-blue-500 underline">Run Understand Me →</Link>
+                      )}
+                    </div>
                     {hasCvData ? (
                       <>
                         {results!.industryFit && results!.industryFit.length > 0 && (
                           <div>
-                            <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
-                              <Building2 className="w-3 h-3" /> Experience industries
-                            </p>
+                            <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Experience industries</p>
                             <div className="flex flex-wrap gap-1.5">
                               {results!.industryFit.slice(0, 5).map((ind) => (
-                                <Chip key={ind.industry} variant="cv">{ind.industry} <span className="ml-1 opacity-60">{ind.confidence}%</span></Chip>
+                                <span key={ind.industry} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-100 border border-blue-200 font-display font-700 text-xs text-blue-700">
+                                  {ind.industry}<span className="opacity-50 text-[9px]">{ind.confidence}%</span>
+                                </span>
                               ))}
                             </div>
                           </div>
                         )}
                         {results!.roleMatches && results!.roleMatches.length > 0 && (
                           <div>
-                            <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
-                              <Briefcase className="w-3 h-3" /> Experience roles
-                            </p>
+                            <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Experience roles</p>
                             <div className="flex flex-wrap gap-1.5">
                               {results!.roleMatches.slice(0, 4).map((r) => (
-                                <Chip key={r.slug} variant="cv">{r.role}</Chip>
+                                <span key={r.slug} className="px-2.5 py-1 rounded-full bg-blue-100 border border-blue-200 font-display font-700 text-xs text-blue-700">{r.role}</span>
                               ))}
                             </div>
                           </div>
                         )}
                         {results!.transferableSkills && results!.transferableSkills.length > 0 && (
                           <div>
-                            <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
-                              <CheckCircle2 className="w-3 h-3" /> Transferable skills
-                            </p>
+                            <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Transferable skills</p>
                             <div className="flex flex-wrap gap-1.5">
                               {results!.transferableSkills.slice(0, 6).map((sk) => (
-                                <Chip key={sk} variant="cv">{sk}</Chip>
+                                <span key={sk} className="px-2.5 py-1 rounded-full bg-blue-100 border border-blue-200 font-display font-700 text-xs text-blue-700">{sk}</span>
                               ))}
                             </div>
                           </div>
                         )}
                       </>
                     ) : (
-                      <div className="text-center py-4">
-                        <p className="font-body text-xs text-muted-foreground mb-3">Upload your CV and we'll analyse your background</p>
-                        <Link to="/my-profile" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-blue-600 text-white font-display font-700 text-xs">
-                          Run Understand Me <ArrowRight className="w-3 h-3" />
-                        </Link>
-                      </div>
+                      <p className="font-body text-xs text-muted-foreground">Upload your CV on your profile page and we'll analyse your background, spot your industries and suggest matching roles.</p>
                     )}
                   </div>
 
@@ -357,50 +344,38 @@ export default function MatchMe() {
                   <div className="border-2 border-primary/20 rounded-2xl p-4 bg-primary/5 space-y-4">
                     <p className="font-display font-700 text-[10px] uppercase tracking-widest text-primary">You told us</p>
 
-                    {hasDesiredIndustries ? (
-                      <div>
-                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
-                          <Building2 className="w-3 h-3" /> Desired industries
-                        </p>
+                    <div>
+                      <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Desired industries</p>
+                      {hasDesiredIndustries ? (
                         <div className="flex flex-wrap gap-1.5">
                           {profile.industryInterests.map((ind) => (
-                            <Chip key={ind} variant="desired">{ind}</Chip>
+                            <span key={ind} className="px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 font-display font-700 text-xs text-primary">{ind}</span>
                           ))}
                         </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Desired industries</p>
-                        <Link to="/onboarding?step=interests" className="font-body text-xs text-primary underline">Add industries →</Link>
-                      </div>
-                    )}
+                      ) : (
+                        <Link to="/onboarding?step=interests" className="font-body text-xs text-primary underline">Add desired industries →</Link>
+                      )}
+                    </div>
 
-                    {hasDesiredRoles ? (
-                      <div>
-                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
-                          <Target className="w-3 h-3" /> Desired roles
-                        </p>
+                    <div>
+                      <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Desired roles</p>
+                      {hasDesiredRoles ? (
                         <div className="flex flex-wrap gap-1.5">
                           {profile.rolePreferences.map((r) => (
-                            <Chip key={r} variant="desired">{r}</Chip>
+                            <span key={r} className="px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 font-display font-700 text-xs text-primary">{r}</span>
                           ))}
                         </div>
-                      </div>
-                    ) : (
-                      <div>
-                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Desired roles</p>
+                      ) : (
                         <Link to="/onboarding?step=roles" className="font-body text-xs text-primary underline">Add dream roles →</Link>
-                      </div>
-                    )}
+                      )}
+                    </div>
 
                     {hasPassions && (
                       <div>
-                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
-                          <Heart className="w-3 h-3" /> Passions
-                        </p>
+                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Passions</p>
                         <div className="flex flex-wrap gap-1.5">
                           {profile.passions.slice(0, 6).map((p) => (
-                            <Chip key={p} variant="passion">{p}</Chip>
+                            <span key={p} className="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 font-display font-700 text-xs text-amber-800">{p}</span>
                           ))}
                         </div>
                       </div>
@@ -408,12 +383,10 @@ export default function MatchMe() {
 
                     {profile.targetCompanies.length > 0 && (
                       <div>
-                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
-                          <Building2 className="w-3 h-3" /> Dream companies
-                        </p>
+                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Dream companies</p>
                         <div className="flex flex-wrap gap-1.5">
                           {profile.targetCompanies.map((c) => (
-                            <Chip key={c} variant="desired">{c}</Chip>
+                            <span key={c} className="px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 font-display font-700 text-xs text-primary">{c}</span>
                           ))}
                         </div>
                       </div>
@@ -421,12 +394,10 @@ export default function MatchMe() {
 
                     {profile.selfDeclaredSkills.length > 0 && (
                       <div>
-                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> Self-declared skills
-                        </p>
+                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Self-declared skills</p>
                         <div className="flex flex-wrap gap-1.5">
                           {profile.selfDeclaredSkills.slice(0, 6).map((sk) => (
-                            <Chip key={sk} variant="skill">{sk}</Chip>
+                            <span key={sk} className="px-2.5 py-1 rounded-full bg-purple-50 border border-purple-200 font-display font-700 text-xs text-purple-700">{sk}</span>
                           ))}
                         </div>
                       </div>
@@ -452,19 +423,15 @@ export default function MatchMe() {
                   <div className="border-2 border-purple-200 rounded-2xl p-4 bg-purple-50/40 space-y-4">
                     <p className="font-display font-700 text-[10px] uppercase tracking-widest text-purple-600">Your personality</p>
 
-                    {hasRiasec ? (
+                    {profile.hasQuiz ? (
                       <div>
-                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-3 flex items-center gap-1">
-                          <Brain className="w-3 h-3" /> RIASEC profile
-                        </p>
+                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-3">RIASEC profile</p>
                         <div className="space-y-2">
                           {topRiasec.map(([k, v]) => (
                             <div key={k}>
                               <div className="flex justify-between mb-0.5">
-                                <span className="font-display font-700 text-xs flex items-center gap-1">
-                                  {RIASEC_LABELS[k]?.emoji} {RIASEC_LABELS[k]?.label ?? k}
-                                </span>
-                                <span className="font-display font-700 text-xs text-primary">{Math.round(v)}</span>
+                                <span className="font-display font-700 text-xs">{RIASEC_LABELS[k]?.emoji} {RIASEC_LABELS[k]?.label ?? k}</span>
+                                <span className="font-display font-700 text-xs text-purple-600">{Math.round(v)}</span>
                               </div>
                               <div className="h-1.5 bg-purple-100 rounded-full overflow-hidden">
                                 <div className="h-full bg-purple-500 rounded-full" style={{ width: `${Math.max(0, Math.min(100, v))}%` }} />
@@ -472,12 +439,10 @@ export default function MatchMe() {
                             </div>
                           ))}
                         </div>
-                        <p className="font-body text-[10px] text-muted-foreground mt-2">Used to boost jobs that match your personality type</p>
                       </div>
                     ) : (
-                      <div className="text-center py-4">
-                        <Brain className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                        <p className="font-body text-xs text-muted-foreground mb-3">Take the 12-question quiz to add your personality type</p>
+                      <div>
+                        <p className="font-body text-xs text-muted-foreground mb-3">Take the 12-question quiz to add your personality type and improve your job matches.</p>
                         <Link to="/onboarding?step=personality" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-purple-600 text-white font-display font-700 text-xs">
                           Take the quiz <ArrowRight className="w-3 h-3" />
                         </Link>
@@ -486,12 +451,10 @@ export default function MatchMe() {
 
                     {profile.skillCategories.length > 0 && (
                       <div>
-                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
-                          <Zap className="w-3 h-3" /> Skill type
-                        </p>
+                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Skill type</p>
                         <div className="flex flex-wrap gap-1.5">
                           {profile.skillCategories.map((sk) => (
-                            <span key={sk} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-100 border border-purple-200 font-display font-700 text-xs text-purple-700">
+                            <span key={sk} className="px-2.5 py-1 rounded-full bg-purple-100 border border-purple-200 font-display font-700 text-xs text-purple-700">
                               {SKILL_LABELS[sk].emoji} {SKILL_LABELS[sk].label}
                             </span>
                           ))}
@@ -502,8 +465,8 @@ export default function MatchMe() {
                 </div>
               </motion.section>
 
-              {/* ── 2. HOW THIS LEADS TO HOWDY JOBS ── */}
-              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.1 }}>
+              {/* ── 2. HOWDY JOBS ── */}
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.08 }}>
                 <Link
                   to="/my-jobs?tab=jobs"
                   className="group relative flex flex-col sm:flex-row items-center gap-6 bg-foreground text-background rounded-3xl p-6 md:p-8 overflow-hidden hover:-translate-y-0.5 transition-transform"
@@ -511,34 +474,23 @@ export default function MatchMe() {
                   <img src={howdyMascot} alt="Howdy" className="w-28 h-28 sm:w-32 sm:h-32 object-contain shrink-0 drop-shadow-xl" />
                   <div className="flex-1 text-center sm:text-left">
                     <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-primary/20 mb-3">
-                      <span className="font-display font-700 text-xs uppercase tracking-widest text-primary">Powered by your profile</span>
+                      <span className="font-display font-700 text-xs uppercase tracking-widest text-primary">Ranked for you</span>
                     </div>
-                    <h2 className="font-display font-900 text-2xl md:text-3xl uppercase tracking-wide text-background mb-3">
-                      Howdy Jobs
-                    </h2>
-                    {/* Algorithm flow */}
+                    <h2 className="font-display font-900 text-2xl md:text-3xl uppercase tracking-wide text-background mb-3">Howdy Jobs</h2>
                     <div className="flex flex-wrap items-center gap-1.5 mb-3 justify-center sm:justify-start">
                       {hasDesiredIndustries ? (
-                        <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary font-display font-700 text-[10px] uppercase tracking-wide">
-                          ✓ {profile.industryInterests.length} desired {profile.industryInterests.length === 1 ? "industry" : "industries"}
-                        </span>
+                        <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary font-display font-700 text-[10px] uppercase">✓ desired industries</span>
                       ) : hasCvData ? (
-                        <span className="px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-300 font-display font-700 text-[10px] uppercase tracking-wide">
-                          CV industries (no desired set)
-                        </span>
+                        <span className="px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-300 font-display font-700 text-[10px] uppercase">CV industries</span>
                       ) : null}
-                      {(hasDesiredIndustries || hasCvData) && <ChevronRight className="w-3 h-3 text-background/40" />}
+                      {(hasDesiredIndustries || hasCvData) && <ChevronRight className="w-3 h-3 text-background/30" />}
                       {hasDesiredRoles ? (
-                        <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary font-display font-700 text-[10px] uppercase tracking-wide">
-                          ✓ {profile.rolePreferences.length} desired {profile.rolePreferences.length === 1 ? "role" : "roles"}
-                        </span>
+                        <span className="px-2 py-0.5 rounded-full bg-primary/20 text-primary font-display font-700 text-[10px] uppercase">✓ desired roles</span>
                       ) : hasCvData ? (
-                        <span className="px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-300 font-display font-700 text-[10px] uppercase tracking-wide">
-                          CV roles (no desired set)
-                        </span>
+                        <span className="px-2 py-0.5 rounded-full bg-blue-900/40 text-blue-300 font-display font-700 text-[10px] uppercase">CV roles</span>
                       ) : null}
-                      {hasPassions && <><ChevronRight className="w-3 h-3 text-background/40" /><span className="px-2 py-0.5 rounded-full bg-amber-900/40 text-amber-300 font-display font-700 text-[10px] uppercase tracking-wide">✓ passions</span></>}
-                      {hasRiasec && <><ChevronRight className="w-3 h-3 text-background/40" /><span className="px-2 py-0.5 rounded-full bg-purple-900/40 text-purple-300 font-display font-700 text-[10px] uppercase tracking-wide">✓ RIASEC</span></>}
+                      {hasPassions && <><ChevronRight className="w-3 h-3 text-background/30" /><span className="px-2 py-0.5 rounded-full bg-amber-900/40 text-amber-300 font-display font-700 text-[10px] uppercase">✓ passions</span></>}
+                      {profile.hasQuiz && <><ChevronRight className="w-3 h-3 text-background/30" /><span className="px-2 py-0.5 rounded-full bg-purple-900/40 text-purple-300 font-display font-700 text-[10px] uppercase">✓ RIASEC</span></>}
                     </div>
                     <div className="inline-flex items-center gap-2 font-display font-900 text-sm uppercase tracking-wide text-primary group-hover:gap-3 transition-all">
                       See my Howdy Jobs <ArrowRight className="w-4 h-4" />
@@ -547,42 +499,35 @@ export default function MatchMe() {
                 </Link>
               </motion.section>
 
-              {/* ── Doodle divider ── */}
-              <div className="flex items-center justify-center py-2">
+              {/* ── Divider ── */}
+              <div className="flex items-center justify-center">
                 <img src={doodleDivider} alt="" aria-hidden className="w-full max-w-md opacity-40 select-none pointer-events-none" />
               </div>
 
-              {/* ── 3. ROLE MATCHES (CV) ── */}
+              {/* ── 3. SUGGESTED ROLES (from CV) ── */}
               {results?.roleMatches && results.roleMatches.length > 0 && (
-                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.15 }}>
-                  <div className="flex items-center gap-3 mb-2">
+                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.12 }}>
+                  <div className="flex items-center gap-3 mb-5">
                     <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
                       <Briefcase className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
-                      <h2 className="font-display font-900 text-xl uppercase tracking-wide">Roles you might love</h2>
-                      <p className="font-body text-xs text-muted-foreground">Based on your CV and background — roles where your experience fits</p>
+                      <h2 className="font-display font-900 text-xl uppercase tracking-wide">Suggested roles</h2>
+                      <p className="font-body text-xs text-muted-foreground">Based on your CV — roles your experience maps to</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     {results.roleMatches.slice(0, 6).map((m) => (
-                      <div key={m.slug} className="relative border-2 border-blue-200 bg-blue-50/30 rounded-2xl p-4 flex flex-col gap-3 overflow-hidden">
-                        <div className="absolute bottom-0 left-0 h-0.5 bg-blue-400/40 transition-all" style={{ width: `${m.percentage}%` }} />
-                        <div>
-                          <div className="flex items-start justify-between gap-2 mb-1">
-                            <span className="font-display font-900 text-sm uppercase tracking-wide leading-tight">{m.role}</span>
-                            <span className="font-display font-900 text-base text-blue-600 shrink-0">{m.percentage}%</span>
-                          </div>
-                          <p className="font-body text-xs text-muted-foreground line-clamp-2">{m.reason}</p>
+                      <div key={m.slug} className="relative border-2 border-blue-200 bg-blue-50/30 rounded-2xl p-4 flex flex-col gap-3 overflow-hidden group hover:-translate-y-0.5 transition-transform">
+                        <div className="absolute bottom-0 left-0 h-0.5 bg-blue-400/50" style={{ width: `${m.percentage}%` }} />
+                        <div className="flex items-start justify-between gap-2">
+                          <span className="font-display font-900 text-sm uppercase tracking-wide leading-tight">{m.role}</span>
+                          <span className="font-display font-900 text-base text-blue-600 shrink-0">{m.percentage}%</span>
                         </div>
-                        <div className="flex gap-2 mt-auto pt-2 border-t border-blue-100">
-                          <Link to={`/roles/${m.slug}`} className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors">
-                            Explore →
-                          </Link>
-                          <span className="text-border select-none">·</span>
-                          <Link to={`/marketplace?role=${encodeURIComponent(m.role)}`} className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80 transition-opacity">
-                            Find jobs →
-                          </Link>
+                        <p className="font-body text-xs text-muted-foreground line-clamp-2 flex-1">{m.reason}</p>
+                        <div className="flex gap-3 pt-2 border-t border-blue-100">
+                          <Link to={`/roles/${m.slug}`} className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors">Explore →</Link>
+                          <Link to={`/marketplace?role=${encodeURIComponent(m.role)}`} className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80">Find jobs →</Link>
                         </div>
                       </div>
                     ))}
@@ -590,16 +535,16 @@ export default function MatchMe() {
                 </motion.section>
               )}
 
-              {/* ── 4. INDUSTRY FIT (CV) ── */}
+              {/* ── 4. SUGGESTED INDUSTRIES (from CV) ── */}
               {results?.industryFit && results.industryFit.length > 0 && (
-                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.2 }}>
+                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.16 }}>
                   <div className="flex items-center gap-3 mb-5">
                     <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center shrink-0">
                       <Building2 className="w-4 h-4 text-blue-600" />
                     </div>
                     <div>
-                      <h2 className="font-display font-900 text-xl uppercase tracking-wide">Industries where you'd thrive</h2>
-                      <p className="font-body text-xs text-muted-foreground">Sectors your background maps well to, based on your CV</p>
+                      <h2 className="font-display font-900 text-xl uppercase tracking-wide">Suggested industries</h2>
+                      <p className="font-body text-xs text-muted-foreground">Based on your CV — sectors where your background fits</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -607,18 +552,18 @@ export default function MatchMe() {
                       const slug = INDUSTRY_SLUGS[ind.industry];
                       const icon = INDUSTRY_ICONS[ind.industry];
                       return (
-                        <div key={ind.industry} className="relative border-2 border-blue-200 bg-blue-50/30 rounded-2xl p-5 flex flex-col gap-3 overflow-hidden">
+                        <div key={ind.industry} className="relative border-2 border-blue-200 bg-blue-50/30 rounded-2xl p-5 flex flex-col gap-3 overflow-hidden hover:-translate-y-0.5 transition-transform">
                           {icon && <img src={icon} alt="" aria-hidden className="absolute -right-3 -top-3 w-24 h-24 object-contain opacity-10 pointer-events-none select-none rotate-6" />}
                           <div className="relative">
                             <div className="flex items-start justify-between gap-2 mb-1">
-                              <span className="font-display font-900 text-base uppercase tracking-wide leading-tight">{ind.industry}</span>
+                              <span className="font-display font-900 text-base uppercase tracking-wide">{ind.industry}</span>
                               <span className="font-display font-900 text-base text-blue-600 shrink-0">{ind.confidence}%</span>
                             </div>
                             <p className="font-body text-xs text-muted-foreground line-clamp-2">{ind.reason}</p>
                           </div>
-                          <div className="flex gap-2 mt-auto pt-2 border-t border-blue-100 relative">
-                            {slug && <><Link to={`/${slug}`} className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors">Explore →</Link><span className="text-border select-none">·</span></>}
-                            <Link to={`/marketplace?industry=${encodeURIComponent(ind.industry)}`} className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80 transition-opacity">Browse jobs →</Link>
+                          <div className="flex gap-3 pt-2 border-t border-blue-100 relative">
+                            {slug && <><Link to={`/${slug}`} className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors">Explore →</Link><span className="text-border">·</span></>}
+                            <Link to={`/marketplace?industry=${encodeURIComponent(ind.industry)}`} className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80">Browse jobs →</Link>
                           </div>
                         </div>
                       );
@@ -627,76 +572,76 @@ export default function MatchMe() {
                 </motion.section>
               )}
 
-              {/* ── 5. WORLDS COLLIDE (static only, effective industries) ── */}
-              {staticIntersections.length > 0 && (
-                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.25 }}>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "hsl(120,100%,45%)" }}>
-                      <Shuffle className="w-4 h-4 text-black" />
-                    </div>
-                    <div>
-                      <h2 className="font-display font-900 text-xl uppercase tracking-wide">Where your worlds collide</h2>
-                      <p className="font-body text-xs text-muted-foreground">
-                        Roles at the intersection of{" "}
-                        {effectiveIndustryNames.slice(0, 3).join(", ")}
-                        {effectiveIndustryNames.length > 3 ? ` +${effectiveIndustryNames.length - 3} more` : ""}
-                        {hasDesiredIndustries ? " (your chosen industries)" : " (from your CV)"}
-                      </p>
-                    </div>
+              {/* ── 5. WORLDS COLLIDE — tile grid ── */}
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.2 }}>
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "hsl(120,100%,45%)" }}>
+                    <Shuffle className="w-4 h-4 text-black" />
                   </div>
+                  <div>
+                    <h2 className="font-display font-900 text-xl uppercase tracking-wide">Where your worlds collide</h2>
+                    <p className="font-body text-xs text-muted-foreground">
+                      Roles at the crossover of your industries
+                      {hasDesiredIndustries ? " (your chosen industries)" : hasCvData ? " (spotted in your CV)" : ""}
+                    </p>
+                  </div>
+                </div>
 
-                  {profile.skillCategories.length > 0 && (
-                    <div className="flex items-center gap-2 mb-5 mt-3 flex-wrap">
-                      <span className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground">Filtered by your skill mix:</span>
-                      {profile.skillCategories.map((sk) => (
-                        <span key={sk} className="px-2.5 py-0.5 rounded-full font-display font-700 text-[10px] uppercase tracking-wide border-2 text-black" style={{ borderColor: "hsl(120,100%,45%)", background: "hsl(120,100%,45%,0.15)" }}>
-                          {SKILL_LABELS[sk].emoji} {SKILL_LABELS[sk].label}
-                        </span>
-                      ))}
-                    </div>
-                  )}
+                {profile.skillCategories.length > 0 && (
+                  <div className="flex items-center gap-2 mt-3 mb-5 flex-wrap">
+                    <span className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground">Filtered by:</span>
+                    {profile.skillCategories.map((sk) => (
+                      <span key={sk} className="px-2.5 py-0.5 rounded-full font-display font-700 text-[10px] uppercase tracking-wide border-2 text-black" style={{ borderColor: "hsl(120,100%,45%)", background: "hsl(120,100%,45%,0.15)" }}>
+                        {SKILL_LABELS[sk].emoji} {SKILL_LABELS[sk].label}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {staticIntersections.slice(0, 6).map((s, i) => {
-                      const slug = INDUSTRY_SLUGS[s.industry2 || s.industry1] || (s.industry2 || s.industry1).toLowerCase();
+                {worldsCollide.length > 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {worldsCollide.slice(0, 6).map((s, i) => {
+                      const slug = INDUSTRY_SLUGS[s.industry2 || s.industry1] || (s.industry2 || s.industry1);
+                      const searchQ = s.keywords[0] || s.role;
                       return (
-                        <div key={`${s.blend}-${i}`} className="relative border-2 border-dashed rounded-2xl p-4 flex flex-col gap-3" style={{ borderColor: "hsl(120,100%,45%)", background: "hsl(120,100%,45%,0.05)" }}>
-                          <span className="inline-flex self-start px-2.5 py-0.5 rounded-full font-display font-900 text-[10px] uppercase tracking-wide text-black" style={{ background: "hsl(120,100%,45%)" }}>
+                        <Link
+                          key={`${s.blend}-${i}`}
+                          to={`/marketplace?search=${encodeURIComponent(searchQ)}`}
+                          className="group relative border-2 border-dashed rounded-2xl p-5 flex flex-col gap-3 hover:-translate-y-1 transition-all duration-200"
+                          style={{ borderColor: "hsl(120,100%,45%)", background: "hsl(120,100%,45%,0.05)" }}
+                        >
+                          <span className="inline-flex self-start px-2 py-0.5 rounded-full font-display font-900 text-[10px] uppercase tracking-wide text-black" style={{ background: "hsl(120,100%,45%)" }}>
                             {s.blend}
                           </span>
                           <div>
-                            <p className="font-display font-900 text-sm uppercase tracking-wide leading-tight mb-1">{s.role}</p>
-                            <p className="font-body text-xs text-muted-foreground line-clamp-2">{s.description}</p>
+                            <p className="font-display font-900 text-sm uppercase tracking-wide leading-tight mb-1.5 group-hover:text-primary transition-colors">{s.role}</p>
+                            <p className="font-body text-xs text-muted-foreground line-clamp-3">{s.description}</p>
                           </div>
                           {s.example_companies.length > 0 && (
-                            <p className="font-body text-[10px] text-muted-foreground/70">eg. {s.example_companies.slice(0, 3).join(" · ")}</p>
+                            <p className="font-body text-[10px] text-muted-foreground/60 mt-auto">eg. {s.example_companies.slice(0, 2).join(" · ")}</p>
                           )}
-                          <div className="flex gap-2 mt-auto pt-2 border-t" style={{ borderColor: "hsl(120,100%,45%,0.3)" }}>
-                            {slug && <><Link to={`/${slug}`} className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors">Explore →</Link><span className="text-border select-none">·</span></>}
-                            <Link to={`/marketplace?search=${encodeURIComponent(s.keywords[0] || s.role)}`} className="font-display font-700 text-xs uppercase tracking-wide hover:opacity-80 transition-opacity" style={{ color: "hsl(120,100%,35%)" }}>
+                          <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: "hsl(120,100%,45%,0.3)" }}>
+                            <span className="font-display font-700 text-xs uppercase tracking-wide" style={{ color: "hsl(120,100%,30%)" }}>
                               Find jobs →
-                            </Link>
+                            </span>
+                            {slug && (
+                              <span
+                                onClick={(e) => { e.preventDefault(); window.location.href = `/${slug}`; }}
+                                className="font-display font-700 text-xs uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+                              >
+                                Explore
+                              </span>
+                            )}
                           </div>
-                        </div>
+                        </Link>
                       );
                     })}
                   </div>
-                </motion.section>
-              )}
-
-              {/* Not enough data for Worlds Collide */}
-              {staticIntersections.length === 0 && (effectiveIndustryNames.length < 2) && (
-                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.25 }}>
-                  <div className="flex items-center gap-3 mb-5">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "hsl(120,100%,45%)" }}>
-                      <Shuffle className="w-4 h-4 text-black" />
-                    </div>
-                    <h2 className="font-display font-900 text-xl uppercase tracking-wide">Where your worlds collide</h2>
-                  </div>
-                  <div className="border-2 border-dashed rounded-2xl p-6 text-center" style={{ borderColor: "hsl(120,100%,45%,0.4)" }}>
-                    <p className="font-display font-900 text-sm uppercase tracking-wide mb-1">Needs two or more industries</p>
+                ) : (
+                  <div className="border-2 border-dashed rounded-2xl p-8 text-center" style={{ borderColor: "hsl(120,100%,45%,0.4)" }}>
+                    <p className="font-display font-900 text-sm uppercase tracking-wide mb-2">Needs two or more industries</p>
                     <p className="font-body text-xs text-muted-foreground mb-4 max-w-sm mx-auto">
-                      Set at least two industry interests, or run Understand Me so we can spot your background industries.
+                      Set at least two industry interests, or run Understand Me so we can spot your industries from your CV.
                     </p>
                     <div className="flex gap-2 justify-center flex-wrap">
                       <Link to="/onboarding?step=interests" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border-2 border-foreground font-display font-700 text-xs uppercase tracking-wide hover:bg-foreground hover:text-background transition-colors">
@@ -707,17 +652,17 @@ export default function MatchMe() {
                       </Link>
                     </div>
                   </div>
-                </motion.section>
-              )}
+                )}
+              </motion.section>
 
-              {/* ── 6. WHAT IF MACHINE ── */}
-              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.3 }}>
+              {/* ── 6. THE WHAT IF MACHINE ── */}
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.25 }}>
                 <RoleMixer userIndustries={effectiveIndustryNames} />
               </motion.section>
 
               {/* ── 7. SIDE HUSTLES ── */}
-              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.35 }}>
-                <div className="flex items-center gap-3 mb-5">
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.3 }}>
+                <div className="flex items-center gap-3 mb-2">
                   <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center shrink-0">
                     <Zap className="w-4 h-4 text-purple-600" />
                   </div>
@@ -725,16 +670,20 @@ export default function MatchMe() {
                     <h2 className="font-display font-900 text-xl uppercase tracking-wide">Side hustle ideas</h2>
                     <p className="font-body text-xs text-muted-foreground">
                       {profile.skillCategories.length > 0
-                        ? `Matched to your ${profile.skillCategories.map((sk) => SKILL_LABELS[sk].label).join(" & ")} skills`
-                        : "Turn your skills into income outside of 9–5"}
+                        ? `Picked for your ${profile.skillCategories.map((sk) => SKILL_LABELS[sk].label).join(" + ")} skill mix`
+                        : "Flexible ways to earn alongside your career"}
                     </p>
                   </div>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5">
                   {sidehustles.map((s) => (
-                    <Link key={s.title} to={s.link} className="group border-2 border-foreground/20 bg-background rounded-2xl p-4 hover:bg-primary hover:border-foreground hover:-translate-y-0.5 transition-all">
-                      <p className="font-display font-900 text-sm uppercase tracking-wide mb-1">{s.title}</p>
-                      <p className="font-body text-xs text-muted-foreground group-hover:text-foreground/80">{s.desc}</p>
+                    <Link key={s.title} to={s.link} className="group border-2 border-foreground/20 bg-background rounded-2xl p-5 flex flex-col gap-2 hover:bg-primary hover:border-foreground hover:-translate-y-0.5 transition-all">
+                      <p className="font-display font-900 text-sm uppercase tracking-wide">{s.title}</p>
+                      <p className="font-body text-xs text-muted-foreground group-hover:text-foreground/80 flex-1">{s.desc}</p>
+                      <div className="flex items-center gap-1.5 pt-2 border-t border-foreground/10 group-hover:border-foreground/20 mt-auto">
+                        <CheckCircle2 className="w-3 h-3 text-primary group-hover:text-foreground shrink-0" />
+                        <span className="font-display font-700 text-[10px] uppercase tracking-wide text-primary group-hover:text-foreground">{s.whyText}</span>
+                      </div>
                     </Link>
                   ))}
                 </div>
@@ -744,7 +693,7 @@ export default function MatchMe() {
               </motion.section>
 
               {/* ── Start Something ── */}
-              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.4 }}>
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.35 }}>
                 <div className="border-2 border-foreground rounded-3xl p-6 md:p-8 bg-primary/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                   <div className="flex items-start gap-4">
                     <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center shrink-0">
@@ -752,9 +701,7 @@ export default function MatchMe() {
                     </div>
                     <div>
                       <h2 className="font-display font-900 text-xl uppercase tracking-wide">Start Something</h2>
-                      <p className="font-body text-sm text-muted-foreground mt-1 max-w-md">
-                        Got an idea? Everything you need to go from idea to first customer.
-                      </p>
+                      <p className="font-body text-sm text-muted-foreground mt-1 max-w-md">Got an idea? Everything you need to go from idea to first customer.</p>
                     </div>
                   </div>
                   <Button asChild variant="outline" className="rounded-full shrink-0 border-2 border-foreground">
@@ -763,8 +710,7 @@ export default function MatchMe() {
                 </div>
               </motion.section>
 
-              {/* ── Bottom CTAs ── */}
-              <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.45 }} className="pb-4 flex flex-col sm:flex-row gap-3">
+              <motion.div {...fadeUp} transition={{ duration: 0.5, delay: 0.4 }} className="pb-4 flex flex-col sm:flex-row gap-3">
                 <Button asChild size="lg" className="rounded-full">
                   <Link to="/my-profile">Update my profile <ArrowRight className="w-4 h-4 ml-2" /></Link>
                 </Button>

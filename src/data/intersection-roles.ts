@@ -778,7 +778,7 @@ export const INTERSECTION_ROLES: IntersectionRole[] = [
 // Maps user role preference labels → role_function values.
 // Only role_function intersection entries whose function appears in this set will show.
 const ROLE_PREF_TO_FUNCTION: Record<string, string[]> = {
-  "commercial":        ["marketing", "finance"],
+  "commercial":        ["marketing"],
   "strategy":          ["digital"],
   "creative":          ["creative"],
   "marketing":         ["marketing"],
