@@ -33,6 +33,7 @@ import MembersArea from "@/components/MembersArea";
 import MentorRequestsInbox from "@/components/MentorRequestsInbox";
 import howdyMascot from "@/assets/howdy-mascot.png";
 import { getIntersectionKeywords } from "@/data/intersection-roles";
+import { matchesToReasons } from "@/lib/profile-matching";
 
 /* ───── Hand-drawn rounded pill CTA - matches home hero style ───── */
 const LIME = "hsl(120, 100%, 45%)";
@@ -1126,6 +1127,14 @@ function SwipeableJobCard({
               return src ? <SourceAttribution source={src} variant="badge" className="ml-1" /> : null;
             })()}
           </div>
+          {job.matches.length > 0 && (() => {
+            const reasons = matchesToReasons(job.matches, job.industry);
+            return reasons.length > 0 ? (
+              <p className="font-body text-[10px] text-muted-foreground mt-0.5 leading-snug">
+                {reasons.slice(0, 2).join(" · ")}
+              </p>
+            ) : null;
+          })()}
         </div>
         <div className="shrink-0 flex flex-col items-center gap-1 mt-0.5">
           <button

@@ -5,6 +5,7 @@ import { Sparkles, ArrowRight, Briefcase, Building2, Zap, Rocket, User, Heart, T
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getMatchingIntersections, type SkillCategory, type IntersectionRole } from "@/data/intersection-roles";
+import { getEffectiveIndustriesTagged, getEffectiveRolesTagged, getCvIndustriesTagged, type TaggedIndustry, type TaggedRole } from "@/lib/profile-matching";
 import { RoleMixer } from "@/components/RoleMixer";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
@@ -131,13 +132,13 @@ const INDUSTRY_SLUGS: Record<string, string> = {
   "Footwear": "footwear",
 };
 
-const SIDE_HUSTLE_IDEAS = [
-  { title: "Freelance Design", desc: "Logos, social graphics, presentations. Start on Fiverr or direct to small businesses.", link: "/side-hustles" },
-  { title: "Content Creation", desc: "Build an audience around something you know. Monetise through brand deals or courses.", link: "/side-hustles" },
-  { title: "Tutoring & Teaching", desc: "Share what you know. Tutor students, teach skills online, or run workshops.", link: "/side-hustles" },
-  { title: "Social Media Management", desc: "Help local businesses grow their online presence — a learnable, in-demand skill.", link: "/side-hustles" },
-  { title: "Photography & Video", desc: "Events, portraits, product shots. Equipment costs are falling. Talent travels.", link: "/side-hustles" },
-  { title: "Copywriting & Content", desc: "Write for brands, blogs and websites. One of the most flexible digital skills.", link: "/side-hustles" },
+const SIDE_HUSTLE_IDEAS: { title: string; desc: string; link: string; tags: SkillCategory[] }[] = [
+  { title: "Freelance Design", desc: "Logos, social graphics, presentations. Start on Fiverr or direct to small businesses.", link: "/side-hustles", tags: ["creative"] },
+  { title: "Content Creation", desc: "Build an audience around something you know. Monetise through brand deals or courses.", link: "/side-hustles", tags: ["creative", "digital"] },
+  { title: "Tutoring & Teaching", desc: "Share what you know. Tutor students, teach skills online, or run workshops.", link: "/side-hustles", tags: ["people"] },
+  { title: "Social Media Management", desc: "Help local businesses grow their online presence — a learnable, in-demand skill.", link: "/side-hustles", tags: ["digital", "creative"] },
+  { title: "Photography & Video", desc: "Events, portraits, product shots. Equipment costs are falling. Talent travels.", link: "/side-hustles", tags: ["creative", "practical"] },
+  { title: "Copywriting & Content", desc: "Write for brands, blogs and websites. One of the most flexible digital skills.", link: "/side-hustles", tags: ["creative", "digital"] },
 ];
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
@@ -152,6 +153,10 @@ interface ProfileContext {
   skillCategories: SkillCategory[];
   hasQuiz: boolean;
   hasInterests: boolean;
+  // Annotated signals — same priority logic as HowdyJobs algorithm
+  effectiveIndustries: TaggedIndustry[];
+  effectiveRoles: TaggedRole[];
+  cvIndustries: TaggedIndustry[]; // CV-inferred, shown as hint when explicit interests differ
 }
 
 const RIASEC_LABELS: Record<string, { label: string; desc: string }> = {
@@ -171,6 +176,7 @@ export default function MatchMe() {
   const [profile, setProfile] = useState<ProfileContext>({
     riasecScores: null, workValues: null, passions: [], industryInterests: [],
     rolePreferences: [], targetCompanies: [], skillCategories: [], hasQuiz: false, hasInterests: false,
+    effectiveIndustries: [], effectiveRoles: [], cvIndustries: [],
   });
 
   useEffect(() => {
@@ -218,6 +224,11 @@ export default function MatchMe() {
         if (Array.isArray(skills.practical) && skills.practical.length > 0) skillCategories.push("practical");
       }
 
+      const understandMeResults = (data as any)?.understand_me_results || null;
+      const effectiveIndustries = getEffectiveIndustriesTagged(industryInterests, understandMeResults);
+      const effectiveRoles = getEffectiveRolesTagged(rolePrefs, understandMeResults);
+      const cvIndustries = getCvIndustriesTagged(understandMeResults);
+
       setProfile({
         riasecScores: riasec,
         workValues: (data as any)?.work_values as Record<string, number> | null,
@@ -228,6 +239,9 @@ export default function MatchMe() {
         skillCategories,
         hasQuiz: !!riasec,
         hasInterests: industryInterests.length > 0 || rolePrefs.length > 0 || uniquePassions.length > 0,
+        effectiveIndustries,
+        effectiveRoles,
+        cvIndustries,
       });
 
       setLoading(false);
@@ -239,13 +253,17 @@ export default function MatchMe() {
     (results.industryFit && results.industryFit.length > 0)
   );
 
-  // Pick 3 side hustle suggestions deterministically based on industry interests
-  const sidehustles = SIDE_HUSTLE_IDEAS.slice(0, 3);
+  // Rank side hustle ideas by skill category match, fallback to default order
+  const sidehustles = [...SIDE_HUSTLE_IDEAS]
+    .map((s) => ({ ...s, score: s.tags.filter((t) => profile.skillCategories.includes(t)).length }))
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 3);
 
-  // Build intersection ideas: AI-generated first, then static fallback from lookup table
+  // Build intersection ideas using EFFECTIVE industries (same as HowdyJobs algorithm)
   const aiIntersections: IntersectionIdea[] = results?.intersectionIdeas || [];
+  const effectiveIndustryNames = profile.effectiveIndustries.map((i) => i.name);
   const industrySlugSet = new Set(
-    profile.industryInterests.map((i) => INDUSTRY_SLUGS[i] || i.toLowerCase())
+    effectiveIndustryNames.map((i) => INDUSTRY_SLUGS[i] || i.toLowerCase())
   );
   const staticIntersections: IntersectionRole[] = getMatchingIntersections(
     Array.from(industrySlugSet),
@@ -547,6 +565,86 @@ export default function MatchMe() {
                 </Link>
               </motion.section>
 
+              {/* ── What's driving your Howdy Jobs ── */}
+              {(profile.effectiveIndustries.length > 0 || profile.effectiveRoles.length > 0 || profile.passions.length > 0) && (
+                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.18 }}>
+                  <div className="rounded-2xl border-2 border-foreground/10 bg-muted/30 p-5 space-y-4">
+                    <p className="font-display font-700 text-xs uppercase tracking-widest text-muted-foreground">What's driving your Howdy Jobs</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                      {profile.effectiveIndustries.length > 0 && (
+                        <div>
+                          <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
+                            <Building2 className="w-3 h-3" /> Industries
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {profile.effectiveIndustries.slice(0, 6).map((ind) => {
+                              const slug = INDUSTRY_SLUGS[ind.name];
+                              const pill = (
+                                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/20 font-display font-700 text-xs bg-background">
+                                  {ind.name}
+                                  <span className={`text-[9px] font-500 px-1.5 py-0.5 rounded-full ml-0.5 ${ind.source === "you set this" ? "bg-primary/15 text-primary" : "bg-blue-100 text-blue-600"}`}>
+                                    {ind.source === "you set this" ? "set by you" : "from CV"}
+                                  </span>
+                                </span>
+                              );
+                              return slug ? (
+                                <Link key={ind.name} to={`/${slug}`}>{pill}</Link>
+                              ) : (
+                                <span key={ind.name}>{pill}</span>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                      {profile.effectiveRoles.length > 0 && (
+                        <div>
+                          <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
+                            <Target className="w-3 h-3" /> Roles
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {profile.effectiveRoles.slice(0, 6).map((role) => (
+                              <span key={role.name} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-foreground/20 font-display font-700 text-xs bg-background">
+                                {role.name}
+                                <span className={`text-[9px] font-500 px-1.5 py-0.5 rounded-full ml-0.5 ${role.source === "dream role" ? "bg-primary/15 text-primary" : "bg-blue-100 text-blue-600"}`}>
+                                  {role.source === "dream role" ? "dream role" : "from CV"}
+                                </span>
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      {profile.passions.length > 0 && (
+                        <div>
+                          <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2 flex items-center gap-1">
+                            <Heart className="w-3 h-3" /> Passions
+                          </p>
+                          <div className="flex flex-wrap gap-1.5">
+                            {profile.passions.slice(0, 6).map((p) => (
+                              <span key={p} className="px-2.5 py-1 rounded-full border border-foreground/20 font-display font-700 text-xs bg-background">{p}</span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {/* Mismatch hint: CV industries differ from explicit interests */}
+                    {profile.industryInterests.length > 0 && profile.cvIndustries.length > 0 && (() => {
+                      const explicitSet = new Set(profile.industryInterests.map((i) => i.toLowerCase()));
+                      const cvOnly = profile.cvIndustries.filter((c) => !explicitSet.has(c.name.toLowerCase())).slice(0, 3);
+                      if (cvOnly.length === 0) return null;
+                      return (
+                        <div className="flex items-start gap-2 pt-2 border-t border-border">
+                          <span className="text-amber-500 text-sm">💡</span>
+                          <p className="font-body text-xs text-muted-foreground">
+                            Understand Me also spotted <strong>{cvOnly.map((c) => c.name).join(", ")}</strong> from your CV — but your set interests take priority in Howdy Jobs.{" "}
+                            <Link to="/onboarding?step=interests" className="text-primary underline">Update your interests →</Link>
+                          </p>
+                        </div>
+                      );
+                    })()}
+                  </div>
+                </motion.section>
+              )}
+
               {/* ── Where your worlds collide ── */}
               <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.2 }}>
                 <div className="flex items-start justify-between gap-3 mb-2">
@@ -651,7 +749,7 @@ export default function MatchMe() {
 
               {/* ── Role Mixer ── */}
               <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.25 }}>
-                <RoleMixer userIndustries={profile.industryInterests} />
+                <RoleMixer userIndustries={effectiveIndustryNames} />
               </motion.section>
 
               {/* Side Hustle Suggestions */}
