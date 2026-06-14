@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, Briefcase, Building2, Lightbulb, Zap, Rocket, User, Heart, Target, Brain } from "lucide-react";
+import { Sparkles, ArrowRight, Briefcase, Building2, Zap, Rocket, User, Heart, Target, Brain, Shuffle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getMatchingIntersections, type SkillCategory, type IntersectionRole } from "@/data/intersection-roles";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -77,9 +78,20 @@ interface IndustryFit {
   reason: string;
 }
 
+interface IntersectionIdea {
+  role: string;
+  blend: string;
+  industry: string;
+  reason: string;
+  skills_needed?: string[];
+  example_companies?: string[];
+  search_query?: string;
+}
+
 interface UnderstandMeResult {
   roleMatches?: RoleMatch[];
   industryFit?: IndustryFit[];
+  intersectionIdeas?: IntersectionIdea[];
   transferableSkills?: string[];
   personalityInsights?: string;
   suggestedNextSteps?: { action: string; link: string; type: string }[];
@@ -136,6 +148,7 @@ interface ProfileContext {
   industryInterests: string[];
   rolePreferences: string[];
   targetCompanies: string[];
+  skillCategories: SkillCategory[];
   hasQuiz: boolean;
   hasInterests: boolean;
 }
@@ -156,7 +169,7 @@ export default function MatchMe() {
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<ProfileContext>({
     riasecScores: null, workValues: null, passions: [], industryInterests: [],
-    rolePreferences: [], targetCompanies: [], hasQuiz: false, hasInterests: false,
+    rolePreferences: [], targetCompanies: [], skillCategories: [], hasQuiz: false, hasInterests: false,
   });
 
   useEffect(() => {
@@ -184,6 +197,14 @@ export default function MatchMe() {
       const industryInterests: string[] = data?.industry_interests || [];
       const rolePrefs: string[] = data?.role_preferences || [];
 
+      // Extract skill categories from onboarding
+      const skills: any = pb.skills || {};
+      const skillCategories: SkillCategory[] = [];
+      if (Array.isArray(skills.creative) && skills.creative.length > 0) skillCategories.push("creative");
+      if (Array.isArray(skills.people) && skills.people.length > 0) skillCategories.push("people");
+      if (Array.isArray(skills.digital) && skills.digital.length > 0) skillCategories.push("digital");
+      if (Array.isArray(skills.practical) && skills.practical.length > 0) skillCategories.push("practical");
+
       setProfile({
         riasecScores: riasec,
         workValues: (data as any)?.work_values as Record<string, number> | null,
@@ -191,6 +212,7 @@ export default function MatchMe() {
         industryInterests,
         rolePreferences: rolePrefs,
         targetCompanies,
+        skillCategories,
         hasQuiz: !!riasec,
         hasInterests: industryInterests.length > 0 || rolePrefs.length > 0 || uniquePassions.length > 0,
       });
@@ -206,6 +228,38 @@ export default function MatchMe() {
 
   // Pick 3 side hustle suggestions deterministically based on industry interests
   const sidehustles = SIDE_HUSTLE_IDEAS.slice(0, 3);
+
+  // Build intersection ideas: AI-generated first, then static fallback from lookup table
+  const aiIntersections: IntersectionIdea[] = results?.intersectionIdeas || [];
+  const industrySlugSet = new Set(
+    profile.industryInterests.map((i) => INDUSTRY_SLUGS[i] || i.toLowerCase())
+  );
+  const staticIntersections: IntersectionRole[] = getMatchingIntersections(
+    Array.from(industrySlugSet),
+    profile.skillCategories,
+  );
+  // Merge: AI ideas first, then static ones not already covered by AI blends
+  const aiBlends = new Set(aiIntersections.map((i) => i.blend.toLowerCase()));
+  const staticFallback = staticIntersections
+    .filter((s) => !aiBlends.has(s.blend.toLowerCase()))
+    .slice(0, Math.max(0, 5 - aiIntersections.length));
+  const allIntersections: IntersectionIdea[] = [
+    ...aiIntersections,
+    ...staticFallback.map((s) => ({
+      role: s.role,
+      blend: s.blend,
+      industry: s.industry2 || s.industry1,
+      reason: s.description,
+      skills_needed: s.skills.map((sk) => sk.charAt(0).toUpperCase() + sk.slice(1)),
+      example_companies: s.example_companies.slice(0, 3),
+      search_query: s.keywords[0] || s.role.toLowerCase(),
+    })),
+  ].slice(0, 5);
+
+  const hasIntersections = allIntersections.length > 0;
+  const SKILL_LABELS: Record<SkillCategory, string> = {
+    creative: "Creative", people: "People", digital: "Digital", practical: "Practical",
+  };
 
   return (
     <>
@@ -479,42 +533,107 @@ export default function MatchMe() {
                 </Link>
               </motion.section>
 
-              {/* Unexpected Ideas */}
-              {results!.roleMatches && results!.roleMatches.length > 6 && (
-                <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.2 }}>
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-9 h-9 rounded-xl bg-yellow-100 flex items-center justify-center shrink-0">
-                      <Lightbulb className="w-4 h-4 text-yellow-600" />
+              {/* ── Where your worlds collide ── */}
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.2 }}>
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "hsl(120,100%,45%)" }}>
+                      <Shuffle className="w-4 h-4 text-black" />
                     </div>
                     <div>
-                      <h2 className="font-display font-900 text-xl uppercase tracking-wide">Unexpected Ideas</h2>
-                      <p className="font-body text-xs text-muted-foreground">Roles you might not have considered</p>
+                      <h2 className="font-display font-900 text-xl uppercase tracking-wide">Where your worlds collide</h2>
+                      <p className="font-body text-xs text-muted-foreground">Roles at the intersection of your industries, passions and skills</p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {results!.roleMatches.slice(6, 9).map((m) => (
-                      <div key={m.slug} className="border-2 border-dashed border-yellow-300 bg-yellow-50 rounded-2xl p-4 flex flex-col gap-3">
-                        <div>
-                          <div className="flex items-start justify-between gap-2 mb-1">
-                            <span className="font-display font-900 text-sm uppercase tracking-wide leading-tight">{m.role}</span>
-                            <Lightbulb className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5" />
-                          </div>
-                          <p className="font-body text-xs text-muted-foreground line-clamp-2">{m.reason}</p>
-                        </div>
-                        <div className="flex gap-2 mt-auto pt-2 border-t border-yellow-200">
-                          <Link to={`/roles/${m.slug}`} className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors">
-                            Explore →
-                          </Link>
-                          <span className="text-border select-none">·</span>
-                          <Link to={`/marketplace?role=${encodeURIComponent(m.role)}`} className="font-display font-700 text-xs uppercase tracking-wide text-yellow-600 hover:opacity-80 transition-opacity">
-                            Find jobs →
-                          </Link>
-                        </div>
-                      </div>
+                </div>
+
+                {/* Skill mix chips */}
+                {profile.skillCategories.length > 0 && (
+                  <div className="flex items-center gap-2 mb-5 mt-3">
+                    <span className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground">Your skill mix</span>
+                    {profile.skillCategories.map((sk) => (
+                      <span key={sk} className="px-2.5 py-0.5 rounded-full font-display font-700 text-[10px] uppercase tracking-wide border-2 text-black" style={{ borderColor: "hsl(120,100%,45%)", background: "hsl(120,100%,45%,0.15)" }}>
+                        {SKILL_LABELS[sk]}
+                      </span>
                     ))}
                   </div>
-                </motion.section>
-              )}
+                )}
+
+                {hasIntersections ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {allIntersections.map((idea, i) => {
+                      const slug = INDUSTRY_SLUGS[idea.industry] || idea.industry;
+                      const searchQ = idea.search_query || idea.role;
+                      return (
+                        <div
+                          key={`${idea.blend}-${i}`}
+                          className="relative border-2 border-dashed rounded-2xl p-4 flex flex-col gap-3"
+                          style={{ borderColor: "hsl(120,100%,45%)", background: "hsl(120,100%,45%,0.05)" }}
+                        >
+                          {/* Blend badge */}
+                          <span
+                            className="inline-flex self-start px-2.5 py-0.5 rounded-full font-display font-900 text-[10px] uppercase tracking-wide text-black"
+                            style={{ background: "hsl(120,100%,45%)" }}
+                          >
+                            {idea.blend}
+                          </span>
+                          <div>
+                            <p className="font-display font-900 text-sm uppercase tracking-wide leading-tight mb-1">{idea.role}</p>
+                            <p className="font-body text-xs text-muted-foreground line-clamp-2">{idea.reason}</p>
+                          </div>
+                          {idea.example_companies && idea.example_companies.length > 0 && (
+                            <p className="font-body text-[10px] text-muted-foreground/70">
+                              eg. {idea.example_companies.slice(0, 3).join(" · ")}
+                            </p>
+                          )}
+                          <div className="flex gap-2 mt-auto pt-2 border-t" style={{ borderColor: "hsl(120,100%,45%,0.3)" }}>
+                            {slug && (
+                              <>
+                                <Link
+                                  to={`/${slug}`}
+                                  className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors"
+                                >
+                                  Explore →
+                                </Link>
+                                <span className="text-border select-none">·</span>
+                              </>
+                            )}
+                            <Link
+                              to={`/marketplace?search=${encodeURIComponent(searchQ)}`}
+                              className="font-display font-700 text-xs uppercase tracking-wide hover:opacity-80 transition-opacity"
+                              style={{ color: "hsl(120,100%,35%)" }}
+                            >
+                              Find jobs →
+                            </Link>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="border-2 border-dashed rounded-2xl p-6 text-center" style={{ borderColor: "hsl(120,100%,45%,0.4)" }}>
+                    <p className="font-display font-900 text-sm uppercase tracking-wide mb-1">Tell us more to unlock this</p>
+                    <p className="font-body text-xs text-muted-foreground mb-4 max-w-sm mx-auto">
+                      Add at least two industry interests in your profile, then run Understand Me — we'll suggest roles where your worlds collide.
+                    </p>
+                    <div className="flex gap-2 justify-center flex-wrap">
+                      <Link
+                        to="/onboarding?step=interests"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border-2 border-foreground font-display font-700 text-xs uppercase tracking-wide hover:bg-foreground hover:text-background transition-colors"
+                      >
+                        Set interests <ArrowRight className="w-3 h-3" />
+                      </Link>
+                      <Link
+                        to="/my-profile"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-display font-700 text-xs uppercase tracking-wide text-black"
+                        style={{ background: "hsl(120,100%,45%)" }}
+                      >
+                        Run Understand Me <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </motion.section>
 
               {/* Side Hustle Suggestions */}
               <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.3 }}>

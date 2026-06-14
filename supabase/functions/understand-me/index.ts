@@ -167,9 +167,25 @@ async function extractFileText(filePath: string, apiKey: string): Promise<string
   return extractedText;
 }
 
+const INTERSECTION_EXAMPLES = [
+  { blend: "Football × Fashion", role: "Kit Designer", skills: ["Creative", "Design"] },
+  { blend: "Music × Cinema", role: "Music Supervisor", skills: ["Creative", "People"] },
+  { blend: "Journalism × Farming", role: "Agricultural Journalist", skills: ["Creative", "Writing"] },
+  { blend: "Gaming × Teaching", role: "Educational Game Designer", skills: ["Creative", "Digital"] },
+  { blend: "Health × Technology", role: "Digital Health Product Manager", skills: ["Digital", "People"] },
+  { blend: "Music × Gaming", role: "Game Audio Director", skills: ["Creative", "Digital"] },
+  { blend: "Football × Legal", role: "Sports Lawyer", skills: ["People", "Analytical"] },
+  { blend: "Cinema × Fashion", role: "Costume Designer", skills: ["Creative"] },
+  { blend: "Beer × Journalism", role: "Craft Beer Writer", skills: ["Creative", "Writing"] },
+  { blend: "Money × Music", role: "Music Royalties Analyst", skills: ["Digital", "Analytical"] },
+];
+
 function buildSystemPrompt(inputType: string, hasInstagram: boolean): string {
   const rolesList = ROLES.map(r => `${r.title} (slug: ${r.slug}, category: ${r.category})`).join("\n");
   const industriesList = INDUSTRIES.join(", ");
+  const intersectionExamples = INTERSECTION_EXAMPLES
+    .map(e => `  - ${e.blend} → ${e.role} (skills: ${e.skills.join(", ")})`)
+    .join("\n");
 
   let inputGuidance = "";
   if (inputType === "instagram") {
@@ -187,7 +203,7 @@ This is especially useful for creative, creator, wellness, fashion, fitness, med
 Combine both signals thoughtfully. Use formal language for career-derived insights and softer, suggestive language for Instagram-derived insights (e.g. "Your Instagram suggests…", "You seem aligned with…").`;
   }
 
-  return `You are an expert UK career analyst. Analyse the person's background and map them to roles and industries.
+  return `You are an expert UK career analyst. Analyse the person's background and map them to roles, industries, and cross-industry intersection ideas.
 
 PROFILE CONTEXT SECTION — CRITICAL INSTRUCTIONS:
 The input may include a "PROFILE CONTEXT" section containing the person's RIASEC personality scores, work values, stated industry interests, dream roles, dream companies, and passions. These are self-reported signals from structured onboarding questions — treat them as STRONG matching signals alongside the CV/LinkedIn data:
@@ -214,6 +230,9 @@ ${rolesList}
 
 Available industries: ${industriesList}
 
+INTERSECTION EXAMPLES (roles at the meeting point of two industries or a role function inside a passion industry):
+${intersectionExamples}
+
 ${inputGuidance}
 
 The input may be a CV, LinkedIn profile, Instagram profile, or a free-text description of experience. Focus on WHO the person is, their working style, strengths and natural fit - not just job titles.
@@ -225,6 +244,17 @@ Return JSON with this exact structure:
   ],
   "industryFit": [
     { "industry": "Industry Name", "confidence": <number 1-100>, "reason": "Why this fits - reference specific companies or roles from the input" }
+  ],
+  "intersectionIdeas": [
+    {
+      "role": "Kit Designer",
+      "blend": "Football × Fashion",
+      "industry": "fashion",
+      "reason": "One sentence: why this specific person's combination of interests and skills points to this role",
+      "skills_needed": ["Creative", "Design"],
+      "example_companies": ["Nike", "Adidas"],
+      "search_query": "kit designer sportswear"
+    }
   ],
   "careerLevel": "entry|mid|senior|executive|null",
   "transferableSkills": ["skill1", "skill2", ...],
@@ -243,6 +273,7 @@ Rules:
   - mid = experienced individual contributor or specialist with no senior/executive evidence
   - entry = junior/intern/assistant/apprentice/graduate/trainee
   - null = unclear from the text
+- For intersectionIdeas: generate 3-5 ideas. Look at every combination of the person's industry interests, passions, and skill categories. An intersection idea is a role that sits at the meeting point of two of those dimensions — it could be two industries (Football × Fashion = Kit Designer), OR a universal function inside a passion industry (Finance + Football = Club Finance Manager). Prioritise combinations the person might never have considered. Use their skill categories from the profile context to narrow which intersections make sense — Creative skills unlock design/writing intersections; Digital skills unlock tech/data intersections; People skills unlock management/coaching intersections. The "blend" field should be short and punchy: "Football × Fashion" or "Music × Technology". The "industry" field should be the slug of the most relevant industry (e.g. "fashion", "music"). If there is insufficient profile data to determine intersections, return an empty array [].
 - Return 4-8 transferable skills as concise bullet points
 - NEVER reference companies, roles, locations, or experience not EXPLICITLY and LITERALLY written in the input text
 - If the CV mentions a company, use that EXACT company name - do not substitute, abbreviate, or "correct" it
@@ -391,6 +422,17 @@ serve(async (req) => {
 
         if (passions.length > 0) {
           lines.push(`Passions and hobbies: ${passions.join(", ")} — factor into industry and role fit`);
+        }
+
+        // Skills from onboarding (4 categories)
+        const skills: any = pb.skills || {};
+        const skillLines: string[] = [];
+        if (Array.isArray(skills.creative) && skills.creative.length > 0) skillLines.push(`Creative skills: ${skills.creative.join(", ")}`);
+        if (Array.isArray(skills.people) && skills.people.length > 0) skillLines.push(`People skills: ${skills.people.join(", ")}`);
+        if (Array.isArray(skills.digital) && skills.digital.length > 0) skillLines.push(`Digital skills: ${skills.digital.join(", ")}`);
+        if (Array.isArray(skills.practical) && skills.practical.length > 0) skillLines.push(`Practical skills: ${skills.practical.join(", ")}`);
+        if (skillLines.length > 0) {
+          lines.push(`Skill categories from onboarding:\n${skillLines.join("\n")} — use these to narrow which intersection ideas fit`);
         }
 
         if (lines.length > 0) {

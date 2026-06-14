@@ -32,6 +32,7 @@ import SavedTabContent from "@/components/SavedTabContent";
 import MembersArea from "@/components/MembersArea";
 import MentorRequestsInbox from "@/components/MentorRequestsInbox";
 import howdyMascot from "@/assets/howdy-mascot.png";
+import { getIntersectionKeywords } from "@/data/intersection-roles";
 
 /* ───── Hand-drawn rounded pill CTA - matches home hero style ───── */
 const LIME = "hsl(120, 100%, 45%)";
@@ -1012,6 +1013,27 @@ function scoreJob(
     const overlap = jobSkills.filter((js) => userSkills.some((us) => js.includes(us) || us.includes(js))).length;
     const ratio = jobSkills.length > 0 ? overlap / jobSkills.length : 0;
     if (ratio >= 0.2) matches.push("Skills");
+  }
+
+  // Intersection boost (+20 pts flat): job title matches a known cross-industry intersection role
+  // for this user's combination of industry interests + AI-generated intersection ideas.
+  // Only fires when the user has 2+ industries so the intersection concept is meaningful.
+  if (effectiveIndustries.length >= 2 && job.title) {
+    const staticKws = getIntersectionKeywords(effectiveIndustries);
+    const aiIdeas: any[] = profile.understand_me_results?.intersectionIdeas || [];
+    const aiKws = aiIdeas.flatMap((idea: any) => {
+      const q: string = idea.search_query || "";
+      return q ? [q] : [];
+    });
+    const allKws = [...staticKws, ...aiKws];
+    if (allKws.length > 0) {
+      const titleLower = job.title.toLowerCase();
+      const matched = allKws.find((kw) => titleLower.includes(kw.toLowerCase()));
+      if (matched) {
+        weightedScore += 20;
+        matches.push("Intersection match");
+      }
+    }
   }
 
   let score = totalWeight > 0 ? Math.round((weightedScore / totalWeight) * 100) : 0;
