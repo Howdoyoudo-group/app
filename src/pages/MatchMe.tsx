@@ -198,13 +198,25 @@ export default function MatchMe() {
       const industryInterests: string[] = data?.industry_interests || [];
       const rolePrefs: string[] = data?.role_preferences || [];
 
-      // Extract skill categories from onboarding
-      const skills: any = pb.skills || {};
+      // Derive skill categories from role preferences (more reliable than onboarding skill checkboxes)
+      const rolePrefLower = rolePrefs.map((r) => r.toLowerCase());
       const skillCategories: SkillCategory[] = [];
-      if (Array.isArray(skills.creative) && skills.creative.length > 0) skillCategories.push("creative");
-      if (Array.isArray(skills.people) && skills.people.length > 0) skillCategories.push("people");
-      if (Array.isArray(skills.digital) && skills.digital.length > 0) skillCategories.push("digital");
-      if (Array.isArray(skills.practical) && skills.practical.length > 0) skillCategories.push("practical");
+      const creativeRoles = ["creative", "marketing", "content", "brand", "design", "media", "influenc"];
+      const peopleRoles = ["people", "hr", "culture", "talent", "coaching", "mentoring", "community", "partnerships", "sales", "commercial"];
+      const digitalRoles = ["strategy", "product", "data", "digital", "tech", "e-commerce", "ecommerce", "analytics", "operations", "project"];
+      const practicalRoles = ["operations", "production", "logistics", "project", "event", "facilities", "practical"];
+      if (rolePrefLower.some((r) => creativeRoles.some((k) => r.includes(k)))) skillCategories.push("creative");
+      if (rolePrefLower.some((r) => peopleRoles.some((k) => r.includes(k)))) skillCategories.push("people");
+      if (rolePrefLower.some((r) => digitalRoles.some((k) => r.includes(k)))) skillCategories.push("digital");
+      if (rolePrefLower.some((r) => practicalRoles.some((k) => r.includes(k)))) skillCategories.push("practical");
+      // Fallback to onboarding skills if no role prefs set
+      if (skillCategories.length === 0) {
+        const skills: any = pb.skills || {};
+        if (Array.isArray(skills.creative) && skills.creative.length > 0) skillCategories.push("creative");
+        if (Array.isArray(skills.people) && skills.people.length > 0) skillCategories.push("people");
+        if (Array.isArray(skills.digital) && skills.digital.length > 0) skillCategories.push("digital");
+        if (Array.isArray(skills.practical) && skills.practical.length > 0) skillCategories.push("practical");
+      }
 
       setProfile({
         riasecScores: riasec,
