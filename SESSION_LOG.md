@@ -5,6 +5,34 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-14 — Andrew (main branch)
+
+### What was done
+- **Cross-industry intersection roles** — major new feature across 5 files:
+  - `src/data/intersection-roles.ts` (NEW) — 80 curated role combinations (Football × Fashion → Kit Designer, etc.) with skill tags, keywords for job matching, and utility functions
+  - `src/pages/MatchMe.tsx` — replaced "Unexpected Ideas" with new **"Where your worlds collide"** section: dashed lime cards showing AI + static intersection role suggestions with Blend badge, reason, example companies, and Find Jobs links
+  - `src/pages/MyJobs.tsx` — added +20pt intersection boost when job title matches cross-industry keywords (e.g. Kit Designer scores higher for Football+Fashion users)
+  - `supabase/functions/understand-me/index.ts` — extended prompt + output schema to generate `intersectionIdeas` array; seeds AI with 10 example blends
+  - `src/lib/understand-me.ts` — added `UnderstandMeIntersectionIdea` interface + field on `UnderstandMeResults`
+- **Deployed `understand-me` edge function**
+- Pushed all changes to origin
+
+### Woody's changes (rebased in from remote)
+- Hero strapline updated: "Start with what you love. And see where it takes you."
+- About.tsx and The Show: replaced old promo video with new HDYD Explainer Film V2
+- HowdyJobs: added Saved tab to bottom nav + toast link on save
+
+### Left for next session
+- **Verify MatchMe UI** — "Where your worlds collide" section not yet visually tested in browser. Run dev server and check `/match-me` for a user with 2+ industry interests
+- **Homepage video (pending ffmpeg)** — 511MB file needs compression before upload. `brew install ffmpeg` on user's machine first, then: `ffmpeg -i "HDYD Explainer Film 2 V2 (Subtitles).mp4" -vcodec libx264 -crf 28 -preset fast output.mp4`
+- **Integrate BBC (SuccessFactors)** — detected in ATS scan, not yet scraped
+- **Integrate Universal Pictures (SmartRecruiters)** — needs company/org ID
+- **Integrate Tails.com (Teamtailor)** — no Teamtailor scraper built yet
+- **DNS fix** — Add `A @ 216.198.79.1` in 123-reg DNS for bare domain
+- **Re-run Understand Me** for existing users to generate `intersectionIdeas` (old results won't have this field)
+
+---
+
 ## 2026-06-13 — Andrew (main branch)
 
 ### What was done
