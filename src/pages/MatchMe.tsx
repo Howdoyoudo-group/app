@@ -5,6 +5,7 @@ import { Sparkles, ArrowRight, Briefcase, Building2, Zap, Rocket, User, Heart, T
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getMatchingIntersections, type SkillCategory, type IntersectionRole } from "@/data/intersection-roles";
+import { RoleMixer } from "@/components/RoleMixer";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -237,6 +238,7 @@ export default function MatchMe() {
   const staticIntersections: IntersectionRole[] = getMatchingIntersections(
     Array.from(industrySlugSet),
     profile.skillCategories,
+    profile.rolePreferences,
   );
   // Merge: AI ideas first, then static ones not already covered by AI blends
   const aiBlends = new Set(aiIntersections.map((i) => i.blend.toLowerCase()));
@@ -633,6 +635,11 @@ export default function MatchMe() {
                     </div>
                   </div>
                 )}
+              </motion.section>
+
+              {/* ── Role Mixer ── */}
+              <motion.section {...fadeUp} transition={{ duration: 0.5, delay: 0.25 }}>
+                <RoleMixer userIndustries={profile.industryInterests} />
               </motion.section>
 
               {/* Side Hustle Suggestions */}

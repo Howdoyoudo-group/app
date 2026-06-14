@@ -775,21 +775,54 @@ export const INTERSECTION_ROLES: IntersectionRole[] = [
  * A role matches if industry1 is in userIndustries (and industry2, if specified, is also in userIndustries).
  * For role_function entries (no industry2), matches on industry1 only.
  */
+// Maps user role preference labels → role_function values.
+// Only role_function intersection entries whose function appears in this set will show.
+const ROLE_PREF_TO_FUNCTION: Record<string, string[]> = {
+  "commercial":        ["marketing", "finance"],
+  "strategy":          ["digital"],
+  "creative":          ["creative"],
+  "marketing":         ["marketing"],
+  "operations":        ["practical"],
+  "people & culture":  ["people"],
+  "people and culture":["people"],
+  "hr":                ["people"],
+  "legal":             ["legal"],
+  "legal & compliance":["legal"],
+  "finance":           ["finance"],
+  "product":           ["digital"],
+  "tech":              ["digital"],
+  "technology":        ["digital"],
+  "data":              ["digital"],
+  "digital":           ["digital"],
+  "sales":             ["marketing"],
+  "e-commerce":        ["digital", "marketing"],
+  "ecommerce":         ["digital", "marketing"],
+  "project management":["practical"],
+};
+
 export function getMatchingIntersections(
   userIndustries: string[],
   userSkills: SkillCategory[] = [],
+  userRolePrefs: string[] = [],
 ): IntersectionRole[] {
   const slugSet = new Set(userIndustries.map((i) => i.toLowerCase()));
 
+  // Build the set of role_function values this user cares about
+  const allowedFunctions = new Set<string>();
+  for (const pref of userRolePrefs) {
+    const key = pref.toLowerCase().trim();
+    const fns = ROLE_PREF_TO_FUNCTION[key];
+    if (fns) fns.forEach((f) => allowedFunctions.add(f));
+  }
+
   return INTERSECTION_ROLES.filter((ir) => {
-    const i1Match = slugSet.has(ir.industry1);
-    if (!i1Match) return false;
-    // If there's a second industry, both must match
+    if (!slugSet.has(ir.industry1)) return false;
     if (ir.industry2 && !slugSet.has(ir.industry2)) return false;
-    // If user has skills, prefer matches that use those skills (but don't exclude)
+    // For role_function entries: only show if user's role prefs map to that function
+    // (skip this filter if user has no role prefs set yet)
+    if (ir.role_function && userRolePrefs.length > 0 && !allowedFunctions.has(ir.role_function)) return false;
     return true;
   }).sort((a, b) => {
-    // Sort: skill-matched roles first, high-surprise first
     const aSkillMatch = userSkills.length === 0 || a.skills.some((s) => userSkills.includes(s));
     const bSkillMatch = userSkills.length === 0 || b.skills.some((s) => userSkills.includes(s));
     if (aSkillMatch && !bSkillMatch) return -1;
