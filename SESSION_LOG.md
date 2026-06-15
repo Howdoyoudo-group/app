@@ -5,6 +5,37 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-15 — Woody (main branch)
+
+### What was done
+- **New HDYD Explainer Film** — compressed 511MB source to 11MB web-optimised H.264, uploaded to Supabase Storage. Replaced old promo video in Hero (desktop native player), About Us, and The Show page. About + The Show now use YouTube embeds (bandwidth saving). Hero stays native `<video>` for full controls.
+- **Strapline update** — Hero: "Start with what you love. And see where it takes you." (love. in green)
+- **The Show second video** — set to HDYD promo (youtu.be/NrYsqaJRqFo)
+- **Gallery photos** — 8 new behind-the-scenes shoot photos uploaded and added to The Show gallery
+- **Voxpops** — 5 TikTok-style clips compressed (686MB → 96MB), uploaded to new `voxpops` Supabase bucket, added to /videos page in vertical 9:16 grid (2-col mobile, 5-col desktop)
+- **Howdy Jobs Saved tab** — added Saved to bottom nav with badge count; save toast shows "View saved" button
+- **Supabase upgraded to Pro** — was hitting bandwidth limit (14.7GB vs 5.5GB free tier). Switched all video embeds to YouTube to stop bandwidth drain. Upgraded to Pro plan.
+- **Crons restarted** — pg_cron was silently dying due to Supabase fair-use throttling (happened June 5, 9, 12). Root cause: bandwidth overuse triggering partial project restriction. Fixed by upgrading to Pro + toggling crons back on in dashboard. Manually triggered refresh-all-content and generate-daily-briefings.
+- **Skills England data deployed** — triggered sync-skills-england for all 36 matched roles in batches. 108 skills landed in role_skills table.
+
+### Current state
+- Live at: www.howdoyoudo.co.uk
+- Supabase on Pro plan — crons should now run reliably
+- New explainer video live across Hero, About, The Show
+- 5 voxpop clips live on /videos page
+- Skills England data populated (108 skills across 36 roles)
+
+### Left for next session
+- **Verify crons all active** — check Supabase Dashboard → Database → Cron Jobs, all ~12 should be toggled on
+- **Short Stories videos broken** — video-2316/2317/2318 show broken play icon on Safari (10-bit H.264 encoding). Need source files re-encoded to 8-bit H.264 or replace with YouTube embeds
+- **DNS fix** — Add `A @ 216.198.79.1` in 123-reg DNS for bare howdoyoudo.co.uk
+- **Inbox layout redesign** (parked) — unified message list with type badges, two-pane desktop view
+- **WhatsApp** — needs Twilio keys from partner
+- **Voxpops video in About.tsx** — old Lovable CDN reference fully removed (done), but verify no other Lovable URLs remain in codebase
+- **BBC, Universal Pictures, Tails.com** — ATS integrations pending (Andrew)
+
+---
+
 ## 2026-06-14 — Andrew (main branch)
 
 ### What was done
