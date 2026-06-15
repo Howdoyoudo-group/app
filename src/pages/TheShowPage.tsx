@@ -25,7 +25,7 @@ const FEATURED_VIDEOS = [
     id: "promo",
     title: "HDYD Explainer Film — Start with what you love",
     description: "Who we are, what we're building, and why. Watch the full explainer.",
-    embedUrl: "https://www.youtube.com/embed/o0YUzxz4eSs?rel=0&modestbranding=1",
+    embedUrl: "https://www.youtube.com/embed/NrYsqaJRqFo?rel=0&modestbranding=1",
   },
 ];
 
