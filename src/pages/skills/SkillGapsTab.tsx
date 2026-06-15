@@ -2,55 +2,120 @@
 // Accessible at /skills-passport?tab=gaps
 
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
-import { TrendingUp, ArrowRight, AlertCircle, ExternalLink } from "lucide-react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { TrendingUp, ArrowRight, AlertCircle, BookOpen, CheckCircle2, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSkillGap, type SkillWithGap } from "@/hooks/useSkillGap";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 
-// ── Skills Pathway links (role-level learning resources) ─────────────────────
-const SENIORITY_PREFIXES = /^(junior|senior|assistant|deputy|head|lead|chief|principal|graduate|trainee|apprentice|associate)\s+/i;
+// ── Skills Pathway — AI course generator ─────────────────────────────────────
+type CourseStatus = { id: string; status: string; course_title: string; passed: boolean | null } | null;
 
-function coreTitle(slug: string): string {
-  const title = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  return title.replace(SENIORITY_PREFIXES, "");
-}
+function SkillsPathway({ slug, userId }: { slug: string; userId: string }) {
+  const navigate = useNavigate();
+  const [courseStatus, setCourseStatus] = useState<CourseStatus>(undefined as any);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState("");
 
-function SkillsPathway({ slug }: { slug: string }) {
+  useEffect(() => {
+    // Check if a course already exists for this user+role
+    supabase
+      .from("skill_courses")
+      .select("id, status, course_title")
+      .eq("user_id", userId)
+      .eq("role_slug", slug)
+      .maybeSingle()
+      .then(async ({ data: c }) => {
+        if (!c) { setCourseStatus(null); return; }
+        // Also check if passed
+        const { data: prog } = await supabase
+          .from("skill_course_progress")
+          .select("passed")
+          .eq("course_id", c.id)
+          .eq("user_id", userId)
+          .maybeSingle();
+        setCourseStatus({ ...c, passed: (prog as any)?.passed ?? null });
+      });
+  }, [slug, userId]);
+
+  const generate = async () => {
+    setGenerating(true);
+    setError("");
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-skill-course`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session?.access_token}`,
+        apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+      },
+      body: JSON.stringify({ role_slug: slug }),
+    });
+    const json = await res.json();
+    setGenerating(false);
+    if (!res.ok || !json.course_id) {
+      setError(json.error ?? "Failed to generate course. Try again.");
+      return;
+    }
+    navigate(`/skill-course/${json.course_id}`);
+  };
+
   const display = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  const core = coreTitle(slug);
-  const encodedCore = encodeURIComponent(core);
 
-  const links = [
-    { label: `${display} courses`, provider: "Reed Online Learning", href: `https://www.reed.co.uk/courses/search?keywords=${encodedCore}`, color: "#CC0000", initial: "R" },
-    { label: `${display} courses`, provider: "FutureLearn", href: `https://www.futurelearn.com/search?q=${encodedCore}`, color: "#D63384", initial: "FL" },
-    { label: `${display} — career info & training`, provider: "National Careers Service", href: `https://nationalcareers.service.gov.uk/explore-careers?searchTerm=${encodedCore}`, color: "#00703C", initial: "NCS" },
-  ];
+  // Still loading
+  if (courseStatus === undefined) return null;
 
   return (
     <div className="pt-3 border-t border-border/40">
       <p className="font-display font-800 text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Skills Pathway</p>
-      <div className="space-y-1.5">
-        {links.map((l) => (
-          <a
-            key={l.href}
-            href={l.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2.5 p-2 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-background transition-colors group"
+
+      {courseStatus === null ? (
+        // No course yet
+        <div className="p-3 border border-dashed border-border rounded-lg text-center">
+          <BookOpen className="w-5 h-5 text-muted-foreground mx-auto mb-1.5" />
+          <p className="font-display font-700 text-xs mb-0.5">Get a personalised course</p>
+          <p className="font-body text-[10px] text-muted-foreground mb-3">
+            Gemini will write 4 lessons + a quiz covering your specific gaps for {display}.
+          </p>
+          <button
+            onClick={generate}
+            disabled={generating}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 font-display font-700 text-xs bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            <div className="w-5 h-5 shrink-0 rounded flex items-center justify-center" style={{ backgroundColor: l.color }}>
-              <span className="text-white font-display font-900 text-[7px] leading-none">{l.initial}</span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">{l.label}</p>
-              <p className="font-body text-[10px] text-muted-foreground">{l.provider}</p>
-            </div>
-            <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-          </a>
-        ))}
-      </div>
+            {generating ? <><Loader2 className="w-3 h-3 animate-spin" /> Generating…</> : "Generate my course"}
+          </button>
+          {error && <p className="font-body text-[10px] text-destructive mt-2">{error}</p>}
+        </div>
+      ) : courseStatus.passed ? (
+        // Completed
+        <div className="flex items-center gap-3 p-3 border border-green-200 bg-green-50/50 rounded-lg">
+          <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-700 text-xs text-green-700">Course completed</p>
+            <p className="font-body text-[10px] text-muted-foreground truncate">{courseStatus.course_title}</p>
+          </div>
+          <Link
+            to={`/skill-course/${courseStatus.id}`}
+            className="font-display font-700 text-[10px] text-primary hover:underline shrink-0"
+          >
+            Retake
+          </Link>
+        </div>
+      ) : (
+        // Course exists, not completed
+        <Link
+          to={`/skill-course/${courseStatus.id}`}
+          className="flex items-center gap-3 p-3 border border-primary/30 bg-primary/5 rounded-lg hover:bg-primary/10 transition-colors group"
+        >
+          <BookOpen className="w-4 h-4 text-primary shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-700 text-xs group-hover:text-primary transition-colors">Continue course</p>
+            <p className="font-body text-[10px] text-muted-foreground truncate">{courseStatus.course_title}</p>
+          </div>
+          <ArrowRight className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+        </Link>
+      )}
     </div>
   );
 }
@@ -142,7 +207,7 @@ function RoleGapCard({ slug }: { slug: string }) {
             </Link>
           </div>
 
-          <SkillsPathway slug={slug} />
+          {user && <SkillsPathway slug={slug} userId={user.id} />}
         </div>
       )}
     </div>

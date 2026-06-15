@@ -163,11 +163,11 @@ function GapSummary({ skills, ratings, roleSlug }: { skills: RoleSkill[]; rating
             ))}
           </div>
           <Link
-            to={`/skills-passport?tab=passport&role=${roleSlug}`}
+            to={`/skills-passport?tab=gaps&role=${roleSlug}`}
             className="inline-flex items-center gap-1.5 px-4 py-2 font-display font-700 text-xs bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors"
           >
             <BookOpen className="w-3 h-3" />
-            Find courses to close these gaps
+            See your skill gaps
             <ArrowRight className="w-3 h-3" />
           </Link>
         </div>
@@ -410,10 +410,10 @@ export default function SkillsAssessmentTab() {
                   See courses, HDYD badges and resources matched to your skill gaps.
                 </p>
                 <Link
-                  to={`/skills-passport?tab=passport&role=${selectedRole}`}
+                  to={`/skills-passport?tab=gaps&role=${selectedRole}`}
                   className="inline-flex items-center gap-1.5 font-display font-700 text-xs text-primary hover:opacity-80 transition-opacity"
                 >
-                  Go to your Skills Passport <ArrowRight className="w-3 h-3" />
+                  See your skill gaps <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
             </div>

@@ -81,6 +81,7 @@ const HelpMeApply = lazy(() => import("./pages/HelpMeApply.tsx"));
 const HowToStandOut = lazy(() => import("./pages/HowToStandOut.tsx"));
 const Videos = lazy(() => import("./pages/Videos.tsx"));
 const SkillsPassport = lazy(() => import("./pages/SkillsPassport.tsx"));
+const SkillCoursePage = lazy(() => import("./pages/SkillCoursePage.tsx"));
 const Articles = lazy(() => import("./pages/Articles.tsx"));
 const CareerProfile = lazy(() => import("./pages/CareerProfile.tsx"));
 const MyProfile = lazy(() => import("./pages/MyProfile.tsx"));
@@ -298,6 +299,7 @@ const App = () => (
           <Route path="/how-to-stand-out" element={<HowToStandOut />} />
           <Route path="/videos" element={<Videos />} />
           <Route path="/skills-passport" element={<SkillsPassport />} />
+          <Route path="/skill-course/:courseId" element={<SkillCoursePage />} />
           <Route path="/articles" element={<Articles />} />
           <Route path="/profile/:id" element={<CareerProfile />} />
           <Route path="/my-profile" element={<MyProfile />} />

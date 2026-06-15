@@ -202,7 +202,7 @@ export default function RoleSkillsBlock({ slug }: { slug: string }) {
           className="inline-flex items-center gap-1.5 px-4 py-2 font-display font-700 text-xs bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-opacity"
         >
           <Star className="w-3 h-3" />
-          Explore skills passport
+          Rate your skills
         </Link>
       </div>
     );
@@ -350,11 +350,11 @@ export default function RoleSkillsBlock({ slug }: { slug: string }) {
             )}
 
             <Link
-              to={`/skills-passport?tab=passport&role=${slug}`}
+              to={`/skills-passport?tab=gaps&role=${slug}`}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 font-display font-700 text-xs border border-border bg-background rounded-full hover:border-primary hover:text-primary transition-colors"
             >
               <BookOpen className="w-3 h-3" />
-              Learning pathway
+              Skill gaps
             </Link>
           </div>
         </div>
