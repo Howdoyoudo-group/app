@@ -12,12 +12,12 @@ const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, 
 
 const TILES: Array<{ title: string; href: string; Icon: React.ElementType; img?: string }> = [
   { title: "What We Know",         href: "/match-me/what-we-know",             Icon: Layers },
-  { title: "Howdy Jobs",           href: "/my-jobs?tab=jobs",                  Icon: Briefcase, img: howdyMascot },
   { title: "Suggested Roles",      href: "/match-me/suggested-roles",          Icon: Briefcase },
   { title: "Suggested Industries", href: "/match-me/suggested-industries",     Icon: Building2 },
   { title: "Worlds Collide",       href: "/match-me/worlds-collide",           Icon: Shuffle },
   { title: "What If Machine",      href: "/match-me/what-if-machine",          Icon: Brain },
   { title: "Side Hustles",         href: "/side-hustles",                      Icon: Wallet },
+  { title: "Howdy Jobs",           href: "/my-jobs?tab=jobs",                  Icon: Briefcase, img: howdyMascot },
 ];
 
 export default function MatchMe() {
