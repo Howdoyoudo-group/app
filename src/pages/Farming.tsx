@@ -121,7 +121,28 @@ const Farming = () => {
         <div className="mt-12"><SubstackNewsletters industry="farming" /></div>
       </>
     )},
-    { id: "watch", label: "Watch", content: <><VideoShowcase heading="Unpacking on Screen" clips={industryVideos["farming"] || []} /><div className="mt-12"><YouTubeChannels industry="farming" /><TikTokCreators industry="farming" /></div></> },
+    { id: "watch", label: "Watch", content: (
+      <>
+        <VideoShowcase heading="Unpacking on Screen" clips={industryVideos["farming"] || []} />
+        <div className="mt-12">
+          <h2 className="font-display font-900 text-2xl md:text-3xl uppercase tracking-tight mb-6">Shows Worth Watching<span className="text-primary">.</span></h2>
+          <a
+            href="https://www.amazon.co.uk/Clarksons-Farm/dp/B098FBQ6GN"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-between gap-4 border-2 border-foreground rounded-2xl p-5 mb-4 hover:bg-foreground/5 transition-colors group"
+          >
+            <div>
+              <p className="font-display font-900 text-lg uppercase tracking-tight leading-tight">Clarkson's Farm</p>
+              <p className="font-body text-sm text-muted-foreground mt-1">Jeremy Clarkson attempts to run a 1,000-acre farm in the Cotswolds — and discovers exactly how hard British farming really is. Essential viewing.</p>
+              <span className="inline-block mt-2 font-display font-700 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-foreground/20 text-muted-foreground">Amazon Prime Video</span>
+            </div>
+            <span className="font-display font-700 text-xs uppercase tracking-widest text-primary shrink-0 group-hover:underline">Watch →</span>
+          </a>
+        </div>
+        <div className="mt-12"><YouTubeChannels industry="farming" /><TikTokCreators industry="farming" /></div>
+      </>
+    )},
     { id: "work", label: "Who?", content: (
       <>
         <a
