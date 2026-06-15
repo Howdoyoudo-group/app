@@ -683,7 +683,23 @@ Deno.serve(async (req) => {
           batch.map(async (role) => {
             const skills = await categoriseNCSSkills(role.title, null, routeNames, GEMINI_KEY);
             if (skills.length === 0) return;
-            const rows = skills.map((s, idx) => ({
+
+            // Deduplicate within the batch by normalised title before upserting.
+            // Normalise: lowercase, strip punctuation, collapse spaces.
+            // This prevents "Problem-Solving", "Problem Solving", and "Problem solving"
+            // from all landing as separate rows in the same generation run.
+            const seen = new Set<string>();
+            const deduped = skills.filter((s) => {
+              const key = s.skill_title.toLowerCase().replace(/[^a-z0-9 ]/g, "").replace(/\s+/g, " ").trim();
+              if (seen.has(key)) return false;
+              seen.add(key);
+              return true;
+            });
+            if (deduped.length < skills.length) {
+              console.log(`[SE] ${role.slug}: dropped ${skills.length - deduped.length} within-batch dupes`);
+            }
+
+            const rows = deduped.map((s, idx) => ({
               slug: role.slug,
               skill_title: s.skill_title.slice(0, 250),
               skill_type: s.skill_type,
