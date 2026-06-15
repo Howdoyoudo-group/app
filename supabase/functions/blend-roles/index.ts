@@ -70,37 +70,49 @@ Their strongest skill type is: ${skill}
 
 Your job: paint a picture of the world where ${industry1} and ${industry2} collide — and list 10 real UK job roles that live there. The key message: you don't have to be a professional in either field. You can work where they meet.
 
+You MUST return all six fields: blend, tagline, story, entry_routes, AND roles. Do not stop after roles.
+
 Return ONLY valid JSON (no markdown fences):
 {
   "blend": "${industry1} × ${industry2}",
   "tagline": "A punchy phrase (8-15 words) about what this intersection world feels and looks like.",
-  "story": "One sentence (max 25 words) with the liberating insight — you don't have to be [X] or [Y], you can work where they meet.",
-  "roles": [
-    {
-      "title": "Specific UK job title",
-      "description": "One sentence (max 20 words) of what this person actually does day-to-day."
-    }
-  ],
+  "story": "One sentence (max 25 words) with the liberating insight — you don't have to be a professional in either field.",
   "entry_routes": [
     {
       "title": "Entry-level job title at a specific type of employer",
       "why": "2-3 sentences: why this is a realistic first step and exactly how ${industry1} and ${industry2} show up in the day-to-day work."
-    }
+    },
+    { "title": "...", "why": "..." },
+    { "title": "...", "why": "..." },
+    { "title": "...", "why": "..." },
+    { "title": "...", "why": "..." }
+  ],
+  "roles": [
+    { "title": "Specific UK job title", "description": "One sentence (max 20 words) of what this person actually does day-to-day." },
+    { "title": "...", "description": "..." },
+    { "title": "...", "description": "..." },
+    { "title": "...", "description": "..." },
+    { "title": "...", "description": "..." },
+    { "title": "...", "description": "..." },
+    { "title": "...", "description": "..." },
+    { "title": "...", "description": "..." },
+    { "title": "...", "description": "..." },
+    { "title": "...", "description": "..." }
   ]
 }
+
+Rules for entry_routes (exactly 5 — write these FIRST):
+- Most realistic first jobs — assistant, junior, trainee, coordinator level
+- Title names a specific employer type (e.g. "Social Media Assistant at a Football Club")
+- "why" explains concretely how BOTH ${industry1} and ${industry2} feature in the day-to-day
+- Order: easiest to get (most openings, lowest barrier) → most specialist
 
 Rules for roles (exactly 10):
 - All genuine UK job titles — real things that appear on job boards
 - Entry-level to mid-level only — nothing requiring 15+ years experience
 - Lean toward ${skill} skills but spread across the intersection
 - Be specific: "Matchday Social Media Assistant" beats "Social Media Manager"
-- Each description says what the person DOES, not what the role IS
-
-Rules for entry_routes (exactly 5):
-- Most realistic first jobs — assistant, junior, trainee, coordinator level
-- Title names a specific employer type (e.g. "Social Media Assistant at a Football Club")
-- "why" explains concretely how BOTH ${industry1} and ${industry2} feature in the day-to-day
-- Order: easiest to get (most openings) → most specialist`;
+- Each description says what the person DOES, not what the role IS`;
 
     const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
