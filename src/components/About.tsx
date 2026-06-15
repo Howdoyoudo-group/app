@@ -1,6 +1,5 @@
 import { motion } from "framer-motion";
-const voxpopsVideo = { url: "https://https-howdoyoudo-group.lovable.app/__l5e/assets-v1/867b66a7-10b5-43f6-9316-a1c231af2265/hdyd-voxpops-v6.mp4#t=0.001" };
-const promoVideo = { url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets/hdyd-explainer-web.mp4#t=0.001" };
+
 const INDUSTRIES = ["Fashion", "Football", "Music", "Beauty", "Food", "Travel", "Technology", "Beer", "Pets", "Gaming"];
 
 const About = () => {
@@ -16,10 +15,15 @@ const About = () => {
           transition={{ duration: 0.7 }}
           className="mb-20 overflow-hidden"
         >
-          {/* Mobile: promo/show video */}
-          <video src={promoVideo.url} muted playsInline preload="metadata" controls controlsList="nodownload noplaybackrate" className="md:hidden w-full h-64 object-cover object-center" />
-          {/* Desktop: voxpops */}
-          <video src={voxpopsVideo.url} loop muted playsInline preload="metadata" controls controlsList="nodownload noplaybackrate" className="hidden md:block w-full h-[28rem] object-cover object-center" />
+          <div className="relative w-full aspect-video">
+            <iframe
+              src="https://www.youtube.com/embed/o0YUzxz4eSs?rel=0&modestbranding=1"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full"
+              style={{ border: 0 }}
+            />
+          </div>
         </motion.div>
 
         {/* Header */}

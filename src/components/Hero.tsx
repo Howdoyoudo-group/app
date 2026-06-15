@@ -524,17 +524,12 @@ const Hero = () => {
                 <path d="M325,4 Q330,-4 335,4" />
               </g>
             </svg>
-            <video
-              src="https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets/hdyd-explainer-web.mp4"
-              poster="/videos/promo-poster.jpg"
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="metadata"
-              controls
-              controlsList="nodownload noplaybackrate"
-              className="absolute inset-0 w-full h-full object-cover rounded-sm"
+            <iframe
+              src="https://www.youtube.com/embed/o0YUzxz4eSs?autoplay=1&mute=1&loop=1&playlist=o0YUzxz4eSs&controls=0&modestbranding=1&rel=0"
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+              className="absolute inset-0 w-full h-full rounded-sm"
+              style={{ border: 0 }}
             />
           </div>
         </motion.aside>

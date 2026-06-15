@@ -19,15 +19,13 @@ const FEATURED_VIDEOS = [
     id: "explainer",
     title: "HDYD Explainer — What is Howdoyoudo?",
     description: "Everything we're building, why it matters, and who it's for. Two minutes that explain it all.",
-    url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/videos/hdyd-explainer-v6.mp4#t=0.001",
-    muted: true,
+    embedUrl: "https://www.youtube.com/embed/o0YUzxz4eSs?rel=0&modestbranding=1",
   },
   {
     id: "promo",
     title: "HDYD Explainer Film — Start with what you love",
     description: "Who we are, what we're building, and why. Watch the full explainer.",
-    url: "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets/hdyd-explainer-web.mp4#t=0.001",
-    muted: true,
+    embedUrl: "https://www.youtube.com/embed/o0YUzxz4eSs?rel=0&modestbranding=1",
   },
 ];
 
@@ -64,13 +62,12 @@ export default function TheShowPage() {
             {FEATURED_VIDEOS.map((v) => (
               <div key={v.id} className="border-2 border-foreground rounded-2xl overflow-hidden">
                 <div className="aspect-video bg-black overflow-hidden">
-                  <video
-                    src={v.url}
-                    controls
-                    playsInline
-                    muted={v.muted}
-                    preload="metadata"
-                    className="w-full h-full object-cover"
+                  <iframe
+                    src={v.embedUrl}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                    className="w-full h-full"
+                    style={{ border: 0 }}
                   />
                 </div>
                 <div className="p-4">
