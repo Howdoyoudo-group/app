@@ -2062,7 +2062,7 @@ const MyJobs = () => {
         className="fixed bottom-0 inset-x-0 z-40 bg-background/85 backdrop-blur-xl border-t border-foreground/10"
         style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.25rem)" }}
       >
-        <ul className="max-w-3xl lg:max-w-6xl mx-auto px-2 grid grid-cols-3">
+        <ul className="max-w-3xl lg:max-w-6xl mx-auto px-2 grid grid-cols-4">
           {navItems.map((item) => {
             const active = inboxTab === item.value;
             return (
