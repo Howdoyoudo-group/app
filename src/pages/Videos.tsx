@@ -93,7 +93,7 @@ export default function Videos() {
               <span className="font-display font-700 text-xs uppercase tracking-widest">Videos</span>
             </div>
             <h1 className="font-display font-900 text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-foreground mb-4">
-              Watch & learn.
+              Watch.
             </h1>
             <p className="font-body text-base md:text-lg text-muted-foreground max-w-2xl">
               Real career stories and inspiration — from people who've actually done it.
