@@ -123,7 +123,9 @@ const Farming = () => {
     )},
     { id: "watch", label: "Watch", content: (
       <>
-        <VideoShowcase heading="Unpacking on Screen" clips={industryVideos["farming"] || []} />
+        <div className="max-w-2xl">
+          <VideoShowcase heading="Unpacking on Screen" clips={industryVideos["farming"] || []} />
+        </div>
         <div className="mt-12">
           <h2 className="font-display font-900 text-2xl md:text-3xl uppercase tracking-tight mb-6">Shows Worth Watching<span className="text-primary">.</span></h2>
           <a
