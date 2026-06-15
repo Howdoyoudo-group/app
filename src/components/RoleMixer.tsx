@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { Loader2, Search } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Link } from "react-router-dom";
 
 const INDUSTRIES = [
   "Football", "Music", "Fashion", "Cinema & Film", "Gaming", "Journalism",
@@ -162,24 +161,13 @@ export function RoleMixer({ userIndustries = [] }: { userIndustries?: string[] }
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {result.roles.map((role, i) => (
-                <Link
+                <div
                   key={i}
-                  to={`/my-jobs?tab=search&q=${encodeURIComponent(role.title)}`}
-                  className="group border-2 border-foreground/10 bg-background rounded-2xl p-4 flex flex-col gap-2 hover:bg-primary hover:border-foreground hover:-translate-y-0.5 transition-all"
+                  className="border-2 border-foreground/10 bg-background rounded-2xl p-4 flex flex-col gap-2"
                 >
-                  <p className="font-display font-900 text-sm leading-snug group-hover:text-foreground">
-                    {role.title}
-                  </p>
-                  <p className="font-body text-xs text-muted-foreground leading-relaxed flex-1 group-hover:text-foreground/80">
-                    {role.description}
-                  </p>
-                  <div className="flex items-center gap-1 pt-2 border-t border-foreground/10 group-hover:border-foreground/20">
-                    <Search className="w-3 h-3 text-primary group-hover:text-foreground shrink-0" />
-                    <span className="font-display font-700 text-[10px] uppercase tracking-wide text-primary group-hover:text-foreground">
-                      Find jobs like this
-                    </span>
-                  </div>
-                </Link>
+                  <p className="font-display font-900 text-sm leading-snug">{role.title}</p>
+                  <p className="font-body text-xs text-muted-foreground leading-relaxed">{role.description}</p>
+                </div>
               ))}
             </div>
           </div>
