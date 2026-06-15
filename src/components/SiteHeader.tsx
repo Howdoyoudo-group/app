@@ -353,9 +353,9 @@ const LEVEL_UP_GROUPS: NavGroup[] = [
   {
     label: "Skills",
     items: [
-      { label: "Skills Assessment", to: "/skills-passport?tab=assessment", description: "Rate your skills for any role", badge: "Coming Soon" },
-      { label: "Skill Gaps", to: "/skills-passport?tab=gaps", description: "See where you need to develop", badge: "Coming Soon" },
-      { label: "Skills Passport", to: "/skills-passport", description: "Industry modules, badges & more", badge: "Coming Soon" },
+      { label: "Skills Assessment", to: "/skills-passport?tab=assessment", description: "Rate your skills for any role" },
+      { label: "Skill Gaps", to: "/skills-passport?tab=gaps", description: "See where you need to develop" },
+      { label: "Skills Passport", to: "/skills-passport", description: "Industry modules, badges & more" },
     ],
   },
   {
