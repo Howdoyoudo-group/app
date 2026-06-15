@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Briefcase, Building2, Shuffle, Zap, Brain, Layers, Edit3, RefreshCw, MapPin } from "lucide-react";
+import { ArrowLeft, ArrowRight, Briefcase, Building2, Shuffle, Zap, Brain, Layers, Edit3, RefreshCw, MapPin, CheckCircle2, Wallet } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getMatchingIntersections, type SkillCategory, type IntersectionRole } from "@/data/intersection-roles";
@@ -43,6 +43,18 @@ interface UnderstandMeResult {
   transferableSkills?: string[];
 }
 
+const SIDE_HUSTLE_IDEAS: { title: string; desc: string; tags: SkillCategory[]; why: string }[] = [
+  { title: "Freelance Design", desc: "Logos, social graphics, presentations. Start on Fiverr or direct to small businesses.", tags: ["creative"], why: "You have Creative skills" },
+  { title: "Content Creation", desc: "Build an audience around something you know. Monetise through brand deals or courses.", tags: ["creative", "digital"], why: "Matches your Creative + Digital mix" },
+  { title: "Tutoring & Teaching", desc: "Share what you know. Tutor students, teach skills online, or run workshops.", tags: ["people"], why: "You're a people person" },
+  { title: "Social Media Management", desc: "Help local businesses grow their online presence — a learnable, in-demand skill.", tags: ["digital", "creative"], why: "Matches your Digital + Creative skills" },
+  { title: "Photography & Video", desc: "Events, portraits, product shots. Equipment costs are falling. Talent travels.", tags: ["creative", "practical"], why: "Good fit for Creative + Practical skills" },
+  { title: "Copywriting & Content", desc: "Write for brands, blogs and websites. One of the most flexible digital skills.", tags: ["creative", "digital"], why: "Matches your Creative + Digital mix" },
+  { title: "Handyman & Local Services", desc: "Painting, flat-pack, garden work. Task-based apps like TaskRabbit make it easy to start.", tags: ["practical"], why: "Suits your Practical skills" },
+  { title: "Virtual Assistant", desc: "Admin, inbox management, scheduling. Remote and flexible with low startup costs.", tags: ["digital", "people"], why: "Matches your Digital + People skills" },
+  { title: "Event Support", desc: "Staffing, door work, production crew. Great for people who like being in the room.", tags: ["people", "practical"], why: "Good fit for People + Practical skills" },
+];
+
 const RIASEC_LABELS: Record<string, { label: string; emoji: string }> = {
   R: { label: "Realistic", emoji: "🔧" }, I: { label: "Investigative", emoji: "🔬" },
   A: { label: "Artistic", emoji: "🎨" }, S: { label: "Social", emoji: "🤝" },
@@ -55,6 +67,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string; icon: Reac
   "suggested-industries": { title: "Suggested Industries", subtitle: "Based on your CV — sectors where your background fits", icon: Building2 },
   "worlds-collide": { title: "Where Your Worlds Collide", subtitle: "Roles at the crossover of your industries and skills", icon: Shuffle },
   "what-if-machine": { title: "The What If Machine", subtitle: "Explore any combination of industries and roles", icon: Brain },
+  "side-hustles": { title: "Side Hustle Ideas", subtitle: "Flexible ways to earn alongside your career, matched to your skills", icon: Wallet },
 };
 
 export default function MatchMeSectionPage() {
@@ -498,6 +511,41 @@ export default function MatchMeSectionPage() {
               {section === "what-if-machine" && (
                 <RoleMixer userIndustries={effectiveIndustryNames} />
               )}
+
+              {/* ── SIDE HUSTLES ── */}
+              {section === "side-hustles" && (() => {
+                const ranked = [...SIDE_HUSTLE_IDEAS]
+                  .map((s) => ({
+                    ...s,
+                    score: s.tags.filter((t) => skillCategories.includes(t)).length,
+                    whyText: skillCategories.length > 0 ? s.why : "Popular with career changers",
+                  }))
+                  .sort((a, b) => b.score - a.score);
+                return (
+                  <>
+                    {skillCategories.length > 0 && (
+                      <p className="font-body text-sm text-muted-foreground mb-5">
+                        Ranked for your <strong>{skillCategories.map((s) => SKILL_LABELS[s].label).join(" + ")}</strong> skill mix — highest match first.
+                      </p>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+                      {ranked.map((s) => (
+                        <Link key={s.title} to="/side-hustles" className="group border-2 border-foreground/20 bg-background rounded-2xl p-5 flex flex-col gap-2 hover:bg-primary hover:border-foreground hover:-translate-y-0.5 transition-all">
+                          <p className="font-display font-900 text-sm uppercase tracking-wide">{s.title}</p>
+                          <p className="font-body text-xs text-muted-foreground group-hover:text-foreground/80 flex-1">{s.desc}</p>
+                          <div className="flex items-center gap-1.5 pt-2 border-t border-foreground/10 group-hover:border-foreground/20 mt-auto">
+                            <CheckCircle2 className="w-3 h-3 text-primary group-hover:text-foreground shrink-0" />
+                            <span className="font-display font-700 text-[10px] uppercase tracking-wide text-primary group-hover:text-foreground">{s.whyText}</span>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                    <Link to="/side-hustles" className="inline-flex items-center gap-1.5 font-display font-700 text-xs uppercase tracking-widest text-primary hover:opacity-80 transition-opacity">
+                      Explore all side hustles <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                  </>
+                );
+              })()}
             </motion.div>
           )}
         </div>

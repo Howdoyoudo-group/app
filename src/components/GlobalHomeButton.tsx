@@ -30,6 +30,7 @@ const GlobalHomeButton = () => {
     "/skills-passport",
     "/skill-course",
     "/match-me/what-we-know",
+    "/match-me/side-hustles",
     "/match-me/suggested-roles",
     "/match-me/suggested-industries",
     "/match-me/worlds-collide",
