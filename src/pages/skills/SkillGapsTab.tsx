@@ -3,11 +3,57 @@
 
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { TrendingUp, ArrowRight, AlertCircle } from "lucide-react";
+import { TrendingUp, ArrowRight, AlertCircle, ExternalLink } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSkillGap, type SkillWithGap } from "@/hooks/useSkillGap";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
+
+// ── Skills Pathway links (role-level learning resources) ─────────────────────
+const SENIORITY_PREFIXES = /^(junior|senior|assistant|deputy|head|lead|chief|principal|graduate|trainee|apprentice|associate)\s+/i;
+
+function coreTitle(slug: string): string {
+  const title = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  return title.replace(SENIORITY_PREFIXES, "");
+}
+
+function SkillsPathway({ slug }: { slug: string }) {
+  const display = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  const core = coreTitle(slug);
+  const encodedCore = encodeURIComponent(core);
+
+  const links = [
+    { label: `${display} courses`, provider: "Reed Online Learning", href: `https://www.reed.co.uk/courses/search?keywords=${encodedCore}`, color: "#CC0000", initial: "R" },
+    { label: `${display} courses`, provider: "FutureLearn", href: `https://www.futurelearn.com/search?q=${encodedCore}`, color: "#D63384", initial: "FL" },
+    { label: `${display} — career info & training`, provider: "National Careers Service", href: `https://nationalcareers.service.gov.uk/explore-careers?searchTerm=${encodedCore}`, color: "#00703C", initial: "NCS" },
+  ];
+
+  return (
+    <div className="pt-3 border-t border-border/40">
+      <p className="font-display font-800 text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Skills Pathway</p>
+      <div className="space-y-1.5">
+        {links.map((l) => (
+          <a
+            key={l.href}
+            href={l.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2.5 p-2 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-background transition-colors group"
+          >
+            <div className="w-5 h-5 shrink-0 rounded flex items-center justify-center" style={{ backgroundColor: l.color }}>
+              <span className="text-white font-display font-900 text-[7px] leading-none">{l.initial}</span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">{l.label}</p>
+              <p className="font-body text-[10px] text-muted-foreground">{l.provider}</p>
+            </div>
+            <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const TYPE_COLOURS: Record<string, string> = {
   knowledge: "bg-blue-50 text-blue-800 border-blue-200",
@@ -87,20 +133,16 @@ function RoleGapCard({ slug }: { slug: string }) {
             </div>
           )}
 
-          <div className="pt-1 flex gap-2 flex-wrap">
+          <div className="pt-1">
             <Link
               to={`/skills-passport?tab=assessment&role=${slug}`}
               className="inline-flex items-center gap-1 font-display font-700 text-xs text-primary hover:underline"
             >
               Update ratings <ArrowRight className="w-3 h-3" />
             </Link>
-            <Link
-              to={`/skills-passport?tab=passport&role=${slug}`}
-              className="inline-flex items-center gap-1 font-display font-700 text-xs text-muted-foreground hover:text-primary transition-colors"
-            >
-              Learning pathway <ArrowRight className="w-3 h-3" />
-            </Link>
           </div>
+
+          <SkillsPathway slug={slug} />
         </div>
       )}
     </div>
@@ -190,15 +232,9 @@ export default function SkillGapsTab() {
           <TrendingUp className="w-4 h-4 text-primary" />
           Improve your scores
         </p>
-        <p className="font-body text-xs text-muted-foreground mb-3">
-          Your readiness score rises as you rate more skills and earn industry badges.
+        <p className="font-body text-xs text-muted-foreground">
+          Your readiness score rises as you rate more skills and earn industry badges. Expand a role above to see your Skills Pathway.
         </p>
-        <Link
-          to="/skills-passport?tab=passport"
-          className="inline-flex items-center gap-1.5 font-display font-700 text-xs text-primary hover:underline"
-        >
-          View your learning pathway <ArrowRight className="w-3 h-3" />
-        </Link>
       </div>
     </div>
   );
