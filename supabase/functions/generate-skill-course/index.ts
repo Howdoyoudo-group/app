@@ -46,17 +46,26 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "No skills data for this role" }), { status: 404, headers: corsHeaders });
     }
 
-    // Group all skills by broad_domain
-    const domainMap = new Map<string, string[]>();
+    // Group all skills by broad_domain, tracking whether each is a behaviour
+    const domainMap = new Map<string, { title: string; type: string }[]>();
+    let behaviourCount = 0;
     for (const s of skillRows as any[]) {
       const domain = s.broad_domain || "General";
       if (!domainMap.has(domain)) domainMap.set(domain, []);
-      domainMap.get(domain)!.push(`${s.skill_title} [${s.skill_type ?? "skill"}]`);
+      domainMap.get(domain)!.push({ title: s.skill_title, type: s.skill_type ?? "skill" });
+      if (s.skill_type === "behaviour") behaviourCount++;
     }
 
-    // Build domain summary for the prompt
+    // Build domain summary for the prompt — tag behaviours clearly so Gemini knows to scenario-test them
     const domainLines = Array.from(domainMap.entries())
-      .map(([domain, skills]) => `**${domain}**\n${skills.map((s) => `  - ${s}`).join("\n")}`)
+      .map(([domain, skills]) => {
+        const lines = skills.map((s) =>
+          s.type === "behaviour"
+            ? `  - ${s.title} [BEHAVIOUR — use scenario question]`
+            : `  - ${s.title} [${s.type}]`
+        );
+        return `**${domain}**\n${lines.join("\n")}`;
+      })
       .join("\n\n");
 
     const allSkillTitles = (skillRows as any[]).map((s: any) => s.skill_title);
@@ -100,12 +109,33 @@ This course must cover ALL of the following skills, grouped by domain:
 
 ${domainLines}
 
+Skills marked [BEHAVIOUR] are personal qualities (e.g. resilience, teamwork, integrity). These cannot be tested with factual questions — instead they must be tested with workplace scenario questions that reveal good professional judgement.
+
 The course has exactly 4 lessons. Each lesson covers one or two skill domains. For each domain's skills:
-- Explain what the skill means in a ${title} context
-- Give a practical UK workplace example
-- For behavioural skills (teamwork, resilience, communication etc.) — explain what "good" looks like on the job day-to-day; you cannot prove these with a test but a good professional understands them
+- Explain what the skill means in a ${title} context with a practical UK workplace example
+- For [BEHAVIOUR] skills — describe concretely what "good" looks like on the job (e.g. how a resilient ${title} handles a buyer pulling out at the last minute)
+- For [knowledge] and [skill] skills — explain how and when to apply it, with tools or processes named where relevant
 
 Use UK English throughout. Content should be practical, not academic.
+
+## Quiz question rules
+
+You must write exactly 10 questions. Use two different question types:
+
+**Type 1 — Knowledge/skill questions** (for [knowledge] and [skill] items):
+- Test factual recall or correct procedure
+- One clearly correct answer, three plausible distractors
+- Example: "Under AML regulations, when must an estate agent verify a buyer's identity?" with specific option choices
+
+**Type 2 — Scenario questions** (for [BEHAVIOUR] items — you MUST use this type for every behaviour skill):
+- Describe a realistic workplace situation a ${title} would face
+- Four response options ranging from poor to excellent professional judgement
+- The correct answer demonstrates the behaviour at its best
+- Example: "A vendor calls you furious that their buyer has just pulled out two days before exchange. What is your first response?"
+  Options: A) Apologise and end the call quickly, B) Calmly acknowledge their frustration, explain what happens next, and outline how you'll find a new buyer, C) Tell them this is common and not to worry, D) Suggest they consider reducing the price to attract a new buyer faster
+  Correct: B — explanation says why staying calm and being action-focused is what resilience looks like in practice
+
+Spread questions across all domains. Include at least ${Math.max(2, Math.round(behaviourCount / 2))} scenario questions (one per major behaviour skill).
 
 Return ONLY valid JSON matching this exact structure:
 {
@@ -125,15 +155,15 @@ Return ONLY valid JSON matching this exact structure:
       "question": "Question text?",
       "options": ["Option A", "Option B", "Option C", "Option D"],
       "correct_index": 0,
-      "explanation": "Why this is correct."
+      "explanation": "Why this is correct and what it demonstrates."
     }
   ]
 }
 
 Requirements:
 - Exactly 4 lessons covering ALL skill domains (spread evenly)
-- Exactly 10 quiz questions — spread across all domains (2-3 per domain), including at least 2 on behavioural skills
-- Questions must be specific to ${title} work in a UK context
+- Exactly 10 quiz questions — mix of knowledge/skill and scenario types as described above
+- All questions specific to ${title} work in a UK context
 - Do not include markdown code fences — return raw JSON only`;
 
         const res = await fetch(
