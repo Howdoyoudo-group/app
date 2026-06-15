@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { BookOpen, ExternalLink, Trophy, ChevronDown, ChevronUp, ArrowRight } from "lucide-react";
+import { BookOpen, ExternalLink, Trophy, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSkillGap, type SkillWithGap } from "@/hooks/useSkillGap";
 import { coursesByIndustry, type Course } from "@/data/courses";
@@ -118,38 +118,52 @@ function GapWithCourses({ gap, courses }: { gap: SkillWithGap; courses: CourseMa
         )}
       </div>
 
-      {relevant.length > 0 ? (
-        <div className="space-y-2">
-          {relevant.slice(0, 3).map((c, i) => (
-            <a
-              key={i}
-              href={c.course.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-3 p-2.5 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-muted/30 transition-colors group"
-            >
-              <div className="flex-1 min-w-0">
-                <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">
-                  {c.course.title}
-                </p>
-                <p className="font-body text-[11px] text-muted-foreground">{c.course.provider}</p>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                {c.course.free && (
-                  <span className="px-1.5 py-0.5 font-display font-700 text-[9px] uppercase tracking-wide bg-green-100 text-green-700 border border-green-200 rounded-full">
-                    Free
-                  </span>
-                )}
-                <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors" />
-              </div>
-            </a>
-          ))}
-        </div>
-      ) : (
-        <p className="font-body text-[11px] text-muted-foreground italic">
-          Explore general courses in your chosen industry to build this skill.
-        </p>
-      )}
+      <div className="space-y-2">
+        {/* Hardcoded course matches (sparse — only fire when there's a genuine keyword hit) */}
+        {relevant.slice(0, 2).map((c, i) => (
+          <a
+            key={i}
+            href={c.course.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-2.5 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-muted/30 transition-colors group"
+          >
+            <div className="flex-1 min-w-0">
+              <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">
+                {c.course.title}
+              </p>
+              <p className="font-body text-[11px] text-muted-foreground">{c.course.provider}</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              {c.course.free && (
+                <span className="px-1.5 py-0.5 font-display font-700 text-[9px] uppercase tracking-wide bg-green-100 text-green-700 border border-green-200 rounded-full">
+                  Free
+                </span>
+              )}
+              <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+          </a>
+        ))}
+
+        {/* Reed Learning live search — always shown, searches the exact skill title */}
+        <a
+          href={`https://www.reed.co.uk/courses/search?q=${encodeURIComponent(gap.skill_title)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 p-2.5 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-muted/30 transition-colors group"
+        >
+          <div className="w-5 h-5 shrink-0 rounded bg-[#CC0000] flex items-center justify-center">
+            <span className="text-white font-display font-900 text-[8px] leading-none">R</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-700 text-xs group-hover:text-primary transition-colors">
+              Find courses: {gap.skill_title}
+            </p>
+            <p className="font-body text-[11px] text-muted-foreground">Reed Online Learning</p>
+          </div>
+          <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+        </a>
+      </div>
     </div>
   );
 }
