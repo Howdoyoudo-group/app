@@ -127,12 +127,17 @@ const Farming = () => {
         <div className="mt-12">
           <h2 className="font-display font-900 text-2xl md:text-3xl uppercase tracking-tight mb-6">Shows Worth Watching<span className="text-primary">.</span></h2>
           <a
-            href="https://www.amazon.co.uk/Clarksons-Farm/dp/B098FBQ6GN"
+            href="https://www.amazon.co.uk/gp/video/detail/amzn1.dv.gti.3146cd82-81f7-43f5-b80e-74202f264b58?autoplay=0&ref_=atv_cf_strg_wb"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-between gap-4 border-2 border-foreground rounded-2xl p-5 mb-4 hover:bg-foreground/5 transition-colors group"
+            className="flex items-center gap-4 border-2 border-foreground rounded-2xl p-5 mb-4 hover:bg-foreground/5 transition-colors group"
           >
-            <div>
+            <img
+              src="https://static.tvmaze.com/uploads/images/original_untouched/317/793977.jpg"
+              alt="Clarkson's Farm"
+              className="w-20 h-28 object-cover rounded-lg shrink-0"
+            />
+            <div className="flex-1 min-w-0">
               <p className="font-display font-900 text-lg uppercase tracking-tight leading-tight">Clarkson's Farm</p>
               <p className="font-body text-sm text-muted-foreground mt-1">Jeremy Clarkson attempts to run a 1,000-acre farm in the Cotswolds — and discovers exactly how hard British farming really is. Essential viewing.</p>
               <span className="inline-block mt-2 font-display font-700 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-foreground/20 text-muted-foreground">Amazon Prime Video</span>
