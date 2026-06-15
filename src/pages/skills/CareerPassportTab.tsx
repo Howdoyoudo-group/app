@@ -147,7 +147,7 @@ function GapWithCourses({ gap, courses }: { gap: SkillWithGap; courses: CourseMa
 
         {/* Reed Learning live search — always shown, searches the exact skill title */}
         <a
-          href={`https://www.reed.co.uk/courses/search?q=${encodeURIComponent(gap.skill_title)}`}
+          href={`https://www.reed.co.uk/courses/search?keywords=${encodeURIComponent(gap.skill_title)}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 p-2.5 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-muted/30 transition-colors group"
