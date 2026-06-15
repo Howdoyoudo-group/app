@@ -264,16 +264,26 @@ interface CategorisedSkill {
 }
 
 async function categoriseNCSSkills(
-  slug: string,
-  ncsSkills: string[],
+  roleTitle: string,
+  ncsSkills: string[] | null,
   routes: string[],
   geminiKey: string,
 ): Promise<CategorisedSkill[]> {
-  if (!ncsSkills || ncsSkills.length === 0) return [];
   const routeList = routes.join(", ");
-  const skillList = ncsSkills.map((s, i) => `${i + 1}. ${s}`).join("\n");
+  const roleName = roleTitle;
 
-  const prompt = `Categorise each skill for the role "${slug.replace(/-/g, " ")}" into structured fields.
+  let prompt: string;
+  if (!ncsSkills || ncsSkills.length === 0) {
+    // No NCS data — ask Gemini to generate typical skills for this role
+    prompt = `Generate 10-15 typical skills, knowledge areas, and behaviours needed for the role "${roleName}" in the UK job market.
+Return JSON array only. Each item must have all four fields.
+
+Routes/domains available: ${routeList}
+
+Return: [{"skill_title":"concise skill name","skill_type":"knowledge|skill|behaviour","broad_domain":"one from routes list","skill_area":"sub-group you create"}]`;
+  } else {
+    const skillList = ncsSkills.map((s, i) => `${i + 1}. ${s}`).join("\n");
+    prompt = `Categorise each skill for the role "${roleName}" into structured fields.
 Return JSON array only. Each item must have all four fields.
 
 Routes/domains available: ${routeList}
@@ -282,6 +292,7 @@ Skills to categorise:
 ${skillList}
 
 Return: [{"skill_title":"exact text","skill_type":"knowledge|skill|behaviour","broad_domain":"one from routes list","skill_area":"sub-group you create"}]`;
+  }
 
   try {
     const res = await fetch(
@@ -310,6 +321,320 @@ Return: [{"skill_title":"exact text","skill_type":"knowledge|skill|behaviour","b
   }
 }
 
+// ── All 310 HDYD career roles (from src/data/career-map-roles.ts) ────────────
+const ALL_ROLES: { title: string; slug: string }[] = [
+  { title: 'Account Executive (Junior)', slug: 'account-executive-junior' },
+  { title: 'Account Manager', slug: 'account-manager' },
+  { title: 'Accounts Assistant', slug: 'accounts-assistant' },
+  { title: 'Aerodynamicist', slug: 'aerodynamicist' },
+  { title: 'Aesthetic Practitioner', slug: 'aesthetic-practitioner' },
+  { title: 'Aftersales Manager', slug: 'aftersales-manager' },
+  { title: 'Agronomist / Farm Consultant', slug: 'agronomist-farm-consultant' },
+  { title: 'AI Policy / Trust & Safety', slug: 'ai-policy-trust-safety' },
+  { title: 'AI Product Analyst / Data Analyst', slug: 'ai-product-analyst-data-analyst' },
+  { title: 'AI Product Manager', slug: 'ai-product-manager' },
+  { title: 'Applied AI Engineer', slug: 'applied-ai-engineer' },
+  { title: 'Apprentice (Level 2/3 Agriculture)', slug: 'apprentice-level-2-3-agriculture' },
+  { title: 'Apprentice Vehicle Technician', slug: 'apprentice-vehicle-technician' },
+  { title: 'Area / Regional Manager', slug: 'area-regional-manager' },
+  { title: 'Area Manager', slug: 'area-manager' },
+  { title: 'Art Director', slug: 'art-director' },
+  { title: 'Assistant Garment Technologist', slug: 'assistant-garment-technologist' },
+  { title: 'Assistant Headteacher', slug: 'assistant-headteacher' },
+  { title: 'Assistant Store Manager', slug: 'assistant-store-manager' },
+  { title: 'Associate Product Manager', slug: 'associate-product-manager' },
+  { title: 'Baker (Junior)', slug: 'baker-junior' },
+  { title: 'Band 5 Physiotherapist (NHS)', slug: 'band-5-physiotherapist-nhs' },
+  { title: 'Band 6 Senior Physiotherapist', slug: 'band-6-senior-physiotherapist' },
+  { title: 'Band 7 Clinical Specialist', slug: 'band-7-clinical-specialist' },
+  { title: 'Band 8 Consultant Physiotherapist', slug: 'band-8-consultant-physiotherapist' },
+  { title: 'Barback', slug: 'barback' },
+  { title: 'Barista', slug: 'barista' },
+  { title: 'Barista Trainer', slug: 'barista-trainer' },
+  { title: 'Bartender', slug: 'bartender' },
+  { title: 'Beauty Therapist (Level 2)', slug: 'beauty-therapist-level-2' },
+  { title: 'Branch / Mortgage Manager', slug: 'branch-mortgage-manager' },
+  { title: 'Branch Manager', slug: 'branch-manager' },
+  { title: 'Brand Manager', slug: 'brand-manager' },
+  { title: 'Business Analyst', slug: 'business-analyst' },
+  { title: 'Business Development Manager', slug: 'business-development-manager' },
+  { title: 'Café Manager', slug: 'caf-manager' },
+  { title: 'CBT Therapist (IAPT)', slug: 'cbt-therapist-iapt' },
+  { title: 'Chef de Partie', slug: 'chef-de-partie' },
+  { title: 'CEO / Chief Executive Officer', slug: 'ceo-chief-executive-officer' },
+  { title: 'Chief AI Officer', slug: 'chief-ai-officer' },
+  { title: 'Chief Commercial Officer', slug: 'chief-commercial-officer' },
+  { title: 'Chief Creative Officer', slug: 'chief-creative-officer' },
+  { title: 'Chief Digital Officer', slug: 'chief-digital-officer' },
+  { title: 'Chief Executive', slug: 'chief-executive' },
+  { title: 'Chief Financial Officer', slug: 'chief-financial-officer' },
+  { title: 'Chief Information Officer (CIO)', slug: 'chief-information-officer-cio' },
+  { title: 'Chief Legal Officer', slug: 'chief-legal-officer' },
+  { title: 'Chief Marketing Officer', slug: 'chief-marketing-officer' },
+  { title: 'Chief Operating Officer', slug: 'chief-operating-officer' },
+  { title: 'Chief People Officer', slug: 'chief-people-officer' },
+  { title: 'Chief Product Officer', slug: 'chief-product-officer' },
+  { title: 'Chief Revenue Officer', slug: 'chief-revenue-officer' },
+  { title: 'Chief Strategy Officer', slug: 'chief-strategy-officer' },
+  { title: 'Chief Transformation Officer', slug: 'chief-transformation-officer' },
+  { title: 'Classroom Teacher', slug: 'classroom-teacher' },
+  { title: 'Clinical Director', slug: 'clinical-director' },
+  { title: 'Cluster / Regional GM', slug: 'cluster-regional-gm' },
+  { title: 'Commercial Analyst', slug: 'commercial-analyst' },
+  { title: 'Commercial Coordinator', slug: 'commercial-coordinator' },
+  { title: 'Commercial Director', slug: 'commercial-director' },
+  { title: 'Commercial Finance Manager', slug: 'commercial-finance-manager' },
+  { title: 'Commercial Manager', slug: 'commercial-manager' },
+  { title: 'Commis Chef', slug: 'commis-chef' },
+  { title: 'Community Fundraiser', slug: 'community-fundraiser' },
+  { title: 'Compliance Coordinator', slug: 'compliance-coordinator' },
+  { title: 'Compliance Manager', slug: 'compliance-manager' },
+  { title: 'Composite Technician', slug: 'composite-technician' },
+  { title: 'Concession / Flagship Manager', slug: 'concession-flagship-manager' },
+  { title: 'Content Producer', slug: 'content-producer' },
+  { title: 'Content Writer', slug: 'content-writer' },
+  { title: 'Corporate Partnerships Manager', slug: 'corporate-partnerships-manager' },
+  { title: 'Counsellor (BACP Accredited)', slug: 'counsellor-bacp-accredited' },
+  { title: 'Counter Beauty Advisor', slug: 'counter-beauty-advisor' },
+  { title: 'Creative Director', slug: 'creative-director' },
+  { title: 'Credit Controller', slug: 'credit-controller' },
+  { title: 'CRM Manager', slug: 'crm-manager' },
+  { title: 'CRO / Growth Manager', slug: 'cro-growth-manager' },
+  { title: 'CFD Engineer', slug: 'cfd-engineer' },
+  { title: 'Culinary Director', slug: 'culinary-director' },
+  { title: 'Data Analyst', slug: 'data-analyst' },
+  { title: 'Data Scientist (Vehicle Performance)', slug: 'data-scientist-vehicle-performance' },
+  { title: 'Dealer Principal / GM', slug: 'dealer-principal-gm' },
+  { title: 'Delivery Driver / Rider', slug: 'delivery-driver-rider' },
+  { title: 'Deputy Headteacher', slug: 'deputy-headteacher' },
+  { title: 'Design Intern', slug: 'design-intern' },
+  { title: 'Development Chef', slug: 'development-chef' },
+  { title: 'DevOps / Platform Engineer', slug: 'devops-platform-engineer' },
+  { title: 'Digital Marketing Manager', slug: 'digital-marketing-manager' },
+  { title: 'Digital Merchandiser', slug: 'digital-merchandiser' },
+  { title: 'Director / Partner', slug: 'director-partner' },
+  { title: 'Director of Business Development', slug: 'director-of-business-development' },
+  { title: 'Director of Fundraising', slug: 'director-of-fundraising' },
+  { title: 'Director of Programmes', slug: 'director-of-programmes' },
+  { title: 'Duty Manager', slug: 'duty-manager' },
+  { title: 'E-commerce Coordinator', slug: 'e-commerce-coordinator' },
+  { title: 'E-commerce Director', slug: 'e-commerce-director' },
+  { title: 'E-commerce Manager', slug: 'e-commerce-manager' },
+  { title: 'Engineering Manager', slug: 'engineering-manager' },
+  { title: 'Estate Manager', slug: 'estate-manager' },
+  { title: 'Executive Chef', slug: 'executive-chef' },
+  { title: 'Executive Headteacher / CEO (MAT)', slug: 'executive-headteacher-ceo-mat' },
+  { title: 'Executive Producer', slug: 'executive-producer' },
+  { title: 'Facilities Manager', slug: 'facilities-manager' },
+  { title: 'Farm Manager', slug: 'farm-manager' },
+  { title: 'Farm Owner / Tenant', slug: 'farm-owner-tenant' },
+  { title: 'Farm Worker / General Operative', slug: 'farm-worker-general-operative' },
+  { title: 'Fashion Designer', slug: 'fashion-designer' },
+  { title: 'Fashion Stylist', slug: 'fashion-stylist' },
+  { title: 'Finance Director', slug: 'finance-director' },
+  { title: 'Finance Graduate', slug: 'finance-graduate' },
+  { title: 'Financial Analyst', slug: 'financial-analyst' },
+  { title: 'Financial Controller', slug: 'financial-controller' },
+  { title: 'Fitness Director', slug: 'fitness-director' },
+  { title: 'Fitness Instructor', slug: 'fitness-instructor' },
+  { title: 'Fitness Manager', slug: 'fitness-manager' },
+  { title: 'Food Director / Head of NPD', slug: 'food-director-head-of-npd' },
+  { title: 'Forklift / FLT Operator', slug: 'forklift-flt-operator' },
+  { title: 'Forward Deployed Engineer', slug: 'forward-deployed-engineer' },
+  { title: 'Founder / Brand Owner', slug: 'founder-brand-owner' },
+  { title: 'Front of House Manager', slug: 'front-of-house-manager' },
+  { title: 'Fundraising Assistant', slug: 'fundraising-assistant' },
+  { title: 'Garment Technologist', slug: 'garment-technologist' },
+  { title: 'General Counsel', slug: 'general-counsel' },
+  { title: 'General Manager', slug: 'general-manager' },
+  { title: 'Graphic Designer', slug: 'graphic-designer' },
+  { title: 'Group Beverage Director', slug: 'group-beverage-director' },
+  { title: 'Group Exercise Instructor', slug: 'group-exercise-instructor' },
+  { title: 'Group Spa Director', slug: 'group-spa-director' },
+  { title: 'Gym Floor Instructor', slug: 'gym-floor-instructor' },
+  { title: 'Head Baker', slug: 'head-baker' },
+  { title: 'Head Barista / Quality Lead', slug: 'head-barista-quality-lead' },
+  { title: 'Head Bartender / Bar Manager', slug: 'head-bartender-bar-manager' },
+  { title: 'Head Chef', slug: 'head-chef' },
+  { title: 'Head of AI / Director of Research', slug: 'head-of-ai-director-of-research' },
+  { title: 'Head of Brand', slug: 'head-of-brand' },
+  { title: 'Head of Coffee / Coffee Director', slug: 'head-of-coffee-coffee-director' },
+  { title: 'Head of Commercial', slug: 'head-of-commercial' },
+  { title: 'Head of Compliance', slug: 'head-of-compliance' },
+  { title: 'Head of Content', slug: 'head-of-content' },
+  { title: 'Head of Content / Programming', slug: 'head-of-content-programming' },
+  { title: 'Head of Creative', slug: 'head-of-creative' },
+  { title: 'Head of Design', slug: 'head-of-design' },
+  { title: 'Head of Digital', slug: 'head-of-digital' },
+  { title: 'Head of Digital Trading', slug: 'head-of-digital-trading' },
+  { title: 'Head of E-commerce', slug: 'head-of-e-commerce' },
+  { title: 'Head of Engineering / VP', slug: 'head-of-engineering-vp' },
+  { title: 'Head of Finance', slug: 'head-of-finance' },
+  { title: 'Head of FP&A', slug: 'head-of-fp-a' },
+  { title: 'Head of Fundraising', slug: 'head-of-fundraising' },
+  { title: 'Head of Garment Technology', slug: 'head-of-garment-technology' },
+  { title: 'Head of Logistics / Supply Chain Director', slug: 'head-of-logistics-supply-chain-director' },
+  { title: 'Head of Marketing', slug: 'head-of-marketing' },
+  { title: 'Head of Mortgages', slug: 'head-of-mortgages' },
+  { title: 'Head of Operations', slug: 'head-of-operations' },
+  { title: 'Head of People', slug: 'head-of-people' },
+  { title: 'Head of Physiotherapy / Allied Health', slug: 'head-of-physiotherapy-allied-health' },
+  { title: 'Head of PMO', slug: 'head-of-pmo' },
+  { title: 'Head of Product', slug: 'head-of-product' },
+  { title: 'Head of Production', slug: 'head-of-production' },
+  { title: 'Head of Psychological Services', slug: 'head-of-psychological-services' },
+  { title: 'Head of PT / Fitness Manager', slug: 'head-of-pt-fitness-manager' },
+  { title: 'Head of Retail / Retail Director', slug: 'head-of-retail-retail-director' },
+  { title: 'Head of Sales', slug: 'head-of-sales' },
+  { title: 'Head of Strategy', slug: 'head-of-strategy' },
+  { title: 'Head of Supply Chain', slug: 'head-of-supply-chain' },
+  { title: 'Head of Talent', slug: 'head-of-talent' },
+  { title: 'Head Waiter / Section Leader', slug: 'head-waiter-section-leader' },
+  { title: 'Headteacher', slug: 'headteacher' },
+  { title: 'HGV Class 1/2 Driver', slug: 'hgv-class-1-2-driver' },
+  { title: 'Hotel Manager', slug: 'hotel-manager' },
+  { title: 'HR Business Partner', slug: 'hr-business-partner' },
+  { title: 'HR Coordinator', slug: 'hr-coordinator' },
+  { title: 'Individual Giving Manager', slug: 'individual-giving-manager' },
+  { title: 'Interior Stylist', slug: 'interior-stylist' },
+  { title: 'Internal Auditor', slug: 'internal-auditor' },
+  { title: 'IT Support Analyst', slug: 'it-support-analyst' },
+  { title: 'Junior Designer', slug: 'junior-designer' },
+  { title: 'Junior Personal Trainer', slug: 'junior-personal-trainer' },
+  { title: 'Junior Physiotherapist (Private)', slug: 'junior-physiotherapist-private' },
+  { title: 'Junior Producer', slug: 'junior-producer' },
+  { title: 'Junior Software Engineer', slug: 'junior-software-engineer' },
+  { title: 'Key Account Director', slug: 'key-account-director' },
+  { title: 'Kitchen Porter / Apprentice', slug: 'kitchen-porter-apprentice' },
+  { title: 'L&D Manager', slug: 'l-d-manager' },
+  { title: 'Lead Trainer / Educator', slug: 'lead-trainer-educator' },
+  { title: 'Legal Assistant / Paralegal', slug: 'legal-assistant-paralegal' },
+  { title: 'Legal Counsel', slug: 'legal-counsel' },
+  { title: 'Lettings Negotiator', slug: 'lettings-negotiator' },
+  { title: 'Logistics Assistant', slug: 'logistics-assistant' },
+  { title: 'Machine Learning Engineer', slug: 'machine-learning-engineer' },
+  { title: 'Major Donor Lead', slug: 'major-donor-lead' },
+  { title: 'Management Accountant', slug: 'management-accountant' },
+  { title: 'Managing Director', slug: 'managing-director' },
+  { title: 'Marketing Assistant', slug: 'marketing-assistant' },
+  { title: 'Marketing Director', slug: 'marketing-director' },
+  { title: 'Marketing Intern', slug: 'marketing-intern' },
+  { title: 'Marketing Manager', slug: 'marketing-manager' },
+  { title: 'Master Technician / Diagnostic Specialist', slug: 'master-technician-diagnostic-specialist' },
+  { title: 'Master Trainer', slug: 'master-trainer' },
+  { title: 'Mental Health Support Worker', slug: 'mental-health-support-worker' },
+  { title: 'ML / AI Engineer (Junior)', slug: 'ml-ai-engineer-junior' },
+  { title: 'Mortgage Administrator', slug: 'mortgage-administrator' },
+  { title: 'Mortgage Advisor', slug: 'mortgage-advisor' },
+  { title: 'Mortgage Broker / Founder', slug: 'mortgage-broker-founder' },
+  { title: 'Motion Designer', slug: 'motion-designer' },
+  { title: 'Music Producer', slug: 'music-producer' },
+  { title: 'NQT / ECT', slug: 'nqt-ect' },
+  { title: 'Online Coach / Educator', slug: 'online-coach-educator' },
+  { title: 'Operations Coordinator', slug: 'operations-coordinator' },
+  { title: 'Operations Director', slug: 'operations-director' },
+  { title: 'Operations Manager', slug: 'operations-manager' },
+  { title: 'Partnerships Manager', slug: 'partnerships-manager' },
+  { title: 'Parts Advisor', slug: 'parts-advisor' },
+  { title: 'Pattern Cutter', slug: 'pattern-cutter' },
+  { title: 'Payroll Administrator', slug: 'payroll-administrator' },
+  { title: 'People Director / HR Director', slug: 'people-director-hr-director' },
+  { title: 'Personal Trainer', slug: 'personal-trainer' },
+  { title: 'PMO Analyst', slug: 'pmo-analyst' },
+  { title: 'PR & Comms Manager', slug: 'pr-comms-manager' },
+  { title: 'Private Practice Owner', slug: 'private-practice-owner' },
+  { title: 'Process Improvement Manager', slug: 'process-improvement-manager' },
+  { title: 'Producer', slug: 'producer' },
+  { title: 'Product Analyst', slug: 'product-analyst' },
+  { title: 'Product Manager', slug: 'product-manager' },
+  { title: 'Product Manager (Technical)', slug: 'product-manager-technical' },
+  { title: 'Programme Manager', slug: 'programme-manager' },
+  { title: 'Project Coordinator', slug: 'project-coordinator' },
+  { title: 'Project Manager', slug: 'project-manager' },
+  { title: 'Protection Advisor', slug: 'protection-advisor' },
+  { title: 'Psychotherapist', slug: 'psychotherapist' },
+  { title: 'Quality Assurance Assistant', slug: 'quality-assurance-assistant' },
+  { title: 'Receptionist / Front Office', slug: 'receptionist-front-office' },
+  { title: 'Recruitment Coordinator', slug: 'recruitment-coordinator' },
+  { title: 'Regional Director', slug: 'regional-director' },
+  { title: 'Regional Fitness Director', slug: 'regional-fitness-director' },
+  { title: 'Regional Operations Director', slug: 'regional-operations-director' },
+  { title: 'Research Engineer (Early Career)', slug: 'research-engineer-early-career' },
+  { title: 'Research Scientist', slug: 'research-scientist' },
+  { title: 'Restaurant Manager', slug: 'restaurant-manager' },
+  { title: 'Runner / Production Assistant', slug: 'runner-production-assistant' },
+  { title: 'Sales Assistant / SDR', slug: 'sales-assistant-sdr' },
+  { title: 'Sales Assistant / Store Colleague', slug: 'sales-assistant-store-colleague' },
+  { title: 'Sales Director', slug: 'sales-director' },
+  { title: 'Sales Manager', slug: 'sales-manager' },
+  { title: 'Salon Owner / Founder', slug: 'salon-owner-founder' },
+  { title: 'Senior / Staff ML Engineer', slug: 'senior-staff-ml-engineer' },
+  { title: 'Senior Barista / Shift Supervisor', slug: 'senior-barista-shift-supervisor' },
+  { title: 'Senior Beauty Therapist (Level 3+)', slug: 'senior-beauty-therapist-level-3' },
+  { title: 'Senior Designer / Design Lead', slug: 'senior-designer-design-lead' },
+  { title: 'Senior Designer / Design Manager', slug: 'senior-designer-design-manager' },
+  { title: 'Senior Engineer / Staff Engineer', slug: 'senior-engineer-staff-engineer' },
+  { title: 'Senior Garment Technologist', slug: 'senior-garment-technologist' },
+  { title: 'Senior Legal Counsel', slug: 'senior-legal-counsel' },
+  { title: 'Senior Mortgage Advisor', slug: 'senior-mortgage-advisor' },
+  { title: 'Senior Negotiator', slug: 'senior-negotiator' },
+  { title: 'Senior Producer', slug: 'senior-producer' },
+  { title: 'Senior Product Manager', slug: 'senior-product-manager' },
+  { title: 'Senior Programme Manager', slug: 'senior-programme-manager' },
+  { title: 'Senior Stylist / Style Director', slug: 'senior-stylist-style-director' },
+  { title: 'Senior Therapist / Clinical Lead', slug: 'senior-therapist-clinical-lead' },
+  { title: 'Service Advisor', slug: 'service-advisor' },
+  { title: 'Shift Manager', slug: 'shift-manager' },
+  { title: 'Site / Distribution Centre Manager', slug: 'site-distribution-centre-manager' },
+  { title: 'Social Media Coordinator', slug: 'social-media-coordinator' },
+  { title: 'Software Engineer', slug: 'software-engineer' },
+  { title: 'Solutions Engineer', slug: 'solutions-engineer' },
+  { title: 'Sous Chef', slug: 'sous-chef' },
+  { title: 'Spa / Salon Manager', slug: 'spa-salon-manager' },
+  { title: 'Specialist Coach', slug: 'specialist-coach' },
+  { title: 'Sports Physiotherapist', slug: 'sports-physiotherapist' },
+  { title: 'Stockperson / Herdsperson', slug: 'stockperson-herdsperson' },
+  { title: 'Store Manager', slug: 'store-manager' },
+  { title: 'Strategy Analyst', slug: 'strategy-analyst' },
+  { title: 'Strategy Manager', slug: 'strategy-manager' },
+  { title: 'Studio Owner', slug: 'studio-owner' },
+  { title: 'Styling Assistant', slug: 'styling-assistant' },
+  { title: 'Subject Lead / Head of Department', slug: 'subject-lead-head-of-department' },
+  { title: 'Supervisor / Team Leader', slug: 'supervisor-team-leader' },
+  { title: 'Supply Chain Manager', slug: 'supply-chain-manager' },
+  { title: 'Talent Acquisition Manager', slug: 'talent-acquisition-manager' },
+  { title: 'Tax Manager', slug: 'tax-manager' },
+  { title: 'Teaching Assistant', slug: 'teaching-assistant' },
+  { title: 'Tech Manager', slug: 'tech-manager' },
+  { title: 'Tractor / Combine Operator', slug: 'tractor-combine-operator' },
+  { title: 'Trainee Barista', slug: 'trainee-barista' },
+  { title: 'Trainee Counsellor / Therapist', slug: 'trainee-counsellor-therapist' },
+  { title: 'Trainee Estate Agent', slug: 'trainee-estate-agent' },
+  { title: 'Trainee Mortgage Advisor', slug: 'trainee-mortgage-advisor' },
+  { title: 'Trainee Teacher (PGCE / QTS)', slug: 'trainee-teacher-pgce-qts' },
+  { title: 'Transport Manager', slug: 'transport-manager' },
+  { title: 'Treasury Manager', slug: 'treasury-manager' },
+  { title: 'Trusts & Foundations Manager', slug: 'trusts-foundations-manager' },
+  { title: 'UX/Product Designer', slug: 'ux-product-designer' },
+  { title: 'Valuer', slug: 'valuer' },
+  { title: 'Vehicle Technician', slug: 'vehicle-technician' },
+  { title: 'Venue Owner / Operator', slug: 'venue-owner-operator' },
+  { title: 'Visual Merchandiser (Junior)', slug: 'visual-merchandiser-junior' },
+  { title: 'VP Engineering (AI Infra)', slug: 'vp-engineering-ai-infra' },
+  { title: 'VP of Finance', slug: 'vp-of-finance' },
+  { title: 'VP of Marketing', slug: 'vp-of-marketing' },
+  { title: 'VP of Operations', slug: 'vp-of-operations' },
+  { title: 'VP of Product', slug: 'vp-of-product' },
+  { title: 'VP of Strategy', slug: 'vp-of-strategy' },
+  { title: 'VP Operations / COO', slug: 'vp-operations-coo' },
+  { title: 'Waiter / Front of House', slug: 'waiter-front-of-house' },
+  { title: 'Warehouse Operative', slug: 'warehouse-operative' },
+  { title: 'Warehouse Operative / Picker', slug: 'warehouse-operative-picker' },
+  { title: 'Warehouse Team Leader / Shift Supervisor', slug: 'warehouse-team-leader-shift-supervisor' },
+  { title: 'Workshop Controller / Service Manager', slug: 'workshop-controller-service-manager' },
+  { title: 'Year Group Lead / Pastoral Lead', slug: 'year-group-lead-pastoral-lead' },
+];
+
 // ── Main handler ─────────────────────────────────────────────────────────────
 
 Deno.serve(async (req) => {
@@ -319,185 +644,69 @@ Deno.serve(async (req) => {
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
-  const SE_API_KEY = Deno.env.get("SKILLSENGLAND_API_KEY") ?? "";
   const GEMINI_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
-  const FIRECRAWL_KEY = Deno.env.get("FIRECRAWL_API_KEY") ?? "";
 
-  let body: { slugs?: string[]; step?: string } = {};
+  let body: { slugs?: string[]; offset?: number } = {};
   try { body = await req.json(); } catch { body = {}; }
 
-  // Determine which slugs to process
-  let slugFilter: string[] | null = body.slugs ?? null;
+  // Support optional slug filter or offset for batch resumption
+  const slugFilter: string[] | null = body.slugs ?? null;
+  const offset = body.offset ?? 0;
 
   const work = (async () => {
     const results: Record<string, string> = {};
 
     try {
-      console.log("[SE] Step 1: Fetching SE occupations and routes...");
-      const [seOccs, seRoutes] = await Promise.all([
-        fetchSEOccupations(SE_API_KEY),
-        fetchSERoutes(SE_API_KEY),
-      ]);
+      // Fetch SE routes for domain taxonomy
+      const seRoutes = await fetchSERoutes("");
       const routeNames = seRoutes.map((r) => r.name);
-      console.log(`[SE] Fetched ${seOccs.length} occupations, ${routeNames.length} routes`);
 
-      // Fetch our role slugs
-      let roleQuery = supabase.from("role_metadata").select("slug, ncs_skills, se_synced_at");
-      if (slugFilter) roleQuery = roleQuery.in("slug", slugFilter);
-      const { data: roles, error: rolesErr } = await roleQuery;
-      if (rolesErr || !roles) throw new Error(`role_metadata fetch failed: ${rolesErr?.message}`);
-      console.log(`[SE] Processing ${roles.length} roles`);
+      // Determine which roles to process
+      let roles = slugFilter
+        ? ALL_ROLES.filter((r) => slugFilter.includes(r.slug))
+        : ALL_ROLES.slice(offset);
 
-      // ── Step 2: Match roles to SE occupations ─────────────────────────────
-      console.log("[SE] Step 2: Matching roles to SE occupations...");
-      const matchResults: MatchResult[] = [];
-      const aiUnmatched: { slug: string; title: string }[] = [];
+      // Skip roles that already have skills
+      const { data: existingRows } = await supabase
+        .from("role_skills")
+        .select("slug");
+      const existingSet = new Set((existingRows ?? []).map((r: any) => r.slug));
+      const toProcess = roles.filter((r) => !existingSet.has(r.slug));
 
-      for (const role of roles as RoleRow[]) {
-        const fuzzy = matchByTitle(role.slug, seOccs);
-        if (fuzzy) {
-          matchResults.push({
-            slug: role.slug,
-            se_occ_code: fuzzy.occ.stdCode,
-            se_occ_name: fuzzy.occ.name,
-            se_level: fuzzy.occ.level,
-            se_route: null, // route lookup below
-            match_method: fuzzy.method,
-            match_score: fuzzy.score,
-          });
-        } else {
-          aiUnmatched.push({ slug: role.slug, title: role.slug.replace(/-/g, " ") });
-        }
-      }
+      console.log(`[SE] ${toProcess.length} roles need skills (${existingSet.size} already done)`);
+      let categorised = 0;
 
-      // AI fallback for unmatched
-      if (aiUnmatched.length > 0 && GEMINI_KEY) {
-        console.log(`[SE] AI matching ${aiUnmatched.length} unmatched roles...`);
-        const aiMap = await aiMatchRoles(aiUnmatched, seOccs, GEMINI_KEY);
-        for (const { slug } of aiUnmatched) {
-          const match = aiMap.get(slug);
-          matchResults.push({
-            slug,
-            se_occ_code: match?.occ.stdCode ?? null,
-            se_occ_name: match?.occ.name ?? null,
-            se_level: match?.occ.level ?? null,
-            se_route: null,
-            match_method: match ? "ai_mapped" : "unmatched",
-            match_score: match?.score ?? null,
-          });
-        }
-      } else {
-        for (const { slug } of aiUnmatched) {
-          matchResults.push({ slug, se_occ_code: null, se_occ_name: null, se_level: null, se_route: null, match_method: "unmatched", match_score: null });
-        }
-      }
-
-      // Upsert role_se_mapping
-      const { error: mapErr } = await supabase
-        .from("role_se_mapping")
-        .upsert(matchResults.map((r) => ({ ...r, synced_at: new Date().toISOString() })), { onConflict: "slug" });
-      if (mapErr) console.error("[SE] role_se_mapping upsert error:", mapErr.message);
-      console.log(`[SE] Mapped ${matchResults.filter((r) => r.se_occ_code).length} / ${matchResults.length} roles`);
-
-      // ── Step 3: Firecrawl KSB scrape for matched roles ────────────────────
-      if (FIRECRAWL_KEY) {
-        const matched = matchResults.filter((r) => r.se_occ_code && r.se_occ_name);
-        console.log(`[SE] Step 3: Scraping KSBs for ${matched.length} matched occupations...`);
-
-        // Deduplicate by OCC code — multiple role slugs may share an occupation
-        const uniqueOccs = new Map<string, { code: string; name: string; slugs: string[] }>();
-        for (const m of matched) {
-          if (!uniqueOccs.has(m.se_occ_code!)) {
-            uniqueOccs.set(m.se_occ_code!, { code: m.se_occ_code!, name: m.se_occ_name!, slugs: [] });
-          }
-          uniqueOccs.get(m.se_occ_code!)!.slugs.push(m.slug);
-        }
-
-        let scraped = 0;
-        for (const { name, slugs } of uniqueOccs.values()) {
-          const ksbs = await scrapeKSBs(name, FIRECRAWL_KEY);
-          if (ksbs.length === 0) continue;
-          scraped++;
-          // Write KSBs for every slug that maps to this occupation
-          for (const slug of slugs) {
-            const rows = ksbs.map((k, i) => ({
-              slug,
-              skill_title: k.title.slice(0, 250),
-              skill_type: k.type,
-              broad_domain: null as string | null,
-              skill_area: null as string | null,
-              source: "firecrawl_ksb",
-              se_ksb_ref: k.ref ?? null,
-              display_order: i,
+      // Process in batches of 8 in parallel
+      for (let i = 0; i < toProcess.length; i += 8) {
+        const batch = toProcess.slice(i, i + 8);
+        await Promise.all(
+          batch.map(async (role) => {
+            const skills = await categoriseNCSSkills(role.title, null, routeNames, GEMINI_KEY);
+            if (skills.length === 0) return;
+            const rows = skills.map((s, idx) => ({
+              slug: role.slug,
+              skill_title: s.skill_title.slice(0, 250),
+              skill_type: s.skill_type,
+              broad_domain: s.broad_domain,
+              skill_area: s.skill_area,
+              source: "ai_generated" as const,
+              se_ksb_ref: null as string | null,
+              display_order: idx,
               synced_at: new Date().toISOString(),
             }));
-            const { error } = await supabase.from("role_skills").upsert(rows, { onConflict: "slug,skill_title" });
-            if (error) console.error(`[SE] role_skills upsert error (${slug}):`, error.message);
-          }
-          await sleep(250);
-        }
-        console.log(`[SE] Scraped KSBs for ${scraped} unique occupations`);
-      }
-
-      // ── Step 4: Gemini NCS skill categorisation ───────────────────────────
-      if (GEMINI_KEY) {
-        console.log("[SE] Step 4: Categorising NCS skills via Gemini...");
-        let categorised = 0;
-
-        // Only process roles that don't already have role_skills from Firecrawl
-        const { data: existingSlugs } = await supabase
-          .from("role_skills")
-          .select("slug")
-          .eq("source", "firecrawl_ksb");
-        const existingSet = new Set((existingSlugs ?? []).map((r: any) => r.slug));
-
-        const toProcess = (roles as RoleRow[]).filter(
-          (r) => !existingSet.has(r.slug) && r.ncs_skills && r.ncs_skills.length > 0,
+            const { error } = await supabase
+              .from("role_skills")
+              .upsert(rows, { onConflict: "slug,skill_title" });
+            if (error) console.error(`[SE] upsert error (${role.slug}):`, error.message);
+            else categorised++;
+          }),
         );
-        console.log(`[SE] ${toProcess.length} roles need NCS categorisation`);
-
-        for (let i = 0; i < toProcess.length; i += 10) {
-          const batch = toProcess.slice(i, i + 10);
-          await Promise.all(
-            batch.map(async (role) => {
-              const categorised_skills = await categoriseNCSSkills(
-                role.slug,
-                role.ncs_skills!,
-                routeNames,
-                GEMINI_KEY,
-              );
-              if (categorised_skills.length === 0) return;
-              const rows = categorised_skills.map((s, i) => ({
-                slug: role.slug,
-                skill_title: s.skill_title.slice(0, 250),
-                skill_type: s.skill_type,
-                broad_domain: s.broad_domain,
-                skill_area: s.skill_area,
-                source: "ncs",
-                se_ksb_ref: null as string | null,
-                display_order: i,
-                synced_at: new Date().toISOString(),
-              }));
-              const { error } = await supabase.from("role_skills").upsert(rows, { onConflict: "slug,skill_title" });
-              if (error) console.error(`[SE] NCS upsert error (${role.slug}):`, error.message);
-              else categorised++;
-            }),
-          );
-          await sleep(600);
-        }
-        console.log(`[SE] Categorised NCS skills for ${categorised} roles`);
+        await sleep(500);
       }
-
-      // Mark all processed roles as synced
-      const processedSlugs = (roles as RoleRow[]).map((r) => r.slug);
-      await supabase
-        .from("role_metadata")
-        .update({ se_synced_at: new Date().toISOString() })
-        .in("slug", processedSlugs);
 
       results.status = "completed";
-      results.roles_processed = String(processedSlugs.length);
-      results.matched = String(matchResults.filter((r) => r.se_occ_code).length);
+      results.roles_processed = String(categorised);
+      results.total_with_skills = String(existingSet.size + categorised);
     } catch (err: any) {
       results.status = "error";
       results.error = err?.message ?? String(err);
