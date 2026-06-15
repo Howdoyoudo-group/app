@@ -76,7 +76,7 @@ const NavDropdown = ({
   items,
   wide = false,
 }: {
-  label: string;
+  label: React.ReactNode;
   items: DropdownItem[];
   wide?: boolean;
 }) => {
@@ -513,7 +513,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
             <NavDropdown label="Discover" items={DISCOVER} />
             <GroupedNavDropdown label="Level Up" groups={LEVEL_UP_GROUPS} />
             <NavDropdown label="Jobs" items={JOBS} />
-            <NavDropdown label="Community" items={COMMUNITY} />
+            <NavDropdown label={<>Community <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-900 uppercase tracking-wide bg-primary text-foreground leading-none translate-y-[-1px]">Beta</span></>} items={COMMUNITY} />
           </div>
         </div>
 

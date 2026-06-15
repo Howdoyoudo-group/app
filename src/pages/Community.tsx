@@ -1030,7 +1030,6 @@ const Community = () => {
                   <div className="flex-1 min-w-0">
                     <div className="font-display font-700 text-sm leading-snug">{pkg.title}</div>
                   </div>
-                  <div className="shrink-0 font-display font-900 text-lg leading-none" style={{ color: LIME }}>{pkg.price}</div>
                 </div>
                 <p className="text-xs text-muted-foreground leading-snug">{pkg.desc}</p>
                 <div className="flex items-center justify-between mt-1">

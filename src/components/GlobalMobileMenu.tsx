@@ -261,7 +261,12 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                         onClick={() => { setOpenSection(section.label); setOpenSubSection(null); }}
                         className="flex items-center justify-between w-full px-3 py-3 rounded-xl font-display font-900 text-lg uppercase tracking-wide text-foreground hover:bg-primary transition-colors text-left"
                       >
-                        {section.label}
+                        <span className="flex items-center gap-2">
+                          {section.label}
+                          {section.label === "Community" && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-900 uppercase tracking-wide bg-primary text-foreground leading-none">Beta</span>
+                          )}
+                        </span>
                         <ChevronRight size={18} strokeWidth={2.5} className="text-foreground/40" />
                       </button>
                     ))}
