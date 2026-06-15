@@ -1,9 +1,9 @@
-import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
 import { Trophy, Lock, ArrowRight, BookOpen } from "lucide-react";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
+import SiteNav from "@/components/SiteNav";
 import footballBadgeImg from "@/assets/series-football.jpg";
 import SkillsAssessmentTab from "@/pages/skills/SkillsAssessmentTab";
 import SkillGapsTab from "@/pages/skills/SkillGapsTab";
@@ -26,28 +26,11 @@ const MODULES = [
   { slug: "beauty",       title: "Beauty",       description: "Brand, retail, education and media — the many ways to build a career in the beauty industry.", href: null, image: null, available: false },
 ];
 
-const TABS = [
-  { key: "badges",     label: "Badges" },
-  { key: "assessment", label: "Skills Assessment" },
-  { key: "gaps",       label: "Skill Gaps" },
-  { key: "passport",   label: "Skills Passport" },
-] as const;
-
-type TabKey = (typeof TABS)[number]["key"];
+type TabKey = "badges" | "assessment" | "gaps" | "passport";
 
 export default function SkillsPassport() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const activeTab = (searchParams.get("tab") ?? "badges") as TabKey;
-
-  const setTab = (key: TabKey) => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      next.set("tab", key);
-      // Preserve role param if switching between skills tabs
-      if (key === "badges") next.delete("role");
-      return next;
-    });
-  };
 
   return (
     <>
@@ -56,6 +39,7 @@ export default function SkillsPassport() {
         description="Learn an industry, rate your skills, see your gaps, and find courses to close them."
       />
 
+      <SiteNav />
       <main className="min-h-screen bg-background">
         <section className="px-4 sm:px-6 lg:px-10 pt-8 pb-16 max-w-5xl mx-auto">
 
@@ -77,25 +61,6 @@ export default function SkillsPassport() {
               Earn industry badges, rate your skills against real roles, see your gaps, and follow a personalised learning path.
             </p>
           </motion.div>
-
-          {/* Tab bar */}
-          <div className="border-b border-border mb-8 -mx-4 px-4 sm:mx-0 sm:px-0 overflow-x-auto">
-            <div className="flex gap-0 min-w-max">
-              {TABS.map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => setTab(tab.key)}
-                  className={`px-4 py-2.5 font-display font-700 text-sm whitespace-nowrap border-b-2 transition-colors -mb-px ${
-                    activeTab === tab.key
-                      ? "border-primary text-foreground"
-                      : "border-transparent text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </div>
 
           {/* Tab content */}
           <motion.div

@@ -36,10 +36,11 @@ interface CourseMatch {
   isHDYD: boolean;
 }
 
-function matchCoursesToGaps(topGaps: SkillWithGap[], industries: string[]): CourseMatch[] {
+function matchCoursesToGaps(topGaps: SkillWithGap[], _industries: string[]): CourseMatch[] {
+  // Search across ALL industries — the derived industry from a role slug rarely matches coursesByIndustry keys
   const allCourses: { course: Course; industry: string }[] = [];
-  for (const ind of industries) {
-    for (const c of (coursesByIndustry[ind] ?? [])) {
+  for (const [ind, courses] of Object.entries(coursesByIndustry)) {
+    for (const c of courses) {
       allCourses.push({ course: c, industry: ind });
     }
   }
@@ -74,9 +75,9 @@ const HDYD_BADGE_INDUSTRIES = [
 ];
 
 function badgesForDomains(domains: string[]): typeof HDYD_BADGE_INDUSTRIES {
+  // Only surface a badge when its domain is relevant to this role's skill domains
   return HDYD_BADGE_INDUSTRIES.filter((b) =>
-    domains.some((d) => d.toLowerCase().includes(b.domain.toLowerCase().split(" ")[0])) ||
-    true, // for now show all available badges as they're all relevant
+    domains.some((d) => d.toLowerCase().includes(b.domain.toLowerCase().split(" ")[0])),
   );
 }
 
