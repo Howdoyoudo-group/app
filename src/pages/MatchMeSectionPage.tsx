@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Briefcase, Building2, Shuffle, Zap, Brain, ChevronRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Briefcase, Building2, Shuffle, Zap, Brain, Layers, Edit3, RefreshCw, MapPin } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getMatchingIntersections, type SkillCategory, type IntersectionRole } from "@/data/intersection-roles";
@@ -43,7 +43,14 @@ interface UnderstandMeResult {
   transferableSkills?: string[];
 }
 
+const RIASEC_LABELS: Record<string, { label: string; emoji: string }> = {
+  R: { label: "Realistic", emoji: "🔧" }, I: { label: "Investigative", emoji: "🔬" },
+  A: { label: "Artistic", emoji: "🎨" }, S: { label: "Social", emoji: "🤝" },
+  E: { label: "Enterprising", emoji: "🚀" }, C: { label: "Conventional", emoji: "📋" },
+};
+
 const SECTION_META: Record<string, { title: string; subtitle: string; icon: React.ElementType }> = {
+  "what-we-know": { title: "What Howdy Knows About You", subtitle: "The signals we use to match your opportunities", icon: Layers },
   "suggested-roles": { title: "Suggested Roles", subtitle: "Based on your CV — roles your experience maps to", icon: Briefcase },
   "suggested-industries": { title: "Suggested Industries", subtitle: "Based on your CV — sectors where your background fits", icon: Building2 },
   "worlds-collide": { title: "Where Your Worlds Collide", subtitle: "Roles at the crossover of your industries and skills", icon: Shuffle },
@@ -58,9 +65,18 @@ export default function MatchMeSectionPage() {
   const [results, setResults] = useState<UnderstandMeResult | null>(null);
   const [skillCategories, setSkillCategories] = useState<SkillCategory[]>([]);
   const [effectiveIndustries, setEffectiveIndustries] = useState<TaggedIndustry[]>([]);
+  // what-we-know specific
+  const [riasecScores, setRiasecScores] = useState<Record<string, number> | null>(null);
+  const [industryInterests, setIndustryInterests] = useState<string[]>([]);
+  const [rolePreferences, setRolePreferences] = useState<string[]>([]);
+  const [passions, setPassions] = useState<string[]>([]);
+  const [targetCompanies, setTargetCompanies] = useState<string[]>([]);
+  const [selfDeclaredSkills, setSelfDeclaredSkills] = useState<string[]>([]);
+  const [careerLevel, setCareerLevel] = useState<string | null>(null);
+  const [locationVal, setLocationVal] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!section || !SECTION_META[section]) {
+    if (!section || !(section in SECTION_META)) {
       navigate("/match-me", { replace: true });
       return;
     }
@@ -69,17 +85,37 @@ export default function MatchMeSectionPage() {
     (async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("understand_me_results, industry_interests, role_preferences, job_preferences")
+        .select("understand_me_results, industry_interests, role_preferences, job_preferences, riasec_scores")
         .eq("id", user.id)
         .maybeSingle();
 
       const umr = (data as any)?.understand_me_results || null;
       setResults(umr);
+      setRiasecScores((data as any)?.riasec_scores || null);
 
       const industryInterests: string[] = data?.industry_interests || [];
       const rolePrefs: string[] = data?.role_preferences || [];
-      const pb = ((data as any)?.job_preferences || {}).profileBuilder || {};
+      setIndustryInterests(industryInterests);
+      setRolePreferences(rolePrefs);
+      const jp = (data as any)?.job_preferences || {};
+      const pb = jp.profileBuilder || {};
       const skillsObj: any = pb.skills || {};
+
+      const passionArr: string[] = [
+        ...(Array.isArray(jp.passions) ? jp.passions : []),
+        ...(typeof jp.passionsText === "string" ? jp.passionsText.split(/[,\n]+/).map((s: string) => s.trim()).filter(Boolean) : []),
+        ...(Array.isArray(pb.passions) ? pb.passions : []),
+      ];
+      setPassions(Array.from(new Set(passionArr)).slice(0, 10));
+      setTargetCompanies(Array.isArray(pb.targetCompanies) ? pb.targetCompanies.slice(0, 6) : []);
+      setCareerLevel(pb.careerLevel || jp.careerLevel || null);
+      setLocationVal(pb.location || jp.location || jp.preferredLocation || null);
+      setSelfDeclaredSkills([
+        ...(Array.isArray(skillsObj.creative) ? skillsObj.creative : []),
+        ...(Array.isArray(skillsObj.people) ? skillsObj.people : []),
+        ...(Array.isArray(skillsObj.digital) ? skillsObj.digital : []),
+        ...(Array.isArray(skillsObj.practical) ? skillsObj.practical : []),
+      ].slice(0, 12));
 
       const rolePrefLower = rolePrefs.map((r) => r.toLowerCase());
       const cats: SkillCategory[] = [];
@@ -148,8 +184,188 @@ export default function MatchMeSectionPage() {
             </div>
           )}
 
+          {/* what-we-know: Edit + Rerun buttons in header */}
+          {section === "what-we-know" && meta && (
+            <div className="flex gap-2 mb-6">
+              <Link to="/onboarding" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-primary bg-primary/10 font-display font-700 text-xs uppercase tracking-wide hover:bg-primary hover:text-primary-foreground transition-colors">
+                <RefreshCw className="w-3 h-3" /> Rerun onboarding
+              </Link>
+              <Link to="/my-profile" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-foreground/20 font-display font-700 text-xs uppercase tracking-wide hover:bg-foreground hover:text-background transition-colors">
+                <Edit3 className="w-3 h-3" /> Edit profile
+              </Link>
+            </div>
+          )}
+
           {!loading && user && (
             <motion.div {...fadeUp}>
+              {/* ── WHAT WE KNOW ── */}
+              {section === "what-we-know" && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* From CV */}
+                  <div className="border-2 border-blue-200 rounded-2xl p-4 bg-blue-50/40 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <p className="font-display font-700 text-[10px] uppercase tracking-widest text-blue-600">From your CV</p>
+                      {!(results?.roleMatches?.length || results?.industryFit?.length) && (
+                        <Link to="/my-profile" className="font-display font-700 text-[10px] uppercase tracking-widest text-blue-500 underline">Run Understand Me →</Link>
+                      )}
+                    </div>
+                    {(results?.roleMatches?.length || results?.industryFit?.length) ? (
+                      <>
+                        {results!.industryFit && results!.industryFit.length > 0 && (
+                          <div>
+                            <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Experience industries</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {results!.industryFit.slice(0, 5).map((ind) => (
+                                <span key={ind.industry} className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-blue-100 border border-blue-200 font-display font-700 text-xs text-blue-700">
+                                  {ind.industry}<span className="opacity-50 text-[9px] ml-0.5">{ind.confidence}%</span>
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {results!.roleMatches && results!.roleMatches.length > 0 && (
+                          <div>
+                            <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Experience roles</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {results!.roleMatches.slice(0, 4).map((r) => (
+                                <span key={r.slug} className="px-2.5 py-1 rounded-full bg-blue-100 border border-blue-200 font-display font-700 text-xs text-blue-700">{r.role}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                        {results!.transferableSkills && results!.transferableSkills.length > 0 && (
+                          <div>
+                            <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Transferable skills</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {results!.transferableSkills.slice(0, 6).map((sk) => (
+                                <span key={sk} className="px-2.5 py-1 rounded-full bg-blue-100 border border-blue-200 font-display font-700 text-xs text-blue-700">{sk}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <p className="font-body text-xs text-muted-foreground">Upload your CV on your profile page and we'll analyse your background, spot your industries and suggest matching roles.</p>
+                    )}
+                  </div>
+
+                  {/* You told us */}
+                  <div className="border-2 border-primary/20 rounded-2xl p-4 bg-primary/5 space-y-4">
+                    <p className="font-display font-700 text-[10px] uppercase tracking-widest text-primary">You told us</p>
+                    <div>
+                      <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Desired industries</p>
+                      {industryInterests.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {industryInterests.map((ind) => (
+                            <span key={ind} className="px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 font-display font-700 text-xs text-primary">{ind}</span>
+                          ))}
+                        </div>
+                      ) : (
+                        <Link to="/onboarding?step=interests" className="font-body text-xs text-primary underline">Add desired industries →</Link>
+                      )}
+                    </div>
+                    <div>
+                      <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Desired roles</p>
+                      {rolePreferences.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {rolePreferences.map((r) => (
+                            <span key={r} className="px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 font-display font-700 text-xs text-primary">{r}</span>
+                          ))}
+                        </div>
+                      ) : (
+                        <Link to="/onboarding?step=roles" className="font-body text-xs text-primary underline">Add dream roles →</Link>
+                      )}
+                    </div>
+                    {passions.length > 0 && (
+                      <div>
+                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Passions</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {passions.slice(0, 6).map((p) => (
+                            <span key={p} className="px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 font-display font-700 text-xs text-amber-800">{p}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {targetCompanies.length > 0 && (
+                      <div>
+                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Dream companies</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {targetCompanies.map((c) => (
+                            <span key={c} className="px-2.5 py-1 rounded-full bg-primary/10 border border-primary/30 font-display font-700 text-xs text-primary">{c}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {selfDeclaredSkills.length > 0 && (
+                      <div>
+                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Self-declared skills</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {selfDeclaredSkills.slice(0, 6).map((sk) => (
+                            <span key={sk} className="px-2.5 py-1 rounded-full bg-purple-50 border border-purple-200 font-display font-700 text-xs text-purple-700">{sk}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {(careerLevel || locationVal) && (
+                      <div className="flex flex-wrap gap-2">
+                        {careerLevel && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-background border border-foreground/20 font-display font-700 text-xs">
+                            <Briefcase className="w-3 h-3 text-muted-foreground" /> {careerLevel}
+                          </span>
+                        )}
+                        {locationVal && (
+                          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-background border border-foreground/20 font-display font-700 text-xs">
+                            <MapPin className="w-3 h-3 text-muted-foreground" /> {locationVal}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Personality */}
+                  <div className="border-2 border-purple-200 rounded-2xl p-4 bg-purple-50/40 space-y-4">
+                    <p className="font-display font-700 text-[10px] uppercase tracking-widest text-purple-600">Your personality</p>
+                    {riasecScores ? (
+                      <div>
+                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-3">RIASEC profile</p>
+                        <div className="space-y-2">
+                          {(Object.entries(riasecScores) as [string, number][]).sort((a, b) => b[1] - a[1]).map(([k, v]) => (
+                            <div key={k}>
+                              <div className="flex justify-between mb-0.5">
+                                <span className="font-display font-700 text-xs">{RIASEC_LABELS[k]?.emoji} {RIASEC_LABELS[k]?.label ?? k}</span>
+                                <span className="font-display font-700 text-xs text-purple-600">{Math.round(v)}</span>
+                              </div>
+                              <div className="h-1.5 bg-purple-100 rounded-full overflow-hidden">
+                                <div className="h-full bg-purple-500 rounded-full" style={{ width: `${Math.max(0, Math.min(100, v))}%` }} />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <p className="font-body text-xs text-muted-foreground mb-3">Take the 12-question quiz to add your personality type and improve your job matches.</p>
+                        <Link to="/onboarding?step=personality" className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-purple-600 text-white font-display font-700 text-xs">
+                          Take the quiz <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      </div>
+                    )}
+                    {skillCategories.length > 0 && (
+                      <div>
+                        <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Skill type</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {skillCategories.map((sk) => (
+                            <span key={sk} className="px-2.5 py-1 rounded-full bg-purple-100 border border-purple-200 font-display font-700 text-xs text-purple-700">
+                              {SKILL_LABELS[sk].emoji} {SKILL_LABELS[sk].label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
               {/* ── SUGGESTED ROLES ── */}
               {section === "suggested-roles" && (
                 <>
