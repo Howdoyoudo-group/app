@@ -66,7 +66,7 @@ const SECTION_META: Record<string, { title: string; subtitle: string; icon: Reac
   "suggested-roles": { title: "Suggested Roles", subtitle: "Based on your CV — roles your experience maps to", icon: Briefcase },
   "suggested-industries": { title: "Suggested Industries", subtitle: "Based on your CV — sectors where your background fits", icon: Building2 },
   "worlds-collide": { title: "Where Your Worlds Collide", subtitle: "Roles at the crossover of your industries and skills", icon: Shuffle },
-  "what-if-machine": { title: "The What If Machine", subtitle: "Explore any combination of industries and roles", icon: Brain },
+  "what-if-machine": { title: "The What If Machine", subtitle: "Collide two industries and discover 10 roles you'd never have thought of.", icon: Brain },
   "side-hustles": { title: "Side Hustle Ideas", subtitle: "Flexible ways to earn alongside your career, matched to your skills", icon: Wallet },
 };
 
