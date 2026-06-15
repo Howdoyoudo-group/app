@@ -44,11 +44,11 @@ function learningLinks(slug: string) {
       initial: "FL",
     },
     {
-      label: `How to become a ${display}`,
-      provider: "YouTube",
-      href: `https://www.youtube.com/results?search_query=how+to+become+a+${encodedCore}+career`,
-      color: "#FF0000",
-      initial: "YT",
+      label: `${display} — career info & training`,
+      provider: "National Careers Service",
+      href: `https://nationalcareers.service.gov.uk/explore-careers?searchTerm=${encodedCore}`,
+      color: "#00703C",
+      initial: "NCS",
     },
   ];
 }
