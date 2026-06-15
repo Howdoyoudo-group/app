@@ -10,6 +10,27 @@ import { useSkillGap, type SkillWithGap } from "@/hooks/useSkillGap";
 import { coursesByIndustry, type Course } from "@/data/courses";
 import { supabase } from "@/integrations/supabase/client";
 
+// ── Reed search query builder ─────────────────────────────────────────────────
+// Strips stop words and weak adjectives so "Meticulous attention to detail in
+// recipes and presentation" → "attention detail recipes presentation"
+const STOP_WORDS = new Set([
+  "a","an","the","of","in","and","or","for","to","with","by","at","from",
+  "into","onto","upon","about","above","below","between","during","through",
+  "meticulous","effective","strong","good","excellent","high","common",
+  "basic","general","clear","key","wide","broad","full","detailed","proper",
+  "accurate","correct","thorough","awareness","understanding","knowledge",
+  "ability","skill","experience","use","using","ensure","maintain","provide",
+]);
+
+function reedQuery(skillTitle: string): string {
+  const words = skillTitle
+    .toLowerCase()
+    .replace(/[^a-z0-9 ]+/g, " ")
+    .split(" ")
+    .filter((w) => w.length > 2 && !STOP_WORDS.has(w));
+  return words.slice(0, 5).join(" ");
+}
+
 // ── Course matching ──────────────────────────────────────────────────────────
 
 function tokenise(text: string): Set<string> {
@@ -147,7 +168,7 @@ function GapWithCourses({ gap, courses }: { gap: SkillWithGap; courses: CourseMa
 
         {/* Reed Learning live search — always shown, searches the exact skill title */}
         <a
-          href={`https://www.reed.co.uk/courses/search?keywords=${encodeURIComponent(gap.skill_title)}`}
+          href={`https://www.reed.co.uk/courses/search?keywords=${encodeURIComponent(reedQuery(gap.skill_title))}`}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-3 p-2.5 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-muted/30 transition-colors group"
