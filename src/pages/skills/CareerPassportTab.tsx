@@ -7,86 +7,42 @@ import { Link, useSearchParams } from "react-router-dom";
 import { BookOpen, ExternalLink, Trophy, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSkillGap, type SkillWithGap } from "@/hooks/useSkillGap";
-import { coursesByIndustry, type Course } from "@/data/courses";
 import { supabase } from "@/integrations/supabase/client";
 
-// ── Reed search query builder ─────────────────────────────────────────────────
-// Strips stop words and weak adjectives so "Meticulous attention to detail in
-// recipes and presentation" → "attention detail recipes presentation"
-const STOP_WORDS = new Set([
-  "a","an","the","of","in","and","or","for","to","with","by","at","from",
-  "into","onto","upon","about","above","below","between","during","through",
-  "meticulous","effective","strong","good","excellent","high","common",
-  "basic","general","clear","key","wide","broad","full","detailed","proper",
-  "accurate","correct","thorough","awareness","understanding","knowledge",
-  "ability","skill","experience","use","using","ensure","maintain","provide",
-]);
+// ── Role-level learning links ─────────────────────────────────────────────────
+// Reed/FutureLearn/YouTube don't have courses for specific Skills England
+// skill descriptions, but they do have good results for role titles.
 
-function reedQuery(skillTitle: string): string {
-  const words = skillTitle
-    .toLowerCase()
-    .replace(/[^a-z0-9 ]+/g, " ")
-    .split(" ")
-    .filter((w) => w.length > 2 && !STOP_WORDS.has(w));
-  return words.slice(0, 5).join(" ");
+function roleTitle(slug: string): string {
+  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-// ── Course matching ──────────────────────────────────────────────────────────
-
-function tokenise(text: string): Set<string> {
-  return new Set(
-    text.toLowerCase()
-      .replace(/[^a-z0-9 ]+/g, " ")
-      .split(" ")
-      .filter((w) => w.length > 3),
-  );
-}
-
-function skillCourseScore(skillTitle: string, course: Course): number {
-  const skillTokens = tokenise(skillTitle);
-  const courseTokens = tokenise(`${course.title} ${course.description}`);
-  let matches = 0;
-  for (const t of skillTokens) if (courseTokens.has(t)) matches++;
-  return matches;
-}
-
-interface CourseMatch {
-  course: Course;
-  score: number;
-  matchedSkills: string[];
-  isHDYD: boolean;
-}
-
-function matchCoursesToGaps(topGaps: SkillWithGap[], _industries: string[]): CourseMatch[] {
-  // Search across ALL industries — the derived industry from a role slug rarely matches coursesByIndustry keys
-  const allCourses: { course: Course; industry: string }[] = [];
-  for (const [ind, courses] of Object.entries(coursesByIndustry)) {
-    for (const c of courses) {
-      allCourses.push({ course: c, industry: ind });
-    }
-  }
-
-  const scoredMap = new Map<string, CourseMatch>();
-  for (const { course } of allCourses) {
-    const key = course.url;
-    let totalScore = 0;
-    const matchedSkills: string[] = [];
-    for (const gap of topGaps) {
-      const s = skillCourseScore(gap.skill_title, course);
-      if (s > 0) { totalScore += s; matchedSkills.push(gap.skill_title); }
-    }
-    if (totalScore > 0) {
-      if (!scoredMap.has(key) || scoredMap.get(key)!.score < totalScore) {
-        scoredMap.set(key, { course, score: totalScore, matchedSkills, isHDYD: false });
-      }
-    }
-  }
-
-  return [...scoredMap.values()].sort((a, b) => {
-    // Free first, then by score
-    if (a.course.free !== b.course.free) return a.course.free ? -1 : 1;
-    return b.score - a.score;
-  }).slice(0, 8);
+function learningLinks(slug: string) {
+  const title = roleTitle(slug);
+  const encoded = encodeURIComponent(title);
+  return [
+    {
+      label: `${title} courses`,
+      provider: "Reed Online Learning",
+      href: `https://www.reed.co.uk/courses/search?keywords=${encoded}`,
+      color: "#CC0000",
+      initial: "R",
+    },
+    {
+      label: `${title} courses`,
+      provider: "FutureLearn",
+      href: `https://www.futurelearn.com/search?q=${encoded}`,
+      color: "#D63384",
+      initial: "FL",
+    },
+    {
+      label: `${title} skills tutorials`,
+      provider: "YouTube",
+      href: `https://www.youtube.com/results?search_query=${encoded}+skills+tutorial`,
+      color: "#FF0000",
+      initial: "YT",
+    },
+  ];
 }
 
 // HDYD badge industries available (matches existing badge_lessons)
@@ -109,81 +65,63 @@ const TYPE_COLOURS: Record<string, string> = {
   behaviour: "bg-amber-50 text-amber-800 border-amber-200",
 };
 
-function GapWithCourses({ gap, courses }: { gap: SkillWithGap; courses: CourseMatch[] }) {
-  const relevant = courses.filter((c) => c.matchedSkills.includes(gap.skill_title));
+function GapItem({ gap }: { gap: SkillWithGap }) {
   const typeClass = TYPE_COLOURS[gap.skill_type ?? "skill"] ?? TYPE_COLOURS.skill;
   const gapSize = Math.max(0, 3 - (gap.rating ?? 0));
 
   return (
-    <div className="border border-border rounded-xl p-4 bg-card">
-      <div className="flex items-start gap-3 mb-3">
-        <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${gapSize >= 3 ? "bg-red-500" : gapSize >= 2 ? "bg-amber-500" : "bg-yellow-400"}`} />
-        <div className="flex-1 min-w-0">
-          <p className="font-display font-700 text-sm">{gap.skill_title}</p>
-          <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-            <span className={`px-2 py-0.5 text-[10px] font-display font-600 border rounded-full ${typeClass}`}>
-              {gap.skill_type ?? "skill"}
-            </span>
-            {gap.broad_domain && (
-              <span className="font-body text-[11px] text-muted-foreground">{gap.broad_domain}</span>
-            )}
-          </div>
+    <div className="flex items-start gap-3 py-3 border-b border-border/50 last:border-0">
+      <div className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${gapSize >= 3 ? "bg-red-500" : gapSize >= 2 ? "bg-amber-500" : "bg-yellow-400"}`} />
+      <div className="flex-1 min-w-0">
+        <p className="font-display font-700 text-sm">{gap.skill_title}</p>
+        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
+          <span className={`px-2 py-0.5 text-[10px] font-display font-600 border rounded-full ${typeClass}`}>
+            {gap.skill_type ?? "skill"}
+          </span>
+          {gap.broad_domain && (
+            <span className="font-body text-[11px] text-muted-foreground">{gap.broad_domain}</span>
+          )}
         </div>
-        {gap.rating !== null && (
-          <div className="text-right shrink-0">
-            <p className="font-display font-900 text-sm text-muted-foreground">
-              {gap.rating?.toFixed(0) ?? "0"}/5
-            </p>
-            <p className="font-body text-[10px] text-muted-foreground">current</p>
-          </div>
-        )}
       </div>
+      {gap.rating !== null && (
+        <div className="text-right shrink-0">
+          <p className="font-display font-900 text-sm text-muted-foreground">{gap.rating?.toFixed(0) ?? "0"}/5</p>
+          <p className="font-body text-[10px] text-muted-foreground">current</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
+function RoleLearningLinks({ slug }: { slug: string }) {
+  const links = learningLinks(slug);
+  return (
+    <div className="mt-4 p-4 border border-border rounded-xl bg-muted/20">
+      <p className="font-display font-800 text-xs uppercase tracking-wide text-muted-foreground mb-3">
+        Find courses to close these gaps
+      </p>
       <div className="space-y-2">
-        {/* Hardcoded course matches (sparse — only fire when there's a genuine keyword hit) */}
-        {relevant.slice(0, 2).map((c, i) => (
+        {links.map((l) => (
           <a
-            key={i}
-            href={c.course.url}
+            key={l.href}
+            href={l.href}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-3 p-2.5 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-muted/30 transition-colors group"
+            className="flex items-center gap-3 p-2.5 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-background transition-colors group"
           >
+            <div
+              className="w-6 h-6 shrink-0 rounded flex items-center justify-center"
+              style={{ backgroundColor: l.color }}
+            >
+              <span className="text-white font-display font-900 text-[8px] leading-none">{l.initial}</span>
+            </div>
             <div className="flex-1 min-w-0">
-              <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">
-                {c.course.title}
-              </p>
-              <p className="font-body text-[11px] text-muted-foreground">{c.course.provider}</p>
+              <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">{l.label}</p>
+              <p className="font-body text-[11px] text-muted-foreground">{l.provider}</p>
             </div>
-            <div className="flex items-center gap-2 shrink-0">
-              {c.course.free && (
-                <span className="px-1.5 py-0.5 font-display font-700 text-[9px] uppercase tracking-wide bg-green-100 text-green-700 border border-green-200 rounded-full">
-                  Free
-                </span>
-              )}
-              <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors" />
-            </div>
+            <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
           </a>
         ))}
-
-        {/* Reed Learning live search — always shown, searches the exact skill title */}
-        <a
-          href={`https://www.reed.co.uk/courses/search?keywords=${encodeURIComponent(reedQuery(gap.skill_title))}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center gap-3 p-2.5 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-muted/30 transition-colors group"
-        >
-          <div className="w-5 h-5 shrink-0 rounded bg-[#CC0000] flex items-center justify-center">
-            <span className="text-white font-display font-900 text-[8px] leading-none">R</span>
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-display font-700 text-xs group-hover:text-primary transition-colors">
-              Find courses: {gap.skill_title}
-            </p>
-            <p className="font-body text-[11px] text-muted-foreground">Reed Online Learning</p>
-          </div>
-          <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
-        </a>
       </div>
     </div>
   );
@@ -200,7 +138,6 @@ export default function CareerPassportTab() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedRole, setSelectedRole] = useState(searchParams.get("role") ?? "");
   const [ratedRoles, setRatedRoles] = useState<string[]>([]);
-  const [roleIndustries, setRoleIndustries] = useState<string[]>([]);
   const gap = useSkillGap(selectedRole, user?.id);
 
   // Find roles the user has rated
@@ -226,15 +163,6 @@ export default function CareerPassportTab() {
       });
   }, [user]);
 
-  // Get industries for the selected role (to match courses)
-  useEffect(() => {
-    if (!selectedRole) return;
-    // Derive industry from role slug heuristic
-    const industry = selectedRole.split("-")[0];
-    setRoleIndustries([industry, "hospitality", "business"]);
-  }, [selectedRole]);
-
-  const courseMatches = matchCoursesToGaps(gap.topGaps, roleIndustries);
   const availableBadges = badgesForDomains(gap.domains.map((d) => d.domain));
 
   if (!user) {
@@ -340,13 +268,16 @@ export default function CareerPassportTab() {
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
-              <h3 className="font-display font-800 text-sm uppercase tracking-wide text-muted-foreground">
+            <div>
+              <h3 className="font-display font-800 text-sm uppercase tracking-wide text-muted-foreground mb-2">
                 Priority gaps for <RoleLabel slug={selectedRole} />
               </h3>
-              {gap.topGaps.map((g) => (
-                <GapWithCourses key={g.id} gap={g} courses={courseMatches} />
-              ))}
+              <div className="border border-border rounded-xl p-4 bg-card">
+                {gap.topGaps.map((g) => (
+                  <GapItem key={g.id} gap={g} />
+                ))}
+              </div>
+              <RoleLearningLinks slug={selectedRole} />
             </div>
           )}
 
