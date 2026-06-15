@@ -9,13 +9,47 @@ import SiteNav from "@/components/SiteNav";
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
 const VIDEO_STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/videos";
+const VOXPOPS_STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/voxpops";
 
 const FEATURED_VIDEOS = [
   {
     title: "How Do You Do — Voxpops",
     description: "Real people, real careers. Hear from young people and industry insiders about how they got where they are.",
-    src: "https://https-howdoyoudo-group.lovable.app/__l5e/assets-v1/867b66a7-10b5-43f6-9316-a1c231af2265/hdyd-voxpops-v6.mp4#t=0.001",
+    src: `${VOXPOPS_STORAGE}/general-interviews-.mp4#t=0.001`,
     tag: "Howdoyoudo",
+  },
+];
+
+const VOXPOPS = [
+  {
+    id: "general",
+    title: "General Interviews",
+    description: "Real people on the street — we asked, they answered.",
+    src: `${VOXPOPS_STORAGE}/general-interviews-.mp4#t=0.001`,
+  },
+  {
+    id: "dream-job",
+    title: "What's your dream job?",
+    description: "We asked people what they'd do if they could do anything.",
+    src: `${VOXPOPS_STORAGE}/tiktok-dream-job.mp4#t=0.001`,
+  },
+  {
+    id: "guess-sound",
+    title: "Guess the job — sound edition",
+    description: "Can you guess the industry from the sound alone?",
+    src: `${VOXPOPS_STORAGE}/tiktok-guess-sound.mp4#t=0.001`,
+  },
+  {
+    id: "guess-job",
+    title: "Guess their job",
+    description: "We put people to the test — can you spot the career from the person?",
+    src: `${VOXPOPS_STORAGE}/tiktok-guess-their-job.mp4#t=0.001`,
+  },
+  {
+    id: "what-industry",
+    title: "What industry are you in?",
+    description: "Straight from the street — the industries people are actually working in.",
+    src: `${VOXPOPS_STORAGE}/tiktok-what-industry.mp4#t=0.001`,
   },
 ];
 
@@ -95,6 +129,40 @@ export default function Videos() {
                     </span>
                     <h3 className="font-display font-900 text-lg uppercase tracking-wide mb-1">{v.title}</h3>
                     <p className="font-body text-sm text-muted-foreground">{v.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Voxpops */}
+          <motion.section
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.08 }}
+            className="mb-14"
+          >
+            <h2 className="font-display font-900 text-xl md:text-2xl uppercase tracking-wide mb-5">Voxpops</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              {VOXPOPS.map((v) => (
+                <div key={v.id} className="border-2 border-foreground rounded-2xl overflow-hidden flex flex-col">
+                  <div className="relative w-full bg-black" style={{ paddingTop: "177.78%" }}>
+                    <video
+                      src={v.src}
+                      controls
+                      playsInline
+                      preload="metadata"
+                      controlsList="nodownload noplaybackrate"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="p-3">
+                    <p className="font-display font-900 text-xs uppercase tracking-wide text-foreground leading-snug">
+                      {v.title}
+                    </p>
+                    <p className="font-body text-[11px] text-muted-foreground leading-relaxed mt-1">
+                      {v.description}
+                    </p>
                   </div>
                 </div>
               ))}
