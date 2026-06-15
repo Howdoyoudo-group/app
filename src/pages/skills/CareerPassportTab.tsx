@@ -13,32 +13,40 @@ import { supabase } from "@/integrations/supabase/client";
 // Reed/FutureLearn/YouTube don't have courses for specific Skills England
 // skill descriptions, but they do have good results for role titles.
 
+const SENIORITY_PREFIXES = /^(junior|senior|assistant|deputy|head|lead|chief|principal|graduate|trainee|apprentice|associate)\s+/i;
+
 function roleTitle(slug: string): string {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+// Strip seniority qualifiers for broader course searches ("Junior Baker" → "Baker")
+function coreTitle(slug: string): string {
+  return roleTitle(slug).replace(SENIORITY_PREFIXES, "");
+}
+
 function learningLinks(slug: string) {
-  const title = roleTitle(slug);
-  const encoded = encodeURIComponent(title);
+  const display = roleTitle(slug);
+  const core = coreTitle(slug);
+  const encodedCore = encodeURIComponent(core);
   return [
     {
-      label: `${title} courses`,
+      label: `${display} courses`,
       provider: "Reed Online Learning",
-      href: `https://www.reed.co.uk/courses/search?keywords=${encoded}`,
+      href: `https://www.reed.co.uk/courses/search?keywords=${encodedCore}`,
       color: "#CC0000",
       initial: "R",
     },
     {
-      label: `${title} courses`,
+      label: `${display} courses`,
       provider: "FutureLearn",
-      href: `https://www.futurelearn.com/search?q=${encoded}`,
+      href: `https://www.futurelearn.com/search?q=${encodedCore}`,
       color: "#D63384",
       initial: "FL",
     },
     {
-      label: `${title} skills tutorials`,
+      label: `How to become a ${display}`,
       provider: "YouTube",
-      href: `https://www.youtube.com/results?search_query=${encoded}+skills+tutorial`,
+      href: `https://www.youtube.com/results?search_query=how+to+become+a+${encodedCore}+career`,
       color: "#FF0000",
       initial: "YT",
     },
