@@ -278,7 +278,8 @@ const IndustryBadgePage = ({ industry, industryDisplayName, parentHref }: Indust
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: 20, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-background border-2 border-foreground max-w-xl w-full max-h-[90vh] overflow-y-auto"
+              className="bg-white border-2 border-foreground max-w-xl w-full max-h-[90vh] overflow-y-auto"
+              style={{ backgroundImage: "none" }}
             >
               {!quizResult ? (
                 <QuizRunner
