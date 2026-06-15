@@ -45,16 +45,21 @@ function learningLinks(slug: string) {
   ];
 }
 
-// HDYD badge industries available (matches existing badge_lessons)
-const HDYD_BADGE_INDUSTRIES = [
-  { slug: "football", label: "Football Industry", href: "/football/badge", domain: "Catering and Hospitality" },
-  // Add more as they launch
+// HDYD badge modules — rolePatterns are substrings matched against the role slug
+const HDYD_BADGES = [
+  {
+    slug: "football",
+    label: "Football Industry",
+    href: "/football/badge",
+    rolePatterns: ["football", "sport", "stadium", "groundskeeper", "physiotherap", "scout"],
+  },
+  // When bakery badge launches:
+  // { slug: "bakery", label: "Bakery", href: "/bakery/badge", rolePatterns: ["baker", "bakery", "pastry", "bread", "confection"] },
 ];
 
-function badgesForDomains(domains: string[]): typeof HDYD_BADGE_INDUSTRIES {
-  // Only surface a badge when its domain is relevant to this role's skill domains
-  return HDYD_BADGE_INDUSTRIES.filter((b) =>
-    domains.some((d) => d.toLowerCase().includes(b.domain.toLowerCase().split(" ")[0])),
+function badgesForRole(roleSlug: string): typeof HDYD_BADGES {
+  return HDYD_BADGES.filter((b) =>
+    b.rolePatterns.some((p) => roleSlug.includes(p)),
   );
 }
 
@@ -163,7 +168,7 @@ export default function CareerPassportTab() {
       });
   }, [user]);
 
-  const availableBadges = badgesForDomains(gap.domains.map((d) => d.domain));
+  const availableBadges = badgesForRole(selectedRole);
 
   if (!user) {
     return (
