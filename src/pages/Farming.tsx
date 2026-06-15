@@ -144,6 +144,22 @@ const Farming = () => {
             </div>
             <span className="font-display font-700 text-xs uppercase tracking-widest text-primary shrink-0 group-hover:underline">Watch →</span>
           </a>
+          <a
+            href="https://www.amazon.co.uk/World-According-Kaleb-Tour/dp/B0DMTHKS3X"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-4 border-2 border-foreground rounded-2xl p-5 mb-4 hover:bg-foreground/5 transition-colors group"
+          >
+            <div className="w-20 h-28 rounded-lg shrink-0 bg-foreground/10 flex items-center justify-center">
+              <Tractor className="w-8 h-8 text-foreground/30" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-display font-900 text-lg uppercase tracking-tight leading-tight">The World According to Kaleb</p>
+              <p className="font-body text-sm text-muted-foreground mt-1">Kaleb Cooper — Clarkson's Farm's straight-talking young farmer — goes on tour sharing his unfiltered take on farming, fame and life on the land.</p>
+              <span className="inline-block mt-2 font-display font-700 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border border-foreground/20 text-muted-foreground">Amazon Prime Video</span>
+            </div>
+            <span className="font-display font-700 text-xs uppercase tracking-widest text-primary shrink-0 group-hover:underline">Watch →</span>
+          </a>
         </div>
         <div className="mt-12"><YouTubeChannels industry="farming" /><TikTokCreators industry="farming" /></div>
       </>
