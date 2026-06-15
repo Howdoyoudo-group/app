@@ -41,7 +41,7 @@ function remapHospitalityIndustry(row: any): any {
 // upsert fails. We retry row-by-row in that case so the rest of the batch lands.
 async function safeUpsertJobs(supabase: any, batch: any[]): Promise<number> {
   if (batch.length === 0) return 0;
-  const minFreshExpiry = new Date(Date.now() + 30 * 86400000).toISOString();
+  const minFreshExpiry = new Date(Date.now() + 60 * 86400000).toISOString();
   const remapped = batch.map((row) => {
     const mapped = remapHospitalityIndustry(row);
     const existingExpiry = mapped.expires_at ? new Date(mapped.expires_at).getTime() : 0;
@@ -1230,7 +1230,7 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
           description: baseDescription + adref,
           url: canonicalAdzunaUrl,
           source_url: "adzuna.com",
-          expires_at: r.created ? new Date(new Date(r.created).getTime() + 30 * 86400000).toISOString() : null,
+          expires_at: r.created ? new Date(new Date(r.created).getTime() + 60 * 86400000).toISOString() : null,
           // Flag conflicts so classify-jobs picks them up via the AI second pass
           needs_review: categoryConflict || undefined,
           // Force entry-level only when we believe it's a real grad role
@@ -1373,7 +1373,7 @@ async function fetchAdzunaByCategory(industry: string, appId: string, appKey: st
           url: canonicalAdzunaUrl,
           source_url: "adzuna.com",
           expires_at: r.created
-            ? new Date(new Date(r.created).getTime() + 30 * 86400000).toISOString()
+            ? new Date(new Date(r.created).getTime() + 60 * 86400000).toISOString()
             : null,
         });
       }
@@ -1498,7 +1498,7 @@ async function fetchAdzunaByCategoryGeo(industry: string, appId: string, appKey:
           url: canonicalAdzunaUrl,
           source_url: "adzuna.com",
           expires_at: r.created
-            ? new Date(new Date(r.created).getTime() + 30 * 86400000).toISOString()
+            ? new Date(new Date(r.created).getTime() + 60 * 86400000).toISOString()
             : null,
         });
       }
@@ -1575,7 +1575,7 @@ async function fetchJobicyJobs() {
 
         const industry = inferIndustryFromTitle(title, desc);
         const pubDate = pubMatch?.[1] ? new Date(pubMatch[1]) : new Date();
-        const expiresAt = new Date(pubDate.getTime() + 30 * 86400000).toISOString();
+        const expiresAt = new Date(pubDate.getTime() + 60 * 86400000).toISOString();
 
         allJobs.push({
           title: title.slice(0, 255),
@@ -1639,7 +1639,7 @@ async function fetchRssJobs(
         const { stage, roleCategory } = classifyJob(title, desc, industry);
 
         const pubDate = pubMatch?.[1] ? new Date(pubMatch[1]) : new Date();
-        const expiresAt = new Date(pubDate.getTime() + 30 * 86400000).toISOString();
+        const expiresAt = new Date(pubDate.getTime() + 60 * 86400000).toISOString();
 
         allJobs.push({
           title: title.slice(0, 255),
@@ -2021,7 +2021,7 @@ async function fetchReedJobs(industry: string, keywords: string[], apiKey: strin
           const parsed = r.date ? new Date(r.date) : new Date();
           pubDate = isNaN(parsed.getTime()) ? new Date() : parsed;
         }
-        const expiresAt = new Date(pubDate.getTime() + 30 * 86400000).toISOString();
+        const expiresAt = new Date(pubDate.getTime() + 60 * 86400000).toISOString();
 
         // 5) Append a stable Reed dedup ID to the description (mirrors adref).
         const reedId = r.jobId ? `\n\n[reed:${r.jobId}]` : "";
@@ -2129,7 +2129,7 @@ async function fetchMuseJobs(industry: string) {
 
         const { stage, roleCategory } = classifyJob(title, desc, industry);
         const pubDate = r.publication_date ? new Date(r.publication_date) : new Date();
-        const expiresAt = new Date(pubDate.getTime() + 30 * 86400000).toISOString();
+        const expiresAt = new Date(pubDate.getTime() + 60 * 86400000).toISOString();
 
         allJobs.push({
           title: title.slice(0, 255),
@@ -2436,7 +2436,7 @@ async function fetchJoobleJobs(industry: string, keywords: string[], apiKey: str
 
         const { stage, roleCategory } = classifyJob(title, desc, industry);
         const updatedRaw = r.updated ? new Date(r.updated) : new Date();
-        const expiresAt = new Date(updatedRaw.getTime() + 30 * 86400000).toISOString();
+        const expiresAt = new Date(updatedRaw.getTime() + 60 * 86400000).toISOString();
 
         allJobs.push({
           title: title.slice(0, 255),
@@ -2542,7 +2542,7 @@ async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiK
 
       const { stage, roleCategory } = classifyJob(title, desc, industry);
       const postedRaw = r.date_posted ? new Date(r.date_posted) : new Date();
-      const expiresAt = new Date(postedRaw.getTime() + 30 * 86400000).toISOString();
+      const expiresAt = new Date(postedRaw.getTime() + 60 * 86400000).toISOString();
 
       allJobs.push({
         title: title.slice(0, 255),
@@ -2641,7 +2641,7 @@ async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiK
 
       const { stage, roleCategory } = classifyJob(title, desc, industry);
       const postedRaw = r.date_posted ? new Date(r.date_posted) : new Date();
-      const expiresAt = new Date(postedRaw.getTime() + 30 * 86400000).toISOString();
+      const expiresAt = new Date(postedRaw.getTime() + 60 * 86400000).toISOString();
 
       allJobs.push({
         title: title.slice(0, 255),
@@ -2764,7 +2764,7 @@ async function fetchPinpointJobs(tenant: { slug: string; company: string; indust
             : null);
 
       const { stage, roleCategory } = classifyJob(title, desc, tenant.industry);
-      const expiresAt = (deadline ?? new Date(Date.now() + 30 * 86400000)).toISOString();
+      const expiresAt = (deadline ?? new Date(Date.now() + 60 * 86400000)).toISOString();
 
       allJobs.push({
         title: title.slice(0, 255),
@@ -2939,7 +2939,7 @@ async function fetchOracleHcmJobs(tenant: typeof ORACLE_HCM_TENANTS[number]) {
         const postingEnd = r.PostingEndDate ? new Date(r.PostingEndDate) : null;
         const expiresAt = (postingEnd && !isNaN(postingEnd.getTime()))
           ? postingEnd.toISOString()
-          : new Date(Date.now() + 30 * 86400000).toISOString();
+          : new Date(Date.now() + 60 * 86400000).toISOString();
 
         // Skip already-expired postings.
         if (postingEnd && postingEnd.getTime() < Date.now()) { droppedExpired++; continue; }
@@ -3189,7 +3189,7 @@ async function fetchWorkdayJobs(tenant: typeof WORKDAY_TENANTS[number]) {
 
         const postedOn = String(p.postedOn || "").trim(); // e.g. "Posted 3 Days Ago"
         // We don't have a reliable expiry; default to +30 days.
-        const expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
+        const expiresAt = new Date(Date.now() + 60 * 86400000).toISOString();
 
         allJobs.push({
           title: title.slice(0, 255),
@@ -3260,7 +3260,7 @@ function f1JobRow(args: {
     description: desc.slice(0, 2000),
     url: args.url,
     source_url: args.sourceUrl,
-    expires_at: args.expiresAt || new Date(Date.now() + 30 * 86400000).toISOString(),
+    expires_at: args.expiresAt || new Date(Date.now() + 60 * 86400000).toISOString(),
     tags: ["Formula 1", "Motorsport"],
   };
 }
@@ -3636,7 +3636,7 @@ async function fetchTalentFunnelJobs(
         description,
         url,
         source_url: "jobs.drmartens.com",
-        expires_at: item.validTo || new Date(Date.now() + 30 * 86400000).toISOString(),
+        expires_at: item.validTo || new Date(Date.now() + 60 * 86400000).toISOString(),
       });
     }
   } catch (err) {
@@ -3779,7 +3779,7 @@ async function fetchEployJobs(
         description: null,
         url,
         source_url: tenant.host,
-        expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
       });
     }
 
@@ -3885,7 +3885,7 @@ async function fetchCareersInRacingSitemapJobs() {
           description: "Official live listing from the Careers in Racing jobs board.",
           url: link,
           source_url: "careersinracing.com",
-          expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+          expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
         });
       }
     }
@@ -4117,7 +4117,7 @@ async function fetchCareersInRacingJobs(firecrawlKey: string) {
           url: link,
           source_url: "careersinracing.com",
           // Madgex listings typically auto-expire after ~30 days; honour that.
-          expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+          expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
         });
         count++;
       }
@@ -4207,7 +4207,7 @@ async function fetchCrisisJobs(firecrawlKey: string) {
         }
       }
       if (!expiresAt) {
-        expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
+        expiresAt = new Date(Date.now() + 60 * 86400000).toISOString();
       }
 
       const jobType = /fixed term|temporary|temp/i.test(employment) ? "Contract"
@@ -4316,7 +4316,7 @@ async function fetchTheAAJobs(firecrawlKey: string) {
           url: link,
           source_url: "theaacareers.co.uk",
           // AA listings stay live until filled; default 30 days.
-          expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+          expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
         });
       }
       if (pageCount === 0) {
@@ -4410,7 +4410,7 @@ async function fetchTeachFirstJobs(firecrawlKey: string) {
           }
         }
         if (!expiresAt) {
-          expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
+          expiresAt = new Date(Date.now() + 60 * 86400000).toISOString();
         }
 
         const jobType = /fixed[\s-]?term|temp|contract/i.test(typeRaw) ? "Contract"
@@ -4538,7 +4538,7 @@ async function fetchTuiCareersJobs() {
           description: desc.slice(0, 2000),
           url: link,
           source_url: "careers.tuigroup.com",
-          expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+          expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
         });
       }
       // Pagination ends when a page returns no <li> items at all.
@@ -4632,7 +4632,7 @@ async function fetchRyanairCareersJobs() {
           description: desc.slice(0, 2000),
           url: link,
           source_url: "careers.ryanair.com",
-          expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+          expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
         });
       }
 
@@ -4719,7 +4719,7 @@ async function fetchEasyJetCareersJobs() {
         description: desc.slice(0, 2000),
         url: link,
         source_url: "easyjet.taleo.net",
-        expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
       });
     }
   } catch (err) {
@@ -4791,7 +4791,7 @@ async function fetchJibeApplyJobs(tenant: JibeTenant) {
 
         const expiresAt = j.posted_date
           ? new Date(new Date(j.posted_date).getTime() + 60 * 86400000).toISOString()
-          : new Date(Date.now() + 30 * 86400000).toISOString();
+          : new Date(Date.now() + 60 * 86400000).toISOString();
 
         allJobs.push({
           title: title.slice(0, 255),
@@ -4878,7 +4878,7 @@ async function fetchDiceJobs() {
         url: link,
         source_url: "greenhouse.io",
         // Greenhouse listings stay live until the employer pulls them; default 30 days.
-        expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
       });
     }
   } catch (err) {
@@ -5001,7 +5001,7 @@ async function fetchGreenhouseJobs(tenant: GreenhouseTenant) {
         description: desc,
         url: link,
         source_url: "greenhouse.io",
-        expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
       });
     }
   } catch (err) {
@@ -5081,7 +5081,7 @@ async function fetchWorkableJobs(tenant: WorkableTenant) {
         description: desc,
         url: link,
         source_url: "workable.com",
-        expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
       });
     }
   } catch (err) {
@@ -5200,7 +5200,7 @@ function processWorkableBoardPage(jobs: any, industry: string, seen: Set<string>
       description: desc,
       url,
       source_url: "jobs.workable.com",
-      expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+      expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
     });
   }
 }
@@ -5263,7 +5263,7 @@ async function fetchAshbyJobs(tenant: AshbyTenant) {
         description: desc,
         url: link,
         source_url: "ashbyhq.com",
-        expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
       });
     }
   } catch (err) {
@@ -5372,7 +5372,7 @@ async function fetchJSearchJobs(industry: string, keywords: string[], rapidApiKe
         const postedRaw = j.job_posted_at_datetime_utc
           ? new Date(j.job_posted_at_datetime_utc)
           : new Date();
-        const expiresAt = new Date(postedRaw.getTime() + 30 * 86400000).toISOString();
+        const expiresAt = new Date(postedRaw.getTime() + 60 * 86400000).toISOString();
 
         out.push({
           title: title.slice(0, 255),
@@ -5571,7 +5571,7 @@ async function fetchInternshipsJobs(industry: string, rapidApiKey: string) {
         const postedRaw = j.date_posted ? new Date(j.date_posted)
           : j.job_posted_at_datetime_utc ? new Date(j.job_posted_at_datetime_utc)
           : new Date();
-        const expiresAt = new Date(postedRaw.getTime() + 30 * 86400000).toISOString();
+        const expiresAt = new Date(postedRaw.getTime() + 60 * 86400000).toISOString();
 
         out.push({
           title: title.slice(0, 255),
@@ -5782,7 +5782,7 @@ async function fetchIndeedJobs(industry: string, keywords: string[], indeedKey: 
           const desc = String(j.description || j.snippet || "").replace(/<[^>]*>/g, "").trim();
           const salaryRaw = j.salary || j.formatted_salary || null;
           const postedAt = j.date ? new Date(j.date) : new Date();
-          const expiresAt = new Date(postedAt.getTime() + 30 * 86400000).toISOString();
+          const expiresAt = new Date(postedAt.getTime() + 60 * 86400000).toISOString();
 
           const employment = String(j.job_type || j.employment_type || "").toLowerCase();
           const jobType = employment.includes("part") ? "Part-time"
@@ -5907,7 +5907,7 @@ async function fetchLeverJobs(tenant: LeverTenant) {
         description: desc,
         url: link,
         source_url: "lever.co",
-        expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
       });
     }
   } catch (err) {
@@ -5994,7 +5994,7 @@ async function fetchSmartRecruitersJobs(tenant: SmartRecruitersTenant) {
           description: desc,
           url: link,
           source_url: "smartrecruiters.com",
-          expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+          expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
         });
       }
 
@@ -6105,7 +6105,7 @@ async function fetchSuccessFactorsJobs(tenant: SuccessFactorsTenant) {
         description: desc,
         url: link,
         source_url: "successfactors.eu",
-        expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
       });
     }
   } catch (err) {
@@ -6275,7 +6275,7 @@ async function fetchRoleJobs(
               const parsed = r.date ? new Date(r.date) : new Date();
               pubDate = isNaN(parsed.getTime()) ? new Date() : parsed;
             }
-            const expiresAt = new Date(pubDate.getTime() + 30 * 86400000).toISOString();
+            const expiresAt = new Date(pubDate.getTime() + 60 * 86400000).toISOString();
 
             allJobs.push({
               title: title.slice(0, 255),
@@ -6348,7 +6348,7 @@ async function fetchRoleJobs(
             }
 
             const pubDate = r.created ? new Date(r.created) : new Date();
-            const expiresAt = new Date(pubDate.getTime() + 30 * 86400000).toISOString();
+            const expiresAt = new Date(pubDate.getTime() + 60 * 86400000).toISOString();
 
             allJobs.push({
               title,
@@ -6443,7 +6443,7 @@ async function fetchPassionJobs(
               description: desc,
               url: link,
               source_url: "adzuna.com",
-              expires_at: r.created ? new Date(new Date(r.created).getTime() + 30 * 86400000).toISOString() : null,
+              expires_at: r.created ? new Date(new Date(r.created).getTime() + 60 * 86400000).toISOString() : null,
               needs_review: true,
               tags: ["passion-job", tag],
             });
@@ -6482,7 +6482,7 @@ async function fetchPassionJobs(
               description: desc.slice(0, 2000) || null,
               url: r.jobUrl,
               source_url: "reed.co.uk",
-              expires_at: new Date(Date.now() + 30 * 86400000).toISOString(),
+              expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
               needs_review: true,
               tags: ["passion-job", tag],
             });
