@@ -12,6 +12,15 @@ const GALLERY_PHOTOS: { id: number; src?: string; alt: string }[] = [
   { id: 4, src: `${STORAGE}/photo-4.jpg`, alt: "Interview at the show" },
   { id: 5, src: `${STORAGE}/photo-5.jpg`, alt: "Woody with the Howdoyoudo mic" },
   { id: 7, src: `${STORAGE}/photo-7.png`, alt: "What's Next billboard at Shoreditch High Street" },
+  { id: 9, src: `${STORAGE}/photo-9.jpg`, alt: "HDYD interview at an event" },
+  { id: 10, src: `${STORAGE}/photo-10.jpg`, alt: "Street interview with the HDYD mic" },
+  { id: 11, src: `${STORAGE}/photo-11.jpg`, alt: "Filming on location" },
+  { id: 12, src: `${STORAGE}/photo-12.jpg`, alt: "Behind the scenes on a shoot" },
+  { id: 13, src: `${STORAGE}/photo-13.jpg`, alt: "HDYD crew on location" },
+  { id: 14, src: `${STORAGE}/photo-14.jpg`, alt: "Street interview by the Thames" },
+  { id: 15, src: `${STORAGE}/photo-15.jpg`, alt: "Filming in London" },
+  { id: 16, src: `${STORAGE}/photo-16.jpg`, alt: "HDYD crew preparing for a shoot" },
+  { id: 17, src: `${STORAGE}/photo-17.jpg`, alt: "On location interview" },
 ];
 
 const FEATURED_VIDEOS = [
