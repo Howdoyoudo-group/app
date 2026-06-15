@@ -130,9 +130,17 @@ const Farming = () => {
           rel="noopener noreferrer"
           className="flex items-center justify-between gap-4 border-2 border-foreground rounded-2xl p-5 mb-8 hover:bg-foreground/5 transition-colors group"
         >
-          <div>
-            <p className="font-display font-900 text-lg uppercase tracking-tight leading-tight">Only Farmers</p>
-            <p className="font-body text-sm text-muted-foreground mt-1">A community and platform for farmers and people who work in farming — connecting the people who feed Britain.</p>
+          <div className="flex items-center gap-4">
+            <img
+              src="https://logo.clearbit.com/onlyfarmers.co.uk"
+              alt="Only Farmers"
+              className="w-12 h-12 rounded-lg object-contain bg-white border border-border shrink-0"
+              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+            />
+            <div>
+              <p className="font-display font-900 text-lg uppercase tracking-tight leading-tight">Only Farmers</p>
+              <p className="font-body text-sm text-muted-foreground mt-1">A community and platform for farmers and people who work in farming — connecting the people who feed Britain.</p>
+            </div>
           </div>
           <span className="font-display font-700 text-xs uppercase tracking-widest text-primary shrink-0 group-hover:underline">Visit →</span>
         </a>
