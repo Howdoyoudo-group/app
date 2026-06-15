@@ -150,9 +150,11 @@ const Farming = () => {
             rel="noopener noreferrer"
             className="flex items-center gap-4 border-2 border-foreground rounded-2xl p-5 mb-4 hover:bg-foreground/5 transition-colors group"
           >
-            <div className="w-20 h-28 rounded-lg shrink-0 bg-foreground/10 flex items-center justify-center">
-              <Tractor className="w-8 h-8 text-foreground/30" />
-            </div>
+            <img
+              src="https://m.media-amazon.com/images/S/pv-target-images/ec8ed2e56d20da122dba5b303888e969770fd523e4f828a56b6b54d59e3079ca.jpg"
+              alt="The World According to Kaleb"
+              className="w-20 h-28 object-cover rounded-lg shrink-0"
+            />
             <div className="flex-1 min-w-0">
               <p className="font-display font-900 text-lg uppercase tracking-tight leading-tight">The World According to Kaleb</p>
               <p className="font-body text-sm text-muted-foreground mt-1">Kaleb Cooper — Clarkson's Farm's straight-talking young farmer — goes on tour sharing his unfiltered take on farming, fame and life on the land.</p>
