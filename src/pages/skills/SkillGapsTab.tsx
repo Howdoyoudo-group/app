@@ -42,23 +42,15 @@ function SkillsPathway({ slug, userId }: { slug: string; userId: string }) {
   const generate = async () => {
     setGenerating(true);
     setError("");
-    const { data: { session } } = await supabase.auth.getSession();
-    const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-skill-course`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${session?.access_token}`,
-        apikey: import.meta.env.VITE_SUPABASE_ANON_KEY,
-      },
-      body: JSON.stringify({ role_slug: slug }),
+    const { data, error } = await supabase.functions.invoke("generate-skill-course", {
+      body: { role_slug: slug },
     });
-    const json = await res.json();
     setGenerating(false);
-    if (!res.ok || !json.course_id) {
-      setError(json.error ?? "Failed to generate course. Try again.");
+    if (error || !data?.course_id) {
+      setError(data?.error ?? error?.message ?? "Failed to generate course. Try again.");
       return;
     }
-    navigate(`/skill-course/${json.course_id}`);
+    navigate(`/skill-course/${data.course_id}`);
   };
 
   const display = slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
