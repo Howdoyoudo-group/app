@@ -176,10 +176,9 @@ const Farming = () => {
         >
           <div className="flex items-center gap-4">
             <img
-              src="https://logo.clearbit.com/onlyfarmers.co.uk"
+              src="https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/gallery/only-farmers-logo.png"
               alt="Only Farmers"
-              className="w-12 h-12 rounded-lg object-contain bg-white border border-border shrink-0"
-              onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+              className="w-16 h-16 rounded-lg object-contain bg-white border border-border shrink-0 p-1"
             />
             <div>
               <p className="font-display font-900 text-lg uppercase tracking-tight leading-tight">Only Farmers</p>
