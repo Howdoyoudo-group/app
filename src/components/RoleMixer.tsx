@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, Search, Shuffle } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 
@@ -31,10 +31,6 @@ interface BlendResult {
   entry_routes?: EntryRoute[];
 }
 
-function pickRandom<T>(arr: T[], exclude?: T): T {
-  const pool = exclude !== undefined ? arr.filter((x) => x !== exclude) : arr;
-  return pool[Math.floor(Math.random() * pool.length)];
-}
 
 export function RoleMixer({ userIndustries = [] }: { userIndustries?: string[] }) {
   const industries = userIndustries.length >= 2 ? userIndustries : INDUSTRIES;
@@ -70,16 +66,6 @@ export function RoleMixer({ userIndustries = [] }: { userIndustries?: string[] }
     } finally {
       setLoading(false);
     }
-  }
-
-  function handleSurprise() {
-    const newInd1 = pickRandom(industries);
-    const newInd2 = pickRandom(industries, newInd1);
-    const newSkill = pickRandom(SKILLS);
-    setInd1(newInd1);
-    setInd2(newInd2);
-    setSkill(newSkill);
-    callBlend(newInd1, newInd2, newSkill);
   }
 
   function handleGo() {
@@ -138,26 +124,17 @@ export function RoleMixer({ userIndustries = [] }: { userIndustries?: string[] }
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <button
-            onClick={handleSurprise}
-            disabled={loading}
-            className="flex-1 py-3 rounded-xl bg-primary text-primary-foreground font-display font-900 text-sm uppercase tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {loading ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Finding your world…</>
-            ) : (
-              <><Shuffle className="w-4 h-4" /> Surprise me</>
-            )}
-          </button>
-          <button
-            onClick={handleGo}
-            disabled={loading}
-            className="px-5 py-3 rounded-xl border-2 border-foreground/20 text-foreground font-display font-700 text-sm uppercase tracking-wide hover:border-foreground/40 transition-colors disabled:opacity-50"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Go →"}
-          </button>
-        </div>
+        <button
+          onClick={handleGo}
+          disabled={loading}
+          className="w-full py-4 rounded-xl bg-primary text-primary-foreground font-display font-900 text-base uppercase tracking-wide hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {loading ? (
+            <><Loader2 className="w-5 h-5 animate-spin" /> Finding your world…</>
+          ) : (
+            "What If? →"
+          )}
+        </button>
 
         {error && <p className="text-red-500 text-xs font-body">{error}</p>}
       </div>
@@ -231,16 +208,6 @@ export function RoleMixer({ userIndustries = [] }: { userIndustries?: string[] }
             </div>
           )}
 
-          {/* Try again */}
-          <div className="flex gap-2 pt-1">
-            <button
-              onClick={handleSurprise}
-              disabled={loading}
-              className="flex-1 py-2.5 rounded-xl border-2 border-foreground/20 text-foreground font-display font-700 text-xs uppercase tracking-wide hover:border-foreground/40 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
-            >
-              <Shuffle className="w-3.5 h-3.5" /> Try a different combination
-            </button>
-          </div>
         </div>
       )}
     </div>
