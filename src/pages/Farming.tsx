@@ -124,6 +124,18 @@ const Farming = () => {
     { id: "watch", label: "Watch", content: <><VideoShowcase heading="Unpacking on Screen" clips={industryVideos["farming"] || []} /><div className="mt-12"><YouTubeChannels industry="farming" /><TikTokCreators industry="farming" /></div></> },
     { id: "work", label: "Who?", content: (
       <>
+        <a
+          href="https://www.onlyfarmers.co.uk/#about"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-between gap-4 border-2 border-foreground rounded-2xl p-5 mb-8 hover:bg-foreground/5 transition-colors group"
+        >
+          <div>
+            <p className="font-display font-900 text-lg uppercase tracking-tight leading-tight">Only Farmers</p>
+            <p className="font-body text-sm text-muted-foreground mt-1">A community and platform for farmers and people who work in farming — connecting the people who feed Britain.</p>
+          </div>
+          <span className="font-display font-700 text-xs uppercase tracking-widest text-primary shrink-0 group-hover:underline">Visit →</span>
+        </a>
         <CompanyProfileGrid companies={farmingCompanies} />
         <div className="mt-12"><DayInTheLife industry="farming" /></div>
         <div className="mt-12"><IndustryRolesLink industry="Farming" /></div>
