@@ -19,7 +19,6 @@ const GALLERY_PHOTOS: { id: number; src?: string; alt: string }[] = [
   { id: 13, src: `${STORAGE}/photo-13.jpg`, alt: "HDYD crew on location" },
   { id: 14, src: `${STORAGE}/photo-14.jpg`, alt: "Street interview by the Thames" },
   { id: 15, src: `${STORAGE}/photo-15.jpg`, alt: "Filming in London" },
-  { id: 16, src: `${STORAGE}/photo-16.jpg`, alt: "HDYD crew preparing for a shoot" },
   { id: 17, src: `${STORAGE}/photo-17.jpg`, alt: "On location interview" },
 ];
 
