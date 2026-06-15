@@ -60,22 +60,22 @@ function SkillsPathway({ slug, userId }: { slug: string; userId: string }) {
 
   return (
     <div className="pt-3 border-t border-border/40">
-      <p className="font-display font-800 text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Skills Pathway</p>
+      <p className="font-display font-800 text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Accreditation</p>
 
       {courseStatus === null ? (
         // No course yet
         <div className="p-3 border border-dashed border-border rounded-lg text-center">
           <BookOpen className="w-5 h-5 text-muted-foreground mx-auto mb-1.5" />
-          <p className="font-display font-700 text-xs mb-0.5">Get a personalised course</p>
+          <p className="font-display font-700 text-xs mb-0.5">Earn your {display} accreditation</p>
           <p className="font-body text-[10px] text-muted-foreground mb-3">
-            Gemini will write 4 lessons + a quiz covering your specific gaps for {display}.
+            4 lessons covering all skills for this role — including behaviours — plus a 10-question quiz. Pass to badge your profile.
           </p>
           <button
             onClick={generate}
             disabled={generating}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 font-display font-700 text-xs bg-primary text-primary-foreground rounded-full hover:opacity-90 transition-opacity disabled:opacity-50"
           >
-            {generating ? <><Loader2 className="w-3 h-3 animate-spin" /> Generating…</> : "Generate my course"}
+            {generating ? <><Loader2 className="w-3 h-3 animate-spin" /> Generating…</> : "Start accreditation"}
           </button>
           {error && <p className="font-body text-[10px] text-destructive mt-2">{error}</p>}
         </div>
@@ -84,7 +84,7 @@ function SkillsPathway({ slug, userId }: { slug: string; userId: string }) {
         <div className="flex items-center gap-3 p-3 border border-green-200 bg-green-50/50 rounded-lg">
           <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="font-display font-700 text-xs text-green-700">Course completed</p>
+            <p className="font-display font-700 text-xs text-green-700">Accreditation earned</p>
             <p className="font-body text-[10px] text-muted-foreground truncate">{courseStatus.course_title}</p>
           </div>
           <Link
@@ -102,7 +102,7 @@ function SkillsPathway({ slug, userId }: { slug: string; userId: string }) {
         >
           <BookOpen className="w-4 h-4 text-primary shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="font-display font-700 text-xs group-hover:text-primary transition-colors">Continue course</p>
+            <p className="font-display font-700 text-xs group-hover:text-primary transition-colors">Continue accreditation</p>
             <p className="font-body text-[10px] text-muted-foreground truncate">{courseStatus.course_title}</p>
           </div>
           <ArrowRight className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />

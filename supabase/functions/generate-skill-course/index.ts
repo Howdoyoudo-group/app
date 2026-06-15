@@ -1,5 +1,5 @@
-// generate-skill-course — generates a personalised 4-lesson course + 10-question quiz
-// for a user's skill gaps on a given role. Stores in skill_courses/lessons/questions tables.
+// generate-skill-course — generates a full role accreditation course (4 lessons by skill domain + 10-question quiz)
+// covering ALL skills for the role, not just gaps. Passing earns the role badge.
 // POST { role_slug: string } — requires auth JWT
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -34,43 +34,32 @@ Deno.serve(async (req) => {
 
     const title = roleTitle(role_slug);
 
-    // Fetch user's skill ratings for this role — gaps first (lowest rating / unrated)
+    // Fetch ALL skills for this role, ordered by domain then display_order
     const { data: skillRows } = await supabase
       .from("role_skills")
       .select("id, skill_title, skill_type, broad_domain")
       .eq("slug", role_slug)
+      .order("broad_domain")
       .order("display_order");
 
     if (!skillRows || skillRows.length === 0) {
       return new Response(JSON.stringify({ error: "No skills data for this role" }), { status: 404, headers: corsHeaders });
     }
 
-    const skillIds = skillRows.map((s: any) => s.id);
-    const { data: ratingRows } = await supabase
-      .from("user_skill_ratings")
-      .select("skill_id, rating")
-      .eq("user_id", user.id)
-      .in("skill_id", skillIds);
-
-    const ratingMap = new Map<string, number>(
-      (ratingRows ?? []).map((r: any) => [r.skill_id, r.rating]),
-    );
-
-    // Sort by rating ascending (unrated = 0), take top 8 gaps
-    const gaps = skillRows
-      .map((s: any) => ({ ...s, rating: ratingMap.get(s.id) ?? 0 }))
-      .filter((s: any) => s.rating <= 2)
-      .sort((a: any, b: any) => a.rating - b.rating)
-      .slice(0, 8);
-
-    if (gaps.length === 0) {
-      return new Response(JSON.stringify({ error: "No significant skill gaps found — your ratings are already strong!" }), { status: 400, headers: corsHeaders });
+    // Group all skills by broad_domain
+    const domainMap = new Map<string, string[]>();
+    for (const s of skillRows as any[]) {
+      const domain = s.broad_domain || "General";
+      if (!domainMap.has(domain)) domainMap.set(domain, []);
+      domainMap.get(domain)!.push(`${s.skill_title} [${s.skill_type ?? "skill"}]`);
     }
 
-    const focusSkills = gaps.map((g: any) => g.skill_title);
-    const gapLines = gaps
-      .map((g: any) => `- ${g.skill_title}${g.broad_domain ? ` (${g.broad_domain})` : ""}${g.rating > 0 ? ` — current self-rating: ${g.rating}/5` : " — not yet rated"}`)
-      .join("\n");
+    // Build domain summary for the prompt
+    const domainLines = Array.from(domainMap.entries())
+      .map(([domain, skills]) => `**${domain}**\n${skills.map((s) => `  - ${s}`).join("\n")}`)
+      .join("\n\n");
+
+    const allSkillTitles = (skillRows as any[]).map((s: any) => s.skill_title);
 
     // Delete any existing course for this user+role (fresh regeneration)
     await supabase
@@ -79,15 +68,15 @@ Deno.serve(async (req) => {
       .eq("user_id", user.id)
       .eq("role_slug", role_slug);
 
-    // Insert placeholder so we have a course_id to return
+    // Insert placeholder so we have a course_id to return immediately
     const { data: courseRow, error: insertErr } = await supabase
       .from("skill_courses")
       .insert({
         user_id: user.id,
         role_slug,
         role_title: title,
-        course_title: `${title} Skills Course`,
-        focus_skills: focusSkills,
+        course_title: `${title} Accreditation`,
+        focus_skills: allSkillTitles,
         status: "generating",
       })
       .select("id")
@@ -98,27 +87,34 @@ Deno.serve(async (req) => {
     }
 
     const courseId = courseRow.id;
+    const domainCount = domainMap.size;
 
     // Generate content with Gemini in the background
     const generate = async () => {
       try {
         const GEMINI_KEY = Deno.env.get("GEMINI_API_KEY")!;
 
-        const prompt = `You are creating a short professional development course for someone preparing to work as a ${title} in the UK.
+        const prompt = `You are creating a professional accreditation course for someone preparing to work as a ${title} in the UK.
 
-Their weakest skills (the gaps this course must address) are:
-${gapLines}
+This course must cover ALL of the following skills, grouped by domain:
 
-Write a practical, engaging course covering these specific gaps. Use UK English throughout.
+${domainLines}
+
+The course has exactly 4 lessons. Each lesson covers one or two skill domains. For each domain's skills:
+- Explain what the skill means in a ${title} context
+- Give a practical UK workplace example
+- For behavioural skills (teamwork, resilience, communication etc.) — explain what "good" looks like on the job day-to-day; you cannot prove these with a test but a good professional understands them
+
+Use UK English throughout. Content should be practical, not academic.
 
 Return ONLY valid JSON matching this exact structure:
 {
-  "course_title": "A specific title for this course (not generic, e.g. '${title}: Mastering Food Safety & Kitchen Craft')",
+  "course_title": "A specific accreditation title, e.g. '${title}: Full Skills Accreditation'",
   "lessons": [
     {
       "slot": 1,
-      "title": "Lesson title",
-      "body_markdown": "300-400 words of practical markdown content directly addressing 1-2 of the gap skills above. Use headings (##), bullet points, and bold key terms. Include a practical tip or real-world example."
+      "title": "Lesson title covering the domain(s)",
+      "body_markdown": "400-500 words of practical markdown content. Use ## subheadings per skill or skill cluster, bullet points, and **bold key terms**. Cover every skill listed for these domains."
     },
     { "slot": 2, "title": "...", "body_markdown": "..." },
     { "slot": 3, "title": "...", "body_markdown": "..." },
@@ -126,19 +122,18 @@ Return ONLY valid JSON matching this exact structure:
   ],
   "questions": [
     {
-      "question": "Question text testing knowledge from the lessons?",
+      "question": "Question text?",
       "options": ["Option A", "Option B", "Option C", "Option D"],
       "correct_index": 0,
-      "explanation": "Why this answer is correct."
+      "explanation": "Why this is correct."
     }
   ]
 }
 
 Requirements:
-- Exactly 4 lessons, each covering different gaps
-- Exactly 10 quiz questions testing the lesson content
-- Questions must be specific to ${title} work, not generic
-- All content must be practical and directly usable on the job
+- Exactly 4 lessons covering ALL skill domains (spread evenly)
+- Exactly 10 quiz questions — spread across all domains (2-3 per domain), including at least 2 on behavioural skills
+- Questions must be specific to ${title} work in a UK context
 - Do not include markdown code fences — return raw JSON only`;
 
         const res = await fetch(
@@ -191,10 +186,10 @@ Requirements:
           })),
         );
 
-        // Mark ready
+        // Mark ready with final title
         await supabase
           .from("skill_courses")
-          .update({ status: "ready", course_title: course_title ?? `${title} Skills Course` })
+          .update({ status: "ready", course_title: course_title ?? `${title} Accreditation` })
           .eq("id", courseId);
 
       } catch (err) {

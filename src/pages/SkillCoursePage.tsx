@@ -5,7 +5,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import { CheckCircle2, Circle, Lock, Trophy, Loader2, ArrowLeft, RefreshCw } from "lucide-react";
+import { CheckCircle2, Circle, Lock, Award, Loader2, ArrowLeft, RefreshCw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -140,25 +140,27 @@ export default function SkillCoursePage() {
           { user_id: user.id, course_id: courseId, lessons_completed: completed, passed: true, score, completed_at: now },
           { onConflict: "user_id,course_id" },
         );
-      // Bump skill ratings to 4 for focused skills (evidenced by passing)
-      if (course.focus_skills?.length) {
-        const { data: skillRows } = await supabase
-          .from("role_skills")
-          .select("id")
-          .eq("slug", course.role_slug)
-          .in("skill_title", course.focus_skills);
-        if (skillRows?.length) {
-          const upsertRows = (skillRows as any[]).map((s) => ({
-            user_id: user.id,
-            skill_id: s.id,
-            rating: 4,
-            evidenced: true,
-            source: `skill-course:${courseId}`,
-            updated_at: now,
-          }));
-          await supabase.from("user_skill_ratings").upsert(upsertRows, { onConflict: "user_id,skill_id" });
-        }
+      // Evidence ALL skills for the role (full accreditation)
+      const { data: allSkillRows } = await supabase
+        .from("role_skills")
+        .select("id")
+        .eq("slug", course.role_slug);
+      if (allSkillRows?.length) {
+        const upsertRows = (allSkillRows as any[]).map((s) => ({
+          user_id: user.id,
+          skill_id: s.id,
+          rating: 4,
+          evidenced: true,
+          source: `skill-course:${courseId}`,
+          updated_at: now,
+        }));
+        await supabase.from("user_skill_ratings").upsert(upsertRows, { onConflict: "user_id,skill_id" });
       }
+      // Save badge to earned_badges so it shows on profile
+      await supabase.from("earned_badges").upsert(
+        { user_id: user.id, industry: course.role_slug, score, earned_at: now },
+        { onConflict: "user_id,industry" },
+      );
     }
   };
 
@@ -259,11 +261,11 @@ export default function SkillCoursePage() {
 
         {passed && (
           <div className="mb-8 border-2 border-primary bg-primary/10 p-5 flex items-center gap-4 rounded-xl">
-            <Trophy className="h-8 w-8 text-primary shrink-0" />
+            <Award className="h-8 w-8 text-primary shrink-0" />
             <div>
-              <p className="font-display font-800 text-lg leading-tight">Course completed!</p>
+              <p className="font-display font-800 text-lg leading-tight">Accreditation earned!</p>
               <p className="font-body text-sm text-muted-foreground">
-                You scored {passed.score}/10 on {new Date(passed.at).toLocaleDateString("en-GB")}. Your skill ratings have been updated.
+                You scored {passed.score}/10 on {new Date(passed.at).toLocaleDateString("en-GB")}. All skills evidenced and badge saved to your profile.
               </p>
             </div>
           </div>
@@ -474,10 +476,10 @@ function QuizResultView({
       <div className="text-center mb-6">
         {result.passed ? (
           <>
-            <Trophy className="h-12 w-12 text-primary mx-auto mb-3" />
-            <h2 className="font-display font-900 text-3xl mb-1">Skills evidenced!</h2>
+            <Award className="h-12 w-12 text-primary mx-auto mb-3" />
+            <h2 className="font-display font-900 text-3xl mb-1">Accreditation earned!</h2>
             <p className="font-body text-muted-foreground">
-              You scored {result.score}/10. Your skill ratings have been updated to reflect your progress.
+              You scored {result.score}/10. All skills for this role are now evidenced on your Skills Passport and the badge is saved to your profile.
             </p>
           </>
         ) : (
