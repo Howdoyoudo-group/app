@@ -18,11 +18,17 @@ interface BlendRole {
   description: string;
 }
 
+interface EntryRoute {
+  title: string;
+  why: string;
+}
+
 interface BlendResult {
   blend: string;
   tagline: string;
   story: string;
   roles: BlendRole[];
+  entry_routes?: EntryRoute[];
 }
 
 function pickRandom<T>(arr: T[], exclude?: T): T {
@@ -200,6 +206,30 @@ export function RoleMixer({ userIndustries = [] }: { userIndustries?: string[] }
               ))}
             </div>
           </div>
+
+          {/* Entry-level routes */}
+          {result.entry_routes && result.entry_routes.length > 0 && (
+            <div>
+              <p className="font-display font-700 text-xs uppercase tracking-widest text-muted-foreground mb-3">
+                Best entry-level routes in
+              </p>
+              <div className="space-y-3">
+                {result.entry_routes.map((route, i) => (
+                  <div key={i} className="border-2 border-foreground/10 bg-background rounded-2xl p-4">
+                    <div className="flex items-start gap-3">
+                      <span className="font-display font-900 text-lg text-primary/40 leading-none mt-0.5 shrink-0 w-5">
+                        {i + 1}
+                      </span>
+                      <div>
+                        <p className="font-display font-900 text-sm mb-1.5 leading-snug">{route.title}</p>
+                        <p className="font-body text-xs text-muted-foreground leading-relaxed">{route.why}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Try again */}
           <div className="flex gap-2 pt-1">

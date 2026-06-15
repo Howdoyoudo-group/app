@@ -37,6 +37,12 @@ Return ONLY valid JSON (no markdown fences):
       "title": "Job Title",
       "description": "One sentence (max 20 words) of what this person actually does day-to-day in a UK context."
     }
+  ],
+  "entry_routes": [
+    {
+      "title": "Entry-level job title at a specific type of employer",
+      "why": "2-3 sentences explaining why this is a realistic first step, what makes it achievable, and exactly how ${industry1} and ${industry2} show up in the day-to-day of this role. Be specific and encouraging — not generic."
+    }
   ]
 }
 
@@ -47,7 +53,14 @@ Rules for the roles:
 - Lean toward the ${skill} skill type but spread across the intersection
 - Be specific and surprising — avoid generic "Marketing Manager" unless it's clearly scoped to this intersection (e.g. "Matchday Marketing Executive")
 - The best roles are ones the user would never have thought of themselves
-- Each description must say what the person actually DOES, not what the role IS`;
+- Each description must say what the person actually DOES, not what the role IS
+
+Rules for entry_routes:
+- Exactly 5 entry-level routes
+- These are the most REALISTIC first jobs for someone with no industry experience — assistant, junior, trainee, coordinator level
+- Title must name a specific type of employer (e.g. "Social Media Assistant at a Football Club", not just "Social Media Assistant")
+- The "why" must explain concretely how both ${industry1} and ${industry2} feature in the job — not just that it's a good opportunity
+- Order from easiest to get into (most openings, lowest barrier) to slightly more specialist`;
 
     const res = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
       method: "POST",
