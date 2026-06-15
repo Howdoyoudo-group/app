@@ -236,10 +236,10 @@ export default function SkillCoursePage() {
   }
 
   return (
-    <>
+    <div className="min-h-screen bg-white" style={{ backgroundImage: "none" }}>
       <SEO title={`${course.course_title} | Howdoyoudo?`} description={`Your personalised skills course for ${course.role_title}.`} />
       <SiteNav />
-      <main className="min-h-screen px-4 sm:px-6 py-8 max-w-3xl mx-auto">
+      <main className="px-4 sm:px-6 py-8 max-w-3xl mx-auto">
 
         <Link
           to="/skills-passport?tab=gaps"
@@ -403,7 +403,7 @@ export default function SkillCoursePage() {
       </AnimatePresence>
 
       <Footer />
-    </>
+    </div>
   );
 }
 
