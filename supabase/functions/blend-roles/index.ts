@@ -23,6 +23,11 @@ Deno.serve(async (req) => {
 
     const prompt = `You are a creative UK career advisor helping young people discover unexpected careers.
 
+IMPORTANT: The two industries are EXACTLY:
+- Industry 1: "${industry1}"
+- Industry 2: "${industry2}"
+Do NOT substitute, rename, or confuse these with any other industry. If Industry 1 is "Football" it means the sport of football — not footwear, not fashion, not Formula 1. Use these exact names throughout your response.
+
 A user is interested in both "${industry1}" and "${industry2}", and their strongest skill type is "${skill}".
 
 Your job is to paint a picture of the world where these two industries collide — and list 10 real, specific job roles that live there. The key insight is: you do not have to be a professional in either industry. You can work where they meet.
@@ -84,6 +89,19 @@ Rules for entry_routes:
     const raw = (data.choices?.[0]?.message?.content ?? "{}").trim()
       .replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/\s*```$/i, "").trim();
     const result = JSON.parse(raw);
+
+    // Sanity-check: the blend field must contain both requested industry names.
+    // Gemini occasionally confuses similar-sounding industries (Football/Footwear etc).
+    const blendText = (result.blend ?? "").toLowerCase();
+    const i1Lower = industry1.toLowerCase();
+    const i2Lower = industry2.toLowerCase();
+    if (!blendText.includes(i1Lower) || !blendText.includes(i2Lower)) {
+      console.error(`[blend-roles] Gemini returned wrong blend: "${result.blend}" for "${industry1}" × "${industry2}"`);
+      return new Response(
+        JSON.stringify({ error: `Got the wrong blend back — please try again.` }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
 
     return new Response(JSON.stringify(result), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
