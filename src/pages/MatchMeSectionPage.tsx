@@ -1,0 +1,292 @@
+// Separate pages for each Match Me section, accessed via /match-me/:section
+// Sections: suggested-roles | suggested-industries | worlds-collide | what-if-machine
+
+import { useEffect, useState } from "react";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { ArrowLeft, ArrowRight, Briefcase, Building2, Shuffle, Zap, Brain, ChevronRight } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { getMatchingIntersections, type SkillCategory, type IntersectionRole } from "@/data/intersection-roles";
+import { getEffectiveIndustriesTagged, getCvIndustriesTagged, type TaggedIndustry } from "@/lib/profile-matching";
+import { RoleMixer } from "@/components/RoleMixer";
+import SiteNav from "@/components/SiteNav";
+import Footer from "@/components/Footer";
+
+const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
+
+const INDUSTRY_SLUGS: Record<string, string> = {
+  "Beauty": "beauty", "Beer & Drinks": "beer", "Cars": "cars", "Cinema & Film": "cinema",
+  "Coffee": "coffee", "Fashion": "fashion", "Football": "football", "Gaming": "gaming",
+  "Grocery": "grocery", "Health": "health", "Hospitality": "hospitality",
+  "Influencing": "influencing", "Interior Design": "interior-design",
+  "Jewellery": "jewellery", "Journalism": "journalism", "Money": "money",
+  "Music": "music", "Pets": "pets", "Physiotherapy": "physiotherapy",
+  "Psychotherapy": "psychotherapy", "Teaching": "teaching", "Travel": "travel",
+  "Wellness": "wellness", "Formula 1": "formula-1", "Farming": "farming",
+  "Charity": "charity", "Estate Agency": "estate-agency", "Horse Racing": "horse-racing",
+  "Bakery": "bakery", "Footwear": "footwear",
+};
+
+const SKILL_LABELS: Record<SkillCategory, { label: string; emoji: string }> = {
+  creative: { label: "Creative", emoji: "🎨" },
+  people: { label: "People", emoji: "🤝" },
+  digital: { label: "Digital", emoji: "💻" },
+  practical: { label: "Practical", emoji: "🔧" },
+};
+
+interface RoleMatch { role: string; slug: string; percentage: number; reason: string; }
+interface IndustryFit { industry: string; confidence: number; reason: string; }
+interface UnderstandMeResult {
+  roleMatches?: RoleMatch[];
+  industryFit?: IndustryFit[];
+  transferableSkills?: string[];
+}
+
+const SECTION_META: Record<string, { title: string; subtitle: string; icon: React.ElementType }> = {
+  "suggested-roles": { title: "Suggested Roles", subtitle: "Based on your CV — roles your experience maps to", icon: Briefcase },
+  "suggested-industries": { title: "Suggested Industries", subtitle: "Based on your CV — sectors where your background fits", icon: Building2 },
+  "worlds-collide": { title: "Where Your Worlds Collide", subtitle: "Roles at the crossover of your industries and skills", icon: Shuffle },
+  "what-if-machine": { title: "The What If Machine", subtitle: "Explore any combination of industries and roles", icon: Brain },
+};
+
+export default function MatchMeSectionPage() {
+  const { section } = useParams<{ section: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [results, setResults] = useState<UnderstandMeResult | null>(null);
+  const [skillCategories, setSkillCategories] = useState<SkillCategory[]>([]);
+  const [effectiveIndustries, setEffectiveIndustries] = useState<TaggedIndustry[]>([]);
+
+  useEffect(() => {
+    if (!section || !SECTION_META[section]) {
+      navigate("/match-me", { replace: true });
+      return;
+    }
+    if (!user) { setLoading(false); return; }
+
+    (async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("understand_me_results, industry_interests, role_preferences, job_preferences")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const umr = (data as any)?.understand_me_results || null;
+      setResults(umr);
+
+      const industryInterests: string[] = data?.industry_interests || [];
+      const rolePrefs: string[] = data?.role_preferences || [];
+      const pb = ((data as any)?.job_preferences || {}).profileBuilder || {};
+      const skillsObj: any = pb.skills || {};
+
+      const rolePrefLower = rolePrefs.map((r) => r.toLowerCase());
+      const cats: SkillCategory[] = [];
+      if (rolePrefLower.some((r) => ["creative", "marketing", "content", "brand", "design", "media", "influenc"].some((k) => r.includes(k)))) cats.push("creative");
+      if (rolePrefLower.some((r) => ["people", "hr", "culture", "talent", "coaching", "community", "partnerships", "sales", "commercial"].some((k) => r.includes(k)))) cats.push("people");
+      if (rolePrefLower.some((r) => ["strategy", "product", "data", "digital", "tech", "e-commerce", "analytics", "operations", "project"].some((k) => r.includes(k)))) cats.push("digital");
+      if (rolePrefLower.some((r) => ["operations", "production", "logistics", "project", "event", "facilities", "practical"].some((k) => r.includes(k)))) cats.push("practical");
+      if (cats.length === 0) {
+        if (Array.isArray(skillsObj.creative) && skillsObj.creative.length > 0) cats.push("creative");
+        if (Array.isArray(skillsObj.people) && skillsObj.people.length > 0) cats.push("people");
+        if (Array.isArray(skillsObj.digital) && skillsObj.digital.length > 0) cats.push("digital");
+        if (Array.isArray(skillsObj.practical) && skillsObj.practical.length > 0) cats.push("practical");
+      }
+      setSkillCategories(cats);
+      setEffectiveIndustries(getEffectiveIndustriesTagged(industryInterests, umr));
+      setLoading(false);
+    })();
+  }, [user, section]);
+
+  const meta = SECTION_META[section ?? ""] ?? null;
+  const Icon = meta?.icon ?? Zap;
+
+  const effectiveIndustryNames = effectiveIndustries.map((i) => i.name);
+  const industrySlugSet = new Set(effectiveIndustryNames.map((i) => INDUSTRY_SLUGS[i] || i.toLowerCase()));
+  const worldsCollide: IntersectionRole[] = getMatchingIntersections(
+    Array.from(industrySlugSet),
+    skillCategories,
+    [],
+  );
+
+  return (
+    <>
+      <SiteNav />
+      <main className="min-h-screen bg-background">
+        <div className="px-4 sm:px-6 lg:px-10 max-w-5xl mx-auto py-10">
+
+          {/* Back link */}
+          <Link to="/match-me" className="inline-flex items-center gap-1.5 font-display font-700 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors mb-8">
+            <ArrowLeft className="w-3.5 h-3.5" /> Match Me
+          </Link>
+
+          {meta && (
+            <motion.div {...fadeUp} className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                <Icon className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h1 className="font-display font-900 text-2xl md:text-3xl uppercase tracking-tight">{meta.title}</h1>
+                <p className="font-body text-sm text-muted-foreground">{meta.subtitle}</p>
+              </div>
+            </motion.div>
+          )}
+
+          {loading && (
+            <div className="flex justify-center py-20">
+              <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
+            </div>
+          )}
+
+          {!loading && !user && (
+            <div className="text-center py-16 border-2 border-dashed border-foreground/20 rounded-3xl">
+              <p className="font-display font-900 text-xl mb-3">Sign in to see your matches</p>
+              <Link to="/auth" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-primary-foreground font-display font-700 text-sm">
+                Sign in <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          )}
+
+          {!loading && user && (
+            <motion.div {...fadeUp}>
+              {/* ── SUGGESTED ROLES ── */}
+              {section === "suggested-roles" && (
+                <>
+                  {results?.roleMatches && results.roleMatches.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {results.roleMatches.map((m) => (
+                        <div key={m.slug} className="relative border-2 border-blue-200 bg-blue-50/30 rounded-2xl p-4 flex flex-col gap-3 overflow-hidden group hover:-translate-y-0.5 transition-transform">
+                          <div className="absolute bottom-0 left-0 h-0.5 bg-blue-400/50" style={{ width: `${m.percentage}%` }} />
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-display font-900 text-sm uppercase tracking-wide leading-tight">{m.role}</span>
+                            <span className="font-display font-900 text-base text-blue-600 shrink-0">{m.percentage}%</span>
+                          </div>
+                          <p className="font-body text-xs text-muted-foreground line-clamp-2 flex-1">{m.reason}</p>
+                          <div className="flex gap-3 pt-2 border-t border-blue-100">
+                            <Link to={`/roles/${m.slug}`} className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors">Explore →</Link>
+                            <Link to={`/marketplace?role=${encodeURIComponent(m.role)}`} className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80">Find jobs →</Link>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-16 border-2 border-dashed border-border rounded-2xl">
+                      <p className="font-display font-700 text-base mb-2">No CV analysis yet</p>
+                      <p className="font-body text-sm text-muted-foreground mb-4">Upload your CV on your profile to get suggested roles from your experience.</p>
+                      <Link to="/my-profile" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground font-display font-700 text-xs">
+                        Go to profile <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* ── SUGGESTED INDUSTRIES ── */}
+              {section === "suggested-industries" && (
+                <>
+                  {results?.industryFit && results.industryFit.length > 0 ? (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {results.industryFit.map((ind) => {
+                        const slug = INDUSTRY_SLUGS[ind.industry];
+                        return (
+                          <div key={ind.industry} className="relative border-2 border-blue-200 bg-blue-50/30 rounded-2xl p-5 flex flex-col gap-3 overflow-hidden hover:-translate-y-0.5 transition-transform">
+                            <div className="flex items-start justify-between gap-2 mb-1">
+                              <span className="font-display font-900 text-base uppercase tracking-wide">{ind.industry}</span>
+                              <span className="font-display font-900 text-base text-blue-600 shrink-0">{ind.confidence}%</span>
+                            </div>
+                            <p className="font-body text-sm text-muted-foreground">{ind.reason}</p>
+                            <div className="flex gap-3 pt-2 border-t border-blue-100">
+                              {slug && <><Link to={`/${slug}`} className="font-display font-700 text-xs uppercase tracking-wide text-foreground hover:text-primary transition-colors">Explore →</Link><span className="text-border">·</span></>}
+                              <Link to={`/marketplace?industry=${encodeURIComponent(ind.industry)}`} className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:opacity-80">Browse jobs →</Link>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-16 border-2 border-dashed border-border rounded-2xl">
+                      <p className="font-display font-700 text-base mb-2">No CV analysis yet</p>
+                      <p className="font-body text-sm text-muted-foreground mb-4">Upload your CV and run Understand Me to get suggested industries.</p>
+                      <Link to="/my-profile" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-primary-foreground font-display font-700 text-xs">
+                        Go to profile <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* ── WORLDS COLLIDE ── */}
+              {section === "worlds-collide" && (
+                <>
+                  {skillCategories.length > 0 && (
+                    <div className="flex items-center gap-2 mb-5 flex-wrap">
+                      <span className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground">Filtered by:</span>
+                      {skillCategories.map((sk) => (
+                        <span key={sk} className="px-2.5 py-0.5 rounded-full font-display font-700 text-[10px] uppercase tracking-wide border-2 text-black" style={{ borderColor: "hsl(120,100%,45%)", background: "hsl(120,100%,45%,0.15)" }}>
+                          {SKILL_LABELS[sk].emoji} {SKILL_LABELS[sk].label}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {worldsCollide.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {worldsCollide.map((s, i) => {
+                        const slug = INDUSTRY_SLUGS[s.industry2 || s.industry1] || (s.industry2 || s.industry1);
+                        const searchQ = s.keywords[0] || s.role;
+                        return (
+                          <Link
+                            key={`${s.blend}-${i}`}
+                            to={`/marketplace?search=${encodeURIComponent(searchQ)}`}
+                            className="group relative border-2 border-dashed rounded-2xl p-5 flex flex-col gap-3 hover:-translate-y-1 transition-all duration-200"
+                            style={{ borderColor: "hsl(120,100%,45%)", background: "hsl(120,100%,45%,0.05)" }}
+                          >
+                            <span className="inline-flex self-start px-2 py-0.5 rounded-full font-display font-900 text-[10px] uppercase tracking-wide text-black" style={{ background: "hsl(120,100%,45%)" }}>
+                              {s.blend}
+                            </span>
+                            <div>
+                              <p className="font-display font-900 text-sm uppercase tracking-wide leading-tight mb-1.5 group-hover:text-primary transition-colors">{s.role}</p>
+                              <p className="font-body text-xs text-muted-foreground line-clamp-3">{s.description}</p>
+                            </div>
+                            {s.example_companies.length > 0 && (
+                              <p className="font-body text-[10px] text-muted-foreground/60 mt-auto">eg. {s.example_companies.slice(0, 2).join(" · ")}</p>
+                            )}
+                            <div className="flex items-center justify-between pt-2 border-t" style={{ borderColor: "hsl(120,100%,45%,0.3)" }}>
+                              <span className="font-display font-700 text-xs uppercase tracking-wide" style={{ color: "hsl(120,100%,30%)" }}>Find jobs →</span>
+                              {slug && (
+                                <span onClick={(e) => { e.preventDefault(); window.location.href = `/${slug}`; }} className="font-display font-700 text-xs uppercase tracking-wide text-muted-foreground hover:text-foreground transition-colors">Explore</span>
+                              )}
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed rounded-2xl p-8 text-center" style={{ borderColor: "hsl(120,100%,45%,0.4)" }}>
+                      <p className="font-display font-900 text-sm uppercase tracking-wide mb-2">Needs two or more industries</p>
+                      <p className="font-body text-xs text-muted-foreground mb-4 max-w-sm mx-auto">Set at least two industry interests, or run Understand Me so we can spot your industries from your CV.</p>
+                      <div className="flex gap-2 justify-center flex-wrap">
+                        <Link to="/onboarding?step=interests" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border-2 border-foreground font-display font-700 text-xs uppercase tracking-wide hover:bg-foreground hover:text-background transition-colors">
+                          Set interests <ArrowRight className="w-3 h-3" />
+                        </Link>
+                        <Link to="/my-profile" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-display font-700 text-xs uppercase tracking-wide text-black" style={{ background: "hsl(120,100%,45%)" }}>
+                          Run Understand Me <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* ── WHAT IF MACHINE ── */}
+              {section === "what-if-machine" && (
+                <RoleMixer userIndustries={effectiveIndustryNames} />
+              )}
+            </motion.div>
+          )}
+        </div>
+      </main>
+      <Footer />
+    </>
+  );
+}

@@ -29,6 +29,10 @@ const GlobalHomeButton = () => {
     "/videos",
     "/skills-passport",
     "/skill-course",
+    "/match-me/suggested-roles",
+    "/match-me/suggested-industries",
+    "/match-me/worlds-collide",
+    "/match-me/what-if-machine",
   ];
   if (skipRoutes.some(r => pathname === r || pathname.startsWith(r + "/"))) return null;
 

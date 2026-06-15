@@ -77,6 +77,7 @@ const Formula1 = lazy(() => import("./pages/Formula1.tsx"));
 const Marketplace = lazy(() => import("./pages/Marketplace.tsx"));
 const CVBuilderPage = lazy(() => import("./pages/CVBuilderPage.tsx"));
 const MatchMe = lazy(() => import("./pages/MatchMe.tsx"));
+const MatchMeSectionPage = lazy(() => import("./pages/MatchMeSectionPage.tsx"));
 const HelpMeApply = lazy(() => import("./pages/HelpMeApply.tsx"));
 const HowToStandOut = lazy(() => import("./pages/HowToStandOut.tsx"));
 const Videos = lazy(() => import("./pages/Videos.tsx"));
@@ -295,6 +296,7 @@ const App = () => (
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/cv-builder" element={<CVBuilderPage />} />
           <Route path="/match-me" element={<MatchMe />} />
+          <Route path="/match-me/:section" element={<MatchMeSectionPage />} />
           <Route path="/help-me-apply" element={<HelpMeApply />} />
           <Route path="/how-to-stand-out" element={<HowToStandOut />} />
           <Route path="/videos" element={<Videos />} />
