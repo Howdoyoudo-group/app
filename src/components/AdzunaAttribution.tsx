@@ -14,7 +14,7 @@
 import adzunaSwirl from "@/assets/adzuna/adzuna-swirl.svg";
 import adzunaLogo from "@/assets/adzuna/adzuna-logo.png";
 
-export type JobSource = "adzuna" | "reed" | "linkedin" | "jooble";
+export type JobSource = "adzuna" | "reed" | "linkedin" | "jooble" | "cvlibrary";
 
 type Props = {
   source: JobSource;
@@ -23,10 +23,11 @@ type Props = {
 };
 
 const SOURCE_META: Record<JobSource, { name: string; href: string; color: string }> = {
-  adzuna:   { name: "Adzuna",   href: "https://www.adzuna.co.uk/",     color: "#7B2CBF" },
-  reed:     { name: "Reed",     href: "https://www.reed.co.uk/",       color: "#E60028" },
-  linkedin: { name: "LinkedIn", href: "https://www.linkedin.com/jobs/", color: "#0A66C2" },
-  jooble:   { name: "Jooble",   href: "https://uk.jooble.org/",        color: "#2657EB" },
+  adzuna:    { name: "Adzuna",     href: "https://www.adzuna.co.uk/",     color: "#7B2CBF" },
+  reed:      { name: "Reed",       href: "https://www.reed.co.uk/",       color: "#E60028" },
+  linkedin:  { name: "LinkedIn",   href: "https://www.linkedin.com/jobs/", color: "#0A66C2" },
+  jooble:    { name: "Jooble",     href: "https://uk.jooble.org/",        color: "#2657EB" },
+  cvlibrary: { name: "CV-Library", href: "https://www.cv-library.co.uk/", color: "#00A99D" },
 };
 
 export function detectJobSource(url: string | null | undefined): JobSource | null {
@@ -35,6 +36,7 @@ export function detectJobSource(url: string | null | undefined): JobSource | nul
   if (/reed\.co\.uk/i.test(url)) return "reed";
   if (/linkedin\./i.test(url)) return "linkedin";
   if (/jooble\./i.test(url)) return "jooble";
+  if (/cv-library\.co\.uk/i.test(url)) return "cvlibrary";
   return null;
 }
 
@@ -92,7 +94,7 @@ function Wordmark({ source, size = "sm" }: { source: JobSource; size?: "sm" | "m
     );
   }
 
-  // Reed + Jooble - coloured bold wordmark
+  // Reed + Jooble + CV-Library - coloured bold wordmark
   return (
     <span
       style={{
@@ -105,7 +107,7 @@ function Wordmark({ source, size = "sm" }: { source: JobSource; size?: "sm" | "m
       }}
       aria-label={meta.name}
     >
-      {source === "reed" ? "reed.co.uk" : "Jooble"}
+      {source === "reed" ? "reed.co.uk" : source === "cvlibrary" ? "CV-Library" : "Jooble"}
     </span>
   );
 }
@@ -160,7 +162,7 @@ export function SourceAttributionFooter({
   }
   if (present.size === 0) return null;
 
-  const order: JobSource[] = ["adzuna", "reed", "linkedin", "jooble"];
+  const order: JobSource[] = ["adzuna", "reed", "linkedin", "jooble", "cvlibrary"];
   return (
     <div className={`flex flex-col items-start gap-1 ${className}`}>
       {order.filter((s) => present.has(s)).map((s) => (
