@@ -1303,6 +1303,12 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     setIndustry(nextIndustry);
     setSearch("");
     setCompanyFilter(null);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      if (nextIndustry && nextIndustry !== "All") next.set("industry", nextIndustry);
+      else next.delete("industry");
+      return next;
+    }, { replace: true });
   };
 
   const fetchOverviewCounts = useCallback(async () => {
