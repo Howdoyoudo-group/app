@@ -2083,12 +2083,10 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
       // Special case: "nhs" rolls up every NHS Trust (any company name containing "nhs").
       if (companyFilter && !matchesCompanyFilter(job.company, companyFilter)) return false;
       // When AI smart search is active, the AI has already chosen the most relevant
-      // jobs. Don't second-guess it with industry / craft-vs-business / role-group
-      // filters - those are profile defaults, not user intent. Only structural
-      // filters (location, jobType, workMode, salary, careerLevel) still apply.
-      if (!hasAiMatches) {
-        if (!isCategoryTab && !matchesIndustryFilter(job, industry)) return false;
-      }
+      // filters - profile defaults don't override AI results, but explicit user
+      // dropdown selections (industry !== "All", roleFilter set) should always apply
+      // even when AI search is active, so users can narrow AI results further.
+      if (!isCategoryTab && !matchesIndustryFilter(job, industry)) return false;
       if (location !== "All" && job.location !== location) return false;
       if (jobType !== "All") {
         // "Internship / Graduate" is a synthetic bucket - DB rows are stored as
@@ -2106,7 +2104,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
       if (workMode !== "All" && job.workMode !== workMode) return false;
       if (tempOnly && !isTempJob(job)) return false;
       if (!inSalaryRange(job.salary, salary)) return false;
-      if (!hasAiMatches && roleFilter && !matchesRole(job, roleFilter)) return false;
+      if (roleFilter && !matchesRole(job, roleFilter)) return false;
       // When no specific role chip is selected, the Business / Vocational / Frontline
       // toggle filters the whole job list to that role group.
       if (!hasAiMatches && !roleFilter && roleCategoryView !== 'all') {
