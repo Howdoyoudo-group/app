@@ -5,6 +5,41 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-16 — Woody (main branch)
+
+### What was done
+- **Crons restarted on Pro plan** — toggled all 13 cron jobs in Supabase Integrations → Cron (set timeout to 5000ms each). pg_cron was dead since June 12 due to bandwidth throttling. Now on Pro plan, should stay stable.
+- **Cleared cron run history** — `cron.job_run_details` table was bloated, causing overview to fail. Deleted rows older than 1 day via dashboard prompt.
+- **Manually sent today's digest** — triggered `send-daily-digest?confirm_full_send=true` to all 45 subscribers (briefings existed for today but hadn't been emailed). Confirmed function works.
+- **DB migration: skill_courses tables** — ran Andrew's `skill_courses`, `skill_course_lessons`, `skill_course_questions`, `skill_course_progress` tables + indexes + RLS policies via Supabase API. Tables were already present (Andrew had run it).
+- **Deployed `generate-skill-course`** — Andrew's new edge function, deployed on his request.
+- **Deployed `blend-roles` (x2)** — deployed twice at Andrew's request; second deploy picked up schema reorder fix (entry_routes before roles so Gemini can't close JSON early).
+- **Videos page title** — changed "Watch & learn." to "Watch."
+- **Farming — Groundswell event** — inserted Groundswell Agriculture 2026 (25–26 Jun, Hertfordshire) into `industry_events` table for farming industry.
+- **Farming — Only Farmers (Who tab)** — added Only Farmers card at top of Who? tab with their logo (uploaded to Supabase Storage) linking to onlyfarmers.co.uk/#about.
+- **Farming — Clarkson's Farm (Watch tab)** — added "Shows Worth Watching" section with Clarkson's Farm card (TVMaze poster image, links to Amazon Prime).
+- **Farming — World According to Kaleb** — added second show card below Clarkson's Farm with Amazon promo image, links to Amazon Prime.
+- **Farming — Unpacking on Screen video** — constrained to `max-w-2xl` so it doesn't dominate the page.
+- **Adzuna XML feed partnership** — Adzuna reached out about providing an XML feed. Drafted reply. If they say yes, I'll build an ingest edge function (download feed → map fields → upsert jobs). Would replace ~90 API calls per refresh and potentially 10x job count.
+
+### Current state
+- Live at: www.howdoyoudo.co.uk
+- Crons active on Pro plan (all 13, 5000ms timeout)
+- 45 subscribers received today's digest
+- Farming page has Shows, Only Farmers, and Groundswell event added
+- generate-skill-course and blend-roles both live
+
+### Left for next session
+- **Adzuna XML feed** — awaiting their reply. If confirmed, build `ingest-adzuna-feed` edge function. Ask them: does feed include redirect_url? Any CPC terms?
+- **Short Stories videos broken on Safari** — video-2316/2317/2318 (10-bit H.264). Need re-encode or YouTube swap.
+- **DNS fix** — Add `A @ 216.198.79.1` in 123-reg for bare howdoyoudo.co.uk
+- **WhatsApp** — needs Twilio keys from partner
+- **Inbox layout redesign** (parked)
+- **BBC, Universal Pictures, Tails.com** — ATS integrations (Andrew)
+- **Re-run Understand Me** for existing users to generate intersectionIdeas (Andrew)
+
+---
+
 ## 2026-06-15 — Woody (main branch)
 
 ### What was done
