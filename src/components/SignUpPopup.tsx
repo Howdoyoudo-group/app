@@ -25,13 +25,13 @@ const SignUpPopup = ({ open, onClose }: SignUpPopupProps) => {
         </button>
 
         <p className="text-primary text-xs tracking-[0.3em] uppercase font-body mb-2">
-          Don't miss out
+          We'd love to get to know you
         </p>
         <h2 className="font-display text-2xl md:text-3xl font-800 leading-none mb-3">
-          Join the community<span className="text-primary">.</span>
+          Create your free profile<span className="text-primary">.</span>
         </h2>
         <p className="text-muted-foreground font-body text-sm mb-6">
-          Create a free account to unlock personalised job matches, daily industry newsletters, and career tools like Understand Me.
+          Unlock personalised job matches, daily industry newsletters, and career tools built around what you actually love.
         </p>
 
         <Link
@@ -40,7 +40,7 @@ const SignUpPopup = ({ open, onClose }: SignUpPopupProps) => {
           className="w-full inline-flex items-center justify-center gap-2.5 bg-primary text-primary-foreground px-6 py-3 font-display font-700 text-sm tracking-wider uppercase hover:bg-primary/90 transition-colors"
         >
           <UserPlus className="w-4 h-4" strokeWidth={2.5} />
-          Sign up free
+          Create your free profile
         </Link>
 
         <p className="mt-4 text-center font-body text-xs text-muted-foreground">
