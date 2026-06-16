@@ -675,6 +675,11 @@ Be generous with title_keywords (include synonyms) and conservative with industr
 
         const extras = (relaxRows || []).filter((j: any) => {
           if (seenIds.has(j.id)) return false;
+          // When we forced an industry, only allow the relax to add jobs that are
+          // either in the same industry OR have no industry tag. Never pull in jobs
+          // from a clearly different industry (e.g. charity/grocery jobs in a
+          // football commercial search).
+          if (filters.industry && j.industry && j.industry !== filters.industry) return false;
           // Strict title-only validation in the relax pass - we're trusting
           // title match instead of the industry tag, so the title must clearly
           // contain a query keyword (no description-only matches).
