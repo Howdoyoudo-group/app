@@ -14,7 +14,7 @@ import SignUpPopup, { useSignUpPopup } from "@/components/SignUpPopup";
 
 const IndexV2 = () => {
   const { user } = useAuth();
-  const { open: popupOpen, close: closePopup } = useSignUpPopup(20000, !user);
+  const { open: popupOpen, close: closePopup } = useSignUpPopup(10000, !user);
 
   return (
     <div className="min-h-screen bg-background">

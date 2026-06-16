@@ -53,6 +53,7 @@ import { getCompanyExternalUrl } from "@/lib/company-external-links";
 import { trackInteraction } from "@/hooks/useTrackInteraction";
 import { useSavedJobs } from "@/hooks/useSavedJobs";
 import SourceAttribution, { SourceAttributionFooter, detectJobSource } from "@/components/AdzunaAttribution";
+import SignUpPopup, { useSignUpPopup } from "@/components/SignUpPopup";
 import { roles as ROLE_DEFINITIONS } from "@/data/roles";
 
 // Featured employer per industry - when a user filters by an industry, this
@@ -1133,6 +1134,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     return () => { cancelled = true; };
   }, [industry]);
   const { isSaved: isJobSaved, toggle: toggleSavedJob } = useSavedJobs();
+  const { open: signupOpen, close: closeSignup, openPopup: openSignup } = useSignUpPopup(0, false);
   const [showSortFilter, setShowSortFilter] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("smart");
   const [activeTab, setActiveTab] = useState(() => searchParams.get("tab") || "all");
@@ -1639,7 +1641,8 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
   };
 
   const toggleSave = (job: Job) => {
-    if (!job.dbId) return; // sample/demo jobs without DB id can't be saved
+    if (!user) { openSignup(); return; }
+    if (!job.dbId) return;
     toggleSavedJob(job.dbId);
   };
 
@@ -2756,6 +2759,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
+      {!user && <SignUpPopup open={signupOpen} onClose={closeSignup} />}
       {!embedded && (
         <SEO
           title="Job Marketplace - Browse UK Jobs"

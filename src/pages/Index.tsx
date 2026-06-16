@@ -42,7 +42,7 @@ const SketchHomePill = ({ children }: { children: React.ReactNode }) => (
 const Index = () => {
   const { user } = useAuth();
   const [showHome, setShowHome] = useState(false);
-  const { open: popupOpen, close: closePopup } = useSignUpPopup(20000, !user);
+  const { open: popupOpen, close: closePopup } = useSignUpPopup(10000, !user);
 
   useEffect(() => {
     const target = document.body;
