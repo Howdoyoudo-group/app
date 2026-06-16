@@ -54,7 +54,7 @@ const SignUpPopup = ({ open, onClose }: SignUpPopupProps) => {
   );
 };
 
-export const useSignUpPopup = (delayMs: number = 20000, enabled: boolean = true) => {
+export const useSignUpPopup = (delayMs: number = 10000, enabled: boolean = true) => {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -62,11 +62,18 @@ export const useSignUpPopup = (delayMs: number = 20000, enabled: boolean = true)
     const dismissed = sessionStorage.getItem("signup-popup-dismissed");
     if (dismissed) return;
 
-    const timer = setTimeout(() => {
+    // Fire at delayMs, then repeat every 50s until dismissed
+    const first = setTimeout(() => {
       setOpen(true);
+      const repeat = setInterval(() => {
+        const stillDismissed = sessionStorage.getItem("signup-popup-dismissed");
+        if (stillDismissed) { clearInterval(repeat); return; }
+        setOpen(true);
+      }, 50000);
+      return () => clearInterval(repeat);
     }, delayMs);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(first);
   }, [delayMs, enabled]);
 
   const close = () => {
