@@ -77,6 +77,14 @@ function extractTag(block: string, tag: string): string {
   return m ? decodeEntities(m[1].trim()) : "";
 }
 
+// CV-Library's basic affiliate feed does not expose the real hiring employer —
+// every <company> tag in the feed is literally the string "CV-Library" itself
+// (confirmed across 80k+ sampled jobs). Showing that as the employer name would
+// mislead users into thinking CV-Library is hiring for every role. Until/unless
+// a richer feed tier exposes the real employer, label it honestly as an
+// aggregator listing rather than a fabricated company name.
+const FEED_COMPANY_PLACEHOLDER = "Confidential Employer (via CV-Library)";
+
 function parseJobBlock(block: string): ParsedJob | null {
   const jobref = extractTag(block, "jobref");
   const title = extractTag(block, "title");
@@ -86,10 +94,15 @@ function parseJobBlock(block: string): ParsedJob | null {
   const salaryMinStr = extractTag(block, "salarymin");
   const salaryMaxStr = extractTag(block, "salarymax");
 
+  const rawCompany = extractTag(block, "company");
+  const company = !rawCompany || rawCompany.trim().toLowerCase() === "cv-library"
+    ? FEED_COMPANY_PLACEHOLDER
+    : rawCompany;
+
   return {
     jobref,
     title,
-    company: extractTag(block, "company") || "CV-Library",
+    company,
     url,
     location: extractTag(block, "location"),
     description: extractTag(block, "description"),
