@@ -17,6 +17,8 @@ const FEATURED_VIDEOS = [
     title: "What advice would you give? — SXSW",
     description: "We asked people at SXSW what advice they'd give to someone starting out in their industry.",
     src: `${SXSW_STORAGE}/SXSW%20Voxpop%20MASHUP-what%20advice%20would%20you%20give%3F.mp4#t=0.001`,
+    poster: "/videos/sxsw-mashup-poster.jpg",
+    portrait: true,
     tag: "Howdoyoudo",
   },
 ];
@@ -148,16 +150,16 @@ export default function Videos() {
             <div className="grid grid-cols-1 gap-6">
               {FEATURED_VIDEOS.map((v) => (
                 <div key={v.title} className="border-2 border-foreground rounded-2xl overflow-hidden">
-                  {/* cap height on desktop so Short Stories stay visible without scrolling */}
-                  <div className="relative w-full" style={{ paddingTop: "min(56.25%, 420px)" }}>
+                  <div className={v.portrait ? "flex justify-center bg-black" : "relative w-full"} style={v.portrait ? {} : { paddingTop: "min(56.25%, 420px)" }}>
                     <video
                       src={v.src}
+                      poster={v.poster}
                       controls
                       playsInline
                       muted
                       preload="metadata"
                       controlsList="nodownload noplaybackrate"
-                      className="absolute inset-0 w-full h-full object-cover bg-foreground/5"
+                      className={v.portrait ? "w-full max-w-sm md:max-w-xs lg:max-w-sm" : "absolute inset-0 w-full h-full object-cover bg-foreground/5"}
                     />
                   </div>
                   <div className="p-4">
