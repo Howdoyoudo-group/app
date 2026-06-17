@@ -10,6 +10,7 @@ const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, 
 
 const VIDEO_STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/videos";
 const VOXPOPS_STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/voxpops";
+const SXSW_STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/the-show/voxpops";
 
 const FEATURED_VIDEOS = [
   {
@@ -50,6 +51,42 @@ const VOXPOPS = [
     title: "What industry are you in?",
     description: "Straight from the street — the industries people are actually working in.",
     src: `${VOXPOPS_STORAGE}/tiktok-what-industry.mp4#t=0.001`,
+  },
+  {
+    id: "sxsw-mashup",
+    title: "What advice would you give? — SXSW",
+    description: "We asked people at SXSW what advice they'd give to someone starting out in their industry.",
+    src: `${SXSW_STORAGE}/SXSW%20Voxpop%20MASHUP-what%20advice%20would%20you%20give%3F.mp4#t=0.001`,
+  },
+  {
+    id: "sxsw-1",
+    title: "SXSW Voxpop 1",
+    description: "Voices from SXSW — real people, real careers.",
+    src: `${SXSW_STORAGE}/SXSW%20Voxpop%201.mp4#t=0.001`,
+  },
+  {
+    id: "sxsw-2",
+    title: "SXSW Voxpop 2",
+    description: "Voices from SXSW — real people, real careers.",
+    src: `${SXSW_STORAGE}/SXSW%20Voxpop%202.mp4#t=0.001`,
+  },
+  {
+    id: "sxsw-3",
+    title: "SXSW Voxpop 3",
+    description: "Voices from SXSW — real people, real careers.",
+    src: `${SXSW_STORAGE}/SXSW%20Voxpop%203.mp4#t=0.001`,
+  },
+  {
+    id: "sxsw-4",
+    title: "SXSW Voxpop 4",
+    description: "Voices from SXSW — real people, real careers.",
+    src: `${SXSW_STORAGE}/SXSW%20Voxpop%204.mp4#t=0.001`,
+  },
+  {
+    id: "sxsw-5",
+    title: "SXSW Voxpop 5",
+    description: "Voices from SXSW — real people, real careers.",
+    src: `${SXSW_STORAGE}/SXSW%20Voxpop%205.mp4#t=0.001`,
   },
 ];
 
