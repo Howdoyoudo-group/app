@@ -14,9 +14,9 @@ const SXSW_STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object
 
 const FEATURED_VIDEOS = [
   {
-    title: "How Do You Do — Voxpops",
-    description: "Real people, real careers. Hear from young people and industry insiders about how they got where they are.",
-    src: `${VOXPOPS_STORAGE}/general-interviews-.mp4#t=0.001`,
+    title: "What advice would you give? — SXSW",
+    description: "We asked people at SXSW what advice they'd give to someone starting out in their industry.",
+    src: `${SXSW_STORAGE}/SXSW%20Voxpop%20MASHUP-what%20advice%20would%20you%20give%3F.mp4#t=0.001`,
     tag: "Howdoyoudo",
   },
 ];
