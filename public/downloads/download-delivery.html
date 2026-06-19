@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Download - Delivery & Logistics · How Do You Do?</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  :root{--black:#0a0a0a;--white:#fff;--green:#3ddc3d;--grey:#f2f2f2;--mid:#666;--border:#e0e0e0;--page-w:860px;--pad:24px;--gap:12px}
+  html,body{background:var(--white)}
+  body{font-family:'Inter',sans-serif;font-size:12px;line-height:1.45;color:var(--black);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  @page{size:A4 landscape;margin:0}
+  .page{width:var(--page-w);margin:0 auto}
+  @media print{.page{page-break-after:always}.page:last-child{page-break-after:avoid}}
+  .no-break{break-inside:avoid;page-break-inside:avoid}
+  .topbar{background:var(--green);padding:6px var(--pad);display:flex;justify-content:space-between;align-items:center}
+  .topbar span{font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--black)}
+  .masthead{padding:16px var(--pad) 14px;border-bottom:3px solid var(--black)}
+  .masthead-eyebrow{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--mid);margin-bottom:4px}
+  .masthead-body{display:flex;align-items:flex-end;justify-content:space-between}
+  .masthead-title{font-size:54px;font-weight:900;line-height:1;letter-spacing:-.03em;text-transform:uppercase;white-space:nowrap}
+  .masthead-title .dot{color:var(--green)}
+  .masthead-desc{font-size:11px;color:var(--mid);max-width:210px;text-align:right;line-height:1.4;padding-bottom:4px}
+  .tag-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+  .tag{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 9px;border:2px solid var(--black)}
+  .tag.filled{background:var(--black);color:var(--white)}
+  .tag.green{background:var(--green);border-color:var(--green)}
+  .content{padding:0 var(--pad) var(--pad)}
+  .section-label{display:flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;border-bottom:2px solid var(--green);padding:10px 0 6px;margin-bottom:var(--gap)}
+  .section-label::before{content:'▼';font-size:7px;color:var(--green)}
+  .col-4{display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+  .col-2{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-bottom:var(--gap)}
+  .stack{display:flex;flex-direction:column;gap:var(--gap)}
+  .stat-strip{border:2px solid var(--black);margin-bottom:var(--gap)}
+  .stat-cell{padding:12px 14px;border-right:2px solid var(--black)}
+  .stat-cell:last-child{border-right:none}
+  .stat-cell.dark{background:var(--black);color:var(--white)}
+  .stat-cell.green{background:var(--green)}
+  .stat-cell .lbl{font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.55;margin-bottom:3px}
+  .stat-cell .num{font-size:28px;font-weight:900;line-height:1;letter-spacing:-.03em}
+  .stat-cell .sub{font-size:9px;line-height:1.35;margin-top:3px;opacity:.65}
+  .box{border:2px solid var(--black);padding:12px 14px;break-inside:avoid;page-break-inside:avoid}
+  .box.dark{background:var(--black);color:var(--white)}
+  .box.green{background:var(--green)}
+  .box.grey{background:var(--grey)}
+  .box-title{font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-bottom:1.5px solid currentColor;padding-bottom:6px;margin-bottom:10px;opacity:.85}
+  .bar-row{display:flex;align-items:center;gap:7px;margin-bottom:6px}
+  .bar-row:last-of-type{margin-bottom:0}
+  .bar-lbl{width:76px;font-size:9px;font-weight:600;flex-shrink:0;line-height:1.3}
+  .bar-track{flex:1;height:7px;background:var(--border)}
+  .dark .bar-track{background:#2a2a2a}
+  .bar-fill{height:100%;background:var(--green)}
+  .bar-fill.b{background:var(--black)}
+  .dark .bar-fill.b{background:#777}
+  .bar-val{font-size:9px;font-weight:700;width:40px;text-align:right;flex-shrink:0}
+  .player{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)}
+  .player:last-child{border-bottom:none}
+  .player-name{font-size:11px;font-weight:700}
+  .player-type{font-size:9px;color:var(--mid)}
+  .player-badge{font-size:8px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;white-space:nowrap;flex-shrink:0;background:var(--green);border:1.5px solid var(--green)}
+  .player-badge.outline{background:transparent;border:1.5px solid var(--black)}
+  .pills{display:flex;flex-wrap:wrap;gap:5px}
+  .pill{font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;padding:3px 8px;border:2px solid var(--black);background:var(--white);line-height:1.2}
+  .pill.hot{background:var(--black);color:var(--white);border-color:var(--black)}
+  .trend{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #333;align-items:flex-start}
+  .trend:last-child{border-bottom:none;padding-bottom:0}
+  .trend-n{font-size:18px;font-weight:900;color:var(--green);line-height:1;flex-shrink:0;width:22px}
+  .trend-txt{font-size:10px;line-height:1.4}
+  .trend-txt strong{font-weight:700}
+  .callout{border-left:3px solid var(--green);padding:7px 10px;background:#e8e8e8;font-size:9px;line-height:1.45;margin-top:8px}
+  .kf-item{margin-bottom:10px}
+  .kf-item:last-child{margin-bottom:0}
+  .kf-num{font-size:26px;font-weight:900;line-height:1;letter-spacing:-.02em}
+  .kf-desc{font-size:9px;color:var(--mid);margin-top:2px;line-height:1.35}
+  .footer{background:var(--black);color:var(--white);padding:8px var(--pad);display:flex;justify-content:space-between;align-items:center}
+  .footer-brand{font-size:12px;font-weight:900;letter-spacing:-.01em;text-transform:uppercase}
+  .footer-brand .dot{color:var(--green)}
+  .footer-src{font-size:8px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:#777}
+  .page-break-line{border:none;border-top:3px dashed #ccc;margin:24px auto;width:var(--page-w)}
+  @media print{.page-break-line{display:none}}
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<div class="page">
+  <div class="topbar no-break">
+    <span>How Do You Do? · Unpacking the industries we love and live in</span>
+    <span>Ed. 20.06.26</span>
+  </div>
+  <div class="masthead no-break">
+    <div class="masthead-eyebrow">The Download · Industry Series · Issue 33</div>
+    <div class="masthead-body">
+      <div class="masthead-title">Delivery<span class="dot">.</span></div>
+      <div class="masthead-desc">UK parcel, last-mile & logistics market — scale, players & what's driving change.</div>
+    </div>
+    <div class="tag-row">
+      <div class="tag filled">UK Market</div>
+      <div class="tag filled">Key Players</div>
+      <div class="tag filled">Last Mile</div>
+      <div class="tag green">Sector Map</div>
+    </div>
+  </div>
+  <div class="content">
+    <div class="section-label">Market Size</div>
+    <div class="stat-strip col-4 no-break">
+      <div class="stat-cell dark"><div class="lbl">UK Logistics Market</div><div class="num">£127bn</div><div class="sub">Total UK logistics sector value including freight, warehousing & last-mile (Logistics UK 2024).</div></div>
+      <div class="stat-cell"><div class="lbl">Parcels Delivered / Year</div><div class="num">4.5bn</div><div class="sub">Annual parcel volumes in UK. Up from 1bn in 2013 — e-commerce drove 4× growth in a decade.</div></div>
+      <div class="stat-cell green"><div class="lbl">Workforce</div><div class="num">2.5m</div><div class="sub">People employed in UK transport & logistics — 8% of the entire UK workforce.</div></div>
+      <div class="stat-cell"><div class="lbl">EV Fleet by 2030</div><div class="num">700k</div><div class="sub">Expected electric delivery vehicles on UK roads by 2030 as operators electrify last-mile fleets.</div></div>
+    </div>
+    <div class="section-label">Market Shape</div>
+    <div class="col-2">
+      <div class="stack">
+        <div class="box grey no-break">
+          <div class="box-title">UK Parcel Market Share (est.)</div>
+          <div class="bar-row"><div class="bar-lbl">Royal Mail / Evri</div><div class="bar-track"><div class="bar-fill b" style="width:100%"></div></div><div class="bar-val">~45%</div></div>
+          <div class="bar-row"><div class="bar-lbl">Amazon Logistics</div><div class="bar-track"><div class="bar-fill" style="width:55%"></div></div><div class="bar-val">~25%</div></div>
+          <div class="bar-row"><div class="bar-lbl">DPD / DHL</div><div class="bar-track"><div class="bar-fill b" style="width:40%"></div></div><div class="bar-val">~18%</div></div>
+          <div class="bar-row"><div class="bar-lbl">Yodel / Others</div><div class="bar-track"><div class="bar-fill" style="width:20%"></div></div><div class="bar-val">~12%</div></div>
+          <div class="callout"><strong>Note:</strong> Amazon Logistics has grown from 0% to ~25% market share in under 10 years — the biggest disruption in UK parcel history.</div>
+        </div>
+        <div class="box dark no-break">
+          <div class="box-title">Delivery Type Breakdown</div>
+          <div class="bar-row"><div class="bar-lbl">B2C e-commerce</div><div class="bar-track"><div class="bar-fill b" style="width:100%"></div></div><div class="bar-val">Largest</div></div>
+          <div class="bar-row"><div class="bar-lbl">B2B freight</div><div class="bar-track"><div class="bar-fill" style="width:65%"></div></div><div class="bar-val">2nd</div></div>
+          <div class="bar-row"><div class="bar-lbl">Food delivery</div><div class="bar-track"><div class="bar-fill b" style="width:40%"></div></div><div class="bar-val">↑ Fast</div></div>
+          <div class="bar-row"><div class="bar-lbl">Same-day / ultra-fast</div><div class="bar-track"><div class="bar-fill" style="width:25%"></div></div><div class="bar-val">↑ Fast</div></div>
+          <div class="bar-row"><div class="bar-lbl">Returns</div><div class="bar-track"><div class="bar-fill b" style="width:45%"></div></div><div class="bar-val">Growing</div></div>
+        </div>
+      </div>
+      <div class="box no-break">
+        <div class="box-title">UK Key Facts</div>
+        <div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1.5px solid var(--border)">
+          <div style="font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--mid);margin-bottom:8px">Key Metrics</div>
+          <div class="kf-item"><div class="kf-num">4.5bn</div><div class="kf-desc">parcels delivered in the UK per year — that's 70 per person. Volume has quadrupled since 2013.</div></div>
+          <div class="kf-item"><div class="kf-num">27%</div><div class="kf-desc">of UK retail is now online — one of the highest rates in Europe, driving sustained parcel growth</div></div>
+          <div class="kf-item"><div class="kf-num">£127bn</div><div class="kf-desc">total logistics sector value — larger than automotive, aerospace and pharmaceuticals combined</div></div>
+        </div>
+        <div class="box-title" style="border:none;padding:0;margin-top:10px;margin-bottom:8px">Sector by Segment (est.)</div>
+        <div class="bar-row"><div class="bar-lbl">Road freight</div><div class="bar-track"><div class="bar-fill b" style="width:100%"></div></div><div class="bar-val">£60bn</div></div>
+        <div class="bar-row"><div class="bar-lbl">Warehousing</div><div class="bar-track"><div class="bar-fill" style="width:55%"></div></div><div class="bar-val">£33bn</div></div>
+        <div class="bar-row"><div class="bar-lbl">Last-mile parcels</div><div class="bar-track"><div class="bar-fill b" style="width:40%"></div></div><div class="bar-val">£22bn</div></div>
+        <div class="bar-row"><div class="bar-lbl">Food delivery</div><div class="bar-track"><div class="bar-fill" style="width:20%"></div></div><div class="bar-val">£12bn</div></div>
+        <div style="margin-top:8px;font-size:9px;color:var(--mid);line-height:1.4">Last-mile is the fastest-growing and most labour-intensive segment.</div>
+      </div>
+    </div>
+  </div>
+  <div class="footer no-break">
+    <div class="footer-brand">How Do You Do<span class="dot">?</span></div>
+    <div class="footer-src">Sources: Logistics UK · Ofcom Parcels Report · IMRG · Statista · June 2026 · Page 1 of 2</div>
+  </div>
+</div>
+<hr class="page-break-line">
+<!-- PAGE 2 -->
+<div class="page">
+  <div class="topbar no-break">
+    <span>How Do You Do? · The Download - Delivery & Logistics</span>
+    <span>Ed. 20.06.26</span>
+  </div>
+  <div class="content" style="padding-top:14px">
+    <div class="section-label">Key Players</div>
+    <div class="col-2">
+      <div class="box no-break">
+        <div class="box-title">Major Players - UK Delivery & Logistics</div>
+        <div class="player"><div><div class="player-name">Royal Mail (International Distributions)</div><div class="player-type">Letters & parcels · listed · 150,000+ UK employees</div></div><div class="player-badge">Historic #1</div></div>
+        <div class="player"><div><div class="player-name">Amazon Logistics</div><div class="player-type">Last-mile arm of Amazon UK · ~25% parcel market share</div></div><div class="player-badge">↑ Fastest growing</div></div>
+        <div class="player"><div><div class="player-name">Evri (formerly Hermes)</div><div class="player-type">UK's 2nd largest parcel carrier · 9,000 couriers</div></div><div class="player-badge outline">Volume carrier</div></div>
+        <div class="player"><div><div class="player-name">DPD UK</div><div class="player-type">Premium parcel · GeoPost / La Poste owned · EV-first</div></div><div class="player-badge">Premium parcels</div></div>
+        <div class="player"><div><div class="player-name">DHL Supply Chain UK</div><div class="player-type">Contract logistics & warehousing · global #1</div></div><div class="player-badge outline">B2B logistics</div></div>
+        <div class="player"><div><div class="player-name">Ocado Logistics</div><div class="player-type">Grocery fulfilment tech & delivery · UK-based</div></div><div class="player-badge outline">Grocery tech</div></div>
+        <div class="player"><div><div class="player-name">Deliveroo / Uber Eats</div><div class="player-type">Food & grocery delivery platforms · gig economy</div></div><div class="player-badge">Gig delivery</div></div>
+        <div class="player"><div><div class="player-name">Gophr / Stuart</div><div class="player-type">Same-day B2B courier platforms · London-focused</div></div><div class="player-badge outline">Same-day B2B</div></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--gap)">
+        <div class="box green no-break">
+          <div class="box-title">Roles & Career Paths</div>
+          <div class="pills">
+            <span class="pill hot">Delivery Driver</span>
+            <span class="pill hot">Warehouse Operative</span>
+            <span class="pill hot">Operations Manager</span>
+            <span class="pill">HGV Driver</span>
+            <span class="pill hot">Supply Chain Analyst</span>
+            <span class="pill">Route Planner</span>
+            <span class="pill hot">Fleet Manager</span>
+            <span class="pill">Customs Specialist</span>
+            <span class="pill hot">Last-Mile Manager</span>
+            <span class="pill">Van Courier</span>
+            <span class="pill hot">Logistics Tech / WMS</span>
+            <span class="pill">Freight Forwarder</span>
+          </div>
+          <div style="margin-top:8px;font-size:9px;font-weight:600">Dark fill = highest demand / fastest growing roles.</div>
+        </div>
+        <div class="box dark no-break">
+          <div class="box-title">5 Trends to Watch</div>
+          <div class="trend"><div class="trend-n">01</div><div class="trend-txt"><strong>EV fleet transition.</strong> DPD, Royal Mail and Amazon are mass-electrifying last-mile fleets. 700,000 electric delivery vehicles expected on UK roads by 2030.</div></div>
+          <div class="trend"><div class="trend-n">02</div><div class="trend-txt"><strong>Same-day becomes standard.</strong> Amazon, Ocado and quick-commerce startups have reset consumer expectations. 2-hour and same-day delivery now table stakes in urban areas.</div></div>
+          <div class="trend"><div class="trend-n">03</div><div class="trend-txt"><strong>Driver classification battles.</strong> Gig economy legal cases (Uber, Deliveroo) reshaping contractor rights. Minimum pay guarantees now standard for many platforms.</div></div>
+          <div class="trend"><div class="trend-n">04</div><div class="trend-txt"><strong>Automation in warehousing.</strong> Ocado's robot warehouses, Amazon's robotic fulfilment centres and dark stores are reducing headcount — but creating new tech roles.</div></div>
+          <div class="trend"><div class="trend-n">05</div><div class="trend-txt"><strong>Returns economy.</strong> UK consumers return 25–30% of online fashion orders. Returns processing is now a £3bn+ sub-sector with specialist operators like ZigZag Global.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="footer no-break">
+    <div class="footer-brand">How Do You Do<span class="dot">?</span></div>
+    <div class="footer-src">Sources: Logistics UK · Ofcom · IMRG · Statista · Retail Economics · June 2026 · Page 2 of 2</div>
+  </div>
+</div>
+</body>
+</html>

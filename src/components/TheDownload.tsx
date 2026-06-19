@@ -11,14 +11,17 @@ interface TheDownloadProps {
 // Map slug -> file extension ("html" or "pdf").
 const AVAILABLE_DOWNLOADS: Record<string, "html" | "pdf"> = {
   bakery: "html",
+  building: "html",
   beauty: "html",
   beer: "html",
   cars: "html",
   charity: "html",
+  delivery: "html",
   cinema: "html",
   coffee: "html",
   "estate-agency": "html",
   farming: "html",
+  fixing: "html",
   fashion: "html",
   football: "html",
   "formula-1": "html",
