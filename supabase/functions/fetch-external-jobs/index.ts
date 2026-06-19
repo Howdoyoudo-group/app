@@ -5750,7 +5750,7 @@ async function fetchIndeedJobs(industry: string, keywords: string[], indeedKey: 
         url.searchParams.set("query", kw);
         url.searchParams.set("location", "United Kingdom");
         url.searchParams.set("page_id", String(page + 1));
-        url.searchParams.set("locality", "uk");
+        url.searchParams.set("locality", "gb"); // "uk" is invalid — must be "gb"
         url.searchParams.set("fromage", "7"); // last 7 days
 
         const ctrl = new AbortController();
