@@ -14,7 +14,7 @@ const corsHeaders = {
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // ----------------------------- ATS targets -----------------------------
-type AtsKind = "greenhouse" | "smartrecruiters" | "lever" | "ashby" | "playrix" | "inploi" | "wiser" | "tesco-rss" | "eightfold";
+type AtsKind = "greenhouse" | "smartrecruiters" | "lever" | "ashby" | "playrix" | "inploi" | "wiser" | "tesco-rss" | "eightfold" | "workday";
 
 interface AtsTarget {
   company: string;          // canonical display name used in DB
@@ -25,6 +25,9 @@ interface AtsTarget {
   // For ats="inploi": override the sitemap URL we crawl for /job/<id> entries.
   // Defaults to `https://${token}/sitemap.xml` if omitted.
   sitemap?: string;
+  // For ats="workday": Workday tenant, version (wd1/wd3 etc), and site name
+  wdVersion?: string;
+  wdSite?: string;
 }
 
 // Curated list - confirmed working endpoints only.
@@ -141,6 +144,16 @@ const TARGETS: AtsTarget[] = [
     token: "tesco",
     globalRemote: true, // All roles are UK-based already
   },
+
+  // ===== Workday (discovered Jun 2026 via ATS sweep) =====
+  // token = wd_tenant, wdVersion = wd1/wd3 etc, wdSite = site name from Workday URL
+  { company: "Nike",                  industry: "footwear",      ats: "workday", token: "nike",                wdVersion: "wd1",   wdSite: "nke" },
+  { company: "Lloyds Banking Group",  industry: "money",         ats: "workday", token: "lbg",                 wdVersion: "wd3",   wdSite: "LBG_Careers" },
+  { company: "Hargreaves Lansdown",   industry: "money",         ats: "workday", token: "hargreaveslansdown",  wdVersion: "wd3",   wdSite: "HargreavesLansdown" },
+  { company: "Signet Jewelers",       industry: "jewellery",     ats: "workday", token: "signetjewelers",      wdVersion: "wd1",   wdSite: "SignetCorporateCareers" },
+  { company: "Warner Music Group",    industry: "music",         ats: "workday", token: "wmg",                 wdVersion: "wd1",   wdSite: "WMGUS" },
+  { company: "Gensler",               industry: "interiordesign", ats: "workday", token: "gensler",            wdVersion: "wd1",   wdSite: "genslercareers" },
+  { company: "Ramsay Health Care UK", industry: "health",        ats: "workday", token: "ramsayhealthcare",    wdVersion: "wd3",   wdSite: "Ramsay_Careers" },
 ];
 
 
@@ -808,6 +821,74 @@ async function fetchEightfold(t: AtsTarget): Promise<RawJob[]> {
   return out;
 }
 
+// ── Workday ──────────────────────────────────────────────────────────
+// Workday exposes a public JSON API at:
+// POST https://{tenant}.{version}.myworkdayjobs.com/wday/cxs/{tenant}/{site}/jobs
+// We search for "united kingdom" to get UK-relevant roles only.
+async function fetchWorkday(t: AtsTarget): Promise<RawJob[]> {
+  const version = t.wdVersion || "wd3";
+  const site = t.wdSite || "en-US";
+  const base = `https://${t.token}.${version}.myworkdayjobs.com/wday/cxs/${t.token}/${site}/jobs`;
+  const out: RawJob[] = [];
+  const pageSize = 20;
+  let offset = 0;
+
+  while (true) {
+    const res = await fetch(base, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        appliedFacets: {},
+        limit: pageSize,
+        offset,
+        searchText: t.globalRemote ? "" : "united kingdom",
+      }),
+    });
+    if (!res.ok) {
+      console.error(`[${t.company}] Workday error: ${res.status}`);
+      break;
+    }
+    const data = await res.json();
+    const postings: any[] = data?.jobPostings ?? [];
+    if (postings.length === 0) break;
+
+    for (const p of postings) {
+      const title = (p.title || "").trim();
+      // Workday job detail URL
+      const path = p.externalPath || p.bulletFields?.[0] || "";
+      const jobUrl = path
+        ? `https://${t.token}.${version}.myworkdayjobs.com${path}`
+        : "";
+      if (!title || !jobUrl) continue;
+
+      const location = (p.locationsText || "").trim() || null;
+
+      out.push({
+        title: title.slice(0, 255),
+        company: t.company,
+        industry: t.industry,
+        value_chain_stage: null,
+        role_category: null,
+        location: location?.slice(0, 200) ?? null,
+        type: "Full-time",
+        work_mode: /remote/i.test(p.locationsText || "") ? "Remote" : "On-site",
+        salary: null,
+        description: null,
+        url: jobUrl,
+        source_url: `${t.token}.${version}.myworkdayjobs.com`,
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
+      });
+    }
+
+    if (postings.length < pageSize) break;
+    offset += pageSize;
+    if (offset >= 200) break; // cap at 200 per company
+  }
+
+  console.log(`[${t.company}] Workday: ${out.length} UK jobs`);
+  return out;
+}
+
 async function fetchTarget(t: AtsTarget): Promise<RawJob[]> {
   try {
     if (t.ats === "greenhouse")      return await fetchGreenhouse(t);
@@ -819,6 +900,7 @@ async function fetchTarget(t: AtsTarget): Promise<RawJob[]> {
     if (t.ats === "wiser")           return await fetchWiser(t);
     if (t.ats === "tesco-rss")       return await fetchTescoRss(t);
     if (t.ats === "eightfold")       return await fetchEightfold(t);
+    if (t.ats === "workday")         return await fetchWorkday(t);
   } catch (e) {
     console.error(`[${t.company}] fetch failed:`, e);
   }

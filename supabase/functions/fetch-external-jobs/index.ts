@@ -2705,6 +2705,9 @@ const PINPOINT_TENANTS: Array<{ slug: string; company: string; industry: string 
   // ── Lettings specialists (Pinpoint) ─────────────────
   { slug: "spicerhaart",        company: "Spicerhaart",          industry: "estate-agency" },
   { slug: "goodlord",           company: "Goodlord",             industry: "estate-agency" },
+  // ===== Discovered Jun 2026 via ATS sweep =====
+  { slug: "jmw",                company: "JMW Solicitors",       industry: "estateagency" },
+  { slug: "bluecross",          company: "Blue Cross",            industry: "pets" },
 ];
 
 async function fetchPinpointJobs(tenant: { slug: string; company: string; industry: string }) {
