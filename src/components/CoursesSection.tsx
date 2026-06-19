@@ -41,6 +41,9 @@ const INDUSTRY_QUERY_ALIASES: Record<string, string> = {
   "horse racing": "equine horse racing",
   "formula 1": "motorsport",
   influencing: "content creator social media",
+  fixing: "electrical plumbing trades skilled",
+  building: "construction site management building",
+  delivery: "logistics supply chain warehouse",
 };
 
 const ONLINE_PROVIDERS = [

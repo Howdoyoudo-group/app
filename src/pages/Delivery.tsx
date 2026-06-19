@@ -91,13 +91,13 @@ const newsfeed = [
 const deliveryCompanies = [
   { name: "Amazon Logistics", founded: "2014 (UK)", hq: "London", overview: "Amazon's own delivery network, now covering around 70% of its UK parcels with a fleet of delivery partners and permanent drivers.", url: "https://www.amazon.jobs/en-gb", glassdoor: 3.1, valueChainStage: "Last Mile & Courier" },
   { name: "DHL Supply Chain", founded: "1969", hq: "Bonn (UK: Milton Keynes)", overview: "One of the world's largest logistics businesses — UK operations cover warehousing, contract logistics, and express parcel delivery.", url: "https://careers.dhl.com/gb/en", glassdoor: 3.6, valueChainStage: "Operations & Logistics" },
-  { name: "DPD", founded: "1977", hq: "Smethwick", overview: "The UK's largest parcel delivery company by volume, operating a network of 10,000+ drivers and 60+ depots.", url: "https://www.dpd.co.uk/content/about_dpd/careers.jsp", glassdoor: 3.3, valueChainStage: "Last Mile & Courier" },
-  { name: "Evri", founded: "1974 (as Hermes)", hq: "Morley", overview: "The UK's second-largest parcel carrier, handling over 700 million parcels per year through a self-employed courier network.", url: "https://careers.evri.com", glassdoor: 2.9, valueChainStage: "Last Mile & Courier" },
+  { name: "DPD", founded: "1977", hq: "Smethwick", overview: "The UK's largest parcel delivery company by volume, operating a network of 10,000+ drivers and 60+ depots.", url: "https://jobs.dpd.co.uk", glassdoor: 3.3, valueChainStage: "Last Mile & Courier" },
+  { name: "Evri", founded: "1974 (as Hermes)", hq: "Morley", overview: "The UK's second-largest parcel carrier, handling over 700 million parcels per year through a self-employed courier network.", url: "https://www.evri.com/about/careers", glassdoor: 2.9, valueChainStage: "Last Mile & Courier" },
   { name: "Gophr", founded: "2014", hq: "London", overview: "UK same-day courier platform connecting businesses to a network of cyclists, motorcyclists, and van drivers.", url: "https://gophr.com/careers", valueChainStage: "Last Mile & Courier" },
   { name: "Ocado Logistics", founded: "2000", hq: "Hatfield", overview: "Runs one of the most automated grocery fulfilment operations in the world, with its own fleet of delivery vans and drivers.", url: "https://www.ocadogroup.com/careers", glassdoor: 3.4, profileUrl: "/company/ocado-logistics", valueChainStage: "Warehouse & Fulfilment" },
   { name: "Royal Mail", founded: "1516", hq: "London", overview: "Britain's national postal service, delivering to 32 million addresses every working day with 80,000+ posties and drivers.", url: "https://jobs.royalmail.com", glassdoor: 3.1, valueChainStage: "Last Mile & Courier" },
   { name: "XPO Logistics", founded: "2011", hq: "London (UK)", overview: "Global logistics provider specialising in heavy goods, freight brokerage, and last-mile delivery for UK retailers.", url: "https://jobs.xpo.com/gb/en", glassdoor: 3.2, valueChainStage: "Operations & Logistics" },
-  { name: "Yodel", founded: "2010", hq: "Liverpool", overview: "Parcel carrier operating a network of service centres and self-employed couriers, focused on the retail sector.", url: "https://www.yodel.co.uk/careers", glassdoor: 2.7, valueChainStage: "Last Mile & Courier" },
+  { name: "Yodel", founded: "2010", hq: "Liverpool", overview: "Parcel carrier operating a network of service centres and self-employed couriers, focused on the retail sector.", url: "https://jobs.yodel.co.uk", glassdoor: 2.7, valueChainStage: "Last Mile & Courier" },
   { name: "Wincanton", founded: "1925", hq: "Chippenham", overview: "UK contract logistics specialist providing supply chain solutions for grocery, retail, defence, and construction.", url: "https://www.wincanton.co.uk/careers", glassdoor: 3.4, valueChainStage: "Operations & Logistics" },
 ];
 
@@ -113,10 +113,10 @@ const Delivery = () => {
           <PodcastPlayer industry="delivery" />
           <h2 className="font-display text-2xl md:text-3xl font-700 mb-6 mt-12">Podcasts We Rate<span className="text-primary">.</span></h2>
           <PodcastGrid podcasts={[
-            { title: "Supply Chain Now", description: "Weekly conversations with supply chain and logistics leaders on strategy, technology, and careers.", url: "https://supplychainnow.com/podcast/" },
-            { title: "The Logistics Podcast", description: "UK-focused discussions on freight, logistics, and supply chain management.", url: "https://open.spotify.com/show/1sqQ3PGjWANfZKXPGIcBVE" },
+            { title: "Supply Chain Now", description: "Weekly conversations with supply chain and logistics leaders on strategy, technology, and careers.", url: "https://open.spotify.com/show/65DDhOBrpKlEEHlbDMLG7j" },
+            { title: "The Supply Chain Podcast", description: "Practical insights on freight, logistics, and supply chain — from warehouse floor to boardroom.", url: "https://open.spotify.com/show/6WRQ6O7W8xi94gYW8St5gy" },
             { title: "Parcel and Postal Technology International", description: "Industry news and leadership interviews from the parcel delivery world.", url: "https://www.parcelandpostaltechnologyinternational.com" },
-            { title: "Gartner Supply Chain Podcast", description: "Expert analysis of supply chain strategy and emerging technology from Gartner analysts.", url: "https://open.spotify.com/show/6B28JBKGbxKC4HRkS0Wq8y" },
+            { title: "Leaders in Supply Chain & Logistics", description: "In-depth interviews with senior leaders on the trends, technology, and strategy shaping logistics.", url: "https://open.spotify.com/show/3rdqvzvAvXv0LxnR8c93AK" },
           ]} />
         </>
       ),

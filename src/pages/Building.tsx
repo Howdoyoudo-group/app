@@ -120,10 +120,10 @@ const Building = () => {
           <PodcastPlayer industry="building" />
           <h2 className="font-display text-2xl md:text-3xl font-700 mb-6 mt-12">Podcasts We Rate<span className="text-primary">.</span></h2>
           <PodcastGrid podcasts={[
-            { title: "The Construction Podcast", description: "Conversations with senior leaders across the UK construction industry — from site to boardroom.", url: "https://open.spotify.com/show/4PBa8YMDsTIJGRRvWL3uGt" },
+            { title: "UK Construction Podcast", description: "Candid conversations with construction leaders, architects, and engineers sharing insights from across the industry.", url: "https://open.spotify.com/show/7nvj1kVrm1YaKL6nIa4u3E" },
+            { title: "Construction Talk", description: "Hosted by construction journalist Peter Haddock — interviews with leaders pushing the UK building industry forward.", url: "https://open.spotify.com/show/6CZeJsdGQilE1aIT2d8NGv" },
             { title: "Built Environment Networking", description: "Leading property and construction podcast covering development, planning, and infrastructure.", url: "https://www.built-environment-networking.com/podcasts/" },
-            { title: "The Hive Construction Podcast", description: "Stories and interviews from people at all levels of the construction industry.", url: "https://thehivepodcast.co.uk" },
-            { title: "Women in Construction Podcast", description: "Celebrating and championing women across the built environment.", url: "https://open.spotify.com/show/3dGxcDnRJpwmJgv0zJuX1v" },
+            { title: "Women in Construction", description: "Celebrating and championing women across the built environment — hosted by Michaela Wain.", url: "https://open.spotify.com/show/2ddhoPpKLez8dH1QDLHQkd" },
           ]} />
         </>
       ),

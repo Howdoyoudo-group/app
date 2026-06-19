@@ -92,9 +92,9 @@ const newsfeed = [
 ];
 
 const fixingCompanies = [
-  { name: "British Gas (Centrica)", founded: "1812", hq: "Windsor", overview: "The UK's largest energy supplier and home services company — employs over 5,000 engineers for heating, electrical, and appliance care.", url: "https://britishgasjobs.co.uk", glassdoor: 3.5, valueChainStage: "Plumbing & Heating" },
+  { name: "British Gas (Centrica)", founded: "1812", hq: "Windsor", overview: "The UK's largest energy supplier and home services company — employs over 5,000 engineers for heating, electrical, and appliance care.", url: "https://www.centrica.com/people-careers/", glassdoor: 3.5, valueChainStage: "Plumbing & Heating" },
   { name: "Dyno-Rod", founded: "1963", hq: "Staines", overview: "Britain's best-known drain unblocking and plumbing service, operating a national franchise network.", url: "https://www.dyno.com/careers", valueChainStage: "Plumbing & Heating" },
-  { name: "HomeServe", founded: "1993", hq: "Walsall", overview: "Home repair and improvement service covering plumbing, electrical, and appliance breakdowns.", url: "https://careers.homeserve.com", glassdoor: 3.6, valueChainStage: "Building Maintenance" },
+  { name: "HomeServe", founded: "1993", hq: "Walsall", overview: "Home repair and improvement service covering plumbing, electrical, and appliance breakdowns.", url: "https://homeserve.com/uk/careers-hub", glassdoor: 3.6, valueChainStage: "Building Maintenance" },
   { name: "iSmash", founded: "2013", hq: "London", overview: "Fast-growing tech repair brand with over 50 UK stores fixing phones, tablets, and laptops.", url: "https://www.ismash.co.uk/careers", valueChainStage: "Appliance & Device Repair" },
   { name: "Mitie", founded: "1987", hq: "London", overview: "The UK's largest facilities management company, employing engineers and technicians across thousands of client sites.", url: "https://www.mitie.com/careers", glassdoor: 3.3, valueChainStage: "Building Maintenance" },
   { name: "Pimlico Plumbers", founded: "1979", hq: "London", overview: "London's largest independent plumbing and heating business, known for fast-response domestic repairs.", url: "https://www.pimlicoplumbers.com/careers", trustpilot: 4.5, valueChainStage: "Plumbing & Heating" },
@@ -116,10 +116,10 @@ const Fixing = () => {
           <PodcastPlayer industry="fixing" />
           <h2 className="font-display text-2xl md:text-3xl font-700 mb-6 mt-12">Podcasts We Rate<span className="text-primary">.</span></h2>
           <PodcastGrid podcasts={[
-            { title: "The Sparky Show", description: "A podcast for electricians — covering business, tools, apprenticeships, and the trade life.", url: "https://open.spotify.com/show/2jJuSVMSjSi2UHwnuLwpce" },
-            { title: "The Plumbing Podcast", description: "Honest conversations about running a plumbing business, taking on apprentices, and growing in the trade.", url: "https://open.spotify.com/show/3Ns6uy7fgGMgO0S8PqQXtK" },
-            { title: "Trade Business Success", description: "Business advice for trades professionals — marketing, pricing, and scaling up.", url: "https://open.spotify.com/show/4jvJqf9n8sNcXPYFp0MCi2" },
-            { title: "Facilities Management Podcast", description: "Industry news, careers, and leadership conversations from across FM.", url: "https://open.spotify.com/show/5wTsGqXWuJzILVdaL4U7bX" },
+            { title: "Sparky's Life", description: "Electricians helping electricians — interviews, trade talk, and life as a sparky in the UK.", url: "https://open.spotify.com/show/4VobsrkSDpqkhwFfOeCT01" },
+            { title: "The Heating & Plumbing Show", description: "Weekly conversations from the world of plumbing — stories, tips, and interviews with top plumbers.", url: "https://open.spotify.com/show/6bPDY3SoLV5AL7QImScwWM" },
+            { title: "Trades Talk", description: "Conversations with successful trade business owners — growth strategies, marketing, and the realities of running a trades company.", url: "https://open.spotify.com/show/2nBFRHDNzlakKban657sbB" },
+            { title: "The Facilities Management Exchange", description: "In-depth conversations with FM and property management leaders on the issues shaping the industry.", url: "https://open.spotify.com/show/22Bz43zoDk5d5DSMkUJajA" },
           ]} />
         </>
       ),

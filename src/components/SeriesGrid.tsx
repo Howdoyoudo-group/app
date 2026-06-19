@@ -38,12 +38,6 @@ import seriesDelivery from "@/assets/series-delivery.jpg";
 
 const series = [
   {
-    title: "Building",
-    description: "Construction sites, architects, quantity surveyors, and the £160 billion UK industry shaping every skyline.",
-    image: seriesBuilding,
-    href: "/building",
-  },
-  {
     title: "Bakery",
     description:
       "Sourdough starters, 4 a.m. shifts, and the craft behind the UK's favourite loaves.",
@@ -65,6 +59,12 @@ const series = [
     href: "/beer",
   },
   {
+    title: "Building",
+    description: "Construction sites, architects, quantity surveyors, and the £160 billion UK industry shaping every skyline.",
+    image: seriesBuilding,
+    href: "/building",
+  },
+  {
     title: "Cars",
     description:
       "From design studios to dealership floors - the engineering, manufacturing, and business of the UK's automotive industry.",
@@ -79,17 +79,17 @@ const series = [
     href: "/charity",
   },
   {
-    title: "Delivery",
-    description: "Couriers, HGV drivers, logistics coordinators, and the operations moving 5 billion parcels across the UK every year.",
-    image: seriesDelivery,
-    href: "/delivery",
-  },
-  {
     title: "Coffee",
     description:
       "Cult brands, bean traders, and the $500 billion industry in your morning cup.",
     image: seriesCoffee,
     href: "/coffee",
+  },
+  {
+    title: "Delivery",
+    description: "Couriers, HGV drivers, logistics coordinators, and the operations moving 5 billion parcels across the UK every year.",
+    image: seriesDelivery,
+    href: "/delivery",
   },
   {
     title: "Estate Agency",
@@ -113,17 +113,17 @@ const series = [
     href: "/fashion",
   },
   {
-    title: "Fixing",
-    description: "Electricians, plumbers, gas engineers, and the skilled trades keeping Britain's homes and businesses running.",
-    image: seriesFixing,
-    href: "/fixing",
-  },
-  {
     title: "Film and TV",
     description:
       "From multi-billion dollar studios to indie darlings - how does the film industry really work?",
     image: seriesCinema,
     href: "/cinema",
+  },
+  {
+    title: "Fixing",
+    description: "Electricians, plumbers, gas engineers, and the skilled trades keeping Britain's homes and businesses running.",
+    image: seriesFixing,
+    href: "/fixing",
   },
   {
     title: "Food & Drink",

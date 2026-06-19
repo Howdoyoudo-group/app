@@ -5,8 +5,11 @@ import { Link } from "react-router-dom";
 const industries = [
   { name: "Bakery", path: "/bakery" },
   { name: "Beer", path: "/beer" },
+  { name: "Building", path: "/building" },
   { name: "Charity", path: "/charity" },
+  { name: "Delivery", path: "/delivery" },
   { name: "Film and TV", path: "/cinema" },
+  { name: "Fixing", path: "/fixing" },
   { name: "Coffee", path: "/coffee" },
   { name: "Estate Agency", path: "/estate-agency" },
   { name: "Farming", path: "/farming" },
