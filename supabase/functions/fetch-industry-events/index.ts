@@ -39,6 +39,9 @@ const INDUSTRIES: { slug: string; name: string; hint: string; eventbrite?: strin
   { slug: "teaching", name: "UK schools and education sector", hint: "Bett Show, Schools and Academies Show, TES Awards, Festival of Education, ASCL, King's Trust team and steps-to-success programmes", eventbrite: "education+teaching+schools+UK", meetup: "education+teaching+london" },
   { slug: "travel", name: "UK travel industry", hint: "WTM London, ABTA Travel Convention, Arabian Travel Market, ITB Berlin, Travel Weekly Globe Awards", eventbrite: "travel+tourism+UK", meetup: "travel+london" },
   { slug: "wellness", name: "UK wellness and fitness industry", hint: "ukactive National Summit, Global Wellness Summit, IHRSA, FIBO, ELEVATE, King's Trust health-and-fitness programmes", eventbrite: "wellness+fitness+health+UK", meetup: "wellness+yoga+fitness+london" },
+  { slug: "building", name: "UK construction and building industry", hint: "UK Construction Week, Futurebuild, CIBSE Build2Perform, Ecobuild, CITB apprenticeship events, Bauma, Plantworx, King's Trust construction programmes", eventbrite: "construction+building+UK", meetup: "construction+architecture+london" },
+  { slug: "fixing", name: "UK skilled trades and home services", hint: "Screwfix Live, NICEIC roadshows, Gas Safe events, BESA conference, Installer Show NEC, Electricians Summit, JTL apprenticeship open days, King's Trust trades programmes", eventbrite: "electrician+plumber+trades+UK", meetup: "trades+diy+home+london" },
+  { slug: "delivery", name: "UK delivery and logistics industry", hint: "Logistics UK Summit, IMHX NEC, Last Mile Fulfilment Expo, Multimodal, APC conference, Parcel and Post Expo, Fleet Management Live, King's Trust logistics programmes", eventbrite: "logistics+delivery+supply+chain+UK", meetup: "logistics+supply+chain+london" },
 ];
 
 const SYSTEM_PROMPT = `You are a UK events researcher. Return ONLY real events with URLs you have confirmed exist.
@@ -224,6 +227,27 @@ const SEED_EVENTS: Record<string, Array<{
   ],
   cars: [
     { title: "King's Trust — Engineering Programme", url: "https://www.kingstrust.org.uk/how-we-can-help/explore-all-support", date_label: "Rolling", location: "UK-wide", event_type: "programme", organizer: "King's Trust", description: "Free engineering and automotive career programme helping 16-30 year olds break into the industry." },
+  ],
+  building: [
+    { title: "UK Construction Week", url: "https://www.ukconstructionweek.com", date_label: "Oct 2026", location: "NEC Birmingham, UK", event_type: "exhibition", organizer: "UK Construction Week", description: "The UK's largest construction trade show — 500+ exhibitors, live demos and industry conferences across all building disciplines." },
+    { title: "Futurebuild", url: "https://www.futurebuild.co.uk", date_label: "Mar 2027", location: "ExCeL London, UK", event_type: "exhibition", organizer: "Futurebuild", description: "Leading sustainable construction event covering low-carbon building, retrofit and modern methods of construction." },
+    { title: "Plantworx", url: "https://www.plantworx.co.uk", date_label: "Jun 2027", location: "East of England Arena, Peterborough", event_type: "exhibition", organizer: "CPA", description: "UK's biggest working construction equipment show — live plant demonstrations across a 70-acre site." },
+    { title: "CITB — Apprenticeship Open Days", url: "https://www.citb.co.uk/levy-grants-and-funding/apprenticeships/", date_label: "Rolling", location: "UK-wide", event_type: "programme", organizer: "CITB", description: "The Construction Industry Training Board runs open days and funding events to support new apprentices and employers across all trades." },
+    { title: "King's Trust — Construction Programme", url: "https://www.kingstrust.org.uk/how-we-can-help/explore-all-support", date_label: "Rolling", location: "UK-wide", event_type: "programme", organizer: "King's Trust", description: "Free construction career programme for 16-30 year olds looking to get their first foot in the industry." },
+  ],
+  fixing: [
+    { title: "Installer Show", url: "https://www.installershow.com", date_label: "Jun 2026", location: "NEC Birmingham, UK", event_type: "exhibition", organizer: "Installer Show", description: "UK's leading event for heating, plumbing, renewables and electrical installers — thousands of tradespeople, live demos and CPD sessions." },
+    { title: "Screwfix Live", url: "https://www.screwfix.com/landing/screwfix-live", date_label: "Oct 2026", location: "NEC Birmingham, UK", event_type: "exhibition", organizer: "Screwfix", description: "Annual trade show for electricians, plumbers and builders — product launches, competitions and free CPD training." },
+    { title: "BESA Annual Conference", url: "https://www.thebesa.com/events/", date_label: "Nov 2026", location: "London, UK", event_type: "conference", organizer: "BESA", description: "Building Engineering Services Association annual conference covering heating, ventilation, plumbing and electrical trends." },
+    { title: "JTL — Apprenticeship Open Events", url: "https://www.jtltraining.com", date_label: "Rolling", location: "UK-wide", event_type: "programme", organizer: "JTL", description: "JTL runs open days and information events for young people wanting to start an electrical or plumbing apprenticeship." },
+    { title: "King's Trust — Get into Trades", url: "https://www.kingstrust.org.uk/how-we-can-help/explore-all-support", date_label: "Rolling", location: "UK-wide", event_type: "programme", organizer: "King's Trust", description: "Free trades employability programme for 16-30 year olds looking to start a career as an electrician, plumber or general builder." },
+  ],
+  delivery: [
+    { title: "Logistics UK Annual Conference", url: "https://logistics.org.uk/events", date_label: "Nov 2026", location: "London, UK", event_type: "conference", organizer: "Logistics UK", description: "The UK's premier logistics industry conference — policy, technology and sustainability in transport and last-mile delivery." },
+    { title: "IMHX — International Materials Handling Exhibition", url: "https://www.imhx.net", date_label: "Sep 2026", location: "NEC Birmingham, UK", event_type: "exhibition", organizer: "IMHX", description: "UK's biggest supply chain, warehousing and logistics trade show — intralogistics technology, automation and forklift innovations." },
+    { title: "Multimodal", url: "https://www.multimodal.org.uk", date_label: "Jun 2026", location: "NEC Birmingham, UK", event_type: "exhibition", organizer: "Multimodal", description: "UK's largest freight and logistics event — covering road, rail, sea and air freight with 13,000+ visitors." },
+    { title: "Last Mile Fulfilment Expo", url: "https://lastmile-expo.com", date_label: "Oct 2026", location: "London, UK", event_type: "exhibition", organizer: "Last Mile Expo", description: "Dedicated UK expo for last-mile delivery technology, parcel carriers and e-commerce fulfilment." },
+    { title: "King's Trust — Logistics Programme", url: "https://www.kingstrust.org.uk/how-we-can-help/explore-all-support", date_label: "Rolling", location: "UK-wide", event_type: "programme", organizer: "King's Trust", description: "Free logistics and transport career programme for 16-30 year olds looking to start in delivery, warehousing or supply chain." },
   ],
 };
 
