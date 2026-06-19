@@ -5,6 +5,31 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-19 — Woody (main branch)
+
+### What was done
+- **Added 3 new industries: Building, Fixing, Delivery** — full first-class integration across the entire platform:
+  - **Frontend**: New pages (`Building.tsx`, `Fixing.tsx`, `Delivery.tsx`) each with Watch/Listen/Read/Who/Plan/Attend/Learn/Jobs tabs, full career maps, company profiles (10-12 per industry), curated podcast grids, real article fallbacks, and jobs links to Marketplace
+  - **Routes**: Added lazy imports + Routes in `App.tsx` for `/building`, `/fixing`, `/delivery`
+  - **SeriesGrid**: Added 3 cards with descriptions to the homepage grid (alphabetical order maintained)
+  - **Onboarding**: Added to INDUSTRIES array
+  - **Marketplace**: Added to industries filter chip array
+  - **industryIcons.ts**: Added image imports and INDUSTRY_ICONS entries
+  - **industry-videos.ts**: 4 curated YouTube clips per industry (careers, day-in-life, explainer content)
+  - **Industry images**: Placeholder `.jpg` files created (need replacing with real photography)
+  - **Backend functions deployed**: `industry-registry.ts` (synonyms + job baselines), `generate-daily-briefings`, `fetch-rss-news`, `scrape-articles`, `refresh-all-content`, `send-daily-digest`, `understand-me` — all 6 deployed to Supabase
+  - Companies covered: Balfour Beatty, Kier, Mace, Taylor Wimpey, Vistry, Wates, Willmott Dixon (Building); British Gas, HomeServe, Mitie, Pimlico Plumbers, Octopus Energy (Fixing); DPD, Evri, Royal Mail, Amazon Logistics, Ocado Logistics, DHL, Wincanton (Delivery)
+
+### Pending
+- **Replace placeholder hero images** — series-building.jpg (copy of farming), series-fixing.jpg (copy of cars), series-delivery.jpg (copy of travel) need real photography
+- SXSW voxpop 1-5 need proper titles/descriptions from Woody
+- Short Stories videos broken on Safari (10-bit H.264 issue — video-2316/2317/2318)
+- DNS fix — Add `A @ 216.198.79.1` in 123-reg for bare howdoyoudo.co.uk
+- WhatsApp — needs Twilio keys from partner
+- Adzuna XML feed — awaiting their reply
+
+---
+
 ## 2026-06-16 — Woody (main branch)
 
 ### What was done
