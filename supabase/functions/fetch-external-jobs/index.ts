@@ -2463,21 +2463,20 @@ async function fetchJoobleJobs(industry: string, keywords: string[], apiKey: str
 
 // ── Active Jobs DB (RapidAPI - Fantastic.jobs) ──────────────────────
 // Pulls direct-from-ATS listings (Greenhouse, Workday, Lever, etc.).
-// We rate-limit to one call per industry per refresh and request UK-only
-// results via the `location_filter` parameter.
+// Migrated to v4 (June 2026): endpoint active-ats-7d → active-ats?time_frame=7d,
+// params title_filter → title, location_filter → location,
+// field remote_derived → ai_work_arrangement, locations_derived → locations.
 async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiKey: string) {
   if (!keywords.length) return [];
-  // Active Jobs DB title_filter supports OR with `|`, AND with `&`.
-  // Use top 4 keywords joined with OR for broader recall while keeping
-  // the query short enough to stay well under URL length limits.
   const titleFilter = keywords
     .slice(0, 4)
     .map(k => `"${k}"`)
     .join(" OR ");
   try {
-    const url = new URL("https://active-jobs-db.p.rapidapi.com/active-ats-7d");
-    url.searchParams.set("title_filter", titleFilter);
-    url.searchParams.set("location_filter", '"United Kingdom" OR "UK"');
+    const url = new URL("https://active-jobs-db.p.rapidapi.com/active-ats");
+    url.searchParams.set("title", titleFilter);
+    url.searchParams.set("location", '"United Kingdom" OR "UK"');
+    url.searchParams.set("time_frame", "7d");
     url.searchParams.set("description_type", "text");
     url.searchParams.set("limit", "20");
     url.searchParams.set("offset", "0");
@@ -2503,9 +2502,6 @@ async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiK
       const link = (r.url || r.apply_url || "").trim();
       if (!title || !link) continue;
 
-      // Reject manual-trade roles up front (chefs, drivers, cleaners, etc.)
-      // - Active Jobs DB pulls broadly from ATS systems and we don't want
-      // them polluting business-focused industry feeds.
       if (typeof MANUAL_TRADE_TITLE_REGEX !== "undefined" && MANUAL_TRADE_TITLE_REGEX.test(title)) {
         continue;
       }
@@ -2515,17 +2511,18 @@ async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiK
         .replace(/<[^>]*>/g, "")
         .trim();
 
-      // Location: ActiveJobsDB returns an array of strings or city/region fields.
+      // v4: locations_derived → locations
       let locationStr: string | null = null;
-      if (Array.isArray(r.locations_derived) && r.locations_derived.length > 0) {
-        locationStr = String(r.locations_derived[0]).trim();
+      if (Array.isArray(r.locations) && r.locations.length > 0) {
+        locationStr = String(r.locations[0]).trim();
+      } else if (Array.isArray(r.locations_derived) && r.locations_derived.length > 0) {
+        locationStr = String(r.locations_derived[0]).trim(); // fallback during transition
       } else if (r.location) {
         locationStr = String(r.location).trim();
       } else if (r.cities_derived?.[0]) {
         locationStr = String(r.cities_derived[0]).trim();
       }
 
-      // Hard UK gate - drop anything that obviously isn't UK based.
       if (locationStr && !/united kingdom|england|scotland|wales|northern ireland|\bUK\b|london|manchester|birmingham|leeds|bristol|glasgow|edinburgh|cardiff|belfast|liverpool|newcastle|sheffield|nottingham|brighton/i.test(locationStr)) {
         continue;
       }
@@ -2538,7 +2535,9 @@ async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiK
         : employment.includes("contract") ? "Contract"
         : "Full-time";
 
-      const remoteFlag = r.remote_derived === true || /remote/i.test(employment);
+      // v4: remote_derived → ai_work_arrangement
+      const workArrangement = String(r.ai_work_arrangement || r.remote_derived || "").toLowerCase();
+      const remoteFlag = workArrangement.includes("remote") || r.remote_derived === true || /remote/i.test(employment);
 
       const { stage, roleCategory } = classifyJob(title, desc, industry);
       const postedRaw = r.date_posted ? new Date(r.date_posted) : new Date();
@@ -2569,7 +2568,9 @@ async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiK
 
 // ── LinkedIn Job Search (RapidAPI - Fantastic.jobs) ─────────────────
 // Fills the LinkedIn coverage gap. Same RapidAPI key as Active Jobs DB.
-// One call per industry per refresh, UK-only via location_filter.
+// Migrated to v4 (June 2026): endpoint active-jb-7d → active-jb?time_frame=7d,
+// params title_filter → title, location_filter → location,
+// field remote_derived → ai_work_arrangement, locations_derived → locations.
 async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiKey: string) {
   if (!keywords.length) return [];
   const titleFilter = keywords
@@ -2577,9 +2578,10 @@ async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiK
     .map(k => `"${k}"`)
     .join(" OR ");
   try {
-    const url = new URL("https://linkedin-job-search-api.p.rapidapi.com/active-jb-7d");
-    url.searchParams.set("title_filter", titleFilter);
-    url.searchParams.set("location_filter", '"United Kingdom" OR "UK"');
+    const url = new URL("https://linkedin-job-search-api.p.rapidapi.com/active-jb");
+    url.searchParams.set("title", titleFilter);
+    url.searchParams.set("location", '"United Kingdom" OR "UK"');
+    url.searchParams.set("time_frame", "7d");
     url.searchParams.set("description_type", "text");
     url.searchParams.set("limit", "20");
     url.searchParams.set("offset", "0");
@@ -2605,7 +2607,6 @@ async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiK
       const link = (r.url || r.apply_url || "").trim();
       if (!title || !link) continue;
 
-      // Same manual-trade blocklist applied to ActiveJobsDB.
       if (typeof MANUAL_TRADE_TITLE_REGEX !== "undefined" && MANUAL_TRADE_TITLE_REGEX.test(title)) {
         continue;
       }
@@ -2615,16 +2616,18 @@ async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiK
         .replace(/<[^>]*>/g, "")
         .trim();
 
+      // v4: locations_derived → locations
       let locationStr: string | null = null;
-      if (Array.isArray(r.locations_derived) && r.locations_derived.length > 0) {
-        locationStr = String(r.locations_derived[0]).trim();
+      if (Array.isArray(r.locations) && r.locations.length > 0) {
+        locationStr = String(r.locations[0]).trim();
+      } else if (Array.isArray(r.locations_derived) && r.locations_derived.length > 0) {
+        locationStr = String(r.locations_derived[0]).trim(); // fallback during transition
       } else if (r.location) {
         locationStr = String(r.location).trim();
       } else if (r.cities_derived?.[0]) {
         locationStr = String(r.cities_derived[0]).trim();
       }
 
-      // Hard UK gate.
       if (locationStr && !/united kingdom|england|scotland|wales|northern ireland|\bUK\b|london|manchester|birmingham|leeds|bristol|glasgow|edinburgh|cardiff|belfast|liverpool|newcastle|sheffield|nottingham|brighton/i.test(locationStr)) {
         continue;
       }
@@ -2637,7 +2640,9 @@ async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiK
         : employment.includes("contract") ? "Contract"
         : "Full-time";
 
-      const remoteFlag = r.remote_derived === true || /remote/i.test(employment);
+      // v4: remote_derived → ai_work_arrangement
+      const workArrangement = String(r.ai_work_arrangement || r.remote_derived || "").toLowerCase();
+      const remoteFlag = workArrangement.includes("remote") || r.remote_derived === true || /remote/i.test(employment);
 
       const { stage, roleCategory } = classifyJob(title, desc, industry);
       const postedRaw = r.date_posted ? new Date(r.date_posted) : new Date();
@@ -5449,7 +5454,7 @@ const INDUSTRY_DAY_SCHEDULE: Record<number, string[]> = {
   3: ["health", "wellness", "physiotherapy", "psychotherapy", "pets"],       // Wed
   4: ["money", "estate-agency", "journalism", "teaching", "charity"],       // Thu
   5: ["cinema", "travel", "influencing", "cars", "grocery"],                // Fri
-  6: ["farming", "remote"],                                                 // Sat
+  6: ["farming", "building", "fixing", "delivery", "remote"],              // Sat
 };
 
 function getScheduledIndustries(): string[] {
