@@ -28,6 +28,7 @@ interface AtsTarget {
   // For ats="workday": Workday tenant, version (wd1/wd3 etc), and site name
   wdVersion?: string;
   wdSite?: string;
+  wdSearchText?: string;  // override default "united kingdom" search text
 }
 
 // Curated list - confirmed working endpoints only.
@@ -154,6 +155,12 @@ const TARGETS: AtsTarget[] = [
   { company: "Warner Music Group",    industry: "music",         ats: "workday", token: "wmg",                 wdVersion: "wd1",   wdSite: "WMGUS" },
   { company: "Gensler",               industry: "interiordesign", ats: "workday", token: "gensler",            wdVersion: "wd1",   wdSite: "genslercareers" },
   { company: "Ramsay Health Care UK", industry: "health",        ats: "workday", token: "ramsayhealthcare",    wdVersion: "wd3",   wdSite: "Ramsay_Careers" },
+  { company: "John Lewis Partnership", industry: "fashion",       ats: "workday", token: "jlp",                 wdVersion: "wd3",   wdSite: "JLPjobs_careers" },
+  { company: "Medivet",                industry: "pets",          ats: "workday", token: "medivet",              wdVersion: "wd3",   wdSite: "MedivetCareers" },
+  { company: "Live Nation",            industry: "music",         ats: "workday", token: "livenation",           wdVersion: "wd503", wdSite: "LNExternalSite" },
+  { company: "Smith+Nephew",           industry: "health",        ats: "workday", token: "smithnephew",          wdVersion: "wd5",   wdSite: "External" },
+  { company: "Reuters",                industry: "journalism",    ats: "workday", token: "thomsonreuters",       wdVersion: "wd5",   wdSite: "External_Career_Site" },
+  { company: "Expedia",                industry: "travel",        ats: "workday", token: "expedia",              wdVersion: "wd108", wdSite: "search",             wdSearchText: "UK" },
 ];
 
 
@@ -841,7 +848,7 @@ async function fetchWorkday(t: AtsTarget): Promise<RawJob[]> {
         appliedFacets: {},
         limit: pageSize,
         offset,
-        searchText: t.globalRemote ? "" : "united kingdom",
+        searchText: t.globalRemote ? "" : (t.wdSearchText ?? "united kingdom"),
       }),
     });
     if (!res.ok) {
