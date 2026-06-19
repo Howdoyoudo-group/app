@@ -380,6 +380,36 @@ const BOARDS: BoardSource[] = [
     tags: ['Film & TV', 'Creative'],
     ukOnly: true,
   },
+
+  // ===== Building / Construction =====
+  { key: 'balfour-beatty-careers', url: 'https://www.balfourbeatty.com/careers/search-jobs/', industry: 'building', fallbackCompany: 'Balfour Beatty', jobUrlPattern: /balfourbeatty\.com\/.*(job|career|vacanc)/i, tags: ['Building', 'Construction'], ukOnly: false },
+  { key: 'kier-careers', url: 'https://www.kier.co.uk/careers/search-jobs/', industry: 'building', fallbackCompany: 'Kier Group', jobUrlPattern: /kier\.co\.uk\/.*(job|career|vacanc)/i, tags: ['Building', 'Construction'], ukOnly: true },
+  { key: 'mace-careers', url: 'https://www.macegroup.com/careers/current-vacancies', industry: 'building', fallbackCompany: 'Mace', jobUrlPattern: /macegroup\.com\/.*(job|career|vacanc)/i, tags: ['Building', 'Construction'], ukOnly: false },
+  { key: 'morgan-sindall-careers', url: 'https://www.morgansindall.com/careers/current-vacancies', industry: 'building', fallbackCompany: 'Morgan Sindall', jobUrlPattern: /morgansindall\.com\/.*(job|career|vacanc)/i, tags: ['Building', 'Construction'], ukOnly: true },
+  { key: 'persimmon-careers', url: 'https://www.persimmonhomes.com/corporate/careers/current-vacancies', industry: 'building', fallbackCompany: 'Persimmon', jobUrlPattern: /persimmonhomes\.com\/.*(job|career|vacanc)/i, tags: ['Building', 'Housebuilding'], ukOnly: true },
+  { key: 'taylor-wimpey-careers', url: 'https://www.taylorwimpey.co.uk/careers/search-for-a-role', industry: 'building', fallbackCompany: 'Taylor Wimpey', jobUrlPattern: /taylorwimpey\.co\.uk\/.*(job|career|role|vacanc)/i, tags: ['Building', 'Housebuilding'], ukOnly: true },
+  { key: 'willmott-dixon-careers', url: 'https://www.willmottdixon.co.uk/careers/current-vacancies', industry: 'building', fallbackCompany: 'Willmott Dixon', jobUrlPattern: /willmottdixon\.co\.uk\/.*(job|career|vacanc)/i, tags: ['Building', 'Construction'], ukOnly: true },
+  { key: 'wates-careers', url: 'https://www.wates.co.uk/careers/current-vacancies', industry: 'building', fallbackCompany: 'Wates Group', jobUrlPattern: /wates\.co\.uk\/.*(job|career|vacanc)/i, tags: ['Building', 'Construction'], ukOnly: true },
+  { key: 'laing-orourke-careers', url: 'https://www.laingorourke.com/careers/current-vacancies/', industry: 'building', fallbackCompany: "Laing O'Rourke", jobUrlPattern: /laingorourke\.com\/.*(job|career|vacanc)/i, tags: ['Building', 'Construction'], ukOnly: false },
+  { key: 'vistry-careers', url: 'https://www.vistrygroup.co.uk/careers/search', industry: 'building', fallbackCompany: 'Vistry Group', jobUrlPattern: /vistrygroup\.co\.uk\/.*(job|career|vacanc)/i, tags: ['Building', 'Housebuilding'], ukOnly: true },
+  { key: 'galliford-try-careers', url: 'https://www.gallifordtry.co.uk/careers/vacancies/', industry: 'building', fallbackCompany: 'Galliford Try', jobUrlPattern: /gallifordtry\.co\.uk\/.*(job|career|vacanc)/i, tags: ['Building', 'Construction'], ukOnly: true },
+
+  // ===== Fixing / Trades =====
+  { key: 'centrica-careers', url: 'https://www.centrica.com/people-careers/search-jobs/', industry: 'fixing', fallbackCompany: 'British Gas (Centrica)', jobUrlPattern: /centrica\.com\/.*(job|career|vacanc)/i, tags: ['Fixing', 'Trades'], ukOnly: false },
+  { key: 'homeserve-careers', url: 'https://homeserve.com/uk/careers-hub', industry: 'fixing', fallbackCompany: 'HomeServe', jobUrlPattern: /homeserve\.com\/.*(job|career|vacanc)/i, tags: ['Fixing', 'Trades'], ukOnly: false },
+  { key: 'mitie-careers', url: 'https://www.mitie.com/careers/our-vacancies/', industry: 'fixing', fallbackCompany: 'Mitie', jobUrlPattern: /mitie\.com\/.*(job|career|vacanc)/i, tags: ['Fixing', 'FM'], ukOnly: false },
+  { key: 'currys-careers', url: 'https://www.currys.co.uk/careers', industry: 'fixing', fallbackCompany: 'Currys (Geek Squad)', jobUrlPattern: /currys\.co\.uk\/.*(job|career|vacanc)/i, tags: ['Fixing', 'Tech Repair'], ukOnly: true },
+  { key: 'ismash-careers', url: 'https://www.ismash.co.uk/careers', industry: 'fixing', fallbackCompany: 'iSmash', jobUrlPattern: /ismash\.co\.uk\/.*(job|career|vacanc)/i, tags: ['Fixing', 'Tech Repair'], ukOnly: true },
+  { key: 'pimlico-plumbers-careers', url: 'https://www.pimlicoplumbers.com/careers', industry: 'fixing', fallbackCompany: 'Pimlico Plumbers', jobUrlPattern: /pimlicoplumbers\.com\/.*(job|career|vacanc)/i, tags: ['Fixing', 'Plumbing'], ukOnly: true },
+
+  // ===== Delivery / Logistics =====
+  { key: 'dpd-careers', url: 'https://jobs.dpd.co.uk', industry: 'delivery', fallbackCompany: 'DPD', jobUrlPattern: /jobs\.dpd\.co\.uk\/.*(job|vacanc|role)/i, tags: ['Delivery', 'Logistics'], ukOnly: true },
+  { key: 'evri-careers', url: 'https://www.evri.com/about/careers', industry: 'delivery', fallbackCompany: 'Evri', jobUrlPattern: /evri\.com\/.*(job|career|vacanc)/i, tags: ['Delivery', 'Courier'], ukOnly: true },
+  { key: 'yodel-careers', url: 'https://jobs.yodel.co.uk', industry: 'delivery', fallbackCompany: 'Yodel', jobUrlPattern: /jobs\.yodel\.co\.uk\/.*(job|vacanc|role)/i, tags: ['Delivery', 'Courier'], ukOnly: true },
+  { key: 'royal-mail-careers', url: 'https://jobs.royalmail.com', industry: 'delivery', fallbackCompany: 'Royal Mail', jobUrlPattern: /royalmail\.com\/.*(job|career|vacanc)/i, tags: ['Delivery', 'Postal'], ukOnly: true },
+  { key: 'wincanton-careers', url: 'https://www.wincanton.co.uk/careers/vacancies/', industry: 'delivery', fallbackCompany: 'Wincanton', jobUrlPattern: /wincanton\.co\.uk\/.*(job|career|vacanc)/i, tags: ['Delivery', 'Logistics'], ukOnly: true },
+  { key: 'dhl-supply-chain-careers', url: 'https://careers.dhl.com/gb/en/jobs', industry: 'delivery', fallbackCompany: 'DHL Supply Chain', jobUrlPattern: /careers\.dhl\.com\/.*(job|role|vacanc)/i, tags: ['Delivery', 'Logistics'], ukOnly: false },
+  { key: 'xpo-logistics-careers', url: 'https://jobs.xpo.com/gb/en', industry: 'delivery', fallbackCompany: 'XPO Logistics', jobUrlPattern: /jobs\.xpo\.com\/.*(job|career|vacanc)/i, tags: ['Delivery', 'Logistics'], ukOnly: false },
 ];
 
 interface ExtractedJob {
