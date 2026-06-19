@@ -36,6 +36,9 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   "horse-racing": "UK horse racing, racecourses, Jockey Club, Arena Racing, BHA, bloodstock, breeding, racing broadcast (Racing TV, ITV Racing), betting industry",
   "formula-1": "Formula 1 business, F1 teams, motorsport industry, F1 sponsorship, Liberty Media, FIA regulations, F1 technology, Motorsport Valley UK",
   influencing: "creator economy, influencer marketing, social media business, brand partnerships, talent management, content creation industry",
+  building: "UK construction industry, housebuilding, civil engineering, infrastructure, planning policy, architects, property developers, Balfour Beatty, Kier, Taylor Wimpey, Persimmon",
+  fixing: "trades industry, electricians, plumbers, gas engineers, HVAC, building maintenance, heat pumps, boilers, apprenticeships, skills shortage in trades",
+  delivery: "last-mile delivery, courier industry, logistics, Royal Mail, DPD, Evri, Amazon Logistics, e-commerce fulfilment, HGV drivers, parcel delivery",
 };
 
 const VALID_INDUSTRIES = Object.keys(INDUSTRY_CONTEXT);

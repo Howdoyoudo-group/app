@@ -709,7 +709,7 @@ const featuredEmployers = [
   { name: "Birkenstock", industry: "Footwear" },
 ];
 
-const industries = ["All", "Bakery", "Beauty", "Beer", "Cars", "Charity", "Coffee", "Estate Agency", "Farming", "Fashion", "Film and TV", "Food & Drink", "Football", "Footwear", "Formula 1", "Gaming", "Grocery", "Health", "Horse Racing", "Influencing", "Interior Design", "Jewellery", "Journalism", "Money", "Music", "Pets", "Physiotherapy", "Psychotherapy", "Teaching", "Travel", "Wellness"];
+const industries = ["All", "Bakery", "Beauty", "Beer", "Building", "Cars", "Charity", "Coffee", "Delivery", "Estate Agency", "Farming", "Fashion", "Film and TV", "Fixing", "Food & Drink", "Football", "Footwear", "Formula 1", "Gaming", "Grocery", "Health", "Horse Racing", "Influencing", "Interior Design", "Jewellery", "Journalism", "Money", "Music", "Pets", "Physiotherapy", "Psychotherapy", "Teaching", "Travel", "Wellness"];
 const locations = ["All", "London", "Manchester", "Remote", "Leicester", "Hatfield", "Loughborough"];
 const jobTypes = ["All", "Full-time", "Part-time", "Temporary", "Internship / Graduate", "Freelance"];
 const workModes = ["All", "Remote", "Hybrid", "On-site"];

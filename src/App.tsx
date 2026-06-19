@@ -74,6 +74,9 @@ const Money = lazy(() => import("./pages/Money.tsx"));
 const Health = lazy(() => import("./pages/Health.tsx"));
 const HorseRacing = lazy(() => import("./pages/HorseRacing.tsx"));
 const Formula1 = lazy(() => import("./pages/Formula1.tsx"));
+const Building = lazy(() => import("./pages/Building.tsx"));
+const Fixing = lazy(() => import("./pages/Fixing.tsx"));
+const Delivery = lazy(() => import("./pages/Delivery.tsx"));
 const Marketplace = lazy(() => import("./pages/Marketplace.tsx"));
 const CVBuilderPage = lazy(() => import("./pages/CVBuilderPage.tsx"));
 const MatchMe = lazy(() => import("./pages/MatchMe.tsx"));
@@ -293,6 +296,9 @@ const App = () => (
           <Route path="/health" element={<Health />} />
           <Route path="/horse-racing" element={<HorseRacing />} />
           <Route path="/formula-1" element={<Formula1 />} />
+          <Route path="/building" element={<Building />} />
+          <Route path="/fixing" element={<Fixing />} />
+          <Route path="/delivery" element={<Delivery />} />
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/cv-builder" element={<CVBuilderPage />} />
           <Route path="/match-me" element={<MatchMe />} />

@@ -34,6 +34,9 @@ const INDUSTRY_NAMES: Record<string, string> = {
   money: "Money",
   health: "Health",
   "horse-racing": "Horse Racing",
+  building: "Building",
+  fixing: "Fixing",
+  delivery: "Delivery",
 };
 
 const INDUSTRY_CONTEXT: Record<string, string> = {
@@ -65,6 +68,9 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   money: "UK banking, fintech, financial services, wealth management, retail banking, payments, financial regulation, FCA",
   health: "UK healthcare, NHS, hospitals, GPs, private healthcare providers, medtech, healthcare workforce, pharmaceuticals business",
   "horse-racing": "UK horse racing, racecourses, Jockey Club, Arena Racing, BHA, bloodstock, breeding, racing broadcast, betting industry",
+  building: "UK construction industry, housebuilding, civil engineering, infrastructure, planning, architects, developers, Balfour Beatty, Kier, Taylor Wimpey, Persimmon, Vistry, planning policy, NHBC",
+  fixing: "trades industry, electricians, plumbers, gas engineers, HVAC, building maintenance, facilities management, heat pumps, boilers, skills shortage, apprenticeships",
+  delivery: "last-mile delivery, courier industry, logistics, Royal Mail, DPD, Evri, Ocado, Amazon Logistics, e-commerce logistics, driver shortage, HGV, parcel volumes",
 };
 
 interface NewsItem {

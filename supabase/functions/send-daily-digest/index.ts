@@ -59,6 +59,9 @@ const INDUSTRY_NAMES: Record<string, string> = {
   travel: "Travel",
   cars: "Cars",
   beauty: "Beauty",
+  building: "Building",
+  fixing: "Fixing",
+  delivery: "Delivery",
 };
 
 const INDUSTRY_CONTEXT: Record<string, string> = {
@@ -87,6 +90,9 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   travel: "travel industry, tourism, airlines, hotels, travel agencies, aviation",
   cars: "automotive industry, car manufacturers, electric vehicles, car dealers, motoring",
   beauty: "beauty industry, cosmetics, skincare, beauty retail, makeup brands",
+  building: "UK construction industry, housebuilding, civil engineering, infrastructure, planning, architects, developers",
+  fixing: "trades industry, electricians, plumbers, gas engineers, HVAC, building maintenance, heat pumps, skills shortage",
+  delivery: "last-mile delivery, courier industry, logistics, Royal Mail, DPD, Evri, Amazon Logistics, HGV drivers",
 };
 
 const ASSET_BASE = "https://siqwclmzncubkrwabmvb.supabase.co/storage/v1/object/public/email-assets";

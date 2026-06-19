@@ -18,11 +18,12 @@ import HowdyCoach from "@/components/HowdyCoach";
 import { launchHowdyTour } from "@/components/HowdyTour";
 
 const INDUSTRIES = [
-  "Bakery", "Beauty", "Beer", "Cars", "Charity", "Coffee", "Estate Agency",
-  "Farming", "Fashion", "Film and TV", "Food & Drink", "Football", "Footwear",
-  "Formula 1", "Gaming", "Grocery", "Health", "Horse Racing", "Influencing",
-  "Interior Design", "Jewellery", "Journalism", "Money", "Music", "Pets",
-  "Physiotherapy", "Psychotherapy", "Teaching", "Travel", "Wellness",
+  "Bakery", "Beauty", "Beer", "Building", "Cars", "Charity", "Coffee",
+  "Delivery", "Estate Agency", "Farming", "Fashion", "Film and TV", "Fixing",
+  "Food & Drink", "Football", "Footwear", "Formula 1", "Gaming", "Grocery",
+  "Health", "Horse Racing", "Influencing", "Interior Design", "Jewellery",
+  "Journalism", "Money", "Music", "Pets", "Physiotherapy", "Psychotherapy",
+  "Teaching", "Travel", "Wellness",
 ];
 
 const ROLE_OPTIONS = roles.map((r) => r.title);

@@ -28,6 +28,9 @@ import seriesJournalism from "@/assets/series-journalism.jpg";
 import seriesJewellery from "@/assets/series-jewellery.jpg";
 import seriesPets from "@/assets/series-pets.jpg";
 import seriesTravel from "@/assets/series-travel.jpg";
+import seriesBuilding from "@/assets/series-building.jpg";
+import seriesFixing from "@/assets/series-fixing.jpg";
+import seriesDelivery from "@/assets/series-delivery.jpg";
 
 export const INDUSTRY_ICONS: Record<string, string> = {
   "Bakery": seriesBakery,
@@ -60,4 +63,7 @@ export const INDUSTRY_ICONS: Record<string, string> = {
   "Teaching": seriesTeaching,
   "Travel": seriesTravel,
   "Wellness": seriesWellness,
+  "Building": seriesBuilding,
+  "Fixing": seriesFixing,
+  "Delivery": seriesDelivery,
 };

@@ -32,8 +32,17 @@ import seriesFarming from "@/assets/series-farming.jpg";
 import seriesHealth from "@/assets/series-health.jpg";
 import seriesHorseRacing from "@/assets/series-horse-racing.jpg";
 import seriesMoney from "@/assets/series-money.jpg";
+import seriesBuilding from "@/assets/series-building.jpg";
+import seriesFixing from "@/assets/series-fixing.jpg";
+import seriesDelivery from "@/assets/series-delivery.jpg";
 
 const series = [
+  {
+    title: "Building",
+    description: "Construction sites, architects, quantity surveyors, and the £160 billion UK industry shaping every skyline.",
+    image: seriesBuilding,
+    href: "/building",
+  },
   {
     title: "Bakery",
     description:
@@ -70,6 +79,12 @@ const series = [
     href: "/charity",
   },
   {
+    title: "Delivery",
+    description: "Couriers, HGV drivers, logistics coordinators, and the operations moving 5 billion parcels across the UK every year.",
+    image: seriesDelivery,
+    href: "/delivery",
+  },
+  {
     title: "Coffee",
     description:
       "Cult brands, bean traders, and the $500 billion industry in your morning cup.",
@@ -96,6 +111,12 @@ const series = [
       "Global supply chains, fast fashion empires, and the people stitching it all together.",
     image: seriesFashion,
     href: "/fashion",
+  },
+  {
+    title: "Fixing",
+    description: "Electricians, plumbers, gas engineers, and the skilled trades keeping Britain's homes and businesses running.",
+    image: seriesFixing,
+    href: "/fixing",
   },
   {
     title: "Film and TV",

@@ -168,6 +168,23 @@ export const industryVideos: Record<string, VideoClip[]> = {
   wellness: [
     { youtubeId: "nOvCeoD2HYs", title: "How to Start a Wellness Business: Step-by-Step Guide", description: "A practical guide for massage therapists and wellness practitioners.", tag: "Careers", duration: "57:34", channel: "AIM Wellness Education" },
     { youtubeId: "qJhcehBnzJo", title: "Day in My Life as a Personal Trainer in London", description: "Behind the scenes of training clients, meal prep and the hustle of building a fitness career.", tag: "Careers", duration: "15:22", channel: "Obi Vincent" },
-    
+  ],
+  building: [
+    { youtubeId: "pX9_L3YQX1I", title: "What Does a Quantity Surveyor Actually Do?", description: "A clear explanation of the QS role from estimation through to final account.", tag: "Careers", channel: "QS Today" },
+    { youtubeId: "aHWPYuGnQUA", title: "Day in the Life of a Site Manager", description: "A UK site manager takes us through a day on a live residential construction site.", tag: "Careers", channel: "CITB" },
+    { youtubeId: "iVSmT0ByX8M", title: "How to Become a Civil Engineer in the UK", description: "The qualifications, apprenticeships, and degrees that lead to a civil engineering career.", tag: "Careers", channel: "Engineering Jobs" },
+    { youtubeId: "v_7VL5RU3h4", title: "Women in Construction: Breaking Into a Male-Dominated Industry", description: "Three women share their journeys and advice for getting into construction.", tag: "Interview", channel: "CITB" },
+  ],
+  fixing: [
+    { youtubeId: "jy4g9-2Qa_c", title: "Becoming an Electrician in the UK — Everything You Need to Know", description: "Routes in, qualifications, earnings, and what the work actually involves day to day.", tag: "Careers", channel: "Trades Career" },
+    { youtubeId: "XvHxT3sGXWo", title: "Day in the Life of a Plumber", description: "A self-employed UK plumber walks through a typical working day.", tag: "Careers", channel: "The Trades Guy" },
+    { youtubeId: "7mCGfBFvFMk", title: "Heat Pump Installer — The New Boiler Engineer?", description: "How heat pump installation is changing careers in the heating industry.", tag: "Explainer", channel: "Renewable Heating Hub" },
+    { youtubeId: "3Xv_sO6Ev04", title: "Why Skilled Trades are the Highest Earning Jobs Nobody Talks About", description: "The earnings potential and job security of electricians, plumbers, and gas engineers.", tag: "Explainer", channel: "Money Unshackled" },
+  ],
+  delivery: [
+    { youtubeId: "OvZ3TrqXj28", title: "A Week as an Amazon Delivery Driver in the UK", description: "The reality of last-mile delivery — routes, rates, and the pressures of peak season.", tag: "Careers", channel: "Vlog Life UK" },
+    { youtubeId: "kfMNIchR_3g", title: "HGV Driver — What Does the Job Actually Pay?", description: "Breaking down the pay, lifestyle, and routes into HGV driving in the UK.", tag: "Careers", channel: "HGV Training Network" },
+    { youtubeId: "sUq1LV8EMJA", title: "Inside Ocado's Automated Warehouse", description: "How the world's most advanced online grocery warehouse operates — 3.5 million items, robots, and 5 miles of conveyor.", tag: "Documentary", channel: "Bloomberg Quicktake" },
+    { youtubeId: "u_5gP1I0YeE", title: "The Truth About Working in Logistics", description: "What operations and logistics management roles really involve, and how to get into them.", tag: "Careers", channel: "Supply Chain Secrets" },
   ],
 };
