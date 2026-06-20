@@ -2574,17 +2574,23 @@ async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiK
 async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiKey: string) {
   if (!keywords.length) return [];
   const titleFilter = keywords
-    .slice(0, 4)
+    .slice(0, 6)
     .map(k => `"${k}"`)
     .join(" OR ");
+
+  const PAGE_SIZE = 100;
+  const MAX_PAGES = 3;
+  const allJobs: any[] = [];
+
   try {
+    for (let page = 0; page < MAX_PAGES; page++) {
     const url = new URL("https://linkedin-job-search-api.p.rapidapi.com/active-jb");
     url.searchParams.set("title", titleFilter);
     url.searchParams.set("location", '"United Kingdom" OR "UK"');
     url.searchParams.set("time_frame", "7d");
     url.searchParams.set("description_type", "text");
-    url.searchParams.set("limit", "20");
-    url.searchParams.set("offset", "0");
+      url.searchParams.set("limit", String(PAGE_SIZE));
+      url.searchParams.set("offset", String(page * PAGE_SIZE));
 
     const res = await fetch(url.toString(), {
       method: "GET",
@@ -2595,13 +2601,13 @@ async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiK
     });
     if (!res.ok) {
       console.error(`LinkedIn error for "${industry}": ${res.status}`);
-      return [];
+        break;
     }
     const data = await res.json();
     const results = Array.isArray(data) ? data : Array.isArray(data?.jobs) ? data.jobs : [];
-    console.log(`[${industry}] LinkedIn: ${results.length} raw items`);
+    console.log(`[${industry}] LinkedIn page ${page + 1}: ${results.length} raw items`);
+    if (results.length === 0) break;
 
-    const allJobs: any[] = [];
     for (const r of results) {
       const title = (r.title || "").trim();
       const link = (r.url || r.apply_url || "").trim();
@@ -2664,6 +2670,12 @@ async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiK
         expires_at: expiresAt,
       });
     }
+
+    // Stop early if we got fewer results than a full page
+    if (results.length < PAGE_SIZE) break;
+    } // end page loop
+
+    console.log(`[${industry}] LinkedIn total: ${allJobs.length} jobs across pages`);
     return allJobs;
   } catch (err) {
     console.error(`LinkedIn fetch error for "${industry}":`, err);
