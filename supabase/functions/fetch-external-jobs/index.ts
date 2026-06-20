@@ -5293,25 +5293,24 @@ async function fetchAshbyJobs(tenant: AshbyTenant) {
   return allJobs;
 }
 
-// JSearch quota math (RapidAPI Pro = 10k requests/month):
+// JSearch quota math (RapidAPI = 10k requests/month):
 //   Each `num_pages` value counts as N billable requests (1 page = 1 request,
-//   10 pages = 10 requests). So total daily cost is roughly:
-//     keywords_per_industry × pages_per_call × industries_covered
+//   5 pages = 5 requests). Budget: 10,000 / 60 runs = ~166 requests/run.
 //
-// Defaults below: 3 kw × 5 pages × ~15 industries reached before the soft cap
-//   = ~225 requests/day = ~6,750/month (~67% of 10k quota). Safe headroom for
-//   ad-hoc refetches via the industry health monitor.
+// Defaults: 5 kw × 5 pages = 25 per industry → cap of 150/run covers ~6 industries/run.
+//   Rotates across all 35 industries over ~6 runs = every 3 days each industry gets hit.
+//   150 × 60 runs = 9,000/month — safe headroom under 10k hard limit.
 //
 // All three knobs are tunable at runtime via env vars without a redeploy:
-//   JSEARCH_KEYWORDS_PER_INDUSTRY (default 3)
+//   JSEARCH_KEYWORDS_PER_INDUSTRY (default 5)
 //   JSEARCH_PAGES                 (default 5)
-//   JSEARCH_MAX_CALLS_PER_RUN     (default 250)
+//   JSEARCH_MAX_CALLS_PER_RUN     (default 150)
 // Kill switch: JSEARCH_ENABLED=false
 const UK_LOCATION_RE_JSEARCH = /united kingdom|england|scotland|wales|northern ireland|\bUK\b|london|manchester|birmingham|leeds|bristol|glasgow|edinburgh|cardiff|belfast|liverpool|newcastle|sheffield|nottingham|brighton/i;
 
 let jsearchCallsThisRun = 0;
-const JSEARCH_MAX_CALLS_PER_RUN = Math.max(1, Number(Deno.env.get("JSEARCH_MAX_CALLS_PER_RUN") ?? "500"));
-const JSEARCH_KEYWORDS_PER_INDUSTRY = Math.max(1, Number(Deno.env.get("JSEARCH_KEYWORDS_PER_INDUSTRY") ?? "6"));
+const JSEARCH_MAX_CALLS_PER_RUN = Math.max(1, Number(Deno.env.get("JSEARCH_MAX_CALLS_PER_RUN") ?? "150"));
+const JSEARCH_KEYWORDS_PER_INDUSTRY = Math.max(1, Number(Deno.env.get("JSEARCH_KEYWORDS_PER_INDUSTRY") ?? "5"));
 const JSEARCH_PAGES = Math.max(1, Math.min(20, Number(Deno.env.get("JSEARCH_PAGES") ?? "5")));
 
 async function fetchJSearchJobs(industry: string, keywords: string[], rapidApiKey: string) {
