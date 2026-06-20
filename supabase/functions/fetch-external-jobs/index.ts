@@ -2463,9 +2463,8 @@ async function fetchJoobleJobs(industry: string, keywords: string[], apiKey: str
 
 // ── Active Jobs DB (RapidAPI - Fantastic.jobs) ──────────────────────
 // Pulls direct-from-ATS listings (Greenhouse, Workday, Lever, etc.).
-// Migrated to v4 (June 2026): endpoint active-ats-7d → active-ats?time_frame=7d,
-// params title_filter → title, location_filter → location,
-// field remote_derived → ai_work_arrangement, locations_derived → locations.
+// Active Jobs DB: /active-ats endpoint does not exist (404). Use /active-ats-7d.
+// Location param is ignored server-side; UK filtering done client-side.
 async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiKey: string) {
   if (!keywords.length) return [];
   const titleFilter = keywords
@@ -2473,10 +2472,9 @@ async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiK
     .map(k => `"${k}"`)
     .join(" OR ");
   try {
-    const url = new URL("https://active-jobs-db.p.rapidapi.com/active-ats");
-    url.searchParams.set("title", titleFilter);
-    url.searchParams.set("location", '"United Kingdom" OR "UK"');
-    url.searchParams.set("time_frame", "7d");
+    const url = new URL("https://active-jobs-db.p.rapidapi.com/active-ats-7d");
+    url.searchParams.set("title_filter", titleFilter);
+    url.searchParams.set("location_filter", "United Kingdom");
     url.searchParams.set("description_type", "text");
     url.searchParams.set("limit", "20");
     url.searchParams.set("offset", "0");
@@ -2584,10 +2582,9 @@ async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiK
 
   try {
     for (let page = 0; page < MAX_PAGES; page++) {
-    const url = new URL("https://linkedin-job-search-api.p.rapidapi.com/active-jb");
+    const url = new URL("https://linkedin-job-search-api.p.rapidapi.com/active-jb-7d");
     url.searchParams.set("title", titleFilter);
     url.searchParams.set("location", '"United Kingdom" OR "UK"');
-    url.searchParams.set("time_frame", "7d");
     url.searchParams.set("description_type", "text");
       url.searchParams.set("limit", String(PAGE_SIZE));
       url.searchParams.set("offset", String(page * PAGE_SIZE));
