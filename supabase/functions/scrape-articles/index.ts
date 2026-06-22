@@ -266,7 +266,7 @@ Return real, verifiable articles. For each, give the EXACT real headline as publ
         'Authorization': `Bearer ${supabaseKey}`,
         'apikey': supabaseKey,
         'Content-Type': 'application/json',
-        'Prefer': 'resolution=merge-duplicates',
+        'Prefer': 'resolution=ignore-duplicates',
       },
       body: JSON.stringify(liveArticles),
     });

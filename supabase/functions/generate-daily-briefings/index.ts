@@ -263,61 +263,33 @@ async function fetchRecentBriefings(supabase: any, industry: string): Promise<Re
 }
 
 async function fetchContent(supabase: any, industry: string, recentLinks: SourceLink[] = []) {
-  // Primary window: last 48 hours. Only fall back to 7 days if the 48h pool
-  // yields fewer than 3 items total - this stops stale headlines (like
-  // "London commissions") from resurfacing week after week.
-  // We filter on BOTH fetched_at/scraped_at AND published_at so that a freshly
-  // re-crawled but year-old article cannot leak into "today's briefing".
-  const cutoff48h = daysAgoIso(2);
-  const cutoff7d = daysAgoIso(7);
-  const publishedCutoff = daysAgoIso(14); // article publish date must be within 2 weeks
+  // Filter by published_at only — NOT by fetched_at/scraped_at.
+  // Both fetch-rss-news and scrape-articles use merge-duplicates which refreshes
+  // fetched_at/scraped_at on every run, making old articles look perpetually fresh.
+  // published_at is the correct signal for content freshness.
+  // filterRecentlyCovered (21-day lookback) handles de-duplication against prior briefings.
+  const publishedCutoff = daysAgoIso(21); // match the filterRecentlyCovered lookback window
 
-  const [newsRes48, articlesRes48] = await Promise.all([
+  const [newsRes, articlesRes] = await Promise.all([
     supabase
       .from("breaking_news")
       .select("title, source, url, published_at")
       .eq("industry", industry)
-      .gte("fetched_at", cutoff48h)
       .gte("published_at", publishedCutoff)
       .order("published_at", { ascending: false })
-      .limit(40),
+      .limit(60),
     supabase
       .from("articles")
       .select("title, source, url, published_at")
       .eq("industry", industry)
-      .gte("scraped_at", cutoff48h)
       .gte("published_at", publishedCutoff)
       .order("published_at", { ascending: false })
-      .limit(40),
+      .limit(60),
   ]);
 
-  console.log(`[fetchContent:${industry}] newsRes48.data=${JSON.stringify(newsRes48.data?.slice(0,2))}, error=${JSON.stringify(newsRes48.error)}, cutoff48h=${cutoff48h}, publishedCutoff=${publishedCutoff}`);
-  let rawNews = (newsRes48.data ?? []) as NewsItem[];
-  let rawArticles = (articlesRes48.data ?? []) as NewsItem[];
-
-  // If the 48h window is too thin, widen to 7 days but clearly mark older items
-  if (rawNews.length + rawArticles.length < 3) {
-    const [newsRes7d, articlesRes7d] = await Promise.all([
-      supabase
-        .from("breaking_news")
-        .select("title, source, url, published_at")
-        .eq("industry", industry)
-        .gte("fetched_at", cutoff7d)
-        .gte("published_at", publishedCutoff)
-        .order("published_at", { ascending: false })
-        .limit(40),
-      supabase
-        .from("articles")
-        .select("title, source, url, published_at")
-        .eq("industry", industry)
-        .gte("scraped_at", cutoff7d)
-        .gte("published_at", publishedCutoff)
-        .order("published_at", { ascending: false })
-        .limit(40),
-    ]);
-    rawNews = (newsRes7d.data ?? []) as NewsItem[];
-    rawArticles = (articlesRes7d.data ?? []) as NewsItem[];
-  }
+  console.log(`[fetchContent:${industry}] news=${newsRes.data?.length ?? 0}, articles=${articlesRes.data?.length ?? 0}, publishedCutoff=${publishedCutoff}`);
+  const rawNews = (newsRes.data ?? []) as NewsItem[];
+  const rawArticles = (articlesRes.data ?? []) as NewsItem[];
 
   const news = filterRecentlyCovered(filterBriefingCandidates(dedupeByTitle(rawNews), industry), recentLinks).slice(0, 12);
   const articles = filterRecentlyCovered(filterBriefingCandidates(dedupeByTitle(rawArticles), industry), recentLinks).slice(0, 18);
