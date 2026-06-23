@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
   // Reed listing period is 30 days — anything older is expired by design.
   let staleReedDeleted = 0;
   if (!dryRun) {
-    const staleCutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+    const staleCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
     const { error: staleErr, count } = await supabase
       .from("jobs")
       .delete({ count: "exact" })
