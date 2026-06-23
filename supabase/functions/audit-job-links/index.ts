@@ -129,19 +129,33 @@ Deno.serve(async (req) => {
   const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
   let dryRun = false;
-  let limit = 250; // per invocation - keeps under Edge Function timeout
+  let limit = 1000; // per invocation - 4x increase to clear backlog faster
   try {
     if (req.method === "POST") {
       const body = await req.json().catch(() => ({}));
       dryRun = body?.dryRun === true;
-      if (typeof body?.limit === "number") limit = Math.min(1000, Math.max(1, body.limit));
+      if (typeof body?.limit === "number") limit = Math.min(2000, Math.max(1, body.limit));
     } else {
       const u = new URL(req.url);
       dryRun = u.searchParams.get("dryRun") === "1";
       const ql = u.searchParams.get("limit");
-      if (ql) limit = Math.min(1000, Math.max(1, parseInt(ql, 10)));
+      if (ql) limit = Math.min(2000, Math.max(1, parseInt(ql, 10)));
     }
   } catch (_) {}
+
+  // Pre-pass: auto-delete Reed jobs older than 60 days.
+  // Reed listing period is 30 days — anything older is expired by design.
+  let staleReedDeleted = 0;
+  if (!dryRun) {
+    const staleCutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString();
+    const { error: staleErr, count } = await supabase
+      .from("jobs")
+      .delete({ count: "exact" })
+      .ilike("source_url", "%reed.co.uk%")
+      .lt("scraped_at", staleCutoff);
+    if (!staleErr && count) staleReedDeleted = count;
+    if (staleReedDeleted > 0) console.log(`Pre-pass: deleted ${staleReedDeleted} stale Reed jobs (>60 days old)`);
+  }
 
   // Fetch oldest-checked first by created_at - rotate through inventory daily
   const { data: jobs, error } = await supabase
@@ -215,6 +229,7 @@ Deno.serve(async (req) => {
       checked,
       flagged: toDelete.length,
       deleted: dryRun ? 0 : deleted,
+      staleReedDeleted,
       dryRun,
       reasonCounts,
       sample: toDelete.slice(0, 20),
