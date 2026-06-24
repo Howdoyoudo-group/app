@@ -290,7 +290,8 @@ const INDUSTRY_KEYWORDS: Record<string, string[]> = {
     // Organisation searches — pulls ALL jobs from these employers, not just tennis-titled ones
     "Lawn Tennis Association", "All England Club", "ATP Tour", "WTA Tour",
     "International Tennis Federation", "Hawk-Eye Innovations", "Tennis Foundation",
-    "Wimbledon", "National Tennis Association",
+    // NOTE: "Wimbledon" removed — it's a London suburb (SW19) so returns location-tagged jobs
+    "National Tennis Association",
     // Role searches
     "tennis coach", "tennis instructor", "tennis academy", "tennis club manager",
     "tennis development", "tennis tournament", "chair umpire", "tennis umpire",
@@ -1078,6 +1079,9 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
         // "Groom – Hunter Yard, Devon" or "Equine Vet – Newmarket".
         "horse-racing": /\b(horse[- ]?rac(?:e|ing)|horseracing|racehorse|race ?horse|racecourse|race.?course|race.?day|equine|equine vet|equestrian|thoroughbred|jockey|amateur jockey|apprentice jockey|conditional jockey|jockey coach|stable[s]?\b|stable lad|stable lass|stable hand|head lad|head girl|head lass|work rider|exercise rider|travelling head|yard manager|racing yard|hunt yard|hunter yard|stud farm|stud manager|stud groom|stud hand|stud assistant|stud secretary|groom|head groom|travelling groom|breaking.in|pre.training|bloodstock|bloodstock agent|farrier|paddock|turf club|BHA|British Horseracing|gallops|point.to.point|hunt yard|riding school|riding centre|riding instructor|racing manager|racing secretary|racing administrator|racecourse manager|clerk of the course|trainer['']?s assistant|assistant trainer)\b/i,
         "formula-1": /\b(formula\s?1|formula one|\bf1\b|grand prix|motorsport|motor sport|race engineer|race operations|trackside|paddock|aerodynamic|cfd|wind tunnel|vehicle dynamics|simulation engineer|performance engineer|strategy engineer|telemetry|composite|laminator|carbon fibre|motorsport logistics|racing team|mclaren racing|mercedes-amg petronas|red bull racing|aston martin f1|williams racing|alpine f1|haas f1|silverstone|motorsport uk|fia)\b/i,
+        // Tennis: title OR description must mention tennis or a tennis org/role.
+        // Wimbledon is NOT here — it's a London suburb, too generic for a signal.
+        tennis: /\b(tennis|lawn tennis association|\bLTA\b|\baeltc\b|all england club|ATP tour|\bWTA\b|\bITF\b|international tennis federation|tennis coach|tennis instructor|tennis academy|tennis club|tennis development|tennis tournament|tennis umpire|chair umpire|tennis referee|tennis operations|tennis marketing|tennis sponsorship|tennis director|tennis foundation|national tennis association|tennis australia|tennis europe|hawk.?eye|billie jean king cup|davis cup|grand slam tennis|US open tennis|french open tennis|australian open tennis|Roland Garros)\b/i,
       };
       const requiredSignal = REQUIRED_SIGNAL[industry];
 
@@ -1087,6 +1091,8 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
       const COMPANY_ALLOWLIST: Record<string, RegExp> = {
         "horse-racing": /\b(racing|racecourse|race ?course|stud|stables|thoroughbred|jockey club|godolphin|coolmore|juddmonte|shadwell|cheveley park|darley|arena racing|jockey|equine|equestrian|hunt|bloodstock|BHA|British Horseracing)\b/i,
         "formula-1": /\b(formula\s?1|formula one|\bf1\b|motorsport|motor sport|mclaren racing|mercedes-amg petronas|red bull racing|oracle red bull|aston martin aramco|aston martin f1|williams racing|williams f1|alpine f1|haas f1|racing bulls|sauber motorsport|f1 management|motorsport uk|silverstone|fia)\b/i,
+        // Tennis orgs use generic titles — "Marketing Manager @ LTA" is a tennis job.
+        tennis: /\b(lawn tennis association|\bLTA\b|\baeltc\b|all england club|ATP tour|\bWTA\b|\bITF\b|international tennis federation|hawk.?eye|tennis foundation|national tennis association|tennis australia|tennis europe|tennis club|tennis academy|david lloyd|virgin active tennis|wimbledon championships)\b/i,
       };
       const companyAllowlist = COMPANY_ALLOWLIST[industry];
 
@@ -1860,7 +1866,9 @@ const INDUSTRY_SIGNALS: Record<string, { rx: RegExp; scope: "tc" | "tcd" }> = {
   // is a known tennis organisation (LTA, AELTC, ATP, WTA, ITF, Hawk-Eye etc.)
   // — these orgs post generic titles like "Marketing Manager" with no "tennis"
   // in the title, but they are absolutely tennis jobs.
-  tennis: { scope: "tc", rx: /\b(tennis|lawn tennis association|\bLTA\b|\baeltc\b|all england club|wimbledon|ATP tour|\bWTA\b|\bITF\b|international tennis federation|tennis coach|tennis instructor|tennis academy|tennis club|tennis development|tennis tournament|tennis umpire|chair umpire|tennis referee|tennis operations|tennis marketing|tennis commercial|tennis sponsorship|tennis journalist|hawk.?eye|tennis player|tennis manager|tennis director|tennis foundation|national tennis association|tennis australia|tennis europe|billie jean king cup|davis cup|grand slam|US open tennis|french open|australian open|Roland Garros)\b/i },
+  // NOTE: "wimbledon" deliberately excluded — it's a London suburb (SW19) so
+  // "Finance Manager | Wimbledon" would match. Use "all england club" / "aeltc" instead.
+  tennis: { scope: "tc", rx: /\b(tennis|lawn tennis association|\bLTA\b|\baeltc\b|all england club|ATP tour|\bWTA\b|\bITF\b|international tennis federation|tennis coach|tennis instructor|tennis academy|tennis club|tennis development|tennis tournament|tennis umpire|chair umpire|tennis referee|tennis operations|tennis marketing|tennis commercial|tennis sponsorship|tennis journalist|hawk.?eye|tennis player|tennis manager|tennis director|tennis foundation|national tennis association|tennis australia|tennis europe|billie jean king cup|davis cup|grand slam tennis|US open tennis|french open tennis|australian open tennis|Roland Garros)\b/i },
 };
 
 // Known employer → industry overrides. Any job from these companies is
