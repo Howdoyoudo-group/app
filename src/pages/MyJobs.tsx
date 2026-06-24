@@ -1408,7 +1408,9 @@ const MyJobs = () => {
           .gt("expires_at", new Date().toISOString())
           .order("created_at", { ascending: false });
         if (allIndustrySlugs.length > 0) {
-          q = q.in("industry", allIndustrySlugs);
+          // Always include "other" so role-matched cross-industry jobs surface
+          // in the "Roles you might not have considered" section.
+          q = q.in("industry", [...allIndustrySlugs, "other"]);
         }
         return q;
       };
@@ -1660,8 +1662,23 @@ const MyJobs = () => {
     }
 
     return [...aboveThreshold, ...belowThreshold.filter((j) => guaranteed.has(j.id))]
+      .filter((j) => j.industry !== "other")
       .sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
   }, [jobs, profile, minMatch, roleProfiles, dismissedIds, openedIds, learnedSignals]);
+
+  // Jobs from the "other" bucket that match the user's role preferences —
+  // surfaced separately as "roles you might not have considered".
+  const discoverJobs = useMemo(() => {
+    if (!profile) return [];
+    const effectiveRoles = getEffectiveRoles(profile);
+    if (effectiveRoles.length === 0) return [];
+    return jobs
+      .filter((job) => job.industry === "other" && !dismissedIds.has(job.id))
+      .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals) }))
+      .filter((job) => hasRoleMatch(job, profile) && job.score >= 30)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 20);
+  }, [jobs, profile, roleProfiles, dismissedIds, learnedSignals]);
 
   const hasPreferences = profile && (
     (profile.industry_interests && profile.industry_interests.length > 0) ||
@@ -2032,6 +2049,32 @@ const MyJobs = () => {
                   </p>
                 )}
                 <SourceAttributionFooter jobs={scoredJobs} className="mt-4 justify-center" />
+
+                {/* Discover section — role-matched jobs outside the user's stated industries */}
+                {discoverJobs.length > 0 && (
+                  <div className="mt-10">
+                    <div className="mb-4">
+                      <h3 className="font-display text-lg font-700">Roles you might not have considered<span className="text-primary">.</span></h3>
+                      <p className="font-body text-xs text-muted-foreground mt-1">
+                        These match what you want to do — just in places you haven't thought about yet.
+                      </p>
+                    </div>
+                    <div className="divide-y-2 divide-foreground/10 border-2 border-foreground rounded-2xl overflow-hidden">
+                      <AnimatePresence initial={false}>
+                        {discoverJobs.map((job) => (
+                          <SwipeableJobCard
+                            key={job.id}
+                            job={job}
+                            onDismiss={handleDismiss}
+                            onOpen={handleOpen}
+                            onToggleSave={toggleSaveJob}
+                            isSaved={savedIdSet.has(job.id)}
+                          />
+                        ))}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </TabsContent>
