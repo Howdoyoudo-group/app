@@ -182,10 +182,10 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "yqSgI4dfT8w", title: "Is Being an Electrician Worth It in 2025?", description: "Honest take on the earnings, lifestyle, and career prospects of being an electrician in the UK right now.", tag: "Explainer", channel: "Trades Career" },
   ],
   tennis: [
-    { youtubeId: "u4C0sAVxCrU", title: "How Do Tennis Players Actually Make Money?", description: "Breaking down the full business model behind a professional tennis career — prize money, sponsorships, appearance fees, and the economics of life on tour.", tag: "Explainer", channel: "The Sporting Base" },
-    { youtubeId: "oBNuKGPuiss", title: "Working at Wimbledon: The People Behind the Championships", description: "Inside look at the thousands of staff who make The Championships happen — from operations to hospitality.", tag: "Documentary", channel: "Wimbledon" },
-    { youtubeId: "iZWoTZIqPR4", title: "A Day in the Life of a Tennis Coach", description: "What a real day looks like for a UK tennis coach — from early morning sessions to evening adult groups.", tag: "Careers", channel: "LTA Tennis" },
-    { youtubeId: "RR6EFhkDpNs", title: "How the ATP Tour Works: The Business of Men's Tennis", description: "Inside the structure of the ATP Tour — how tournaments are awarded, how prize money is set, and who calls the shots in men's professional tennis.", tag: "Explainer", channel: "Tennis World" },
+    { youtubeId: "MR9xgDoN_uQ", title: "How Much Money I Lost Playing 1 Season of Pro Tennis", description: "A top-300 player breaks down the real economics of life on tour — travel costs, prize money, coaching fees, and what it actually takes to survive as a pro.", tag: "Explainer", channel: "YouTube" },
+    { youtubeId: "ELMYbgmjecE", title: "Behind the Scenes at Wimbledon", description: "A rare inside look at the All England Club before the crowds arrive — the courts, players' areas, and the operation behind one of sport's greatest events.", tag: "Documentary", channel: "YouTube" },
+    { youtubeId: "_ZFUhp4sWi8", title: "The Modern Tennis Coach (A Day in the Life)", description: "What a real working day looks like for a tennis coach — sessions, planning, player development, and the business of running a coaching operation.", tag: "Careers", channel: "YouTube" },
+    { youtubeId: "p0DgmkI2FiE", title: "The Biggest Secret in Tennis — The Tour: A Reality Show", description: "ATP Tour's own documentary series pulling back the curtain on the business, politics, and human stories behind men's professional tennis.", tag: "Documentary", channel: "ATP Tour" },
   ],
   delivery: [
     { youtubeId: "AJbnSPvIQjE", title: "A Full Day in the Life of an HGV Driver | Amazon UK", description: "Class 1 HGV driving for Amazon UK — the early starts, long hauls, and realities of life on the road.", tag: "Careers", channel: "UK Drivers Guide" },
