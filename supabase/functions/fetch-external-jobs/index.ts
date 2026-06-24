@@ -287,12 +287,14 @@ const INDUSTRY_KEYWORDS: Record<string, string[]> = {
     "mclaren racing", "mercedes-amg petronas", "red bull racing", "aston martin f1", "williams racing",
   ],
   tennis: [
-    "tennis coach", "tennis instructor", "LTA", "Lawn Tennis Association",
-    "tennis academy", "tennis club manager", "tennis development",
-    "tennis tournament", "tournament director", "ATP Tour", "WTA",
-    "ITF", "tennis operations", "chair umpire", "tennis umpire",
-    "tennis marketing", "tennis commercial", "tennis sponsorship",
-    "Wimbledon", "All England Club", "tennis events",
+    // Organisation searches — pulls ALL jobs from these employers, not just tennis-titled ones
+    "Lawn Tennis Association", "All England Club", "ATP Tour", "WTA Tour",
+    "International Tennis Federation", "Hawk-Eye Innovations", "Tennis Foundation",
+    "Wimbledon", "National Tennis Association",
+    // Role searches
+    "tennis coach", "tennis instructor", "tennis academy", "tennis club manager",
+    "tennis development", "tennis tournament", "chair umpire", "tennis umpire",
+    "tennis operations", "tennis marketing", "tennis sponsorship", "tennis director",
   ],
 };
 
@@ -1854,14 +1856,32 @@ const INDUSTRY_SIGNALS: Record<string, { rx: RegExp; scope: "tc" | "tcd" }> = {
   "estate-agency": { scope: "tc", rx: /\b(estate agent|lettings (?:agent|negotiator|consultant|manager)|sales negotiator|property (?:manager|consultant|valuer|coordinator|administrator)|surveyor|rics\b|mortgage (?:adviser|advisor|consultant|broker)|conveyanc(?:er|ing)|block manager|branch manager estate|new homes (?:consultant|sales|negotiator)|land (?:buyer|acquisition|negotiator)|haart|foxtons|savills|knight frank|jll\b|cbre\b|hamptons|chestertons|winkworth|kfh\b|kinleigh folkard|dexters|marsh & parsons|john d wood|douglas & gordon|barnard marcus|ludlowthompson|james pendleton|bairstow eves|connells|countrywide|william h brown|spencers estate|jackson stops|fine & country|leaders roman|leaders limited|martin & co|northwood|belvoir|reeds rains|your move|rightmove|zoopla|onthemarket|purple ?bricks|yopa|housesimple)\b/i },
   grocery: { scope: "tc", rx: /\b(grocery|supermarket|convenience store|grocer|grocer['']?s|fresh produce|tesco|sainsbury|asda|morrisons|waitrose|ocado|m&s food|marks ?& ?spencer food|aldi\b|lidl\b|iceland foods|co.?op food|booths\b|whole foods|wholefoods|amazon fresh|gopuff|getir|uber grocery|deliveroo grocery|booker wholesale|costco|spar\b|nisa\b|premier stores|londis|budgens|one stop)\b/i },
   pets: { scope: "tc", rx: /\b(pet[s]? (?:care|food|industry|retail|store|advisor|consultant|specialist|nutritionist|behaviourist|sitter|walker)|dog (?:walker|trainer|groomer|behaviourist|breeder|sitter|day ?care|boarding)|cat (?:groomer|behaviourist|breeder|sitter|hotel)|cattery|kennels?\b|kennel (?:assistant|manager)|veterinary (?:nurse|surgeon|practice|hospital|receptionist|technician|assistant)|\brvn\b|vet nurse|vet surgeon|pet shop|aquatics|equine vet|pets at home|pdsa\b|rspca|blue cross|battersea|dogs trust|wood green|cats protection|jollyes|just for pets|fetch\.co\.uk|tails\.com|butternut box|lily['']?s kitchen|forthglade|burns pet|royal canin)\b/i },
-  tennis: { scope: "tc", rx: /\b(tennis|LTA\b|lawn tennis association|wimbledon|all england club|aeltc\b|ATP tour|WTA\b|ITF\b|international tennis federation|tennis coach|tennis instructor|tennis academy|tennis club|tennis development|tennis tournament|tennis umpire|chair umpire|tennis referee|tennis operations|tennis marketing|tennis commercial|tennis sponsorship|tennis journalist|hawk.?eye|tennis player|tennis manager|tennis director)\b/i },
+  // Tennis: title/company must contain a tennis-specific term OR the company
+  // is a known tennis organisation (LTA, AELTC, ATP, WTA, ITF, Hawk-Eye etc.)
+  // — these orgs post generic titles like "Marketing Manager" with no "tennis"
+  // in the title, but they are absolutely tennis jobs.
+  tennis: { scope: "tc", rx: /\b(tennis|lawn tennis association|\bLTA\b|\baeltc\b|all england club|wimbledon|ATP tour|\bWTA\b|\bITF\b|international tennis federation|tennis coach|tennis instructor|tennis academy|tennis club|tennis development|tennis tournament|tennis umpire|chair umpire|tennis referee|tennis operations|tennis marketing|tennis commercial|tennis sponsorship|tennis journalist|hawk.?eye|tennis player|tennis manager|tennis director|tennis foundation|national tennis association|tennis australia|tennis europe|billie jean king cup|davis cup|grand slam|US open tennis|french open|australian open|Roland Garros)\b/i },
 };
+
+// Known employer → industry overrides. Any job from these companies is
+// automatically kept in the correct industry regardless of title — e.g.
+// "Marketing Manager @ LTA" is a tennis job even without "tennis" in the title.
+const EMPLOYER_INDUSTRY_OVERRIDES: Array<{ rx: RegExp; industry: string }> = [
+  { rx: /\b(lawn tennis association|LTA\b|all england club|\baeltc\b|wimbledon|ATP tour|WTA\b|ITF\b|international tennis federation|hawk.?eye innovations|tennis foundation|national tennis association|tennis australia|tennis europe)\b/i, industry: "tennis" },
+  { rx: /\b(the FA\b|football association\b|premier league\b|EFL\b|english football league|FIFA\b|UEFA\b|sky sports|TNT sports|BT sport)\b/i, industry: "football" },
+  { rx: /\b(formula one|formula 1\b|FIA\b|mclaren racing|red bull racing|mercedes.amg petronas|aston martin f1|williams racing|alpine f1|haas f1)\b/i, industry: "formula-1" },
+  { rx: /\b(british horseracing authority|\bBHA\b|jockey club|weatherbys|godolphin|coolmore|juddmonte)\b/i, industry: "horse-racing" },
+];
 
 // Returns the industry to assign the job to. If the job doesn't match the
 // searched industry's signal filter, it goes to "other" rather than being
 // dropped — keeps the job on the platform for role-based searches without
 // polluting the industry-specific pages.
 function resolveIndustry(industry: string, title: string, company: string, description?: string): string {
+  // Company-name override takes priority — "Marketing Manager @ LTA" is tennis.
+  for (const { rx, industry: overrideIndustry } of EMPLOYER_INDUSTRY_OVERRIDES) {
+    if (rx.test(company)) return overrideIndustry;
+  }
   const sig = INDUSTRY_SIGNALS[industry];
   if (!sig) return industry; // no filter defined → keep original industry
   const haystack = sig.scope === "tcd"
@@ -2661,14 +2681,19 @@ async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiK
       const workArrangement = String(r.ai_work_arrangement || r.remote_derived || "").toLowerCase();
       const remoteFlag = workArrangement.includes("remote") || r.remote_derived === true || /remote/i.test(employment);
 
-      const { stage, roleCategory } = classifyJob(title, desc, industry);
+      const linkedinIndustry = resolveIndustry(industry, title, company, desc);
+      if (linkedinIndustry !== industry) {
+        console.log(`[${industry}] LinkedIn NO SIGNAL → other: "${title}" @ ${company}`);
+      }
+
+      const { stage, roleCategory } = classifyJob(title, desc, linkedinIndustry);
       const postedRaw = r.date_posted ? new Date(r.date_posted) : new Date();
       const expiresAt = new Date(postedRaw.getTime() + 60 * 86400000).toISOString();
 
       allJobs.push({
         title: title.slice(0, 255),
         company: company.slice(0, 200),
-        industry,
+        industry: linkedinIndustry,
         value_chain_stage: stage,
         role_category: roleCategory,
         location: locationStr?.slice(0, 200) ?? null,
@@ -5827,12 +5852,16 @@ async function fetchIndeedJobs(industry: string, keywords: string[], indeedKey: 
             : "Full-time";
 
           const remoteFlag = /remote/i.test(employment) || /remote/i.test(loc);
-          const { stage, roleCategory } = classifyJob(title, desc, industry);
+          const indeedIndustry = resolveIndustry(industry, title, company, desc);
+          if (indeedIndustry !== industry) {
+            console.log(`[${industry}] Indeed NO SIGNAL → other: "${title}" @ ${company}`);
+          }
+          const { stage, roleCategory } = classifyJob(title, desc, indeedIndustry);
 
           out.push({
             title: title.slice(0, 255),
             company: company.slice(0, 200),
-            industry,
+            industry: indeedIndustry,
             value_chain_stage: stage,
             role_category: roleCategory,
             location: loc.slice(0, 200),
