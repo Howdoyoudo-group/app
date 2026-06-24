@@ -5,6 +5,35 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-06-24 — Woody (main branch)
+
+### What was done
+- **Fixed tennis job quality (3 root causes)**:
+  1. **Adzuna had no signal filter for tennis** — all Adzuna results for tennis keywords were accepted. Added `REQUIRED_SIGNAL.tennis` (requires tennis term in title/description) + `COMPANY_ALLOWLIST.tennis` (LTA/AELTC/ATP/WTA/ITF pass regardless of title). Frieze, Bedruthan Hotel, MARI Group etc. now blocked.
+  2. **Removed "Wimbledon" from `INDUSTRY_KEYWORDS.tennis`** — it's a London suburb (SW19) so Reed/Jooble were returning "Finance Manager | Wimbledon" and "School Teachers | Wimbledon" as location-tagged results.
+  3. **Removed bare `wimbledon` from `INDUSTRY_SIGNALS.tennis` regex** — jobs with "Wimbledon" in title as a location suffix (e.g. "Audit Assistant | Wimbledon") were passing the signal check. Now only `all england club`, `aeltc`, `LTA`, `ATP tour` etc. trigger the tennis signal.
+  - `EMPLOYER_INDUSTRY_OVERRIDES` still has `wimbledon` for company-name matching — correct, since "Wimbledon" as a company name is the tennis club.
+  - Deployed updated `fetch-external-jobs` to Supabase and triggered a fresh tennis rescrape.
+  - **Note:** Dirty tennis jobs (Frieze, Wimbledon-suburb, Bedruthan) still in DB — need manual SQL `DELETE FROM jobs WHERE industry='tennis'` in Supabase dashboard, then wait for rescrape to finish.
+
+- **Added 15 real tennis events** to `industry_events` table (industry=`tennis`):
+  - **Tournaments**: Wimbledon 2026 (Jun 29–Jul 12), Queen's Club Championships (Jun 13–21), Eastbourne International (Jun 20–27), US Open (Aug 24–Sep 6), Laver Cup, ATP Finals (Turin, Nov 8–15), WTA Finals
+  - **Conferences**: Leaders Sport Business Summit (Oct 6–8, London), SportsPro Live, ITF World Tennis Conference
+  - **Awards**: LTA Inspiration Awards
+  - **Programmes**: LTA Coach Education Courses, ITF Officiating Certification, Tennis Foundation Inclusion Series
+  - **Talk**: Hawk-Eye Technology Talks
+  - All have real URLs. Industry field set to `"tennis"` (slug, not display name).
+
+### Pending
+- **DELETE dirty tennis jobs** — run `DELETE FROM jobs WHERE industry='tennis'` in Supabase SQL editor, then re-trigger the scraper. The fix is deployed, just needs a clean slate.
+- **Upload `email-icon-tennis.png`** to Supabase Storage `email-assets` bucket
+- **Replace `series-tennis.jpg`** with proper scattered-style illustration (current is a structured icon grid, mismatched style vs other cards)
+- **DNS bare domain fix** — Add `A @ 216.198.79.1` in 123-reg
+- **WhatsApp** — needs Twilio keys from partner
+- **Voxpop video** — move from Lovable CDN to Supabase Storage
+
+---
+
 ## 2026-06-19 — Woody (main branch)
 
 ### What was done
