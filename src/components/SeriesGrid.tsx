@@ -35,6 +35,7 @@ import seriesMoney from "@/assets/series-money.jpg";
 import seriesBuilding from "@/assets/series-building.jpg";
 import seriesFixing from "@/assets/series-fixing.jpg";
 import seriesDelivery from "@/assets/series-delivery.jpg";
+import seriesTennis from "@/assets/series-tennis.jpg";
 
 const series = [
   {
@@ -250,6 +251,13 @@ const series = [
       "From classrooms to curricula, teacher training to EdTech - the people and systems shaping how we learn.",
     image: seriesTeaching,
     href: "/teaching",
+  },
+  {
+    title: "Tennis",
+    description:
+      "The LTA, Wimbledon, ATP Tour, and the careers behind the world's most prestigious sport.",
+    image: seriesTennis,
+    href: "/tennis",
   },
   {
     title: "Travel",

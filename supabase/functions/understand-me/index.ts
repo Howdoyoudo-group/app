@@ -36,7 +36,7 @@ const INDUSTRIES = [
   "Bakery", "Beer", "Charity", "Cinema", "Coffee", "Estate Agency",
   "Fashion", "Football", "Footwear", "Grocery", "Hospitality",
   "Interior Design", "Music", "Physiotherapy", "Psychotherapy", "Teaching", "Wellness",
-  "Building", "Fixing", "Delivery",
+  "Building", "Fixing", "Delivery", "Tennis",
 ];
 
 function arrayBufferToBase64(buffer: ArrayBuffer): string {

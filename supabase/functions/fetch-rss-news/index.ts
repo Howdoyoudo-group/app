@@ -39,6 +39,7 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   building: "UK construction industry, housebuilding, civil engineering, infrastructure, planning policy, architects, property developers, Balfour Beatty, Kier, Taylor Wimpey, Persimmon",
   fixing: "trades industry, electricians, plumbers, gas engineers, HVAC, building maintenance, heat pumps, boilers, apprenticeships, skills shortage in trades",
   delivery: "last-mile delivery, courier industry, logistics, Royal Mail, DPD, Evri, Amazon Logistics, e-commerce fulfilment, HGV drivers, parcel delivery",
+  tennis: "professional tennis, ATP Tour, WTA Tour, Wimbledon, LTA, Grand Slams, tennis business, coaching careers, ITF, player earnings, tournament operations",
 };
 
 const VALID_INDUSTRIES = Object.keys(INDUSTRY_CONTEXT);

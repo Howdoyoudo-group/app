@@ -286,6 +286,14 @@ const INDUSTRY_KEYWORDS: Record<string, string[]> = {
     "motorsport logistics", "paddock operations", "motorsport sponsorship", "motorsport marketing",
     "mclaren racing", "mercedes-amg petronas", "red bull racing", "aston martin f1", "williams racing",
   ],
+  tennis: [
+    "tennis coach", "tennis instructor", "LTA", "Lawn Tennis Association",
+    "tennis academy", "tennis club manager", "tennis development",
+    "tennis tournament", "tournament director", "ATP Tour", "WTA",
+    "ITF", "tennis operations", "chair umpire", "tennis umpire",
+    "tennis marketing", "tennis commercial", "tennis sponsorship",
+    "Wimbledon", "All England Club", "tennis events",
+  ],
 };
 
 // ── Merge registry synonyms into INDUSTRY_KEYWORDS ───────────────────
@@ -427,6 +435,7 @@ const INDUSTRY_STAGES: Record<string, string[]> = {
   money: ["Banking", "Investment & Asset Management", "Insurance & Risk", "FinTech & Payments", "Accountancy, Audit & Tax", "Finance Leadership & Markets"],
   health: ["Doctors & Clinicians", "Nursing & Midwifery", "Care & Social Care", "Allied Health & Pharmacy", "MedTech, Biotech & Pharma", "Health Leadership & Policy"],
   "horse-racing": ["Riding & Stable", "Training & Performance", "Veterinary & Welfare", "Racecourse & Raceday", "Bloodstock & Betting", "Business & Industry"],
+  tennis: ["Playing & Coaching", "Player Support", "Officiating & Tournaments", "Media & Broadcasting", "Commercial & Sponsorship", "Governing Bodies & Development"],
 };
 
 // ── Classification keywords → stage ────────────────────────────────
@@ -1918,6 +1927,7 @@ async function fetchReedJobs(industry: string, keywords: string[], apiKey: strin
           "estate-agency": { scope: "tc", rx: /\b(estate agent|lettings (?:agent|negotiator|consultant|manager)|sales negotiator|property (?:manager|consultant|valuer|coordinator|administrator)|surveyor|rics\b|mortgage (?:adviser|advisor|consultant|broker)|conveyanc(?:er|ing)|block manager|branch manager estate|new homes (?:consultant|sales|negotiator)|land (?:buyer|acquisition|negotiator)|haart|foxtons|savills|knight frank|jll\b|cbre\b|hamptons|chestertons|winkworth|kfh\b|kinleigh folkard|dexters|marsh & parsons|john d wood|douglas & gordon|barnard marcus|ludlowthompson|james pendleton|bairstow eves|connells|countrywide|william h brown|spencers estate|jackson stops|fine & country|leaders roman|leaders limited|martin & co|northwood|belvoir|reeds rains|your move|rightmove|zoopla|onthemarket|purple ?bricks|yopa|housesimple)\b/i },
           grocery: { scope: "tc", rx: /\b(grocery|supermarket|convenience store|grocer|grocer['']?s|fresh produce|tesco|sainsbury|asda|morrisons|waitrose|ocado|m&s food|marks ?& ?spencer food|aldi\b|lidl\b|iceland foods|co.?op food|booths\b|whole foods|wholefoods|amazon fresh|gopuff|getir|uber grocery|deliveroo grocery|booker wholesale|costco|spar\b|nisa\b|premier stores|londis|budgens|one stop)\b/i },
           pets: { scope: "tc", rx: /\b(pet[s]? (?:care|food|industry|retail|store|advisor|consultant|specialist|nutritionist|behaviourist|sitter|walker)|dog (?:walker|trainer|groomer|behaviourist|breeder|sitter|day ?care|boarding)|cat (?:groomer|behaviourist|breeder|sitter|hotel)|cattery|kennels?\b|kennel (?:assistant|manager)|veterinary (?:nurse|surgeon|practice|hospital|receptionist|technician|assistant)|\brvn\b|vet nurse|vet surgeon|pet shop|aquatics|equine vet|pets at home|pdsa\b|rspca|blue cross|battersea|dogs trust|wood green|cats protection|jollyes|just for pets|fetch\.co\.uk|tails\.com|butternut box|lily['']?s kitchen|forthglade|burns pet|royal canin)\b/i },
+          tennis: { scope: "tc", rx: /\b(tennis|LTA\b|lawn tennis association|wimbledon|all england club|aeltc\b|ATP tour|WTA\b|ITF\b|international tennis federation|tennis coach|tennis instructor|tennis academy|tennis club|tennis development|tennis tournament|tennis umpire|chair umpire|tennis referee|tennis operations|tennis marketing|tennis commercial|tennis sponsorship|tennis journalist|hawk.?eye|tennis player|tennis manager|tennis director)\b/i },
         };
 
         const sig = REED_INDUSTRY_SIGNALS[industry];

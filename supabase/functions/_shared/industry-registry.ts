@@ -659,6 +659,30 @@ export const INDUSTRY_REGISTRY: IndustrySpec[] = [
       "beauty therapist spa", "holistic therapist",
     ],
   },
+  {
+    slug: "tennis",
+    name: "Tennis",
+    baseline: 200,
+    synonyms: [
+      "tennis", "tennis coach", "tennis player", "tennis instructor", "tennis teacher",
+      "tennis academy", "tennis club", "head coach tennis", "performance coach tennis",
+      "LTA", "Lawn Tennis Association", "All England Club", "Wimbledon",
+      "ATP Tour", "WTA Tour", "ITF", "International Tennis Federation",
+      "tennis tournament", "tournament director tennis", "tournament referee",
+      "chair umpire", "tennis umpire", "line umpire", "tennis official",
+      "tennis operations", "tennis events", "tennis event manager",
+      "tennis agent", "player agent tennis", "sports agent tennis",
+      "tennis commentator", "tennis journalist", "tennis analyst",
+      "tennis physiotherapist", "tennis physio", "tennis strength conditioning",
+      "tennis sports psychologist", "tennis nutritionist",
+      "tennis marketing", "tennis commercial", "tennis sponsorship",
+      "tennis development officer", "tennis development manager",
+      "racket sports", "racquet sports",
+      "Hawk-Eye", "Hawkeye", "ball tracking tennis",
+      "tennis facility manager", "tennis venue manager",
+      "IMG tennis", "Tennis Foundation",
+    ],
+  },
 ];
 
 // ──────────────────────────────────────────────────────────────────────

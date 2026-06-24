@@ -10,7 +10,7 @@ const ALL_INDUSTRIES = [
   "gaming", "grocery", "health", "horse-racing", "hospitality",
   "interior-design", "jewellery", "journalism", "money", "music", "pets",
   "physiotherapy", "psychotherapy", "teaching", "travel", "wellness",
-  "building", "fixing", "delivery",
+  "building", "fixing", "delivery", "tennis",
 ];
 
 // Shuffle so no industry is consistently starved by edge function timeouts

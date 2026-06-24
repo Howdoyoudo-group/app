@@ -23,7 +23,7 @@ const INDUSTRIES = [
   "Food & Drink", "Football", "Footwear", "Formula 1", "Gaming", "Grocery",
   "Health", "Horse Racing", "Influencing", "Interior Design", "Jewellery",
   "Journalism", "Money", "Music", "Pets", "Physiotherapy", "Psychotherapy",
-  "Teaching", "Travel", "Wellness",
+  "Teaching", "Tennis", "Travel", "Wellness",
 ];
 
 const ROLE_OPTIONS = roles.map((r) => r.title);

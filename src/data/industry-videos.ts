@@ -181,6 +181,12 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "ErUkdNkKmzo", title: "Day in the Life of a UK Plumber", description: "A self-employed UK plumber walks through a typical working day including an oil boiler replacement.", tag: "Careers", channel: "The Trades Guy" },
     { youtubeId: "yqSgI4dfT8w", title: "Is Being an Electrician Worth It in 2025?", description: "Honest take on the earnings, lifestyle, and career prospects of being an electrician in the UK right now.", tag: "Explainer", channel: "Trades Career" },
   ],
+  tennis: [
+    { youtubeId: "u4C0sAVxCrU", title: "How Do Tennis Players Actually Make Money?", description: "Breaking down the full business model behind a professional tennis career — prize money, sponsorships, appearance fees, and the economics of life on tour.", tag: "Explainer", channel: "The Sporting Base" },
+    { youtubeId: "oBNuKGPuiss", title: "Working at Wimbledon: The People Behind the Championships", description: "Inside look at the thousands of staff who make The Championships happen — from operations to hospitality.", tag: "Documentary", channel: "Wimbledon" },
+    { youtubeId: "iZWoTZIqPR4", title: "A Day in the Life of a Tennis Coach", description: "What a real day looks like for a UK tennis coach — from early morning sessions to evening adult groups.", tag: "Careers", channel: "LTA Tennis" },
+    { youtubeId: "RR6EFhkDpNs", title: "How the ATP Tour Works: The Business of Men's Tennis", description: "Inside the structure of the ATP Tour — how tournaments are awarded, how prize money is set, and who calls the shots in men's professional tennis.", tag: "Explainer", channel: "Tennis World" },
+  ],
   delivery: [
     { youtubeId: "AJbnSPvIQjE", title: "A Full Day in the Life of an HGV Driver | Amazon UK", description: "Class 1 HGV driving for Amazon UK — the early starts, long hauls, and realities of life on the road.", tag: "Careers", channel: "UK Drivers Guide" },
     { youtubeId: "jLGQUVLa8vA", title: "A Day in the Life of a UK HGV Lorry Driver", description: "Behind the wheel of an HGV — what the job really involves, day to day in the UK.", tag: "Careers", channel: "HGV Life" },

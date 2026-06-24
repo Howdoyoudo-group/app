@@ -31,6 +31,7 @@ import seriesTravel from "@/assets/series-travel.jpg";
 import seriesBuilding from "@/assets/series-building.jpg";
 import seriesFixing from "@/assets/series-fixing.jpg";
 import seriesDelivery from "@/assets/series-delivery.jpg";
+import seriesTennis from "@/assets/series-tennis.jpg";
 
 export const INDUSTRY_ICONS: Record<string, string> = {
   "Bakery": seriesBakery,
@@ -66,4 +67,5 @@ export const INDUSTRY_ICONS: Record<string, string> = {
   "Building": seriesBuilding,
   "Fixing": seriesFixing,
   "Delivery": seriesDelivery,
+  "Tennis": seriesTennis,
 };
