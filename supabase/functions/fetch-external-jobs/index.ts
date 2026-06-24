@@ -1857,16 +1857,17 @@ const INDUSTRY_SIGNALS: Record<string, { rx: RegExp; scope: "tc" | "tcd" }> = {
   tennis: { scope: "tc", rx: /\b(tennis|LTA\b|lawn tennis association|wimbledon|all england club|aeltc\b|ATP tour|WTA\b|ITF\b|international tennis federation|tennis coach|tennis instructor|tennis academy|tennis club|tennis development|tennis tournament|tennis umpire|chair umpire|tennis referee|tennis operations|tennis marketing|tennis commercial|tennis sponsorship|tennis journalist|hawk.?eye|tennis player|tennis manager|tennis director)\b/i },
 };
 
-// Helper: check a job's title+company (and optionally description) against
-// the shared signal filter for the given industry. Returns true if the job
-// passes (should be kept), false if it should be dropped.
-function passesIndustrySignal(industry: string, title: string, company: string, description?: string): boolean {
+// Returns the industry to assign the job to. If the job doesn't match the
+// searched industry's signal filter, it goes to "other" rather than being
+// dropped — keeps the job on the platform for role-based searches without
+// polluting the industry-specific pages.
+function resolveIndustry(industry: string, title: string, company: string, description?: string): string {
   const sig = INDUSTRY_SIGNALS[industry];
-  if (!sig) return true; // no filter defined → allow through
+  if (!sig) return industry; // no filter defined → keep original industry
   const haystack = sig.scope === "tcd"
     ? `${title}\n${company}\n${description || ""}`
     : `${title}\n${company}`;
-  return sig.rx.test(haystack);
+  return sig.rx.test(haystack) ? industry : "other";
 }
 
 async function fetchReedJobs(industry: string, keywords: string[], apiKey: string, opts?: { grad?: boolean }) {
@@ -1934,10 +1935,6 @@ async function fetchReedJobs(industry: string, keywords: string[], apiKey: strin
         //
         //     scope = 'tc'  -> title + company only (description too leaky:
         //                      cinema, coffee, fashion, beauty, jewellery,
-        if (!passesIndustrySignal(industry, title, company, r.jobDescription || "")) {
-          console.log(`[${industry}] Reed NO SIGNAL: "${title}" @ ${company}`);
-          continue;
-        }
 
         // 1c) Description-level exclusions for industries where title-only filtering
         //     isn't enough. E.g. cars: Reed keyword "car" matches any job whose
@@ -1988,7 +1985,10 @@ async function fetchReedJobs(industry: string, keywords: string[], apiKey: strin
         // 4) Company → correct-industry override (mirrors Adzuna).
         //    Re-route well-known brands to where they actually belong instead
         //    of leaving them under the searched industry.
-        let assignedIndustry = industry;
+        let assignedIndustry = resolveIndustry(industry, title, company, r.jobDescription || "");
+        if (assignedIndustry === "other") {
+          console.log(`[${industry}] Reed NO SIGNAL → other: "${title}" @ ${company}`);
+        }
         const companyLower = company.toLowerCase();
         for (const [key, correctIndustry] of Object.entries(REED_COMPANY_INDUSTRY_OVERRIDES)) {
           if (companyLower.includes(key)) {
@@ -2439,9 +2439,9 @@ async function fetchJoobleJobs(industry: string, keywords: string[], apiKey: str
         const company = (r.company || "Unknown").trim();
         const desc = (r.snippet || "").replace(/<[^>]*>/g, "").trim();
 
-        if (!passesIndustrySignal(industry, title, company, desc)) {
-          console.log(`[${industry}] Jooble NO SIGNAL: "${title}" @ ${company}`);
-          continue;
+        const joobleIndustry = resolveIndustry(industry, title, company, desc);
+        if (joobleIndustry !== industry) {
+          console.log(`[${industry}] Jooble NO SIGNAL → other: "${title}" @ ${company}`);
         }
 
         const locationStr = (r.location || "").trim() || null;
@@ -2455,7 +2455,7 @@ async function fetchJoobleJobs(industry: string, keywords: string[], apiKey: str
         allJobs.push({
           title: title.slice(0, 255),
           company: company.slice(0, 200),
-          industry,
+          industry: joobleIndustry,
           value_chain_stage: stage,
           role_category: roleCategory,
           location: locationStr?.slice(0, 200) ?? null,
@@ -5383,9 +5383,9 @@ async function fetchJSearchJobs(industry: string, keywords: string[], rapidApiKe
         const company = (j.employer_name || "Unknown").trim();
         const desc = (j.job_description || "").replace(/<[^>]*>/g, "").trim();
 
-        if (!passesIndustrySignal(industry, title, company, desc)) {
-          console.log(`[${industry}] JSearch NO SIGNAL: "${title}" @ ${company}`);
-          continue;
+        const jsearchIndustry = resolveIndustry(industry, title, company, desc);
+        if (jsearchIndustry !== industry) {
+          console.log(`[${industry}] JSearch NO SIGNAL → other: "${title}" @ ${company}`);
         }
 
         const loc = [j.job_city, j.job_state, j.job_country].filter(Boolean).join(", ");
@@ -5413,7 +5413,7 @@ async function fetchJSearchJobs(industry: string, keywords: string[], rapidApiKe
         out.push({
           title: title.slice(0, 255),
           company: company.slice(0, 200),
-          industry,
+          industry: jsearchIndustry,
           value_chain_stage: stage,
           role_category: roleCategory,
           location: displayLoc.slice(0, 200),
