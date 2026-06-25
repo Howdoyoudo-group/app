@@ -20,6 +20,7 @@ const GALLERY_PHOTOS: { id: number; src?: string; alt: string }[] = [
   { id: 14, src: `${STORAGE}/photo-14.jpg`, alt: "Street interview by the Thames" },
   { id: 15, src: `${STORAGE}/photo-15.jpg`, alt: "Filming in London" },
   { id: 17, src: `${STORAGE}/photo-17.jpg`, alt: "On location interview" },
+  { id: 18, src: `${STORAGE}/photo-18.png`, alt: "Howdoyoudo Jobs marketplace" },
 ];
 
 const FEATURED_VIDEOS = [
