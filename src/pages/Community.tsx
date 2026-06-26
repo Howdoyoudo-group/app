@@ -605,15 +605,9 @@ const Community = () => {
             <div className="flex items-center gap-2 mb-3">
               <Users className="w-4 h-4" />
               <span className="font-display text-xs tracking-[0.2em] uppercase">
-                {selected === "all" ? "Members" : `${industryLabel} followers`}
+                {selected === "all" ? "Members" : `${industryLabel} community`}
               </span>
             </div>
-            <div className="font-display text-4xl md:text-5xl leading-none">
-              {totalFollowersSelected.toLocaleString()}
-            </div>
-            <p className="text-sm text-muted-foreground mt-1">
-              {selected === "all" ? "registered members" : "people following this industry"}
-            </p>
 
             <div className="mt-4 space-y-2">
               <div className="flex items-center gap-3 rounded-xl border-2 border-foreground/10 bg-background p-3">
