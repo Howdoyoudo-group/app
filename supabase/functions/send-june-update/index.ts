@@ -97,22 +97,11 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
 
   <!-- NAV -->
   <div class="section">
-    <div class="section-inner">
-      <div class="doodle-cell">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="4" y="10" width="52" height="6" rx="2" fill="#0a0a0a"/>
-          <rect x="4" y="27" width="52" height="6" rx="2" fill="#00E600"/>
-          <rect x="4" y="44" width="52" height="6" rx="2" fill="#0a0a0a"/>
-        </svg>
-      </div>
-      <div class="content-cell">
-        <p class="label">Navigation</p>
-        <h2>A simpler way around the site</h2>
-        <p>Five clear sections now — Show, Discover, Level Up, Jobs, Community. Everything has a home. No hunting around.</p>
-        <div>
-          <span class="chip">Show</span><span class="chip">Discover</span><span class="chip">Level Up</span><span class="chip">Jobs</span><span class="chip">Community</span>
-        </div>
-      </div>
+    <p class="label">Navigation</p>
+    <h2>A simpler way around the site.</h2>
+    <p>Five clear sections now — Show, Discover, Level Up, Jobs, Community. Everything has a home. No hunting around.</p>
+    <div>
+      <span class="chip">Show</span><span class="chip">Discover</span><span class="chip">Level Up</span><span class="chip">Jobs</span><span class="chip">Community</span>
     </div>
   </div>
 
@@ -120,16 +109,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
   <div class="section">
     <div class="section-inner">
       <div class="doodle-cell">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- clapperboard -->
-          <rect x="6" y="18" width="48" height="36" rx="3" fill="#0a0a0a"/>
-          <rect x="6" y="18" width="48" height="10" rx="2" fill="#00E600"/>
-          <line x1="18" y1="18" x2="14" y2="28" stroke="#0a0a0a" stroke-width="3"/>
-          <line x1="30" y1="18" x2="26" y2="28" stroke="#0a0a0a" stroke-width="3"/>
-          <line x1="42" y1="18" x2="38" y2="28" stroke="#0a0a0a" stroke-width="3"/>
-          <!-- play triangle -->
-          <polygon points="26,32 26,46 40,39" fill="#00E600"/>
-        </svg>
+        <img src="${OLD_ASSETS}/email-icon-journalism.png" width="72" height="72" alt="" style="display:block;width:72px;height:72px;object-fit:contain;" />
       </div>
       <div class="content-cell">
         <p class="label">The Show</p>
@@ -143,53 +123,20 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
 
   <!-- 30+ INDUSTRIES -->
   <div class="section">
-    <div class="section-inner">
-      <div class="doodle-cell">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- hard hat -->
-          <ellipse cx="30" cy="36" rx="24" ry="8" fill="#0a0a0a"/>
-          <path d="M10 36 Q10 16 30 14 Q50 16 50 36Z" fill="#00E600" stroke="#0a0a0a" stroke-width="2.5"/>
-          <rect x="22" y="10" width="16" height="8" rx="2" fill="#0a0a0a"/>
-          <!-- wrench -->
-          <circle cx="44" cy="48" r="5" fill="none" stroke="#0a0a0a" stroke-width="2.5"/>
-          <line x1="40" y1="52" x2="32" y2="58" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round"/>
-          <!-- box -->
-          <rect x="6" y="46" width="14" height="12" rx="1" fill="#0a0a0a"/>
-          <line x1="6" y1="52" x2="20" y2="52" stroke="#00E600" stroke-width="1.5"/>
-          <line x1="13" y1="46" x2="13" y2="58" stroke="#00E600" stroke-width="1.5"/>
-        </svg>
-      </div>
-      <div class="content-cell">
-        <p class="label">New Industries</p>
-        <h2>Over 30 industries — and growing.</h2>
-        <p>We added <strong>Building, Fixing</strong> and <strong>Delivery</strong> — three huge UK sectors that don't get enough love. Career maps, real company profiles, daily briefings, live jobs and events. Now over 30 industries covered.</p>
-        <div style="margin:10px 0;">
-          <span class="chip">Building</span><span class="chip">Fixing</span><span class="chip">Delivery</span>
-        </div>
-        <a class="cta" href="${SITE}/building">Explore Building →</a>
-      </div>
+    <p class="label">New Industries</p>
+    <h2>Over 30 industries — and growing.</h2>
+    <p>We added <strong>Building, Fixing</strong> and <strong>Delivery</strong> — three huge UK sectors that don't get enough love. Career maps, real company profiles, daily briefings, live jobs and events. Now over 30 industries covered.</p>
+    <div style="margin:10px 0;">
+      <span class="chip">Building</span><span class="chip">Fixing</span><span class="chip">Delivery</span>
     </div>
+    <a class="cta" href="${SITE}/building">Explore Building →</a>
   </div>
 
   <!-- TENNIS -->
   <div class="section">
     <div class="section-inner">
       <div class="doodle-cell">
-        <svg width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <ellipse cx="26" cy="22" rx="18" ry="20" fill="white" stroke="#0a0a0a" stroke-width="4"/>
-          <line x1="18" y1="4" x2="18" y2="40" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
-          <line x1="26" y1="2" x2="26" y2="42" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
-          <line x1="34" y1="4" x2="34" y2="40" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
-          <line x1="9" y1="15" x2="43" y2="15" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
-          <line x1="8" y1="22" x2="44" y2="22" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
-          <line x1="9" y1="29" x2="43" y2="29" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
-          <rect x="23" y="40" width="6" height="18" rx="3" fill="#0a0a0a"/>
-          <line x1="23" y1="46" x2="29" y2="46" stroke="white" stroke-width="1.5"/>
-          <line x1="23" y1="51" x2="29" y2="51" stroke="white" stroke-width="1.5"/>
-          <circle cx="50" cy="50" r="9" fill="#00E600" stroke="#0a0a0a" stroke-width="2"/>
-          <path d="M43 46 Q50 52 57 46" stroke="#0a0a0a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <path d="M43 54 Q50 48 57 54" stroke="#0a0a0a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-        </svg>
+        <img src="${OLD_ASSETS}/email-icon-footwear.png" width="72" height="72" alt="" style="display:block;width:72px;height:72px;object-fit:contain;" />
       </div>
       <div class="content-cell">
         <p class="label">New Industry · Wimbledon 2026</p>
@@ -204,12 +151,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
   <div class="section">
     <div class="section-inner">
       <div class="doodle-cell">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="6" y="16" width="48" height="36" rx="3" fill="#0a0a0a"/>
-          <rect x="20" y="8" width="20" height="12" rx="2" fill="none" stroke="#0a0a0a" stroke-width="3"/>
-          <line x1="6" y1="30" x2="54" y2="30" stroke="#00E600" stroke-width="2.5"/>
-          <circle cx="30" cy="30" r="5" fill="#00E600" stroke="#0a0a0a" stroke-width="2"/>
-        </svg>
+        <img src="${OLD_ASSETS}/email-icon-grocery.png" width="72" height="72" alt="" style="display:block;width:72px;height:72px;object-fit:contain;" />
       </div>
       <div class="content-cell">
         <p class="label">Jobs Marketplace</p>
@@ -224,17 +166,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
   <div class="section">
     <div class="section-inner">
       <div class="doodle-cell">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- passport shape -->
-          <rect x="12" y="6" width="36" height="48" rx="3" fill="#0a0a0a"/>
-          <rect x="16" y="10" width="28" height="18" rx="2" fill="#00E600"/>
-          <!-- skill bars -->
-          <rect x="16" y="34" width="20" height="3" rx="1" fill="white"/>
-          <rect x="16" y="40" width="14" height="3" rx="1" fill="white"/>
-          <rect x="16" y="46" width="24" height="3" rx="1" fill="white"/>
-          <!-- star on badge -->
-          <polygon points="30,13 31.5,17 36,17 32.5,20 34,24 30,21.5 26,24 27.5,20 24,17 28.5,17" fill="#0a0a0a"/>
-        </svg>
+        <img src="${OLD_ASSETS}/email-icon-teaching.png" width="72" height="72" alt="" style="display:block;width:72px;height:72px;object-fit:contain;" />
       </div>
       <div class="content-cell">
         <p class="label">Skills England</p>
@@ -249,14 +181,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
   <div class="section">
     <div class="section-inner">
       <div class="doodle-cell">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="20" cy="22" r="12" fill="#00E600" stroke="#0a0a0a" stroke-width="2.5"/>
-          <circle cx="40" cy="22" r="12" fill="#0a0a0a" stroke="#0a0a0a" stroke-width="2.5"/>
-          <path d="M28 14 Q30 22 32 14" fill="#00E600" stroke="none"/>
-          <path d="M28 30 Q30 22 32 30" fill="#0a0a0a" stroke="none"/>
-          <!-- lightning -->
-          <polygon points="32,38 27,50 31,50 28,60 38,46 33,46" fill="#00E600" stroke="#0a0a0a" stroke-width="1.5" stroke-linejoin="round"/>
-        </svg>
+        <img src="${OLD_ASSETS}/email-icon-psychotherapy.png" width="72" height="72" alt="" style="display:block;width:72px;height:72px;object-fit:contain;" />
       </div>
       <div class="content-cell">
         <p class="label">Match Me</p>
@@ -271,19 +196,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
   <div class="section">
     <div class="section-inner">
       <div class="doodle-cell">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="8" y="4" width="44" height="52" rx="3" fill="white" stroke="#0a0a0a" stroke-width="2.5"/>
-          <rect x="8" y="4" width="16" height="52" rx="2" fill="#0a0a0a"/>
-          <circle cx="16" cy="18" r="5" fill="#00E600"/>
-          <rect x="12" y="28" width="8" height="2.5" rx="1" fill="white"/>
-          <rect x="12" y="33" width="8" height="2.5" rx="1" fill="white"/>
-          <rect x="12" y="38" width="8" height="2.5" rx="1" fill="white"/>
-          <rect x="28" y="14" width="20" height="2.5" rx="1" fill="#0a0a0a"/>
-          <rect x="28" y="20" width="16" height="2.5" rx="1" fill="#0a0a0a"/>
-          <rect x="28" y="30" width="20" height="2.5" rx="1" fill="#0a0a0a"/>
-          <rect x="28" y="36" width="12" height="2.5" rx="1" fill="#0a0a0a"/>
-          <rect x="28" y="42" width="18" height="2.5" rx="1" fill="#0a0a0a"/>
-        </svg>
+        <img src="${OLD_ASSETS}/email-icon-fashion.png" width="72" height="72" alt="" style="display:block;width:72px;height:72px;object-fit:contain;" />
       </div>
       <div class="content-cell">
         <p class="label">CV Builder</p>
@@ -298,13 +211,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
   <div class="section">
     <div class="section-inner">
       <div class="doodle-cell">
-        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <!-- graduation cap -->
-          <polygon points="30,8 54,20 30,32 6,20" fill="#0a0a0a"/>
-          <path d="M46 24 L46 40 Q30 48 14 40 L14 24" fill="#00E600" stroke="#0a0a0a" stroke-width="2"/>
-          <line x1="54" y1="20" x2="54" y2="34" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
-          <circle cx="54" cy="36" r="3" fill="#0a0a0a"/>
-        </svg>
+        <img src="${OLD_ASSETS}/email-icon-teaching.png" width="72" height="72" alt="" style="display:block;width:72px;height:72px;object-fit:contain;" />
       </div>
       <div class="content-cell">
         <p class="label">Role Pages</p>
