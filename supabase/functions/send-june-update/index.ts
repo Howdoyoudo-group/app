@@ -16,8 +16,9 @@ const FROM_NAME = "Howdoyoudo";
 const REPLY_TO = "hello@howdoyoudo.co.uk";
 const SITE = "https://www.howdoyoudo.co.uk";
 const ASSETS_BASE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object/public/email-assets";
-const WORDMARK = `${ASSETS_BASE}/howdoyoudo-wordmark.png`;
-const HOWDY_AVATAR = `${ASSETS_BASE}/howdy-character.png`;
+const OLD_ASSETS = "https://siqwclmzncubkrwabmvb.supabase.co/storage/v1/object/public/email-assets";
+const WORDMARK = `${OLD_ASSETS}/howdoyoudo-wordmark.png`;
+const HOWDY_AVATAR = `${OLD_ASSETS}/howdy-character.png`;
 const HOWDY_LINK = `${SITE}/howdy`;
 const MARKETPLACE = `${SITE}/marketplace`;
 const MATCH_ME = `${SITE}/match-me`;
@@ -67,8 +68,10 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
 
   <h1>${hi}</h1>
 
+  <p>June has been another busy month in start-up land and we have lots to share — and there's also a clear reason why we are doing this.</p>
+
   <div class="milburn">
-    <p style="margin:0;">The Milburn report has been all over the news this month — and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there — the industries, the roles, the people in them — is one of the most powerful things we can give someone early in their journey. <strong>Never has that felt more urgent.</strong> Please join our community and help young people find a future that fits.</p>
+    <p style="margin:0;">The Milburn report has been all over the news this month — and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there — the industries, the roles, the people in them — is one of the most powerful things we can give someone early in their journey. <strong>Never has that felt more urgent.</strong> Thank you for being part of this.</p>
   </div>
 
   <p>Here's what we shipped in June.</p>
@@ -162,10 +165,30 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
     </p>
   </div>
 
+  <!-- TENNIS -->
+  <div class="section">
+    <h2>🎾 Tennis — just in time for Wimbledon</h2>
+    <p>With Wimbledon starting on 29 June, we've added <strong>Tennis</strong> as a full industry on the platform. If you've ever wondered what it takes to work in professional tennis — not just on court, but behind the scenes — this is for you.</p>
+    <ul class="bullets">
+      <li>Real jobs from the <strong>LTA, AELTC, ATP, WTA and ITF</strong></li>
+      <li>Live tournament events — from Wimbledon to the ATP Finals in Turin</li>
+      <li>Career map covering everything from performance analysis to commercial roles</li>
+      <li>Downloadable industry briefing — market size, key players, trends</li>
+      <li>Community feed and daily briefings</li>
+    </ul>
+    <p style="text-align:center; margin-top:18px;">
+      <a class="green-pill" href="${SITE}/tennis">Explore Tennis →</a>
+    </p>
+  </div>
+
   <!-- ROLE PAGES -->
   <div class="section">
     <h2>Richer role pages</h2>
     <p>Every role page now has <strong>CareerPilot data</strong> — the official UK careers database being retired this year. We've scraped and preserved it: named apprenticeship routes with Level badges (L2–L6), T Level pathways, A Level requirements, real salary ranges and work environment descriptions.</p>
+  </div>
+
+  <div class="section">
+    <p>We want to thank everyone for their support, time and encouragement this month. We are building something important and as always please push us to make this better week by week.</p>
   </div>
 
   <div class="section" style="text-align:center;">
@@ -191,7 +214,9 @@ function buildText(firstName: string, unsubscribeUrl: string, _liveJobs: number)
   const hi = firstName ? `Howdy ${firstName}` : "Howdy";
   return `${hi},
 
-The Milburn report has been all over the news this month — and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there — the industries, the roles, the people in them — is one of the most powerful things we can give someone early in their journey. Never has that felt more urgent. Please join our community and help young people find a future that fits.
+June has been another busy month in start-up land and we have lots to share — and there's also a clear reason why we are doing this.
+
+The Milburn report has been all over the news this month — and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there — the industries, the roles, the people in them — is one of the most powerful things we can give someone early in their journey. Never has that felt more urgent. Thank you for being part of this.
 
 Here's what we shipped in June.
 
@@ -227,8 +252,14 @@ CV BUILDER — REDESIGNED
 Proper two-column A4 PDF with company logos. New: ATS optimisation so your CV passes automated screening before a human sees it.
 ${CV_BUILDER}
 
+TENNIS — JUST IN TIME FOR WIMBLEDON
+With Wimbledon starting 29 June, we've added Tennis as a full industry. Real jobs from the LTA, AELTC, ATP, WTA and ITF. Live tournament events, career map, downloadable briefing and daily briefings.
+${SITE}/tennis
+
 RICHER ROLE PAGES
 CareerPilot data on every role: named apprenticeship routes (L2–L6), T Levels, A Level requirements, real salary ranges, work environment descriptions.
+
+We want to thank everyone for their support, time and encouragement this month. We are building something important and as always please push us to make this better week by week.
 
 Built in London. Shipping every week. Reply to this email — we read every one.
 
