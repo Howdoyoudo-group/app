@@ -134,6 +134,7 @@ const CompanyCaffeNero = lazy(() => import("./pages/CompanyCaffeNero.tsx"));
 const CompanyBlankStreet = lazy(() => import("./pages/CompanyBlankStreet.tsx"));
 const CompanyFiveGuys = lazy(() => import("./pages/CompanyFiveGuys.tsx"));
 const CompanyHawkstone = lazy(() => import("./pages/CompanyHawkstone.tsx"));
+const CompanyFeverTree = lazy(() => import("./pages/CompanyFeverTree.tsx"));
 const CompanyPragnell = lazy(() => import("./pages/CompanyPragnell.tsx"));
 const CompanyNewsUK = lazy(() => import("./pages/CompanyNewsUK.tsx"));
 const CompanyProfilePage = lazy(() => import("./pages/CompanyProfilePage.tsx"));
@@ -358,6 +359,7 @@ const App = () => (
           <Route path="/company/caffe-nero" element={<CompanyCaffeNero />} />
           <Route path="/company/blank-street" element={<CompanyBlankStreet />} />
           <Route path="/company/hawkstone" element={<CompanyHawkstone />} />
+          <Route path="/company/fever-tree" element={<CompanyFeverTree />} />
           <Route path="/company/five-guys" element={<CompanyFiveGuys />} />
           <Route path="/company/pragnell" element={<CompanyPragnell />} />
           <Route path="/company/news-uk" element={<CompanyNewsUK />} />

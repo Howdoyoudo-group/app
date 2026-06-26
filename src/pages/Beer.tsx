@@ -80,6 +80,7 @@ const newsfeed = [
 ];
 
 const beerCompanies = [
+  { name: "Fever-Tree", url: "https://fever-tree.com/en-gb/careers", founded: "2004", hq: "London", glassdoor: 4.0, overview: "The world's leading premium mixer brand — tonic, ginger beer, elderflower and more, in 85+ countries.", valueChainStage: "Distribution & Wholesale", profileUrl: "/company/fever-tree" },
   { name: "Hawkstone", url: "https://hawkstone.com", founded: "2021", hq: "Chipping Norton", overview: "Jeremy Clarkson's farm-born lager and cider - one of the UK's fastest-growing drinks brands.", valueChainStage: "Brewing & Production", profileUrl: "/company/hawkstone" },
   { name: "Northern Monk", url: "https://www.northernmonk.com", founded: "2013", hq: "Leeds", overview: "Independent craft brewery known for creative collaborations and a thriving taproom culture.", valueChainStage: "Brewing & Production" },
   { name: "BrewDog", url: "https://jobs.brewdog.com/", founded: "2007", hq: "Ellon, Aberdeenshire", glassdoor: 3.2, overview: "Scotland's punk craft brewery - IPAs, taprooms, and a hotel inside a brewery.", valueChainStage: "Brewing & Production" },
