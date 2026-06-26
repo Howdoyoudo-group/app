@@ -68,7 +68,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
   <h1>${hi}</h1>
 
   <div class="milburn">
-    <p style="margin:0;">The Milburn report has been all over the news — and it makes for uncomfortable reading. Social mobility in the UK is stalling. Young people's chances are increasingly shaped by where they grew up and who they know, not what they're capable of. We've always believed that genuinely understanding the breadth of what's out there — the industries, the roles, the people doing them — is one of the most powerful things we can give someone early in their career. <strong>Never has that felt more urgent.</strong></p>
+    <p style="margin:0;">The Milburn report has been all over the news this month — and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there — the industries, the roles, the people in them — is one of the most powerful things we can give someone early in their journey. <strong>Never has that felt more urgent.</strong> Please join our community and help young people find a future that fits.</p>
   </div>
 
   <p>Here's what we shipped in June.</p>
@@ -191,7 +191,7 @@ function buildText(firstName: string, unsubscribeUrl: string, _liveJobs: number)
   const hi = firstName ? `Howdy ${firstName}` : "Howdy";
   return `${hi},
 
-The Milburn report has been all over the news — and it makes for uncomfortable reading. Social mobility in the UK is stalling. Young people's chances are increasingly shaped by where they grew up and who they know, not what they're capable of. We've always believed that genuinely understanding the breadth of what's out there is one of the most powerful things we can give someone early in their career. Never has that felt more urgent.
+The Milburn report has been all over the news this month — and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there — the industries, the roles, the people in them — is one of the most powerful things we can give someone early in their journey. Never has that felt more urgent. Please join our community and help young people find a future that fits.
 
 Here's what we shipped in June.
 
