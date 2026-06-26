@@ -87,21 +87,35 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
   <!-- NEW HOME -->
   <div class="section">
     <div class="highlight">
-      <p class="label" style="color:#0a0a0a; margin-bottom:8px;">★ Big news</p>
-      <h2 style="margin-top:0; font-size:24px;">We have a new home.</h2>
-      <p style="font-size:16px; font-weight:700; margin:0 0 10px;">www.howdoyoudo.co.uk</p>
-      <p style="margin-bottom:16px;">The platform has moved to its permanent address. Your profile, your matches, your saved jobs — all right there. If you bookmarked the old address, update it now.</p>
-      <a class="cta" href="${SITE}">Go to howdoyoudo.co.uk →</a>
+      <div class="section-inner">
+        <div class="doodle-cell">
+          <img src="${OLD_ASSETS}/email-icon-estate-agency.png" width="72" height="72" alt="" style="display:block;width:72px;height:72px;object-fit:contain;" />
+        </div>
+        <div class="content-cell">
+          <p class="label" style="color:#0a0a0a; margin-bottom:8px;">★ Big news</p>
+          <h2 style="margin-top:0; font-size:24px;">We have a new home.</h2>
+          <p style="font-size:16px; font-weight:700; margin:0 0 10px;">www.howdoyoudo.co.uk</p>
+          <p style="margin-bottom:16px;">The platform has moved to its permanent address. Your profile, your matches, your saved jobs — all right there. If you bookmarked the old address, update it now.</p>
+          <a class="cta" href="${SITE}">Go to howdoyoudo.co.uk →</a>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- NAV -->
   <div class="section">
-    <p class="label">Navigation</p>
-    <h2>A simpler way around the site.</h2>
-    <p>Five clear sections now — Show, Discover, Level Up, Jobs, Community. Everything has a home. No hunting around.</p>
-    <div>
-      <span class="chip">Show</span><span class="chip">Discover</span><span class="chip">Level Up</span><span class="chip">Jobs</span><span class="chip">Community</span>
+    <div class="section-inner">
+      <div class="doodle-cell">
+        <img src="${OLD_ASSETS}/email-icon-cars.png" width="72" height="72" alt="" style="display:block;width:72px;height:72px;object-fit:contain;" />
+      </div>
+      <div class="content-cell">
+        <p class="label">Navigation</p>
+        <h2>A simpler way around the site.</h2>
+        <p>Five clear sections now — Show, Discover, Level Up, Jobs, Community. Everything has a home. No hunting around.</p>
+        <div>
+          <span class="chip">Show</span><span class="chip">Discover</span><span class="chip">Level Up</span><span class="chip">Jobs</span><span class="chip">Community</span>
+        </div>
+      </div>
     </div>
   </div>
 
