@@ -361,6 +361,7 @@ const LEVEL_UP_GROUPS: NavGroup[] = [
   {
     label: "Learning Hub",
     items: [
+      { label: "CV Tips", to: "/resources/cv-tips", description: "Vizzy, Reed, templates & advice" },
       { label: "Further Education", to: "/resources/education", description: "University, college & courses" },
       { label: "Online Learning", to: "/resources/online-courses", description: "Learn at your own pace" },
       { label: "Mentoring", to: "/resources/mentoring", description: "Find a mentor to guide you" },
