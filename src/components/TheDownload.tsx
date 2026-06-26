@@ -41,6 +41,7 @@ const AVAILABLE_DOWNLOADS: Record<string, "html" | "pdf"> = {
   physiotherapy: "html",
   psychotherapy: "html",
   teaching: "html",
+  tennis: "html",
   travel: "html",
   wellness: "html",
 };
