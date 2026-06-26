@@ -413,9 +413,11 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
       { name: "Guardian Careers - CV advice", description: "Practical articles from the Guardian on standout CVs, LinkedIn and job applications.", url: "https://www.theguardian.com/careers/cv" },
     ],
     help: [
+      { name: "Howdoyoudo? CV Builder", description: "Build a tailored, industry-specific CV with our AI-powered builder.", url: "/cv-builder", tags: ["Tool", "Free"] },
+      { name: "Vizzy", description: "Free visual CV builder with smart templates — looks great and takes minutes.", url: "https://vizzy.com/", tags: ["Design", "Free"] },
       { name: "National Careers Service - CV builder", description: "Free UK government CV builder with templates, tips and downloadable formats.", url: "https://nationalcareers.service.gov.uk/get-a-job/cv-sections", tags: ["Free", "UK"] },
-      { name: "MyWorldOfWork", description: "Scottish careers service with free CV, cover letter and interview resources.", url: "https://www.myworldofwork.co.uk/cv-guide", tags: ["Free", "UK"] },
       { name: "TopCV - Free CV review", description: "Submit your CV for a free expert review with actionable feedback.", url: "https://www.topcv.co.uk/free-cv-review", tags: ["Free", "Review"] },
+      { name: "Save the Student - CV Tips", description: "Templates and advice tuned to UK employers and students.", url: "https://www.savethestudent.org/jobs/how-to-write-a-cv.html", tags: ["Students"] },
     ],
   },
   {
