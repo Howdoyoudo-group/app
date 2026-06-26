@@ -38,164 +38,287 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
 <style>
   body { margin:0; padding:0; background:#ffffff; font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color:#0a0a0a; }
   .wrap { max-width:600px; margin:0 auto; padding:32px 24px 48px; }
-  h1, h2, h3 { font-family: 'Dela Gothic One', Georgia, serif; font-weight:400; line-height:1.15; margin:0 0 12px; letter-spacing:-0.01em; }
-  h1 { font-size:32px; }
-  h2 { font-size:22px; margin-top:8px; }
-  p { font-size:16px; line-height:1.55; margin:0 0 14px; color:#1a1a1a; }
+  h1, h2 { font-family: 'Dela Gothic One', Georgia, serif; font-weight:400; line-height:1.1; margin:0 0 10px; letter-spacing:-0.02em; }
+  h1 { font-size:34px; }
+  h2 { font-size:20px; }
+  p { font-size:15px; line-height:1.6; margin:0 0 12px; color:#1a1a1a; }
   a { color:#0a0a0a; }
   .accent { color:#00b800; }
-  .green-pill { display:inline-block; background:#00E600; color:#0a0a0a; font-family:'Dela Gothic One',Georgia,serif; font-size:14px; padding:10px 18px; border-radius:999px; text-decoration:none; }
-  .section { padding:28px 0; border-top:2px dashed #0a0a0a; }
-  .bullets { padding-left:0; list-style:none; margin:0 0 8px; }
-  .bullets li { padding:8px 0 8px 28px; position:relative; font-size:16px; line-height:1.5; }
-  .bullets li:before { content:""; position:absolute; left:0; top:14px; width:14px; height:14px; background:#00E600; border-radius:50%; }
-  .highlight { background:#ecffe8; border:2px solid #00E600; border-radius:18px; padding:22px; }
-  .milburn { background:#f5f5f5; border-left:4px solid #00b800; padding:18px 20px; margin:0 0 24px; }
-  .chip { display:inline-block; background:#0a0a0a; color:#ffffff; font-family:'Dela Gothic One',Georgia,serif; font-size:12px; padding:6px 12px; border-radius:4px; margin:4px 4px 4px 0; }
+  .cta { display:inline-block; background:#00E600; color:#0a0a0a; font-family:'Dela Gothic One',Georgia,serif; font-size:13px; font-weight:700; padding:11px 22px; text-decoration:none; border:2px solid #0a0a0a; letter-spacing:0.04em; }
+  .section { padding:24px 0; border-top:2px solid #0a0a0a; }
+  .section-inner { display:table; width:100%; }
+  .doodle-cell { display:table-cell; width:72px; vertical-align:top; padding-right:16px; }
+  .content-cell { display:table-cell; vertical-align:top; }
+  .bullets { padding-left:0; list-style:none; margin:0 0 10px; }
+  .bullets li { padding:5px 0 5px 20px; position:relative; font-size:14px; line-height:1.5; }
+  .bullets li:before { content:""; position:absolute; left:0; top:11px; width:10px; height:10px; background:#00E600; border:1.5px solid #0a0a0a; }
+  .highlight { background:#00E600; border:2px solid #0a0a0a; padding:20px; margin-bottom:4px; }
+  .highlight h2 { color:#0a0a0a; }
+  .milburn { background:#f5f5f5; border:2px solid #0a0a0a; border-left:6px solid #00E600; padding:16px 18px; margin:0 0 20px; }
+  .chip { display:inline-block; background:#0a0a0a; color:#ffffff; font-family:'Dela Gothic One',Georgia,serif; font-size:11px; padding:5px 10px; margin:3px 3px 3px 0; letter-spacing:0.06em; }
+  .label { font-family:'Dela Gothic One',Georgia,serif; font-size:10px; letter-spacing:0.18em; text-transform:uppercase; color:#555; margin:0 0 6px; }
   .meta { font-size:13px; color:#555; line-height:1.5; }
-  .footer { margin-top:32px; padding-top:20px; border-top:1px solid #eee; text-align:center; }
+  .footer { margin-top:32px; padding-top:20px; border-top:2px solid #0a0a0a; text-align:center; }
   .footer a { color:#555; text-decoration:underline; }
+  .stamp { display:inline-block; border:3px solid #0a0a0a; padding:10px 16px; font-family:'Dela Gothic One',Georgia,serif; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; transform:rotate(-2deg); color:#0a0a0a; }
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <div style="text-align:center; margin-bottom:8px;">
+  <!-- HEADER -->
+  <div style="text-align:center; padding:24px 0 16px; border-bottom:3px solid #0a0a0a; margin-bottom:24px;">
     <img src="${WORDMARK}" alt="Howdoyoudo" width="180" style="max-width:180px;height:auto;" />
+    <div style="margin-top:10px;">
+      <span style="font-family:'Dela Gothic One',Georgia,serif; font-size:10px; letter-spacing:0.22em; text-transform:uppercase; color:#555;">Founding Member Update &nbsp;·&nbsp; June 2026</span>
+    </div>
   </div>
-
-  <img src="${HOWDY_AVATAR}" alt="Howdy" width="120" height="120" style="display:block;margin:8px auto 18px;max-width:120px;height:auto;border-radius:18px;" />
 
   <h1>${hi}</h1>
 
   <p>June has been another busy month in start-up land and we have lots to share — and there's also a clear reason why we are doing this.</p>
 
   <div class="milburn">
-    <p style="margin:0;">The Milburn report has been all over the news this month — and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there — the industries, the roles, the people in them — is one of the most powerful things we can give someone early in their journey. <strong>Never has that felt more urgent.</strong> Thank you for being part of this.</p>
+    <p style="margin:0 0 0 0; font-size:14px;">The Milburn report has been all over the news this month — and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there — the industries, the roles, the people in them — is one of the most powerful things we can give someone early in their journey. <strong>Never has that felt more urgent.</strong> Thank you for being part of this.</p>
   </div>
 
-  <p>Here's what we shipped in June.</p>
+  <p style="font-family:'Dela Gothic One',Georgia,serif; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; color:#555; margin-bottom:4px;">Here's what we shipped ↓</p>
 
   <!-- NEW HOME -->
   <div class="section">
     <div class="highlight">
-      <h2 style="margin-top:0;">⭐ We have a new home — <span class="accent">www.howdoyoudo.co.uk</span></h2>
-      <p>The platform has moved to its permanent address. Everything you had before — your profile, your matches, your saved jobs — is right there waiting for you. If you bookmarked the old address, update it now.</p>
-      <p style="text-align:center; margin-top:18px;">
-        <a class="green-pill" href="${SITE}">Go to howdoyoudo.co.uk</a>
-      </p>
+      <p class="label" style="color:#0a0a0a; margin-bottom:8px;">★ Big news</p>
+      <h2 style="margin-top:0; font-size:24px;">We have a new home.</h2>
+      <p style="font-size:16px; font-weight:700; margin:0 0 10px;">www.howdoyoudo.co.uk</p>
+      <p style="margin-bottom:16px;">The platform has moved to its permanent address. Your profile, your matches, your saved jobs — all right there. If you bookmarked the old address, update it now.</p>
+      <a class="cta" href="${SITE}">Go to howdoyoudo.co.uk →</a>
     </div>
   </div>
 
   <!-- NAV -->
   <div class="section">
-    <h2>A simpler way around the site</h2>
-    <p>We've redesigned the navigation to make it much easier to find your way around. Five clear sections now:</p>
-    <div>
-      <span class="chip">Show</span>
-      <span class="chip">Discover</span>
-      <span class="chip">Level Up</span>
-      <span class="chip">Jobs</span>
-      <span class="chip">Community</span>
+    <div class="section-inner">
+      <div class="doodle-cell">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="10" width="52" height="6" rx="2" fill="#0a0a0a"/>
+          <rect x="4" y="27" width="52" height="6" rx="2" fill="#00E600"/>
+          <rect x="4" y="44" width="52" height="6" rx="2" fill="#0a0a0a"/>
+        </svg>
+      </div>
+      <div class="content-cell">
+        <p class="label">Navigation</p>
+        <h2>A simpler way around the site</h2>
+        <p>Five clear sections now — Show, Discover, Level Up, Jobs, Community. Everything has a home. No hunting around.</p>
+        <div>
+          <span class="chip">Show</span><span class="chip">Discover</span><span class="chip">Level Up</span><span class="chip">Jobs</span><span class="chip">Community</span>
+        </div>
+      </div>
     </div>
-    <p style="margin-top:12px;">Everything has a home. No hunting around.</p>
-  </div>
-
-  <!-- 30+ INDUSTRIES -->
-  <div class="section">
-    <h2>Over 30 industries — and growing</h2>
-    <p>We added <strong>Building, Fixing</strong> and <strong>Delivery</strong> this month — three huge UK employment sectors that don't get nearly enough love on career platforms. Each one has the full treatment: career maps, real company profiles, daily briefings, live jobs and curated events.</p>
-    <div>
-      <span class="chip">🏗️ Building</span>
-      <span class="chip">🔧 Fixing</span>
-      <span class="chip">📦 Delivery</span>
-      <span class="chip">🎾 Tennis</span>
-      <span class="chip">+ 26 more</span>
-    </div>
-    <p style="text-align:center; margin-top:18px;">
-      <a class="green-pill" href="${SITE}/building">Explore Building →</a>
-    </p>
   </div>
 
   <!-- THE SHOW -->
   <div class="section">
-    <h2>The Show — our first episode is recorded</h2>
-    <p>We've been busy. We recorded our <strong>first ever Howdoyoudo show</strong> — a deep dive into Journalism, with the people who actually do it. It launches next month and we can't wait to share it.</p>
-    <p>We've also been out and about — we took the show to <strong>SXSW London</strong>, talking to people about the industries they love, the careers they stumbled into, and what they wish they'd known earlier. Those conversations are coming to the platform soon.</p>
-    <p>And five <strong>street interview clips</strong> are already live on the Videos page — short, real, and worth three minutes of your time.</p>
-    <p style="text-align:center; margin-top:18px;">
-      <a class="green-pill" href="${VIDEOS}">Watch the clips</a>
-    </p>
+    <div class="section-inner">
+      <div class="doodle-cell">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- clapperboard -->
+          <rect x="6" y="18" width="48" height="36" rx="3" fill="#0a0a0a"/>
+          <rect x="6" y="18" width="48" height="10" rx="2" fill="#00E600"/>
+          <line x1="18" y1="18" x2="14" y2="28" stroke="#0a0a0a" stroke-width="3"/>
+          <line x1="30" y1="18" x2="26" y2="28" stroke="#0a0a0a" stroke-width="3"/>
+          <line x1="42" y1="18" x2="38" y2="28" stroke="#0a0a0a" stroke-width="3"/>
+          <!-- play triangle -->
+          <polygon points="26,32 26,46 40,39" fill="#00E600"/>
+        </svg>
+      </div>
+      <div class="content-cell">
+        <p class="label">The Show</p>
+        <h2>Our first episode is recorded.</h2>
+        <p>A deep dive into <strong>Journalism</strong> — with the people who actually do it. It launches next month.</p>
+        <p>We were also at <strong>SXSW London</strong> this month, talking to people about the industries they love and the careers they stumbled into. Five street interview clips are already live.</p>
+        <a class="cta" href="${VIDEOS}">Watch the clips →</a>
+      </div>
+    </div>
   </div>
 
-  <!-- JOBS -->
+  <!-- 30+ INDUSTRIES -->
   <div class="section">
-    <h2>Over 60,000 curated jobs</h2>
-    <p>The marketplace now has <strong>over 60,000 curated jobs</strong>, with direct connections to <strong>over 400 employer career sites</strong> — so when you click through, you're going straight to the source. No aggregator middleman, no stale listings.</p>
-    <p>New this month: <strong>save any job</strong> and find it waiting in your Saved tab when you're ready to apply.</p>
-    <p style="text-align:center; margin-top:18px;">
-      <a class="green-pill" href="${MARKETPLACE}">Browse the marketplace</a>
-    </p>
-  </div>
-
-  <!-- SKILLS -->
-  <div class="section">
-    <h2>Skills passport &amp; gap tracker</h2>
-    <p>We've integrated <strong>Skills England data</strong> — official UK government skills frameworks — directly into your profile. For each role you explore, you can now see the exact skills it needs, where your gaps are, and a Career Passport that brings it all together. Badges you earn automatically update your skill ratings.</p>
-    <p style="text-align:center; margin-top:18px;">
-      <a class="green-pill" href="${SKILLS_PASSPORT}">See your skills passport</a>
-    </p>
-  </div>
-
-  <!-- MATCH ME -->
-  <div class="section">
-    <h2>Match Me — smarter and more personal</h2>
-    <p>Match Me now uses your RIASEC personality type, your stated passions, your dream employers and your role preferences to weight every recommendation. New: <strong>"Where your worlds collide"</strong> — roles at the intersection of the industries you follow. Kit Designer for Football + Fashion. Music Therapist for Music + Health.</p>
-    <p style="text-align:center; margin-top:18px;">
-      <a class="green-pill" href="${MATCH_ME}">See your matches</a>
-    </p>
-  </div>
-
-  <!-- CV BUILDER -->
-  <div class="section">
-    <h2>CV Builder — redesigned</h2>
-    <p>The CV Builder now produces a proper two-column A4 PDF — navy sidebar, company and school logos pulled automatically. New: <strong>ATS optimisation</strong>, so your CV is structured to pass the automated screening systems used by most large employers before a human ever sees it.</p>
-    <p style="text-align:center; margin-top:18px;">
-      <a class="green-pill" href="${CV_BUILDER}">Build your CV</a>
-    </p>
+    <div class="section-inner">
+      <div class="doodle-cell">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- hard hat -->
+          <ellipse cx="30" cy="36" rx="24" ry="8" fill="#0a0a0a"/>
+          <path d="M10 36 Q10 16 30 14 Q50 16 50 36Z" fill="#00E600" stroke="#0a0a0a" stroke-width="2.5"/>
+          <rect x="22" y="10" width="16" height="8" rx="2" fill="#0a0a0a"/>
+          <!-- wrench -->
+          <circle cx="44" cy="48" r="5" fill="none" stroke="#0a0a0a" stroke-width="2.5"/>
+          <line x1="40" y1="52" x2="32" y2="58" stroke="#0a0a0a" stroke-width="3" stroke-linecap="round"/>
+          <!-- box -->
+          <rect x="6" y="46" width="14" height="12" rx="1" fill="#0a0a0a"/>
+          <line x1="6" y1="52" x2="20" y2="52" stroke="#00E600" stroke-width="1.5"/>
+          <line x1="13" y1="46" x2="13" y2="58" stroke="#00E600" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="content-cell">
+        <p class="label">New Industries</p>
+        <h2>Over 30 industries — and growing.</h2>
+        <p>We added <strong>Building, Fixing</strong> and <strong>Delivery</strong> — three huge UK sectors that don't get enough love. Career maps, real company profiles, daily briefings, live jobs and events. Now over 30 industries covered.</p>
+        <div style="margin:10px 0;">
+          <span class="chip">Building</span><span class="chip">Fixing</span><span class="chip">Delivery</span>
+        </div>
+        <a class="cta" href="${SITE}/building">Explore Building →</a>
+      </div>
+    </div>
   </div>
 
   <!-- TENNIS -->
   <div class="section">
-    <h2>🎾 Tennis — just in time for Wimbledon</h2>
-    <p>With Wimbledon starting on 29 June, we've added <strong>Tennis</strong> as a full industry on the platform. If you've ever wondered what it takes to work in professional tennis — not just on court, but behind the scenes — this is for you.</p>
-    <ul class="bullets">
-      <li>Real jobs from the <strong>LTA, AELTC, ATP, WTA and ITF</strong></li>
-      <li>Live tournament events — from Wimbledon to the ATP Finals in Turin</li>
-      <li>Career map covering everything from performance analysis to commercial roles</li>
-      <li>Downloadable industry briefing — market size, key players, trends</li>
-      <li>Community feed and daily briefings</li>
-    </ul>
-    <p style="text-align:center; margin-top:18px;">
-      <a class="green-pill" href="${SITE}/tennis">Explore Tennis →</a>
-    </p>
+    <div class="section-inner">
+      <div class="doodle-cell">
+        <svg width="60" height="60" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="26" cy="22" rx="18" ry="20" fill="white" stroke="#0a0a0a" stroke-width="4"/>
+          <line x1="18" y1="4" x2="18" y2="40" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+          <line x1="26" y1="2" x2="26" y2="42" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+          <line x1="34" y1="4" x2="34" y2="40" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+          <line x1="9" y1="15" x2="43" y2="15" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+          <line x1="8" y1="22" x2="44" y2="22" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+          <line x1="9" y1="29" x2="43" y2="29" stroke="#0a0a0a" stroke-width="2" stroke-linecap="round"/>
+          <rect x="23" y="40" width="6" height="18" rx="3" fill="#0a0a0a"/>
+          <line x1="23" y1="46" x2="29" y2="46" stroke="white" stroke-width="1.5"/>
+          <line x1="23" y1="51" x2="29" y2="51" stroke="white" stroke-width="1.5"/>
+          <circle cx="50" cy="50" r="9" fill="#00E600" stroke="#0a0a0a" stroke-width="2"/>
+          <path d="M43 46 Q50 52 57 46" stroke="#0a0a0a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+          <path d="M43 54 Q50 48 57 54" stroke="#0a0a0a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="content-cell">
+        <p class="label">New Industry · Wimbledon 2026</p>
+        <h2>Tennis is on the platform.</h2>
+        <p>With Wimbledon starting 29 June, we've added Tennis as a full industry. Real jobs from the <strong>LTA, AELTC, ATP, WTA and ITF</strong>. Live tournament events, career map, community feed and a downloadable briefing.</p>
+        <a class="cta" href="${SITE}/tennis">Explore Tennis →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- JOBS -->
+  <div class="section">
+    <div class="section-inner">
+      <div class="doodle-cell">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="16" width="48" height="36" rx="3" fill="#0a0a0a"/>
+          <rect x="20" y="8" width="20" height="12" rx="2" fill="none" stroke="#0a0a0a" stroke-width="3"/>
+          <line x1="6" y1="30" x2="54" y2="30" stroke="#00E600" stroke-width="2.5"/>
+          <circle cx="30" cy="30" r="5" fill="#00E600" stroke="#0a0a0a" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="content-cell">
+        <p class="label">Jobs Marketplace</p>
+        <h2>Over 60,000 curated jobs.</h2>
+        <p>Direct connections to <strong>over 400 employer career sites</strong> — straight to source, no middleman. New: save any job and find it in your Saved tab when you're ready to apply.</p>
+        <a class="cta" href="${MARKETPLACE}">Browse the marketplace →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SKILLS -->
+  <div class="section">
+    <div class="section-inner">
+      <div class="doodle-cell">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- passport shape -->
+          <rect x="12" y="6" width="36" height="48" rx="3" fill="#0a0a0a"/>
+          <rect x="16" y="10" width="28" height="18" rx="2" fill="#00E600"/>
+          <!-- skill bars -->
+          <rect x="16" y="34" width="20" height="3" rx="1" fill="white"/>
+          <rect x="16" y="40" width="14" height="3" rx="1" fill="white"/>
+          <rect x="16" y="46" width="24" height="3" rx="1" fill="white"/>
+          <!-- star on badge -->
+          <polygon points="30,13 31.5,17 36,17 32.5,20 34,24 30,21.5 26,24 27.5,20 24,17 28.5,17" fill="#0a0a0a"/>
+        </svg>
+      </div>
+      <div class="content-cell">
+        <p class="label">Skills England</p>
+        <h2>Skills passport &amp; gap tracker.</h2>
+        <p>Official UK government skills frameworks built into your profile. See exactly what any role needs, find your gaps, and track progress in your Career Passport. Badges update your ratings automatically.</p>
+        <a class="cta" href="${SKILLS_PASSPORT}">See your passport →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MATCH ME -->
+  <div class="section">
+    <div class="section-inner">
+      <div class="doodle-cell">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="22" r="12" fill="#00E600" stroke="#0a0a0a" stroke-width="2.5"/>
+          <circle cx="40" cy="22" r="12" fill="#0a0a0a" stroke="#0a0a0a" stroke-width="2.5"/>
+          <path d="M28 14 Q30 22 32 14" fill="#00E600" stroke="none"/>
+          <path d="M28 30 Q30 22 32 30" fill="#0a0a0a" stroke="none"/>
+          <!-- lightning -->
+          <polygon points="32,38 27,50 31,50 28,60 38,46 33,46" fill="#00E600" stroke="#0a0a0a" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="content-cell">
+        <p class="label">Match Me</p>
+        <h2>Smarter and more personal.</h2>
+        <p>Now uses your RIASEC personality type, passions, dream employers and role preferences. New: <strong>"Where your worlds collide"</strong> — roles at the intersection of the industries you follow.</p>
+        <a class="cta" href="${MATCH_ME}">See your matches →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CV BUILDER -->
+  <div class="section">
+    <div class="section-inner">
+      <div class="doodle-cell">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="4" width="44" height="52" rx="3" fill="white" stroke="#0a0a0a" stroke-width="2.5"/>
+          <rect x="8" y="4" width="16" height="52" rx="2" fill="#0a0a0a"/>
+          <circle cx="16" cy="18" r="5" fill="#00E600"/>
+          <rect x="12" y="28" width="8" height="2.5" rx="1" fill="white"/>
+          <rect x="12" y="33" width="8" height="2.5" rx="1" fill="white"/>
+          <rect x="12" y="38" width="8" height="2.5" rx="1" fill="white"/>
+          <rect x="28" y="14" width="20" height="2.5" rx="1" fill="#0a0a0a"/>
+          <rect x="28" y="20" width="16" height="2.5" rx="1" fill="#0a0a0a"/>
+          <rect x="28" y="30" width="20" height="2.5" rx="1" fill="#0a0a0a"/>
+          <rect x="28" y="36" width="12" height="2.5" rx="1" fill="#0a0a0a"/>
+          <rect x="28" y="42" width="18" height="2.5" rx="1" fill="#0a0a0a"/>
+        </svg>
+      </div>
+      <div class="content-cell">
+        <p class="label">CV Builder</p>
+        <h2>Properly redesigned.</h2>
+        <p>Two-column A4 PDF, company logos pulled automatically. New: <strong>ATS optimisation</strong> — structured to pass automated screening before a human ever sees it.</p>
+        <a class="cta" href="${CV_BUILDER}">Build your CV →</a>
+      </div>
+    </div>
   </div>
 
   <!-- ROLE PAGES -->
   <div class="section">
-    <h2>Richer role pages</h2>
-    <p>Every role page now has <strong>CareerPilot data</strong> — the official UK careers database being retired this year. We've scraped and preserved it: named apprenticeship routes with Level badges (L2–L6), T Level pathways, A Level requirements, real salary ranges and work environment descriptions.</p>
+    <div class="section-inner">
+      <div class="doodle-cell">
+        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- graduation cap -->
+          <polygon points="30,8 54,20 30,32 6,20" fill="#0a0a0a"/>
+          <path d="M46 24 L46 40 Q30 48 14 40 L14 24" fill="#00E600" stroke="#0a0a0a" stroke-width="2"/>
+          <line x1="54" y1="20" x2="54" y2="34" stroke="#0a0a0a" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="54" cy="36" r="3" fill="#0a0a0a"/>
+        </svg>
+      </div>
+      <div class="content-cell">
+        <p class="label">Role Pages</p>
+        <h2>Richer entry routes &amp; salary data.</h2>
+        <p>Every role page now has CareerPilot data — the official UK careers database being retired this year. Named apprenticeship routes (L2–L6), T Levels, A Level requirements, real salary ranges and work environment descriptions.</p>
+      </div>
+    </div>
   </div>
 
-  <div class="section">
+  <!-- SIGN OFF -->
+  <div class="section" style="border-top:3px solid #0a0a0a;">
     <p>We want to thank everyone for their support, time and encouragement this month. We are building something important and as always please push us to make this better week by week.</p>
-  </div>
-
-  <div class="section" style="text-align:center;">
-    <p style="font-family:'Dela Gothic One',Georgia,serif; font-size:18px; margin-bottom:6px;">Built in London. Shipping every week.</p>
-    <p class="meta">Reply to this email any time — we read every one.</p>
-    <p style="margin-top:24px; font-family:'Dela Gothic One',Georgia,serif;">The Howdoyoudo team <span class="accent">?</span></p>
-    <p class="meta"><em>Unpacking the industries we love and live in.</em></p>
+    <p style="font-family:'Dela Gothic One',Georgia,serif; font-size:20px; margin:20px 0 4px;">The Howdoyoudo team<span style="color:#00b800;">?</span></p>
+    <p class="meta"><em>Unpacking the industries we love and live in. Built in London.</em></p>
   </div>
 
   <div class="footer">
