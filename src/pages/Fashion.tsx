@@ -44,7 +44,7 @@ const newsfeed = [
 
 const fashionCompanies = [
   { name: "Coats Group", url: "https://www.coats.com/careers", founded: "1755", hq: "London", glassdoor: 3.8, overview: "The world's largest industrial thread manufacturer - supplying yarn and thread to garment factories globally.", valueChainStage: "Sourcing" },
-  { name: "Boohoo Group", url: "https://www.boohoogroup.com/careers", founded: "2006", hq: "Manchester", glassdoor: 3.2, trustpilot: 1.5, overview: "Fast-fashion group owning Boohoo, PrettyLittleThing, and Nasty Gal.", valueChainStage: "Brand" },
+  { name: "Boohoo Group", url: "https://www.debenhamsgroup.com/careers/boohoo/", founded: "2006", hq: "Manchester", glassdoor: 3.2, trustpilot: 1.5, overview: "Fast-fashion group (now trading as Debenhams Group) owning Boohoo, PrettyLittleThing, and Karen Millen.", valueChainStage: "Brand" },
   { name: "Burberry", url: "https://www.burberryplc.com/careers", founded: "1856", hq: "London", glassdoor: 3.9, trustpilot: 2.1, profileUrl: "/company/burberry", overview: "A 160-year-old British luxury house - design, manufacturing, and global retail.", valueChainStage: "Brand" },
   { name: "ME+EM", url: "https://www.meandem.com/careers", founded: "2009", hq: "London", glassdoor: 3.8, trustpilot: 4.6, profileUrl: "/company/me-em", overview: "Modern luxury womenswear - direct-to-consumer brand with own stores.", valueChainStage: "Brand" },
   { name: "Uniqlo", url: "https://www.uniqlo.com/uk/en/", founded: "1984", hq: "Tokyo (UK: London)", glassdoor: 3.6, trustpilot: 2.4, overview: "Japanese global brand known for functional, affordable basics - part of Fast Retailing.", valueChainStage: "Brand" },
