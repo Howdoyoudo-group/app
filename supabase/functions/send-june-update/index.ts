@@ -34,7 +34,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>What's new at Howdoyoudo — June 2026</title>
+<title>What's new at Howdoyoudo - June 2026</title>
 <style>
   body { margin:0; padding:0; background:#ffffff; font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color:#0a0a0a; }
   .wrap { max-width:600px; margin:0 auto; padding:32px 24px 48px; }
@@ -76,10 +76,10 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
 
   <h1>${hi}</h1>
 
-  <p>June has been another busy month in start-up land and we have lots to share — and there's also a clear reason why we are doing this.</p>
+  <p>June has been another busy month in start-up land and we have lots to share - and there's also a clear reason why we are doing this.</p>
 
   <div class="milburn">
-    <p style="margin:0 0 0 0; font-size:14px;">The Milburn report has been all over the news this month — and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there — the industries, the roles, the people in them — is one of the most powerful things we can give someone early in their journey. <strong>Never has that felt more urgent.</strong> Thank you for being part of this.</p>
+    <p style="margin:0 0 0 0; font-size:14px;">The Milburn report has been all over the news this month - and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there - the industries, the roles, the people in them - is one of the most powerful things we can give someone early in their journey. <strong>Never has that felt more urgent.</strong> Thank you for being part of this.</p>
   </div>
 
   <p style="font-family:'Dela Gothic One',Georgia,serif; font-size:13px; letter-spacing:0.1em; text-transform:uppercase; color:#555; margin-bottom:4px;">Here's what we shipped ↓</p>
@@ -95,7 +95,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
           <p class="label" style="color:#0a0a0a; margin-bottom:8px;">★ Big news</p>
           <h2 style="margin-top:0; font-size:24px;">We have a new home.</h2>
           <p style="font-size:16px; font-weight:700; margin:0 0 10px;">www.howdoyoudo.co.uk</p>
-          <p style="margin-bottom:16px;">The platform has moved to its permanent address. Your profile, your matches, your saved jobs — all right there. If you bookmarked the old address, update it now.</p>
+          <p style="margin-bottom:16px;">The platform has moved to its permanent address. Your profile, your matches, your saved jobs - all right there. If you bookmarked the old address, update it now.</p>
           <a class="cta" href="${SITE}">Go to howdoyoudo.co.uk →</a>
         </div>
       </div>
@@ -111,7 +111,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
       <div class="content-cell">
         <p class="label">Navigation</p>
         <h2>A simpler way around the site.</h2>
-        <p>Five clear sections now — Show, Discover, Level Up, Jobs, Community. Everything has a home. No hunting around.</p>
+        <p>Five clear sections now - Show, Discover, Level Up, Jobs, Community. Everything has a home. No hunting around.</p>
         <div>
           <span class="chip">Show</span><span class="chip">Discover</span><span class="chip">Level Up</span><span class="chip">Jobs</span><span class="chip">Community</span>
         </div>
@@ -128,7 +128,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
       <div class="content-cell">
         <p class="label">The Show</p>
         <h2>Our first episode is recorded.</h2>
-        <p>A deep dive into <strong>Journalism</strong> — with the people who actually do it. It launches next month.</p>
+        <p>A deep dive into <strong>Journalism</strong> - with the people who actually do it. It launches next month.</p>
         <p>We were also at <strong>SXSW London</strong> this month, talking to people about the industries they love and the careers they stumbled into. Five street interview clips are already live.</p>
         <a class="cta" href="${VIDEOS}">Watch the clips →</a>
       </div>
@@ -137,13 +137,20 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
 
   <!-- 30+ INDUSTRIES -->
   <div class="section">
-    <p class="label">New Industries</p>
-    <h2>Over 30 industries — and growing.</h2>
-    <p>We added <strong>Building, Fixing</strong> and <strong>Delivery</strong> — three huge UK sectors that don't get enough love. Career maps, real company profiles, daily briefings, live jobs and events. Now over 30 industries covered.</p>
-    <div style="margin:10px 0;">
-      <span class="chip">Building</span><span class="chip">Fixing</span><span class="chip">Delivery</span>
+    <div class="section-inner">
+      <div class="doodle-cell">
+        <img src="${OLD_ASSETS}/email-icon-travel.png" width="72" height="72" alt="" style="display:block;width:72px;height:72px;object-fit:contain;" />
+      </div>
+      <div class="content-cell">
+        <p class="label">New Industries</p>
+        <h2>Over 30 industries - and growing.</h2>
+        <p>We added <strong>Building, Fixing</strong> and <strong>Delivery</strong> - three huge UK sectors that don't get enough love. Career maps, real company profiles, daily briefings, live jobs and events. Now over 30 industries covered.</p>
+        <div style="margin:10px 0;">
+          <span class="chip">Building</span><span class="chip">Fixing</span><span class="chip">Delivery</span>
+        </div>
+        <a class="cta" href="${SITE}/building">Explore Building →</a>
+      </div>
     </div>
-    <a class="cta" href="${SITE}/building">Explore Building →</a>
   </div>
 
   <!-- TENNIS -->
@@ -170,7 +177,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
       <div class="content-cell">
         <p class="label">Jobs Marketplace</p>
         <h2>Over 60,000 curated jobs.</h2>
-        <p>Direct connections to <strong>over 400 employer career sites</strong> — straight to source, no middleman. New: save any job and find it in your Saved tab when you're ready to apply.</p>
+        <p>Direct connections to <strong>over 400 employer career sites</strong> - straight to source, no middleman. New: save any job and find it in your Saved tab when you're ready to apply.</p>
         <a class="cta" href="${MARKETPLACE}">Browse the marketplace →</a>
       </div>
     </div>
@@ -200,7 +207,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
       <div class="content-cell">
         <p class="label">Match Me</p>
         <h2>Smarter and more personal.</h2>
-        <p>Now uses your RIASEC personality type, passions, dream employers and role preferences. New: <strong>"Where your worlds collide"</strong> — roles at the intersection of the industries you follow.</p>
+        <p>Now uses your RIASEC personality type, passions, dream employers and role preferences. New: <strong>"Where your worlds collide"</strong> - roles at the intersection of the industries you follow.</p>
         <a class="cta" href="${MATCH_ME}">See your matches →</a>
       </div>
     </div>
@@ -215,7 +222,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
       <div class="content-cell">
         <p class="label">CV Builder</p>
         <h2>Properly redesigned.</h2>
-        <p>Two-column A4 PDF, company logos pulled automatically. New: <strong>ATS optimisation</strong> — structured to pass automated screening before a human ever sees it.</p>
+        <p>Two-column A4 PDF, company logos pulled automatically. New: <strong>ATS optimisation</strong> - structured to pass automated screening before a human ever sees it.</p>
         <a class="cta" href="${CV_BUILDER}">Build your CV →</a>
       </div>
     </div>
@@ -230,7 +237,7 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
       <div class="content-cell">
         <p class="label">Role Pages</p>
         <h2>Richer entry routes &amp; salary data.</h2>
-        <p>Every role page now has CareerPilot data — the official UK careers database being retired this year. Named apprenticeship routes (L2–L6), T Levels, A Level requirements, real salary ranges and work environment descriptions.</p>
+        <p>Every role page now has CareerPilot data - the official UK careers database being retired this year. Named apprenticeship routes (L2–L6), T Levels, A Level requirements, real salary ranges and work environment descriptions.</p>
       </div>
     </div>
   </div>
@@ -243,6 +250,16 @@ function buildHtml(firstName: string, unsubscribeUrl: string, liveJobs: number):
   </div>
 
   <div class="footer">
+    <p style="font-family:'Dela Gothic One',Georgia,serif; font-size:11px; letter-spacing:0.18em; text-transform:uppercase; color:#555; margin-bottom:12px;">Follow us</p>
+    <p class="meta" style="margin-bottom:16px;">
+      <strong>Instagram</strong> &nbsp;<a href="https://instagram.com/Howdoyoudo_official" style="color:#0a0a0a;">@Howdoyoudo_official</a>
+      &nbsp;&nbsp;·&nbsp;&nbsp;
+      <strong>TikTok</strong> &nbsp;<a href="https://tiktok.com/@Howdoyoudo_official" style="color:#0a0a0a;">@Howdoyoudo_official</a>
+      &nbsp;&nbsp;·&nbsp;&nbsp;
+      <strong>YouTube</strong> &nbsp;<a href="https://youtube.com/@HDYD_OFFICIAL" style="color:#0a0a0a;">@HDYD_OFFICIAL</a>
+      &nbsp;&nbsp;·&nbsp;&nbsp;
+      <strong>X</strong> &nbsp;<a href="https://x.com/HDYD_OFFICIAL" style="color:#0a0a0a;">@HDYD_OFFICIAL</a>
+    </p>
     <p class="meta">
       You're getting this because you're a founding member of Howdoyoudo.<br/>
       <a href="${unsubscribeUrl}">Unsubscribe</a> &nbsp;·&nbsp;
@@ -258,45 +275,45 @@ function buildText(firstName: string, unsubscribeUrl: string, _liveJobs: number)
   const hi = firstName ? `Howdy ${firstName}` : "Howdy";
   return `${hi},
 
-June has been another busy month in start-up land and we have lots to share — and there's also a clear reason why we are doing this.
+June has been another busy month in start-up land and we have lots to share - and there's also a clear reason why we are doing this.
 
-The Milburn report has been all over the news this month — and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there — the industries, the roles, the people in them — is one of the most powerful things we can give someone early in their journey. Never has that felt more urgent. Thank you for being part of this.
+The Milburn report has been all over the news this month - and it makes for uncomfortable reading for young people trying to find the first rung on the ladder. We believe that inspiring people to genuinely understand the breadth of what's out there - the industries, the roles, the people in them - is one of the most powerful things we can give someone early in their journey. Never has that felt more urgent. Thank you for being part of this.
 
 Here's what we shipped in June.
 
-★ NEW HOME — www.howdoyoudo.co.uk
+★ NEW HOME - www.howdoyoudo.co.uk
 The platform has moved to its permanent address. Everything you had before is right there waiting.
 ${SITE}
 
 A SIMPLER WAY AROUND THE SITE
 New navigation: Show · Discover · Level Up · Jobs · Community. Everything has a home.
 
-OVER 30 INDUSTRIES — AND GROWING
+OVER 30 INDUSTRIES - AND GROWING
 Added Building, Fixing and Delivery this month. Full career maps, company profiles, daily briefings and jobs. Now over 30 industries covered.
 ${SITE}/building | ${SITE}/fixing | ${SITE}/delivery
 
-THE SHOW — OUR FIRST EPISODE IS RECORDED
-We've recorded our first ever Howdoyoudo show — a deep dive into Journalism. It launches next month. We were also at SXSW London talking to people about the industries they love and the careers they stumbled into. Those conversations are coming to the platform soon.
+THE SHOW - OUR FIRST EPISODE IS RECORDED
+We've recorded our first ever Howdoyoudo show - a deep dive into Journalism. It launches next month. We were also at SXSW London talking to people about the industries they love and the careers they stumbled into. Those conversations are coming to the platform soon.
 Five street interview clips are already live on the Videos page.
 ${VIDEOS}
 
 OVER 60,000 CURATED JOBS
-Direct connections to over 400 employer career sites — straight to source, no middleman. Save any job and find it in your Saved tab.
+Direct connections to over 400 employer career sites - straight to source, no middleman. Save any job and find it in your Saved tab.
 ${MARKETPLACE}
 
 SKILLS PASSPORT & GAP TRACKER
-Skills England data integrated — see what skills any role needs, where your gaps are, and a Career Passport. Badges you earn update your skill ratings automatically.
+Skills England data integrated - see what skills any role needs, where your gaps are, and a Career Passport. Badges you earn update your skill ratings automatically.
 ${SKILLS_PASSPORT}
 
-MATCH ME — SMARTER
-Now uses your RIASEC type, passions, dream employers and role preferences. New: "Where your worlds collide" — roles at the intersection of the industries you follow.
+MATCH ME - SMARTER
+Now uses your RIASEC type, passions, dream employers and role preferences. New: "Where your worlds collide" - roles at the intersection of the industries you follow.
 ${MATCH_ME}
 
-CV BUILDER — REDESIGNED
+CV BUILDER - REDESIGNED
 Proper two-column A4 PDF with company logos. New: ATS optimisation so your CV passes automated screening before a human sees it.
 ${CV_BUILDER}
 
-TENNIS — JUST IN TIME FOR WIMBLEDON
+TENNIS - JUST IN TIME FOR WIMBLEDON
 With Wimbledon starting 29 June, we've added Tennis as a full industry. Real jobs from the LTA, AELTC, ATP, WTA and ITF. Live tournament events, career map, downloadable briefing and daily briefings.
 ${SITE}/tennis
 
@@ -305,7 +322,7 @@ CareerPilot data on every role: named apprenticeship routes (L2–L6), T Levels,
 
 We want to thank everyone for their support, time and encouragement this month. We are building something important and as always please push us to make this better week by week.
 
-Built in London. Shipping every week. Reply to this email — we read every one.
+Built in London. Shipping every week. Reply to this email - we read every one.
 
 The Howdoyoudo team
 Unpacking the industries we love and live in.
@@ -417,7 +434,7 @@ Deno.serve(async (req) => {
       const res = await sendViaResend({
         from: `${FROM_NAME} <${FROM_EMAIL}>`,
         to: r.email,
-        subject: "June at Howdoyoudo — new site, 30+ industries, 60,000 jobs & our first show is coming",
+        subject: "June at Howdoyoudo - new site, 30+ industries, 60,000 jobs & our first show is coming",
         html,
         text,
         reply_to: REPLY_TO,
