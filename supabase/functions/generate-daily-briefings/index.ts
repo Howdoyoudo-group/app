@@ -92,6 +92,11 @@ interface RecentBriefingContext {
 }
 
 const RECENT_BRIEFING_LOOKBACK_DAYS = 21;
+// How many days back to look when hard-filtering already-cited articles.
+// Shorter than RECENT_BRIEFING_LOOKBACK_DAYS so thin-content industries (e.g.
+// psychotherapy, jewellery) still have items to generate from — their full
+// 21-day article pool was being exhausted by the 21-day dedup filter.
+const DEDUP_FILTER_DAYS = 5;
 
 const GENERIC_REPEAT_PHRASES = new Set([
   // Football - overly common competition/rights terms
@@ -260,7 +265,16 @@ async function fetchRecentBriefings(supabase: any, industry: string): Promise<Re
     .filter((d) => d.main_news)
     .map((d) => `[${d.briefing_date}] ${d.main_news!.replace(/<[^>]+>/g, " ").slice(0, 450)}`)
     .join("\n---\n");
-  const sourceLinks = rows.flatMap((d) => Array.isArray(d.source_links) ? d.source_links : []);
+  // Only hard-filter articles cited in the last DEDUP_FILTER_DAYS days. Using
+  // the full 21-day window was exhausting the content pool for thin-content
+  // industries, leaving nothing to generate from. AI prompt context still uses
+  // the full 21-day summaries so Gemini knows what stories have been covered.
+  const filterCutoff = new Date();
+  filterCutoff.setDate(filterCutoff.getDate() - DEDUP_FILTER_DAYS);
+  const filterCutoffStr = filterCutoff.toISOString().slice(0, 10);
+  const sourceLinks = rows
+    .filter((d) => d.briefing_date >= filterCutoffStr)
+    .flatMap((d) => Array.isArray(d.source_links) ? d.source_links : []);
   return { summaries, sourceLinks };
 }
 
