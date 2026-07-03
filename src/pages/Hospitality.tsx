@@ -112,7 +112,7 @@ const hospitalityCompanies = [
   { name: "KFC", url: "https://www.kfc.co.uk/careers", founded: "1952", hq: "Louisville (UK: Woking)", glassdoor: 3.4, trustpilot: 1.6, overview: "The UK's biggest fried chicken chain with 1,000+ restaurants.", valueChainStage: "Restaurant & QSR" },
   { name: "Nando's", url: "https://www.nandos.jobs", founded: "1987", hq: "Johannesburg (UK: London)", glassdoor: 3.7, trustpilot: 2.4, overview: "Peri-peri chicken restaurant chain with 470+ UK sites and a cult employer brand.", valueChainStage: "Restaurant & QSR" },
   { name: "Whitbread / Premier Inn", url: "https://careers.whitbread.co.uk", founded: "1742", hq: "Dunstable", glassdoor: 3.6, trustpilot: 4.5, overview: "The UK's largest hotel and restaurant operator - Premier Inn, Beefeater, Brewers Fayre.", valueChainStage: "Hotels & Members' Clubs" },
-  { name: "SSP Group", url: "https://www.foodtravelexperts.com/careers/", founded: "2006", hq: "London", glassdoor: 3.3, overview: "Operates food and beverage outlets in airports and railway stations across 35 countries - Upper Crust, Caffè Ritazza, Camden Food Co.", valueChainStage: "Restaurant & QSR" },
+  { name: "SSP Group", url: "https://careers.foodtravelexperts.com/", founded: "2006", hq: "London", glassdoor: 3.3, overview: "Operates food and beverage outlets in airports and railway stations across 35 countries - Upper Crust, Caffè Ritazza, Camden Food Co.", valueChainStage: "Restaurant & QSR" },
 ];
 
 const Hospitality = () => {

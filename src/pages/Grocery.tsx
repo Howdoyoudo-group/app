@@ -89,8 +89,8 @@ const newsfeed = [
 
 const groceryCompanies = [
   { name: "Cranswick", founded: "1974", hq: "Hull", overview: "Major UK food producer supplying supermarkets with fresh pork, poultry, convenience foods, and pet food.", url: "https://www.cranswick.plc.uk/careers", glassdoor: 3.2, valueChainStage: "Sourcing" },
-  { name: "Hilton Food Group", founded: "1994", hq: "Huntingdon", overview: "Global food packing business supplying major retailers including Tesco.", url: "https://www.hiltonfoodgroupplc.com/careers/", glassdoor: 3.0, valueChainStage: "Sourcing" },
-  { name: "Greencore", founded: "1991", hq: "Dublin/UK", overview: "The world's largest manufacturer of sandwiches, supplying M&S, Tesco, and Sainsbury's.", url: "https://www.greencore.com/careers/", glassdoor: 3.1, valueChainStage: "Sourcing" },
+  { name: "Hilton Food Group", founded: "1994", hq: "Huntingdon", overview: "Global food packing business supplying major retailers including Tesco.", url: "https://www.hiltonfoods.com/careers/", glassdoor: 3.0, valueChainStage: "Sourcing" },
+  { name: "Greencore", founded: "1991", hq: "Dublin/UK", overview: "The world's largest manufacturer of sandwiches, supplying M&S, Tesco, and Sainsbury's.", url: "https://careers.greencore.com/", glassdoor: 3.1, valueChainStage: "Sourcing" },
   { name: "Premier Foods", founded: "1975", hq: "St Albans", overview: "Owns iconic brands including Mr Kipling, Batchelors, Bisto, and Ambrosia.", url: "https://www.premierfoods.co.uk/careers", glassdoor: 3.4, valueChainStage: "Manufacturing" },
   { name: "Associated British Foods", founded: "1935", hq: "London", overview: "Diversified food group owning Kingsmill, Twinings, Ovaltine, and Primark.", url: "https://www.abf.co.uk/careers", glassdoor: 3.5, valueChainStage: "Manufacturing" },
   { name: "Ocado Group", founded: "2000", hq: "Hatfield", overview: "The parent group behind Ocado Retail and Ocado Logistics - a global technology business licensing its automated grocery platform (OSP) to retailers worldwide.", glassdoor: 3.4, profileUrl: "/company/ocado", url: "https://careers.ocadogroup.com", valueChainStage: "Distribution" },
