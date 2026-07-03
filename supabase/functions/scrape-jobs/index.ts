@@ -151,7 +151,7 @@ const CAREER_SOURCES: CareerSource[] = [
   { company: "Dr. Martens", url: "https://jobs.drmartens.com", industry: "fashion" },
   { company: "Burberry", url: "https://burberrycareers.com", industry: "fashion" },
   { company: "Coats Group", url: "https://www.coats.com/en/careers", industry: "fashion" },
-  { company: "Boohoo Group", url: "https://careers.boohoogroup.com", industry: "fashion" },
+  { company: "Boohoo Group", url: "https://www.debenhamsgroup.com/careers/boohoo/", industry: "fashion" },
   { company: "Uniqlo", url: "https://www.uniqlo.com/uk/en/", industry: "fashion" },
   { company: "Monsoon", url: "https://www.monsoonjobs.com", industry: "fashion" },
   { company: "Li & Fung", url: "https://www.lifung.com/careers/", industry: "fashion" },

@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { Loader2, Search, Crown, Trash2 } from "lucide-react";
+import { Loader2, Search, Crown, Trash2, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
@@ -26,6 +26,7 @@ interface UserRow {
   is_premium: boolean;
   is_admin: boolean;
   is_employer: boolean;
+  is_subscribed: boolean;
 }
 
 export default function AdminUsers() {
@@ -132,6 +133,28 @@ export default function AdminUsers() {
     setPendingId(null);
   };
 
+  const toggleMailingList = async (u: UserRow, next: boolean) => {
+    setPendingId(u.id);
+    setUsers((prev) =>
+      prev.map((x) => (x.id === u.id ? { ...x, is_subscribed: next } : x)),
+    );
+    const { error } = await supabase.rpc("admin_set_mailing_list" as never, {
+      _user_id: u.id,
+      _subscribed: next,
+    } as never);
+    if (error) {
+      toast.error(`Failed: ${error.message}`);
+      setUsers((prev) =>
+        prev.map((x) => (x.id === u.id ? { ...x, is_subscribed: !next } : x)),
+      );
+    } else {
+      toast.success(
+        next ? `${u.email} added back to mailing lists` : `${u.email} removed from mailing lists`,
+      );
+    }
+    setPendingId(null);
+  };
+
   const deleteUser = async (u: UserRow) => {
     if (u.id === user?.id) {
       toast.error("You can't delete your own account.");
@@ -219,6 +242,7 @@ export default function AdminUsers() {
                   <TableHead>Roles</TableHead>
                   <TableHead className="text-right">Premium</TableHead>
                   <TableHead className="text-right">Admin</TableHead>
+                  <TableHead className="text-right">Mailing list</TableHead>
                   <TableHead className="text-right">Delete</TableHead>
                 </TableRow>
               </TableHeader>
@@ -272,6 +296,21 @@ export default function AdminUsers() {
                         onCheckedChange={(checked) => toggleAdmin(u, checked)}
                         aria-label={`Toggle admin for ${u.email}`}
                       />
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                        <Switch
+                          checked={u.is_subscribed}
+                          disabled={pendingId === u.id}
+                          onCheckedChange={(checked) => toggleMailingList(u, checked)}
+                          aria-label={
+                            u.is_subscribed
+                              ? `Remove ${u.email} from mailing lists`
+                              : `Add ${u.email} back to mailing lists`
+                          }
+                        />
+                      </div>
                     </TableCell>
                     <TableCell className="text-right">
                       <AlertDialog>

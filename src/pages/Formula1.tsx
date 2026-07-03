@@ -91,7 +91,7 @@ const formula1Companies = [
   { name: "Motorsport Network", url: "https://www.motorsportnetwork.com/careers", founded: "1999", hq: "London", overview: "The world's largest motorsport digital media group - Autosport, Motorsport.com and The Race.", valueChainStage: "Media & Broadcast" },
   { name: "Pirelli Motorsport", url: "https://www.pirelli.com/global/en-ww/life-at-pirelli/join-us", founded: "1872", hq: "Burton-on-Trent (UK)", overview: "F1's sole tyre supplier since 2011 - develops bespoke compounds for every circuit on the calendar.", valueChainStage: "Operations & Logistics" },
   { name: "FIA", url: "https://www.fia.com/careers", founded: "1904", hq: "Geneva / London", overview: "The governing body of world motorsport - writes the F1 technical and sporting regulations.", valueChainStage: "Business & Leadership" },
-  { name: "Silverstone Circuits", url: "https://www.silverstone.co.uk/careers", founded: "1948", hq: "Silverstone", overview: "Home of the British Grand Prix - the UK's premier motorsport venue and a major events destination.", valueChainStage: "Operations & Logistics" },
+  { name: "Silverstone Circuits", url: "https://careers.silverstone.co.uk/", founded: "1948", hq: "Silverstone", overview: "Home of the British Grand Prix - the UK's premier motorsport venue and a major events destination.", valueChainStage: "Operations & Logistics" },
   { name: "Motorsport UK", url: "https://www.motorsportuk.org/about-us/vacancies/", founded: "1905", hq: "Bicester", overview: "The UK's national motorsport governing body - licensing, regulation and grassroots development.", valueChainStage: "Business & Leadership" },
 ];
 

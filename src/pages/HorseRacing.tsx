@@ -77,7 +77,7 @@ const newsfeed = [
 
 const horseRacingCompanies = [
   { name: "British Horseracing Authority (BHA)", url: "https://www.britishhorseracing.com/people/working-for-the-bha/", founded: "2007", hq: "London", overview: "The governing and regulatory body for British horseracing - integrity, fixtures, rules and welfare.", valueChainStage: "Business & Industry" },
-  { name: "The Jockey Club", url: "https://www.thejockeyclub.co.uk/careers/", founded: "1750", hq: "London", overview: "The largest commercial group in British racing - owns Aintree, Cheltenham, Epsom, Newmarket and 11 other courses.", valueChainStage: "Racecourse & Raceday" },
+  { name: "The Jockey Club", url: "https://careers.thejockeyclub.co.uk/", founded: "1750", hq: "London", overview: "The largest commercial group in British racing - owns Aintree, Cheltenham, Epsom, Newmarket and 11 other courses.", valueChainStage: "Racecourse & Raceday" },
   { name: "Arena Racing Company (ARC)", url: "https://www.arenaracingcompany.co.uk/careers", founded: "2012", hq: "Doncaster", overview: "The UK's largest racecourse operator - 16 racecourses including Doncaster, Lingfield and Newcastle.", valueChainStage: "Racecourse & Raceday" },
   { name: "Ascot Racecourse", url: "https://www.ascot.com/careers", founded: "1711", hq: "Ascot", overview: "Home of Royal Ascot, QIPCO British Champions Day and some of the world's most prestigious racing.", valueChainStage: "Racecourse & Raceday" },
   { name: "York Racecourse", url: "https://www.yorkracecourse.co.uk/about-york/job-vacancies", founded: "1731", hq: "York", overview: "Voted the UK's best racecourse - home of the Ebor Festival and Yorkshire Oaks.", valueChainStage: "Racecourse & Raceday" },
