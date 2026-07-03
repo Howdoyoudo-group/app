@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCached, setCached, invalidate as invalidateCache } from "@/lib/ttlCache";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Briefcase, MapPin, TrendingUp, SlidersHorizontal, ExternalLink, Loader2, Inbox, Search, Mail, MailOpen, Sparkles, X, ThumbsUp, Trash2, Reply, Send, CheckCircle2, Pin, Newspaper, Bookmark, BookmarkCheck, Globe, Heart } from "lucide-react";
+import { ArrowLeft, Briefcase, MapPin, TrendingUp, ExternalLink, Loader2, Inbox, Search, Mail, MailOpen, Sparkles, X, ThumbsUp, Trash2, Reply, Send, CheckCircle2, Pin, Newspaper, Bookmark, BookmarkCheck, Globe, Heart } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { roles } from "@/data/roles";
 import {
@@ -1480,7 +1480,7 @@ const MyJobs = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [roleProfiles, setRoleProfiles] = useState<Map<string, RoleRiasecProfile>>(new Map());
-  const [minMatch, setMinMatch] = useState(60);
+  const minMatch = 60;
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [openedIds, setOpenedIds] = useState<Set<string>>(new Set());
   const [dismissedLoaded, setDismissedLoaded] = useState(false);
@@ -2453,31 +2453,6 @@ const MyJobs = () => {
               </div>
             )}
 
-            {/* Accuracy slider */}
-            {hasPreferences && (
-              <div className="border-2 border-foreground p-4 mb-6 rounded-2xl">
-                <div className="flex items-center gap-2 mb-2">
-                  <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
-                  <span className="font-display text-xs font-600 uppercase tracking-wider text-muted-foreground">
-                    Minimum match
-                  </span>
-                  <span className="font-display text-sm font-800 text-primary ml-auto">{minMatch}%</span>
-                </div>
-                <input
-                  type="range"
-                  min={0}
-                  max={100}
-                  step={1}
-                  value={minMatch}
-                  onChange={(e) => setMinMatch(Number(e.target.value))}
-                  className="w-full accent-primary h-1.5 cursor-pointer"
-                />
-                <div className="flex justify-between font-body text-[10px] text-muted-foreground mt-1">
-                  <span>Show all</span>
-                  <span>Exact match</span>
-                </div>
-              </div>
-            )}
 
             {/* No preferences set */}
             {!hasPreferences && (
