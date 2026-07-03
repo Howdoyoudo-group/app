@@ -2497,7 +2497,14 @@ async function fetchJoobleJobs(industry: string, keywords: string[], apiKey: str
 
       for (const r of results) {
         const title = (r.title || "").trim();
-        const link = (r.link || "").trim();
+        // Jooble appends per-search tracking params (ckey, elckey, aq, pos...)
+        // to the same posting's link on every request, so the raw link is
+        // never stable across scrape runs or keywords even for the identical
+        // job. Strip the query string so the DB's url-based dedup (and this
+        // batch's seenLinks check) actually recognizes repeat postings
+        // instead of inserting a fresh row for the same job every cycle.
+        const rawLink = (r.link || "").trim();
+        const link = rawLink ? rawLink.split("?")[0] : "";
         if (!title || !link) continue;
         if (seenLinks.has(link)) continue;
         seenLinks.add(link);

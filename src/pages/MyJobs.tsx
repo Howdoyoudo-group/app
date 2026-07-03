@@ -1934,6 +1934,18 @@ const MyJobs = () => {
     }
   }, [user, openedIds, jobs, navigate]);
 
+  // The `jobs` candidate pool and `likedIds` are matched by literal DB row id,
+  // but the same real posting (esp. from Jooble, which appends per-search
+  // tracking params to the URL) frequently gets re-scraped as a brand new row
+  // with a different id. That row was never swiped, so id-based exclusion
+  // lets it right back into the stack looking like the identical job you
+  // already liked. Belt-and-braces: also exclude by normalized title+company
+  // key against every job we know is liked (we have full details for those).
+  const likedDedupeKeys = useMemo(
+    () => new Set(likedJobs.map((j) => jobDedupeKey(j))),
+    [likedJobs],
+  );
+
   // Build learning signals from dismiss/open history
   const learnedSignals = useMemo(() => {
     return buildLearnedSignals(jobs, dismissedIds, openedIds, likedIds);
@@ -1949,7 +1961,7 @@ const MyJobs = () => {
     const MIN_PER_INDUSTRY = 2;
 
     const baseScoredRaw = jobs
-      .filter((job) => !dismissedIds.has(job.id) && !likedIds.has(job.id))
+      .filter((job) => !dismissedIds.has(job.id) && !likedIds.has(job.id) && !likedDedupeKeys.has(jobDedupeKey(job)))
       .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals, behavioralAffinity) }))
       .filter((job) => !shouldExcludeJob(job, profile))
       .filter((job) => passesSalaryFilter(job, minSalary))
@@ -2021,7 +2033,7 @@ const MyJobs = () => {
       // at what else you'd like, used when the strict stack runs dry.
       broader: allScored.sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
     };
-  }, [jobs, profile, minMatch, roleProfiles, dismissedIds, likedIds, openedIds, learnedSignals, behavioralAffinity]);
+  }, [jobs, profile, minMatch, roleProfiles, dismissedIds, likedIds, likedDedupeKeys, openedIds, learnedSignals, behavioralAffinity]);
 
   const primaryScoredJobs = scoredJobs.primary;
   const broaderScoredJobs = useMemo(
@@ -2036,12 +2048,12 @@ const MyJobs = () => {
     const effectiveRoles = getEffectiveRoles(profile);
     if (effectiveRoles.length === 0) return [];
     return jobs
-      .filter((job) => job.industry === "other" && !dismissedIds.has(job.id) && !likedIds.has(job.id))
+      .filter((job) => job.industry === "other" && !dismissedIds.has(job.id) && !likedIds.has(job.id) && !likedDedupeKeys.has(jobDedupeKey(job)))
       .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals, behavioralAffinity) }))
       .filter((job) => hasRoleMatch(job, profile) && job.score >= 30)
       .sort((a, b) => b.score - a.score)
       .slice(0, 20);
-  }, [jobs, profile, roleProfiles, dismissedIds, likedIds, learnedSignals, behavioralAffinity]);
+  }, [jobs, profile, roleProfiles, dismissedIds, likedIds, likedDedupeKeys, learnedSignals, behavioralAffinity]);
 
   const hasPreferences = profile && (
     (profile.industry_interests && profile.industry_interests.length > 0) ||
