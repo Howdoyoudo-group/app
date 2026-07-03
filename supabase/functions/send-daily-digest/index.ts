@@ -63,6 +63,10 @@ const INDUSTRY_NAMES: Record<string, string> = {
   fixing: "Fixing",
   delivery: "Delivery",
   tennis: "Tennis",
+  farming: "Farming",
+  money: "Money",
+  health: "Health",
+  "horse-racing": "Horse Racing",
 };
 
 const INDUSTRY_CONTEXT: Record<string, string> = {
@@ -393,13 +397,15 @@ function formatIndustryName(industry: string): string {
     industry.split(/[-\s]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
-// Slug aliases: legacy industry names that should be presented as a unified
-// section in the digest. We treat "Hospitality" as "Food & Drink" so that
-// subscribers see one well-stocked section drawing on the broader pool
-// (hospitality + grocery + coffee + bakery + beer) instead of a hospitality-only
-// silo.
+// Slug aliases: map the slug produced by toSlug(displayName) → actual DB key
+// used in daily_briefings.industry. Needed where the display name doesn't
+// cleanly round-trip to the DB slug.
+// "Film and TV" → toSlug → "film-and-tv" → DB key "cinema"
+// "Food & Drink" → toSlug → "food-drink"  → DB key "hospitality"
+// Old profiles that stored "hospitality" directly still work (no alias needed).
 const SLUG_ALIASES: Record<string, string> = {
-  "hospitality": "food-drink",
+  "film-and-tv": "cinema",
+  "food-drink": "hospitality",
 };
 
 function toSlug(name: string): string {
