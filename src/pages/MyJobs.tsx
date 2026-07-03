@@ -1530,24 +1530,42 @@ const MyJobs = () => {
     if (!user) return;
     setLikedLoading(true);
     try {
-      const { data: likes } = await supabase
+      const { data: likes, error: likesError } = await supabase
         .from("liked_jobs")
         .select("job_id, liked_at")
         .eq("user_id", user.id)
         .order("liked_at", { ascending: false });
+
+      if (likesError) throw likesError;
+
       const jobIds = (likes ?? []).map((l) => l.job_id as string);
-      if (jobIds.length === 0) { setLikedJobs([]); setLikedIds(new Set()); setLikedLoading(false); setLikedLoaded(true); return; }
+      // Set the exclusion set from the raw likes list FIRST, before any
+      // detail-hydration or staleness pruning below. This is what stops
+      // already-liked jobs from reappearing in the swipe stack - it must
+      // not depend on the (separate, more failure-prone) job-details fetch
+      // succeeding. A previous version only set this after that second
+      // fetch completed, so any hiccup there silently left liked jobs
+      // fully unprotected for the rest of the session.
+      setLikedIds(new Set(jobIds));
+
+      if (jobIds.length === 0) { setLikedJobs([]); setLikedLoading(false); setLikedLoaded(true); return; }
+
       const now = new Date().toISOString();
-      const { data: jobData } = await supabase
+      const { data: jobData, error: jobsError } = await supabase
         .from("jobs")
         .select("id,title,company,location,salary,industry,career_level,url,created_at,type,work_mode,role_category,ai_role_category,job_traits,description,tags,expires_at")
         .in("id", jobIds)
         .or(`expires_at.is.null,expires_at.gt.${now}`);
+
+      if (jobsError) throw jobsError;
+
+      // Only treat a liked job as "stale and safe to delete" when this fetch
+      // definitely succeeded - never prune based on a failed/partial query.
       const liveIds = new Set((jobData ?? []).map((j: any) => j.id));
-      // Remove stale liked jobs automatically
       const staleIds = jobIds.filter((id) => !liveIds.has(id));
       if (staleIds.length > 0) {
         await supabase.from("liked_jobs").delete().eq("user_id", user.id).in("job_id", staleIds);
+        setLikedIds((prev) => { const next = new Set(prev); staleIds.forEach((id) => next.delete(id)); return next; });
       }
 
       // Clean up duplicate likes from before the dedupe fix - same real job
@@ -1571,10 +1589,10 @@ const MyJobs = () => {
       }
       if (duplicateIdsToDelete.length > 0) {
         await supabase.from("liked_jobs").delete().eq("user_id", user.id).in("job_id", duplicateIdsToDelete);
+        setLikedIds((prev) => { const next = new Set(prev); duplicateIdsToDelete.forEach((id) => next.delete(id)); return next; });
       }
 
       setLikedJobs(deduped);
-      setLikedIds(new Set(deduped.map((j) => j.id)));
     } catch (_) {}
     setLikedLoading(false);
     setLikedLoaded(true);
