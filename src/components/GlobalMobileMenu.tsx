@@ -27,7 +27,7 @@ type NavSection = {
 
 const NAV_SECTIONS: NavSection[] = [
   {
-    label: "Inspire!",
+    label: "Inspire",
     items: [
       { label: "The Show", to: "/the-show", description: "Our original series" },
       { label: "Videos", to: "/videos", description: "Watch the best career stories" },
