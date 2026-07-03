@@ -510,7 +510,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
           )}
 
           <div className="hidden md:flex items-center gap-4 lg:gap-6">
-            <NavDropdown label="Inspire" items={INSPIRE} />
+            <NavDropdown label="Inspire!" items={INSPIRE} />
             <NavDropdown label="Discover" items={DISCOVER} />
             <GroupedNavDropdown label="Level Up" groups={LEVEL_UP_GROUPS} />
             <NavDropdown label="Jobs" items={JOBS} />
