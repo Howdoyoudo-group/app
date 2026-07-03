@@ -1787,8 +1787,51 @@ const MyJobs = () => {
         return;
       }
 
-      const requireRoleMatch = shouldRequireRoleMatch(nextProfile);
       const minSalary = nextProfile.salary_expectation ? (SALARY_THRESHOLDS[nextProfile.salary_expectation] || 0) : 0;
+
+      // ── Pre-scored path ──────────────────────────────────────────────────────
+      // job_matches is populated server-side by score-new-jobs after each scrape.
+      // If we have >= 50 entries, use that pre-ranked pool instead of paginating
+      // 2,000 newest jobs and scoring everything in the browser. The client still
+      // runs the full scoreJob() pass — this just gives it better raw candidates.
+      const passesAllFiltersPreScored = (job: Job) =>
+        isLiveJob(job) &&
+        !dismissed.has(job.id) &&
+        !shouldExcludeJob(job, nextProfile) &&
+        passesSalaryFilter(job, minSalary);
+
+      const { data: preMatches } = await supabase
+        .from("job_matches")
+        .select("job_id, score")
+        .eq("user_id", user.id)
+        .order("score", { ascending: false })
+        .limit(500);
+
+      if (preMatches && preMatches.length >= 50) {
+        const preJobIds = (preMatches as { job_id: string; score: number }[]).map((m) => m.job_id);
+        const { data: preJobs } = await supabase
+          .from("jobs")
+          .select("id, title, company, location, salary, industry, career_level, url, created_at, type, work_mode, role_category, ai_role_category, job_traits, description, tags, ai_confidence, expires_at")
+          .in("id", preJobIds)
+          .gt("expires_at", new Date().toISOString());
+
+        if (preJobs && preJobs.length > 0) {
+          // Re-order by pre-score — the DB fetch doesn't preserve IN-list order
+          const scoreMap = new Map(
+            (preMatches as { job_id: string; score: number }[]).map((m) => [m.job_id, m.score]),
+          );
+          const sortedPreJobs = (preJobs as unknown as Job[])
+            .filter(passesAllFiltersPreScored)
+            .sort((a, b) => (scoreMap.get(b.id) ?? 0) - (scoreMap.get(a.id) ?? 0));
+
+          setJobs(sortedPreJobs);
+          setCached(jobsKey, sortedPreJobs);
+          setLoading(false);
+          return;
+        }
+      }
+      // ── End pre-scored path — fall through to paginated fetch ────────────────
+
       const candidateTarget = 300;
       const pageSize = 500;
       const maxRows = 2000;
