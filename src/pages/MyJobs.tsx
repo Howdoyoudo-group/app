@@ -730,6 +730,27 @@ interface LearnedSignals {
   penalizedCompanies: Set<string>;
   boostedIndustries: Set<string>;
   penalizedIndustries: Set<string>;
+  boostedLocations: Map<string, number>;  // location bucket → boost count
+  penalizedLocations: Map<string, number>; // location bucket → penalty count
+}
+
+// A dismiss is often really "wrong location", not "wrong industry" - e.g. a
+// London-based user swiping left on an otherwise-great job because it's in
+// South Wales. Without its own signal, that swipe would only ever be read as
+// "penalize this industry/company/keyword", which can wrongly suppress an
+// industry the user actually likes. Bucket jobs by a coarse location so
+// dismiss/like patterns tied to geography get attributed to geography.
+function normalizeLocationBucket(job: { location: string | null; work_mode?: string | null }): string {
+  if (job.work_mode && job.work_mode.toLowerCase() === "remote") return "remote";
+  let loc = (job.location || "").toLowerCase().trim();
+  if (!loc) return "";
+  if (loc.includes("remote")) return "remote";
+  // Strip UK postcode tokens (e.g. "WA5 7YF" / "WA57YF") - they identify a
+  // specific street, not a meaningful region, and are too granular to learn from.
+  loc = loc.replace(/\b[a-z]{1,2}\d[a-z\d]?\s*\d[a-z]{2}\b/gi, "").trim();
+  // Keep just the first segment before a comma (e.g. "Cardiff, South Wales" → "cardiff")
+  loc = loc.split(",")[0].trim();
+  return loc;
 }
 
 // Same job often gets scraped from multiple boards (Adzuna, Reed, Jooble) as
@@ -786,6 +807,8 @@ function buildLearnedSignals(
     penalizedCompanies: new Set(),
     boostedIndustries: new Set(),
     penalizedIndustries: new Set(),
+    boostedLocations: new Map(),
+    penalizedLocations: new Map(),
   };
 
   const jobMap = new Map(allJobs.map((j) => [j.id, j]));
@@ -799,6 +822,8 @@ function buildLearnedSignals(
     }
     if (job.company) signals.boostedCompanies.add(job.company.toLowerCase());
     if (job.industry) signals.boostedIndustries.add(job.industry.toLowerCase());
+    const loc = normalizeLocationBucket(job);
+    if (loc) signals.boostedLocations.set(loc, (signals.boostedLocations.get(loc) || 0) + 1);
   }
 
   // Likes are a stronger signal than opens — count twice
@@ -811,6 +836,8 @@ function buildLearnedSignals(
     }
     if (job.company) signals.boostedCompanies.add(job.company.toLowerCase());
     if (job.industry) signals.boostedIndustries.add(job.industry.toLowerCase());
+    const loc = normalizeLocationBucket(job);
+    if (loc) signals.boostedLocations.set(loc, (signals.boostedLocations.get(loc) || 0) + 2);
   }
 
   for (const id of dismissedIds) {
@@ -822,6 +849,8 @@ function buildLearnedSignals(
     }
     if (job.company) signals.penalizedCompanies.add(job.company.toLowerCase());
     if (job.industry) signals.penalizedIndustries.add(job.industry.toLowerCase());
+    const loc = normalizeLocationBucket(job);
+    if (loc) signals.penalizedLocations.set(loc, (signals.penalizedLocations.get(loc) || 0) + 1);
   }
 
   return signals;
@@ -832,7 +861,9 @@ function learningAdjustment(job: Job, signals: LearnedSignals): number {
     signals.boostedKeywords.size === 0 &&
     signals.penalizedKeywords.size === 0 &&
     signals.boostedCompanies.size === 0 &&
-    signals.penalizedCompanies.size === 0
+    signals.penalizedCompanies.size === 0 &&
+    signals.boostedLocations.size === 0 &&
+    signals.penalizedLocations.size === 0
   ) {
     return 0;
   }
@@ -866,6 +897,21 @@ function learningAdjustment(job: Job, signals: LearnedSignals): number {
     adjustment += 3;
   } else if (industry && signals.penalizedIndustries.has(industry) && !signals.boostedIndustries.has(industry)) {
     adjustment -= 3;
+  }
+
+  // Location signals: a dismiss is often "wrong location", not "wrong
+  // industry/company" - so it needs its own weighted vote rather than only
+  // ever showing up as an industry/keyword penalty. Counts require a clear
+  // majority (not just one stray swipe) before tipping, same as keywords.
+  const locKey = normalizeLocationBucket(job);
+  if (locKey) {
+    const boostCount = signals.boostedLocations.get(locKey) || 0;
+    const penaltyCount = signals.penalizedLocations.get(locKey) || 0;
+    if (boostCount > penaltyCount) {
+      adjustment += 4;
+    } else if (penaltyCount > boostCount) {
+      adjustment -= 4;
+    }
   }
 
   // Clamp adjustment to ±15 points
