@@ -2493,6 +2493,18 @@ const MyJobs = () => {
               </div>
             )}
 
+            {/* Explainer banner */}
+            {hasPreferences && (
+              <div className="mb-5 border-2 border-foreground/10 bg-muted/40 rounded-2xl px-4 py-3.5 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="flex-1 space-y-1">
+                  <p className="font-display font-800 text-sm">Swipe through jobs picked for you<span className="text-primary">.</span></p>
+                  <p className="font-body text-xs text-muted-foreground leading-relaxed">
+                    <span className="text-[#00E600] font-700">→ Right</span> to like · <span className="text-red-500 font-700">← Left</span> to pass · <span className="font-700">Bookmark</span> to save for later. The more you swipe, the smarter your picks get — every like and pass teaches the algorithm what you're really after.
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* Tinder card stack — falls back to the algorithm's broader picks
                 once the strict industry+match-threshold stack runs dry, instead
                 of just stopping. Gated on historyReady so a reload never briefly
