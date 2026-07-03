@@ -5,6 +5,33 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-03 — Andrew (main branch, new laptop setup)
+
+### What was done
+- **New machine setup**: repo was already fully cloned and configured (not actually a blank laptop) — found it mid-work with uncommitted changes and 2 unpushed local commits.
+- **Fixed git remotes**: only `origin` existed, pointing at the main repo with a placeholder token (`ghp_YOURREALTOKENHERE`) that would never authenticate. Installed `gh` CLI via Homebrew, ran `gh auth login` (device flow) as `andrewandtristia-max`, then `gh auth setup-git` so git uses the `gh` credential helper (no raw tokens in remote URLs). Renamed `origin` → `howdoyoudo` (main repo, correct) and added a fresh `origin` pointing at the mirror.
+- **Mirror repo (`origin` → `woody-versus/https-howdoyoudo-group`) is broken** — returns 404 for `andrewandtristia-max` even authenticated. The GitHub user `woody-versus` exists but has 0 public repos. Needs Woody to check whether the repo still exists/was renamed, and to add Andrew as a collaborator if it's private. **Origin push is not working — only `howdoyoudo` is currently syncing.**
+- **Caught up on a backlog of undocumented commits** — noticed `SESSION_LOG.md` hadn't actually been updated since June 24 despite 7 commits landing since then on both branches (this entry retroactively covers them):
+  - Andrew (local, unpushed until today): `c0f3e4c` fixed Boohoo Group → Debenhams Group careers URL; `547dcbf` added mailing-list subscribe/unsubscribe toggle to `/admin/users` (via `suppressed_emails` table).
+  - Woody (pushed this morning, ~10:24–11:01am): sent the June 2026 founding-member email broadcast; nav label tweaks (added then reverted exclamation mark on "Inspire"); added behavioural industry affinity to job scoring; shipped Tinder-style swiping in Howdy Jobs (`MyJobs.tsx` rewrite + `useTrackInteraction.ts` + new `liked_jobs` migration).
+  - Confirmed with Andrew that Woody was done for the session, then merged cleanly (no file overlap) and pushed to `howdoyoudo`.
+- **Committed and pushed two of Andrew's own in-progress fixes** that were sitting uncommitted:
+  - Purplebricks/Strike careers link correction across 8 industry pages (Strike was acquired by Purplebricks).
+  - `fetch-external-jobs`: fixed cross-industry job "ownership stealing" (upsert-by-url was letting a later-run industry silently reassign a job already claimed by another industry, e.g. health stealing physiotherapy's jobs) + added `PASSION_SIGNAL` regex relevance filtering to `fetchPassionJobs` (Adzuna/Reed loose keyword search was returning unrelated jobs for passion searches like "tennis club"). **This was already deployed to production before being committed** — deploy happened first while verifying Supabase CLI access, commit followed after review.
+- Verified Supabase CLI deploy access works (`SUPABASE_ACCESS_TOKEN` + `supabase functions deploy`), confirmed `.env` already has correct `VITE_SUPABASE_URL` / `VITE_SUPABASE_PUBLISHABLE_KEY` matching `client.ts`, ran `npm install` and `npm run dev` — site loads correctly, no Supabase-related console/network errors (only pre-existing `validateDOMNesting` warnings in `RolesGrid` and a blocked Cloudflare analytics beacon, both unrelated to setup).
+
+### Current state
+- Live at: www.howdoyoudo.co.uk, deployed through commit `d5b5abc`
+- `howdoyoudo` remote fully working (push access confirmed) via `gh` credential helper — no token stored in remote URL
+- `origin` (mirror) remote added but **not working** — 404, needs Woody
+- Local dev environment fully verified (npm install, npm run dev, Supabase connectivity all working)
+
+### Left for next session / Woody
+- **Fix mirror repo access** — check https://github.com/woody-versus/https-howdoyoudo-group/settings/access (or confirm the repo still exists under that name) and add `andrewandtristia-max` as collaborator, or tell Andrew the correct URL.
+- Everything else pending from the June 24 session is still outstanding (DNS A record, WhatsApp Twilio keys, Voxpop video migration, tennis job cleanup) — see below.
+
+---
+
 ## 2026-06-24 — Woody (main branch)
 
 ### What was done
