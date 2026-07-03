@@ -1234,6 +1234,7 @@ function TinderJobCard({
 // Card stack + action buttons
 function TinderCardStack({
   jobs,
+  isFallback,
   onDismiss,
   onLike,
   onSave,
@@ -1241,6 +1242,7 @@ function TinderCardStack({
   savedIdSet,
 }: {
   jobs: (Job & { score: number; matches: string[] })[];
+  isFallback?: boolean;
   onDismiss: (id: string) => void;
   onLike: (id: string) => void;
   onSave: (id: string) => void;
@@ -1274,6 +1276,12 @@ function TinderCardStack({
 
   return (
     <div className="flex flex-col items-center gap-6">
+      {isFallback && (
+        <div className="w-full bg-[#00E600]/10 border-2 border-[#00E600] rounded-2xl px-4 py-3 text-center">
+          <p className="font-display font-800 text-sm">Out of exact matches — here's what else you might like<span className="text-primary">.</span></p>
+          <p className="font-body text-xs text-muted-foreground mt-0.5">Picked using your role, passions and behaviour, just outside your usual industries.</p>
+        </div>
+      )}
       {/* Card stack */}
       <div className="relative w-full" style={{ height: 460 }}>
         {[...visible].reverse().map((job, i) => {
@@ -1810,7 +1818,7 @@ const MyJobs = () => {
   const behavioralAffinity = useBehavioralAffinity();
 
   const scoredJobs = useMemo(() => {
-    if (!profile) return [];
+    if (!profile) return { primary: [], broader: [] };
 
     const requireRoleMatch = shouldRequireRoleMatch(profile);
     const minSalary = profile.salary_expectation ? (SALARY_THRESHOLDS[profile.salary_expectation] || 0) : 0;
@@ -1890,10 +1898,22 @@ const MyJobs = () => {
       }
     }
 
-    return [...aboveThreshold, ...belowThreshold.filter((j) => guaranteed.has(j.id))]
-      .filter((j) => j.industry !== "other")
-      .sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    return {
+      primary: [...aboveThreshold, ...belowThreshold.filter((j) => guaranteed.has(j.id))]
+        .filter((j) => j.industry !== "other")
+        .sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+      // Broader pool: everything that passed scoring/exclusion, no industry-only
+      // restriction and no minMatch cutoff — this is the algorithm's best guess
+      // at what else you'd like, used when the strict stack runs dry.
+      broader: allScored.sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+    };
   }, [jobs, profile, minMatch, roleProfiles, dismissedIds, openedIds, learnedSignals]);
+
+  const primaryScoredJobs = scoredJobs.primary;
+  const broaderScoredJobs = useMemo(
+    () => scoredJobs.broader.filter((j) => !primaryScoredJobs.some((p) => p.id === j.id)).slice(0, 40),
+    [scoredJobs, primaryScoredJobs],
+  );
 
   // Jobs from the "other" bucket that match the user's role preferences —
   // surfaced separately as "roles you might not have considered".
@@ -1931,7 +1951,7 @@ const MyJobs = () => {
 
   const navItems: { value: typeof inboxTab; label: string; icon: React.ReactNode; badge?: number; highlight?: boolean; to?: string }[] = [
     { value: "search",  label: "Jobs",        icon: <Search className="w-[22px] h-[22px]" />, to: "/marketplace" },
-    { value: "jobs",    label: "Howdy Jobs",  icon: <img src={howdyMascot} alt="" className="w-7 h-7 object-contain" />, badge: scoredJobs.length },
+    { value: "jobs",    label: "Howdy Jobs",  icon: <img src={howdyMascot} alt="" className="w-7 h-7 object-contain" />, badge: primaryScoredJobs.length || broaderScoredJobs.length },
     { value: "liked",   label: "Liked",       icon: <Heart className="w-[22px] h-[22px]" />, badge: likedJobs.length || undefined },
     { value: "saved",   label: "Saved",       icon: <Bookmark className="w-[22px] h-[22px]" />, badge: savedJobs.length || undefined },
     { value: "links",   label: "Settings",    icon: <Globe className="w-[22px] h-[22px]" /> },
@@ -2239,10 +2259,13 @@ const MyJobs = () => {
               </div>
             )}
 
-            {/* Tinder card stack */}
+            {/* Tinder card stack — falls back to the algorithm's broader picks
+                once the strict industry+match-threshold stack runs dry, instead
+                of just stopping. */}
             {hasPreferences && (
               <TinderCardStack
-                jobs={scoredJobs}
+                jobs={primaryScoredJobs.length > 0 ? primaryScoredJobs : broaderScoredJobs}
+                isFallback={primaryScoredJobs.length === 0 && broaderScoredJobs.length > 0}
                 onDismiss={handleDismiss}
                 onLike={handleLike}
                 onSave={toggleSaveJob}
