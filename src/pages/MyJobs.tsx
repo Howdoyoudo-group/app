@@ -1102,31 +1102,39 @@ function scoreJob(
 
 /* ───── Job Card (click to open, X to dismiss) ───── */
 // ─── Tinder-style swipeable job card ─────────────────────────────────────────
+const SCORE_BANDS = [
+  { min: 85, bg: "#00E600", label: "Perfect match" },
+  { min: 70, bg: "#0a0a0a", label: "Strong match" },
+  { min: 0,  bg: "#f5f5f5", label: "Worth a look" },
+] as const;
+
+function getScoreBand(score: number) {
+  return SCORE_BANDS.find((b) => score >= b.min) ?? SCORE_BANDS[SCORE_BANDS.length - 1];
+}
+
 function TinderJobCard({
   job,
   onDismiss,
   onLike,
-  onSave,
   onOpen,
-  isSaved,
   isTop,
   stackIndex,
+  exitDirection,
 }: {
   job: Job & { score: number; matches: string[] };
   onDismiss: (id: string) => void;
   onLike: (id: string) => void;
-  onSave: (id: string) => void;
   onOpen: (url: string, id?: string) => void;
-  isSaved: boolean;
   isTop: boolean;
   stackIndex: number;
+  exitDirection: "left" | "right" | null;
 }) {
   const x = useMotionValue(0);
   const rotate = useTransform(x, [-200, 200], [-18, 18]);
   const likeOpacity = useTransform(x, [20, 100], [0, 1]);
   const nopeOpacity = useTransform(x, [-100, -20], [1, 0]);
   const cardScale = isTop ? 1 : Math.max(0.92, 1 - stackIndex * 0.04);
-  const cardY = isTop ? 0 : stackIndex * 10;
+  const cardY = isTop ? 0 : stackIndex * 12;
 
   const handleDragEnd = (_: any, info: { offset: { x: number } }) => {
     if (info.offset.x < -80) onDismiss(job.id);
@@ -1134,46 +1142,54 @@ function TinderJobCard({
   };
 
   const reasons = matchesToReasons(job.matches, job.industry);
+  const band = getScoreBand(job.score);
+  const bandIsDark = band.bg === "#0a0a0a";
+  const bandIsGreen = band.bg === "#00E600";
+  const bandTextColor = bandIsDark || bandIsGreen ? "#ffffff" : "#0a0a0a";
 
   return (
     <motion.div
-      style={{ x: isTop ? x : 0, rotate: isTop ? rotate : 0, scale: cardScale, y: cardY, zIndex: 10 - stackIndex }}
+      style={{ x: isTop ? x : 0, rotate: isTop ? rotate : 0, zIndex: 10 - stackIndex }}
       drag={isTop ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.8}
+      dragElastic={0.85}
       onDragEnd={isTop ? handleDragEnd : undefined}
-      className="absolute inset-0 bg-background border-2 border-foreground rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing select-none"
-      animate={{ scale: cardScale, y: cardY }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+      className="absolute inset-0 bg-background border-[3px] border-foreground rounded-[28px] overflow-hidden cursor-grab active:cursor-grabbing select-none shadow-[6px_6px_0_0_rgba(10,10,10,0.15)]"
+      initial={false}
+      animate={
+        exitDirection === "left"
+          ? { x: -600, rotate: -30, opacity: 0, transition: { duration: 0.35, ease: "easeIn" } }
+          : exitDirection === "right"
+          ? { x: 600, rotate: 30, opacity: 0, transition: { duration: 0.35, ease: "easeIn" } }
+          : { scale: cardScale, y: cardY, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 30 } }
+      }
     >
+      {/* Score band header */}
+      <div style={{ background: band.bg, color: bandTextColor }} className="px-5 py-3 flex items-center justify-between border-b-[3px] border-foreground">
+        <span className="font-display font-900 text-sm tracking-wide">{job.score}% · {band.label}</span>
+        {(() => { const src = detectJobSource(job.url); return src ? <SourceAttribution source={src} variant="badge" /> : null; })()}
+      </div>
+
       {/* LIKE overlay */}
       {isTop && (
         <motion.div style={{ opacity: likeOpacity }} className="absolute inset-0 z-10 flex items-start justify-end p-5 pointer-events-none">
-          <span className="border-4 border-[#00E600] text-[#00E600] font-display font-900 text-2xl px-4 py-1 rounded-xl rotate-[-12deg] tracking-widest">LIKE</span>
+          <span className="border-4 border-[#00E600] text-[#00E600] bg-background font-display font-900 text-3xl px-5 py-2 rounded-2xl rotate-[-12deg] tracking-widest shadow-lg">LIKE</span>
         </motion.div>
       )}
       {/* NOPE overlay */}
       {isTop && (
         <motion.div style={{ opacity: nopeOpacity }} className="absolute inset-0 z-10 flex items-start justify-start p-5 pointer-events-none">
-          <span className="border-4 border-red-500 text-red-500 font-display font-900 text-2xl px-4 py-1 rounded-xl rotate-[12deg] tracking-widest">NOPE</span>
+          <span className="border-4 border-red-500 text-red-500 bg-background font-display font-900 text-3xl px-5 py-2 rounded-2xl rotate-[12deg] tracking-widest shadow-lg">NOPE</span>
         </motion.div>
       )}
 
       {/* Card content — tap to open */}
       <div className="h-full flex flex-col p-5" onClick={isTop ? () => onOpen(job.url, job.id) : undefined}>
-        {/* Top: score + source */}
-        <div className="flex items-center justify-between mb-3">
-          <span className={`font-display font-800 text-xs px-2.5 py-1 rounded-full ${
-            job.score >= 80 ? "bg-primary text-primary-foreground" : job.score >= 60 ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
-          }`}>{job.score}% match</span>
-          {(() => { const src = detectJobSource(job.url); return src ? <SourceAttribution source={src} variant="badge" /> : null; })()}
-        </div>
-
         {/* Company logo + info */}
-        <div className="flex items-center gap-3 mb-4">
-          <CompanyLogo company={job.company} size={48} />
+        <div className="flex items-center gap-3 mb-4 mt-1">
+          <CompanyLogo company={job.company} size={52} />
           <div className="min-w-0">
-            <p className="font-display font-700 text-sm truncate">{job.company}</p>
+            <p className="font-display font-800 text-base truncate">{job.company}</p>
             <p className="font-body text-xs text-muted-foreground truncate">
               {[job.location, job.type, job.work_mode].filter(Boolean).join(" · ")}
             </p>
@@ -1181,15 +1197,19 @@ function TinderJobCard({
         </div>
 
         {/* Title */}
-        <h3 className="font-display font-900 text-xl leading-tight mb-2">{job.title}</h3>
+        <h3 className="font-display font-900 text-2xl leading-[1.05] mb-2">{job.title}</h3>
 
         {/* Salary */}
-        {job.salary && <p className="font-body font-600 text-sm text-primary mb-3">{job.salary}</p>}
+        {job.salary && (
+          <p className="inline-block w-fit font-display font-800 text-sm text-foreground bg-[#00E600]/20 border-2 border-[#00E600] px-2.5 py-1 rounded-lg mb-3">
+            {job.salary}
+          </p>
+        )}
 
         {/* Match tags */}
         <div className="flex flex-wrap gap-1.5 mb-3">
           {job.matches.slice(0, 4).map((m) => (
-            <span key={m} className="px-2 py-0.5 bg-primary/10 text-primary font-display text-[10px] font-600 rounded-full">{m}</span>
+            <span key={m} className="px-2.5 py-1 bg-foreground text-background font-display text-[10px] font-700 rounded-full">{m}</span>
           ))}
         </div>
 
@@ -1200,11 +1220,11 @@ function TinderJobCard({
 
         {/* Description snippet */}
         {job.description && (
-          <p className="font-body text-xs text-foreground/60 leading-relaxed line-clamp-3 mt-2 flex-1">{job.description.slice(0, 200)}</p>
+          <p className="font-body text-[13px] text-foreground/70 leading-relaxed line-clamp-3 mt-2 flex-1">{job.description.slice(0, 200)}</p>
         )}
 
-        <div className="mt-auto pt-3">
-          <p className="font-body text-[10px] text-muted-foreground text-center">Tap card to view full job</p>
+        <div className="mt-auto pt-3 border-t-2 border-foreground/10">
+          <p className="font-body text-[10px] text-muted-foreground text-center uppercase tracking-wide">Tap to view full job</p>
         </div>
       </div>
     </motion.div>
@@ -1227,12 +1247,24 @@ function TinderCardStack({
   onOpen: (url: string, id?: string) => void;
   savedIdSet: Set<string>;
 }) {
+  const [exiting, setExiting] = useState<{ id: string; direction: "left" | "right" } | null>(null);
+
   const visible = jobs.slice(0, 3);
+
+  const runExit = (direction: "left" | "right", action: (id: string) => void) => {
+    if (jobs.length === 0 || exiting) return;
+    const id = jobs[0].id;
+    setExiting({ id, direction });
+    window.setTimeout(() => {
+      action(id);
+      setExiting(null);
+    }, 300);
+  };
 
   if (jobs.length === 0) {
     return (
-      <div className="border-2 border-foreground rounded-2xl p-10 text-center">
-        <p className="font-display font-700 text-lg mb-1">You're all caught up<span className="text-primary">.</span></p>
+      <div className="border-[3px] border-foreground rounded-[28px] p-12 text-center bg-muted/20">
+        <p className="font-display font-900 text-2xl mb-2">You're all caught up<span className="text-primary">.</span></p>
         <p className="font-body text-sm text-muted-foreground">New jobs arrive twice daily. Check back soon.</p>
       </div>
     );
@@ -1243,57 +1275,58 @@ function TinderCardStack({
   return (
     <div className="flex flex-col items-center gap-6">
       {/* Card stack */}
-      <div className="relative w-full" style={{ height: 420 }}>
+      <div className="relative w-full" style={{ height: 460 }}>
         {[...visible].reverse().map((job, i) => {
           const stackIndex = visible.length - 1 - i;
           return (
             <TinderJobCard
               key={job.id}
               job={job}
-              onDismiss={onDismiss}
-              onLike={onLike}
-              onSave={onSave}
+              onDismiss={(id) => runExit("left", onDismiss)}
+              onLike={(id) => runExit("right", onLike)}
               onOpen={onOpen}
-              isSaved={savedIdSet.has(job.id)}
               isTop={stackIndex === 0}
               stackIndex={stackIndex}
+              exitDirection={exiting?.id === job.id ? exiting.direction : null}
             />
           );
         })}
       </div>
 
       {/* Action buttons */}
-      <div className="flex items-center justify-center gap-6">
+      <div className="flex items-center justify-center gap-5">
         <button
-          onClick={() => onDismiss(top.id)}
-          className="w-14 h-14 rounded-full border-2 border-red-400 text-red-400 flex items-center justify-center hover:bg-red-50 transition-colors shadow-sm"
+          onClick={() => runExit("left", onDismiss)}
+          disabled={!!exiting}
+          className="w-16 h-16 rounded-full border-[3px] border-red-500 text-red-500 bg-background flex items-center justify-center hover:bg-red-500 hover:text-white transition-colors shadow-[4px_4px_0_0_rgba(239,68,68,0.25)] active:scale-95 disabled:opacity-50"
           title="Not for me"
         >
-          <X className="w-6 h-6" />
+          <X className="w-7 h-7" strokeWidth={3} />
         </button>
         <button
           onClick={() => onSave(top.id)}
-          className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-colors shadow-sm ${
-            savedIdSet.has(top.id) ? "border-primary bg-primary/10 text-primary" : "border-foreground/30 text-foreground/50 hover:border-primary hover:text-primary"
+          className={`w-12 h-12 rounded-full border-[3px] flex items-center justify-center transition-colors shadow-sm active:scale-95 ${
+            savedIdSet.has(top.id) ? "border-foreground bg-foreground text-background" : "border-foreground/30 text-foreground/50 hover:border-foreground hover:text-foreground"
           }`}
           title="Save for later"
         >
           {savedIdSet.has(top.id) ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
         </button>
         <button
-          onClick={() => onLike(top.id)}
-          className="w-14 h-14 rounded-full border-2 border-[#00E600] text-[#00E600] flex items-center justify-center hover:bg-[#00E600]/10 transition-colors shadow-sm"
+          onClick={() => runExit("right", onLike)}
+          disabled={!!exiting}
+          className="w-16 h-16 rounded-full border-[3px] border-[#00E600] text-[#00E600] bg-background flex items-center justify-center hover:bg-[#00E600] hover:text-foreground transition-colors shadow-[4px_4px_0_0_rgba(0,230,0,0.3)] active:scale-95 disabled:opacity-50"
           title="Like — show me more like this"
         >
-          <Heart className="w-6 h-6" />
+          <Heart className="w-7 h-7" strokeWidth={2.5} />
         </button>
       </div>
 
-      <p className="font-body text-[10px] text-muted-foreground text-center">
+      <p className="font-body text-[10px] text-muted-foreground text-center uppercase tracking-wide">
         Swipe right to like · swipe left to dismiss · tap card to view
       </p>
 
-      <p className="font-body text-xs text-muted-foreground">{jobs.length} job{jobs.length !== 1 ? "s" : ""} in your stack</p>
+      <p className="font-display font-700 text-xs text-muted-foreground">{jobs.length} job{jobs.length !== 1 ? "s" : ""} in your stack</p>
     </div>
   );
 }
@@ -1784,7 +1817,7 @@ const MyJobs = () => {
     const MIN_PER_INDUSTRY = 2;
 
     const baseScoredRaw = jobs
-      .filter((job) => !dismissedIds.has(job.id))
+      .filter((job) => !dismissedIds.has(job.id) && !likedIds.has(job.id))
       .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals, behavioralAffinity) }))
       .filter((job) => !shouldExcludeJob(job, profile))
       .filter((job) => passesSalaryFilter(job, minSalary))
