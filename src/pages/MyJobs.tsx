@@ -1348,9 +1348,16 @@ const MyJobs = () => {
   const [minMatch, setMinMatch] = useState(60);
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [openedIds, setOpenedIds] = useState<Set<string>>(new Set());
+  const [dismissedLoaded, setDismissedLoaded] = useState(false);
   const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
   const [likedJobs, setLikedJobs] = useState<Job[]>([]);
   const [likedLoading, setLikedLoading] = useState(false);
+  const [likedLoaded, setLikedLoaded] = useState(false);
+  // Gate the swipe stack on having a fresh read of what's already been
+  // swiped, so a reload can't briefly re-show cards you already actioned
+  // (which looked like the deck "resetting" while dismissed/liked state
+  // was still in flight from the DB).
+  const historyReady = dismissedLoaded && likedLoaded;
   const [employerRequests, setEmployerRequests] = useState<Array<{
     id: string;
     company_name: string;
@@ -1502,7 +1509,7 @@ const MyJobs = () => {
         .eq("user_id", user.id)
         .order("liked_at", { ascending: false });
       const jobIds = (likes ?? []).map((l) => l.job_id as string);
-      if (jobIds.length === 0) { setLikedJobs([]); setLikedIds(new Set()); setLikedLoading(false); return; }
+      if (jobIds.length === 0) { setLikedJobs([]); setLikedIds(new Set()); setLikedLoading(false); setLikedLoaded(true); return; }
       const now = new Date().toISOString();
       const { data: jobData } = await supabase
         .from("jobs")
@@ -1519,6 +1526,7 @@ const MyJobs = () => {
       setLikedIds(new Set((jobData ?? []).map((j: any) => j.id)));
     } catch (_) {}
     setLikedLoading(false);
+    setLikedLoaded(true);
   }, [user]);
 
   useEffect(() => {
@@ -1595,6 +1603,7 @@ const MyJobs = () => {
       }
       setDismissedIds(dismissed);
       setOpenedIds(opened);
+      setDismissedLoaded(true);
 
       if (!nextProfile) {
         setJobs([]);
@@ -1951,7 +1960,7 @@ const MyJobs = () => {
       // at what else you'd like, used when the strict stack runs dry.
       broader: allScored.sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
     };
-  }, [jobs, profile, minMatch, roleProfiles, dismissedIds, openedIds, learnedSignals]);
+  }, [jobs, profile, minMatch, roleProfiles, dismissedIds, likedIds, openedIds, learnedSignals, behavioralAffinity]);
 
   const primaryScoredJobs = scoredJobs.primary;
   const broaderScoredJobs = useMemo(
@@ -1966,12 +1975,12 @@ const MyJobs = () => {
     const effectiveRoles = getEffectiveRoles(profile);
     if (effectiveRoles.length === 0) return [];
     return jobs
-      .filter((job) => job.industry === "other" && !dismissedIds.has(job.id))
+      .filter((job) => job.industry === "other" && !dismissedIds.has(job.id) && !likedIds.has(job.id))
       .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals, behavioralAffinity) }))
       .filter((job) => hasRoleMatch(job, profile) && job.score >= 30)
       .sort((a, b) => b.score - a.score)
       .slice(0, 20);
-  }, [jobs, profile, roleProfiles, dismissedIds, learnedSignals]);
+  }, [jobs, profile, roleProfiles, dismissedIds, likedIds, learnedSignals, behavioralAffinity]);
 
   const hasPreferences = profile && (
     (profile.industry_interests && profile.industry_interests.length > 0) ||
@@ -2305,8 +2314,15 @@ const MyJobs = () => {
 
             {/* Tinder card stack — falls back to the algorithm's broader picks
                 once the strict industry+match-threshold stack runs dry, instead
-                of just stopping. */}
-            {hasPreferences && (
+                of just stopping. Gated on historyReady so a reload never briefly
+                re-shows cards you already swiped before the dismissed/liked
+                state has loaded back from the DB. */}
+            {hasPreferences && !historyReady && (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+              </div>
+            )}
+            {hasPreferences && historyReady && (
               <TinderCardStack
                 jobs={primaryScoredJobs.length > 0 ? primaryScoredJobs : broaderScoredJobs}
                 isFallback={primaryScoredJobs.length === 0 && broaderScoredJobs.length > 0}
