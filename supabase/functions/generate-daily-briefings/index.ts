@@ -448,67 +448,86 @@ Deno.serve(async (req) => {
     ?? (body.industry ? [body.industry] : Object.keys(INDUSTRY_NAMES));
 
   const today = new Date().toISOString().slice(0, 10);
-  const results: Record<string, string> = {};
 
-  // Process in batches of 4 to stay within Deno Deploy CPU/timeout limits
-  const BATCH_SIZE = 4;
-  for (let i = 0; i < industries.length; i += BATCH_SIZE) {
-    const batch = industries.slice(i, i + BATCH_SIZE);
-    await Promise.all(
-      batch.map(async (industry) => {
-        try {
-          const recentContext = await fetchRecentBriefings(supabase, industry);
-          const { news, articles } = await fetchContent(supabase, industry, recentContext.sourceLinks);
-          // Anchor rule: at least ONE recent dated item must exist (RSS or
-          // article). The hard "RSS-only" rule was starving industries whose
-          // RSS pool had gone stale even though Perplexity-scraped articles
-          // were fresh - which was the root cause of the daily-newsletter
-          // failures. Articles already have validated `published_at`, so
-          // they are a safe anchor on their own.
-          if (news.length === 0 && articles.length === 0) {
-            const dbCheck = await supabase.from("breaking_news").select("title,fetched_at,published_at").eq("industry", industry).limit(3);
-            results[industry] = `skipped: dbCheck=${JSON.stringify(dbCheck.data?.length)},err=${JSON.stringify(dbCheck.error?.message)},sample=${JSON.stringify(dbCheck.data?.[0]?.title?.slice(0,30))}`;
-            return;
-          }
-          const briefing = await generateBriefing(industry, articles, news, apiKey, recentContext.summaries);
-          if (!briefing) {
-            results[industry] = "skipped (no content)";
-            return;
-          }
+  // All ~31 industries processed synchronously in-request routinely took
+  // 2+ minutes (batches of 4, each hitting Gemini). Any day Gemini was a bit
+  // slower than usual pushed this past the edge function's execution limit,
+  // which killed the request mid-flight and silently dropped whatever
+  // industries hadn't upserted yet - the root cause of briefings only
+  // appearing on some days. Same background-task pattern as other functions
+  // in this codebase (see CLAUDE.md): respond immediately, keep working
+  // after the response via waitUntil so a slow Gemini day can't get killed.
+  const work = (async () => {
+    const results: Record<string, string> = {};
 
-          const { error } = await supabase
-            .from("daily_briefings")
-            .upsert(
-              {
-                industry,
-                briefing_date: today,
-                main_news: briefing.mainNews,
-                people: briefing.people,
-                takeaway: briefing.takeaway,
-                source_links: briefing.sourceLinks,
-                generated_at: new Date().toISOString(),
-              },
-              { onConflict: "industry,briefing_date" },
-            );
+    // Process in batches of 4 to stay within Deno Deploy CPU/timeout limits
+    const BATCH_SIZE = 4;
+    for (let i = 0; i < industries.length; i += BATCH_SIZE) {
+      const batch = industries.slice(i, i + BATCH_SIZE);
+      await Promise.all(
+        batch.map(async (industry) => {
+          try {
+            const recentContext = await fetchRecentBriefings(supabase, industry);
+            const { news, articles } = await fetchContent(supabase, industry, recentContext.sourceLinks);
+            // Anchor rule: at least ONE recent dated item must exist (RSS or
+            // article). The hard "RSS-only" rule was starving industries whose
+            // RSS pool had gone stale even though Perplexity-scraped articles
+            // were fresh - which was the root cause of the daily-newsletter
+            // failures. Articles already have validated `published_at`, so
+            // they are a safe anchor on their own.
+            if (news.length === 0 && articles.length === 0) {
+              const dbCheck = await supabase.from("breaking_news").select("title,fetched_at,published_at").eq("industry", industry).limit(3);
+              results[industry] = `skipped: dbCheck=${JSON.stringify(dbCheck.data?.length)},err=${JSON.stringify(dbCheck.error?.message)},sample=${JSON.stringify(dbCheck.data?.[0]?.title?.slice(0,30))}`;
+              return;
+            }
+            const briefing = await generateBriefing(industry, articles, news, apiKey, recentContext.summaries);
+            if (!briefing) {
+              results[industry] = "skipped (no content)";
+              return;
+            }
 
-          if (error) {
-            results[industry] = `error: ${error.message}`;
-          } else {
-            results[industry] = "ok";
+            const { error } = await supabase
+              .from("daily_briefings")
+              .upsert(
+                {
+                  industry,
+                  briefing_date: today,
+                  main_news: briefing.mainNews,
+                  people: briefing.people,
+                  takeaway: briefing.takeaway,
+                  source_links: briefing.sourceLinks,
+                  generated_at: new Date().toISOString(),
+                },
+                { onConflict: "industry,briefing_date" },
+              );
+
+            if (error) {
+              results[industry] = `error: ${error.message}`;
+            } else {
+              results[industry] = "ok";
+            }
+          } catch (err: any) {
+            results[industry] = `error: ${err?.message || String(err)}`;
           }
-        } catch (err: any) {
-          results[industry] = `error: ${err?.message || String(err)}`;
-        }
-      }),
-    );
-    // Small delay between batches to ease pressure on the AI gateway
-    if (i + BATCH_SIZE < industries.length) {
-      await new Promise((r) => setTimeout(r, 1500));
+        }),
+      );
+      // Small delay between batches to ease pressure on the AI gateway
+      if (i + BATCH_SIZE < industries.length) {
+        await new Promise((r) => setTimeout(r, 1500));
+      }
     }
+
+    console.log(`[generate-daily-briefings] ${today} results: ${JSON.stringify(results)}`);
+  })();
+
+  if (typeof EdgeRuntime !== "undefined" && (EdgeRuntime as any)?.waitUntil) {
+    (EdgeRuntime as any).waitUntil(work);
+  } else {
+    await work;
   }
 
   return new Response(
-    JSON.stringify({ success: true, date: today, results }),
+    JSON.stringify({ success: true, date: today, accepted: true, industries: industries.length }),
     {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
