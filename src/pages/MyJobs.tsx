@@ -1875,12 +1875,27 @@ const MyJobs = () => {
       t = t.replace(/\s*\([^)]*\)\s*$/, "");
       return t.replace(/\s+/g, " ").trim();
     };
+    // Same job often gets scraped from multiple boards (Adzuna, Reed, Jooble) with
+    // slightly different company name formatting - normalize hard so cross-source
+    // duplicates actually collapse instead of showing up 2-3x in the stack.
+    const normalizeCompanyForDedupe = (raw: string) => {
+      let c = (raw || "").toLowerCase().trim();
+      c = c.replace(/[.,]/g, "");
+      c = c.replace(/\b(corp|corporation|ltd|limited|plc|inc|llc|group|the|uk|international|holdings)\b/g, "");
+      c = c.replace(/[^a-z0-9\s]/g, "");
+      return c.replace(/\s+/g, " ").trim();
+    };
     const seenRoles = new Set<string>();
     const baseScored = baseScoredRaw.filter((job) => {
       const normTitle = normalizeTitleForDedupe(job.title || "");
-      const normCompany = (job.company || "").trim().toLowerCase().replace(/\s+(corp\.?|corporation|ltd\.?|limited|plc|inc\.?)$/i, "");
-      const key = `${normTitle}::${normCompany}`;
-      if (!normTitle || !normCompany) return true;
+      const normCompany = normalizeCompanyForDedupe(job.company || "");
+      // When company is missing, fall back to title+location so genuine repeats
+      // (same aggregator listing scraped twice with no company field) still
+      // collapse instead of silently passing every duplicate through.
+      const key = normCompany
+        ? `${normTitle}::${normCompany}`
+        : `${normTitle}::${(job.location || "").toLowerCase().trim()}`;
+      if (!normTitle) return true;
       if (seenRoles.has(key)) return false;
       seenRoles.add(key);
       return true;
