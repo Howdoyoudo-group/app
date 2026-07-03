@@ -732,6 +732,33 @@ interface LearnedSignals {
   penalizedIndustries: Set<string>;
 }
 
+// Same job often gets scraped from multiple boards (Adzuna, Reed, Jooble) as
+// separate DB rows with slightly different company formatting - these two
+// helpers build a normalized key so we can recognize "same real-world job,
+// different row" both for dedupe display and for sweeping duplicates when a
+// user likes/dismisses one copy of it.
+function normalizeTitleForDedupe(raw: string): string {
+  let t = (raw || "").toLowerCase().trim();
+  const cutAt = t.search(/\s+[–\-|·•]\s+|,\s+/);
+  if (cutAt > 0) t = t.slice(0, cutAt);
+  t = t.replace(/\s*\([^)]*\)\s*$/, "");
+  return t.replace(/\s+/g, " ").trim();
+}
+function normalizeCompanyForDedupe(raw: string): string {
+  let c = (raw || "").toLowerCase().trim();
+  c = c.replace(/[.,]/g, "");
+  c = c.replace(/\b(corp|corporation|ltd|limited|plc|inc|llc|group|the|uk|international|holdings)\b/g, "");
+  c = c.replace(/[^a-z0-9\s]/g, "");
+  return c.replace(/\s+/g, " ").trim();
+}
+function jobDedupeKey(job: { title: string; company: string | null; location: string | null }): string {
+  const normTitle = normalizeTitleForDedupe(job.title || "");
+  const normCompany = normalizeCompanyForDedupe(job.company || "");
+  return normCompany
+    ? `${normTitle}::${normCompany}`
+    : `${normTitle}::${(job.location || "").toLowerCase().trim()}`;
+}
+
 function extractTitleKeywords(title: string): string[] {
   return title
     .toLowerCase()
@@ -1696,8 +1723,21 @@ const MyJobs = () => {
     }
   };
 
+  // The same real-world job often exists as multiple DB rows (scraped from
+  // Adzuna, Reed, Jooble etc with slightly different company formatting).
+  // When a user swipes on one copy, sweep the rest away too so it doesn't
+  // reappear moments later as a "new" card.
+  const findDuplicateJobIds = useCallback((jobId: string): string[] => {
+    const target = jobs.find((j) => j.id === jobId);
+    if (!target) return [jobId];
+    const key = jobDedupeKey(target);
+    const dupes = jobs.filter((j) => jobDedupeKey(j) === key).map((j) => j.id);
+    return dupes.length > 0 ? dupes : [jobId];
+  }, [jobs]);
+
   const handleDismiss = useCallback(async (jobId: string) => {
     if (!user) return;
+    const duplicateIds = findDuplicateJobIds(jobId);
 
     // Re-check session freshness - RLS will reject if the JWT is stale/missing
     const { data: sessionData } = await supabase.auth.getSession();
@@ -1711,27 +1751,27 @@ const MyJobs = () => {
       return;
     }
 
-    let wasOpened = false;
+    let openedThatWereCleared: string[] = [];
 
     const rollbackDismiss = () => {
       setDismissedIds((prev) => {
         const next = new Set(prev);
-        next.delete(jobId);
+        duplicateIds.forEach((id) => next.delete(id));
         return next;
       });
 
-      if (wasOpened) {
-        setOpenedIds((prev) => new Set(prev).add(jobId));
+      if (openedThatWereCleared.length > 0) {
+        setOpenedIds((prev) => new Set([...prev, ...openedThatWereCleared]));
       }
     };
 
-    setDismissedIds((prev) => new Set(prev).add(jobId));
+    setDismissedIds((prev) => new Set([...prev, ...duplicateIds]));
 
     setOpenedIds((prev) => {
-      if (!prev.has(jobId)) return prev;
-      wasOpened = true;
+      openedThatWereCleared = duplicateIds.filter((id) => prev.has(id));
+      if (openedThatWereCleared.length === 0) return prev;
       const next = new Set(prev);
-      next.delete(jobId);
+      openedThatWereCleared.forEach((id) => next.delete(id));
       return next;
     });
 
@@ -1739,7 +1779,7 @@ const MyJobs = () => {
       .from("dismissed_jobs")
       .delete()
       .eq("user_id", activeUserId)
-      .eq("job_id", jobId);
+      .in("job_id", duplicateIds);
 
     if (deleteError) {
       console.error("Failed to clear existing job status", deleteError);
@@ -1754,7 +1794,7 @@ const MyJobs = () => {
 
     const { error: insertError } = await supabase
       .from("dismissed_jobs")
-      .insert({ user_id: activeUserId, job_id: jobId, reason: "dismissed", dismissed_at: new Date().toISOString() });
+      .insert(duplicateIds.map((id) => ({ user_id: activeUserId, job_id: id, reason: "dismissed", dismissed_at: new Date().toISOString() })));
 
     if (insertError) {
       console.error("Failed to dismiss job", insertError);
@@ -1780,10 +1820,10 @@ const MyJobs = () => {
           onClick={async () => {
             setDismissedIds((prev) => {
               const next = new Set(prev);
-              next.delete(jobId);
+              duplicateIds.forEach((id) => next.delete(id));
               return next;
             });
-            await supabase.from("dismissed_jobs").delete().eq("user_id", activeUserId).eq("job_id", jobId);
+            await supabase.from("dismissed_jobs").delete().eq("user_id", activeUserId).in("job_id", duplicateIds);
           }}
           className="font-display text-xs font-700 px-3 py-1.5 bg-foreground text-background rounded-full hover:bg-foreground/80 transition-colors"
         >
@@ -1791,19 +1831,23 @@ const MyJobs = () => {
         </button>
       ),
     });
-  }, [user]);
+  }, [user, findDuplicateJobIds]);
 
   const handleLike = useCallback(async (jobId: string) => {
     if (!user) return;
-    setLikedIds((prev) => new Set(prev).add(jobId));
+    const duplicateIds = findDuplicateJobIds(jobId);
+    setLikedIds((prev) => new Set([...prev, ...duplicateIds]));
     const job = jobs.find((j) => j.id === jobId);
-    if (job) setLikedJobs((prev) => [job, ...prev.filter((j) => j.id !== jobId)]);
+    if (job) setLikedJobs((prev) => [job, ...prev.filter((j) => !duplicateIds.includes(j.id))]);
     try {
-      await supabase.from("liked_jobs").upsert({ user_id: user.id, job_id: jobId, liked_at: new Date().toISOString() }, { onConflict: "user_id,job_id" });
+      await supabase.from("liked_jobs").upsert(
+        duplicateIds.map((id) => ({ user_id: user.id, job_id: id, liked_at: new Date().toISOString() })),
+        { onConflict: "user_id,job_id" },
+      );
       trackInteraction({ type: "job_click", industry: job?.industry ?? undefined, jobId, metadata: { source: "like" } });
     } catch (_) {}
     toast({ title: "Liked", description: "Howdy will show you more like this." });
-  }, [user, jobs]);
+  }, [user, jobs, findDuplicateJobIds]);
 
   const handleUnlike = useCallback(async (jobId: string) => {
     if (!user) return;
@@ -1872,39 +1916,14 @@ const MyJobs = () => {
     // Dedupe by (normalized title + company) - keep highest-scoring listing per unique role.
     // Many retailers post the SAME role for every store branch with the only difference
     // being the store name in the title (e.g. "Brand Specialist - Fenwick Tunbridge Wells"
-    // vs "Brand Specialist - John Lewis Bluewater"). After truncation in the UI these look
-    // like identical duplicates, so we strip everything after the first " - " / " – " / ","
-    // and also strip a trailing parenthesised location, before comparing.
-    const normalizeTitleForDedupe = (raw: string) => {
-      let t = (raw || "").toLowerCase().trim();
-      // Cut at the first separator that typically introduces a store/location suffix
-      const cutAt = t.search(/\s+[–\-|·•]\s+|,\s+/);
-      if (cutAt > 0) t = t.slice(0, cutAt);
-      // Strip trailing "(Location)" if any
-      t = t.replace(/\s*\([^)]*\)\s*$/, "");
-      return t.replace(/\s+/g, " ").trim();
-    };
-    // Same job often gets scraped from multiple boards (Adzuna, Reed, Jooble) with
-    // slightly different company name formatting - normalize hard so cross-source
-    // duplicates actually collapse instead of showing up 2-3x in the stack.
-    const normalizeCompanyForDedupe = (raw: string) => {
-      let c = (raw || "").toLowerCase().trim();
-      c = c.replace(/[.,]/g, "");
-      c = c.replace(/\b(corp|corporation|ltd|limited|plc|inc|llc|group|the|uk|international|holdings)\b/g, "");
-      c = c.replace(/[^a-z0-9\s]/g, "");
-      return c.replace(/\s+/g, " ").trim();
-    };
+    // vs "Brand Specialist - John Lewis Bluewater"), and the same real posting often gets
+    // scraped from multiple boards with slightly different company formatting - see
+    // jobDedupeKey / handleLike / handleDismiss, which sweep all copies together.
     const seenRoles = new Set<string>();
     const baseScored = baseScoredRaw.filter((job) => {
       const normTitle = normalizeTitleForDedupe(job.title || "");
-      const normCompany = normalizeCompanyForDedupe(job.company || "");
-      // When company is missing, fall back to title+location so genuine repeats
-      // (same aggregator listing scraped twice with no company field) still
-      // collapse instead of silently passing every duplicate through.
-      const key = normCompany
-        ? `${normTitle}::${normCompany}`
-        : `${normTitle}::${(job.location || "").toLowerCase().trim()}`;
       if (!normTitle) return true;
+      const key = jobDedupeKey(job);
       if (seenRoles.has(key)) return false;
       seenRoles.add(key);
       return true;
