@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCached, setCached, invalidate as invalidateCache } from "@/lib/ttlCache";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Briefcase, MapPin, TrendingUp, SlidersHorizontal, ExternalLink, Loader2, Inbox, Search, Mail, MailOpen, Sparkles, X, ThumbsUp, Trash2, Reply, Send, CheckCircle2, Pin, Newspaper, Bookmark, BookmarkCheck, Globe} from "lucide-react";
+import { ArrowLeft, Briefcase, MapPin, TrendingUp, SlidersHorizontal, ExternalLink, Loader2, Inbox, Search, Mail, MailOpen, Sparkles, X, ThumbsUp, Trash2, Reply, Send, CheckCircle2, Pin, Newspaper, Bookmark, BookmarkCheck, Globe, Heart } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { roles } from "@/data/roles";
 import {
@@ -19,10 +19,10 @@ import {
 } from "@/lib/understand-me";
 import { getIndustryRankBoost } from "@/lib/industry-rankings";
 import { getIndustriesFromPassions, PASSION_INDUSTRY_MAP } from "@/lib/passion-industry-map";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import CompanyLogo from "@/components/CompanyLogo";
-import { trackInteraction } from "@/hooks/useTrackInteraction";
+import { trackInteraction, useBehavioralAffinity, type IndustryAffinity } from "@/hooks/useTrackInteraction";
 import { getCompanySlug, getCompanyProfilePath } from "@/lib/company-profiles";
 import { getCompanyExternalUrl } from "@/lib/company-external-links";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from "@/components/ui/alert-dialog";
@@ -749,7 +749,8 @@ const STOP_WORDS = new Set([
 function buildLearnedSignals(
   allJobs: Job[],
   dismissedIds: Set<string>,
-  openedIds: Set<string>
+  openedIds: Set<string>,
+  likedIds?: Set<string>,
 ): LearnedSignals {
   const signals: LearnedSignals = {
     boostedKeywords: new Map(),
@@ -768,6 +769,18 @@ function buildLearnedSignals(
     const keywords = extractTitleKeywords(job.title);
     for (const kw of keywords) {
       signals.boostedKeywords.set(kw, (signals.boostedKeywords.get(kw) || 0) + 1);
+    }
+    if (job.company) signals.boostedCompanies.add(job.company.toLowerCase());
+    if (job.industry) signals.boostedIndustries.add(job.industry.toLowerCase());
+  }
+
+  // Likes are a stronger signal than opens — count twice
+  for (const id of (likedIds ?? new Set())) {
+    const job = jobMap.get(id);
+    if (!job) continue;
+    const keywords = extractTitleKeywords(job.title);
+    for (const kw of keywords) {
+      signals.boostedKeywords.set(kw, (signals.boostedKeywords.get(kw) || 0) + 2);
     }
     if (job.company) signals.boostedCompanies.add(job.company.toLowerCase());
     if (job.industry) signals.boostedIndustries.add(job.industry.toLowerCase());
@@ -832,11 +845,25 @@ function learningAdjustment(job: Job, signals: LearnedSignals): number {
   return Math.max(-15, Math.min(15, adjustment));
 }
 
+function applyBehavioralBoost(score: number, matches: string[], job: Job, affinity: IndustryAffinity | null): number {
+  if (!affinity || affinity.max === 0 || !job.industry) return score;
+  const ind = job.industry.toLowerCase().trim();
+  const affinityScore = affinity.scores.get(ind) ?? 0;
+  if (affinityScore === 0) return score;
+  // Normalise to 0-1 then scale to max +10 boost
+  const boost = Math.round((affinityScore / affinity.max) * 10);
+  if (boost >= 3 && !matches.some(m => m === "Industry")) {
+    matches.push("Trending for you");
+  }
+  return Math.min(100, score + boost);
+}
+
 function scoreJob(
   job: Job,
   profile: UserProfile,
   roleProfiles: Map<string, RoleRiasecProfile>,
-  learned?: LearnedSignals
+  learned?: LearnedSignals,
+  affinity?: IndustryAffinity | null,
 ): { score: number; matches: string[]; riasecMatch?: number } {
   const matches: string[] = [];
   const effectiveRoles = getEffectiveRoles(profile);
@@ -1067,95 +1094,207 @@ function scoreJob(
   // Fresh jobs should surface fast in the inbox.
   score = Math.min(100, score + getFreshnessBoost(job.created_at));
 
+  // Behavioural affinity boost - soft nudge based on what the user actually browses.
+  score = applyBehavioralBoost(score, matches, job, affinity ?? null);
+
   return { score, matches };
 }
 
 /* ───── Job Card (click to open, X to dismiss) ───── */
-function SwipeableJobCard({
+// ─── Tinder-style swipeable job card ─────────────────────────────────────────
+function TinderJobCard({
   job,
   onDismiss,
+  onLike,
+  onSave,
   onOpen,
-  onToggleSave,
   isSaved,
+  isTop,
+  stackIndex,
 }: {
   job: Job & { score: number; matches: string[] };
-  onDismiss: (jobId: string) => void;
-  onOpen: (url: string, jobId?: string) => void;
-  onToggleSave: (jobId: string) => void;
+  onDismiss: (id: string) => void;
+  onLike: (id: string) => void;
+  onSave: (id: string) => void;
+  onOpen: (url: string, id?: string) => void;
   isSaved: boolean;
+  isTop: boolean;
+  stackIndex: number;
 }) {
+  const x = useMotionValue(0);
+  const rotate = useTransform(x, [-200, 200], [-18, 18]);
+  const likeOpacity = useTransform(x, [20, 100], [0, 1]);
+  const nopeOpacity = useTransform(x, [-100, -20], [1, 0]);
+  const cardScale = isTop ? 1 : Math.max(0.92, 1 - stackIndex * 0.04);
+  const cardY = isTop ? 0 : stackIndex * 10;
+
+  const handleDragEnd = (_: any, info: { offset: { x: number } }) => {
+    if (info.offset.x < -80) onDismiss(job.id);
+    else if (info.offset.x > 80) onLike(job.id);
+  };
+
+  const reasons = matchesToReasons(job.matches, job.industry);
+
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, x: -200 }}
-      transition={{ duration: 0.2 }}
-      className="relative overflow-hidden"
+      style={{ x: isTop ? x : 0, rotate: isTop ? rotate : 0, scale: cardScale, y: cardY, zIndex: 10 - stackIndex }}
+      drag={isTop ? "x" : false}
+      dragConstraints={{ left: 0, right: 0 }}
+      dragElastic={0.8}
+      onDragEnd={isTop ? handleDragEnd : undefined}
+      className="absolute inset-0 bg-background border-2 border-foreground rounded-2xl overflow-hidden cursor-grab active:cursor-grabbing select-none"
+      animate={{ scale: cardScale, y: cardY }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
     >
-      <div
-        onClick={() => onOpen(job.url, job.id)}
-        className="relative bg-background flex items-start gap-3 p-4 group cursor-pointer hover:bg-muted/30 transition-colors rounded-xl"
-      >
-        <CompanyLogo company={job.company} size={36} className="mt-0.5" />
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2 mb-0.5">
-            <h3 className="font-display font-700 text-sm text-foreground group-hover:text-primary transition-colors truncate">
-              {job.title}
-            </h3>
-            <span className={`shrink-0 font-display font-800 text-xs px-2 py-0.5 rounded-full ${
-              job.score === 100 ? "bg-primary text-primary-foreground" : job.score >= 67 ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
-            }`}>
-              {job.score}%
-            </span>
-          </div>
-          <p className="font-body text-xs text-muted-foreground truncate">
-            {job.company}
-            {job.location && ` · ${job.location}`}
-            {job.salary && ` · ${job.salary}`}
-          </p>
-          <div className="flex flex-wrap items-center gap-1 mt-1.5">
-            {job.matches.map((m) => (
-              <span
-                key={m}
-                className="px-2 py-0.5 bg-primary/10 text-primary font-display text-[10px] font-600 rounded-full"
-              >
-                {m}
-              </span>
-            ))}
-            {(() => {
-              const src = detectJobSource(job.url);
-              return src ? <SourceAttribution source={src} variant="badge" className="ml-1" /> : null;
-            })()}
-          </div>
-          {job.matches.length > 0 && (() => {
-            const reasons = matchesToReasons(job.matches, job.industry);
-            return reasons.length > 0 ? (
-              <p className="font-body text-[10px] text-muted-foreground mt-0.5 leading-snug">
-                {reasons.slice(0, 2).join(" · ")}
-              </p>
-            ) : null;
-          })()}
+      {/* LIKE overlay */}
+      {isTop && (
+        <motion.div style={{ opacity: likeOpacity }} className="absolute inset-0 z-10 flex items-start justify-end p-5 pointer-events-none">
+          <span className="border-4 border-[#00E600] text-[#00E600] font-display font-900 text-2xl px-4 py-1 rounded-xl rotate-[-12deg] tracking-widest">LIKE</span>
+        </motion.div>
+      )}
+      {/* NOPE overlay */}
+      {isTop && (
+        <motion.div style={{ opacity: nopeOpacity }} className="absolute inset-0 z-10 flex items-start justify-start p-5 pointer-events-none">
+          <span className="border-4 border-red-500 text-red-500 font-display font-900 text-2xl px-4 py-1 rounded-xl rotate-[12deg] tracking-widest">NOPE</span>
+        </motion.div>
+      )}
+
+      {/* Card content — tap to open */}
+      <div className="h-full flex flex-col p-5" onClick={isTop ? () => onOpen(job.url, job.id) : undefined}>
+        {/* Top: score + source */}
+        <div className="flex items-center justify-between mb-3">
+          <span className={`font-display font-800 text-xs px-2.5 py-1 rounded-full ${
+            job.score >= 80 ? "bg-primary text-primary-foreground" : job.score >= 60 ? "bg-foreground text-background" : "bg-muted text-muted-foreground"
+          }`}>{job.score}% match</span>
+          {(() => { const src = detectJobSource(job.url); return src ? <SourceAttribution source={src} variant="badge" /> : null; })()}
         </div>
-        <div className="shrink-0 flex flex-col items-center gap-1 mt-0.5">
-          <button
-            onClick={(e) => { e.stopPropagation(); onToggleSave(job.id); }}
-            className={`p-1.5 rounded-full transition-colors ${isSaved ? "text-primary" : "text-muted-foreground hover:text-primary hover:bg-primary/10"}`}
-            title={isSaved ? "Saved - tap to unsave" : "Save job"}
-            aria-label={isSaved ? "Unsave job" : "Save job"}
-          >
-            {isSaved ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onDismiss(job.id); }}
-            className="p-1.5 text-muted-foreground hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
-            title="Not interested"
-            aria-label="Dismiss job"
-          >
-            <X className="w-4 h-4" />
-          </button>
+
+        {/* Company logo + info */}
+        <div className="flex items-center gap-3 mb-4">
+          <CompanyLogo company={job.company} size={48} />
+          <div className="min-w-0">
+            <p className="font-display font-700 text-sm truncate">{job.company}</p>
+            <p className="font-body text-xs text-muted-foreground truncate">
+              {[job.location, job.type, job.work_mode].filter(Boolean).join(" · ")}
+            </p>
+          </div>
+        </div>
+
+        {/* Title */}
+        <h3 className="font-display font-900 text-xl leading-tight mb-2">{job.title}</h3>
+
+        {/* Salary */}
+        {job.salary && <p className="font-body font-600 text-sm text-primary mb-3">{job.salary}</p>}
+
+        {/* Match tags */}
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {job.matches.slice(0, 4).map((m) => (
+            <span key={m} className="px-2 py-0.5 bg-primary/10 text-primary font-display text-[10px] font-600 rounded-full">{m}</span>
+          ))}
+        </div>
+
+        {/* Why this job */}
+        {reasons.length > 0 && (
+          <p className="font-body text-xs text-muted-foreground leading-relaxed line-clamp-2">{reasons.slice(0, 2).join(" · ")}</p>
+        )}
+
+        {/* Description snippet */}
+        {job.description && (
+          <p className="font-body text-xs text-foreground/60 leading-relaxed line-clamp-3 mt-2 flex-1">{job.description.slice(0, 200)}</p>
+        )}
+
+        <div className="mt-auto pt-3">
+          <p className="font-body text-[10px] text-muted-foreground text-center">Tap card to view full job</p>
         </div>
       </div>
     </motion.div>
+  );
+}
+
+// Card stack + action buttons
+function TinderCardStack({
+  jobs,
+  onDismiss,
+  onLike,
+  onSave,
+  onOpen,
+  savedIdSet,
+}: {
+  jobs: (Job & { score: number; matches: string[] })[];
+  onDismiss: (id: string) => void;
+  onLike: (id: string) => void;
+  onSave: (id: string) => void;
+  onOpen: (url: string, id?: string) => void;
+  savedIdSet: Set<string>;
+}) {
+  const visible = jobs.slice(0, 3);
+
+  if (jobs.length === 0) {
+    return (
+      <div className="border-2 border-foreground rounded-2xl p-10 text-center">
+        <p className="font-display font-700 text-lg mb-1">You're all caught up<span className="text-primary">.</span></p>
+        <p className="font-body text-sm text-muted-foreground">New jobs arrive twice daily. Check back soon.</p>
+      </div>
+    );
+  }
+
+  const top = jobs[0];
+
+  return (
+    <div className="flex flex-col items-center gap-6">
+      {/* Card stack */}
+      <div className="relative w-full" style={{ height: 420 }}>
+        {[...visible].reverse().map((job, i) => {
+          const stackIndex = visible.length - 1 - i;
+          return (
+            <TinderJobCard
+              key={job.id}
+              job={job}
+              onDismiss={onDismiss}
+              onLike={onLike}
+              onSave={onSave}
+              onOpen={onOpen}
+              isSaved={savedIdSet.has(job.id)}
+              isTop={stackIndex === 0}
+              stackIndex={stackIndex}
+            />
+          );
+        })}
+      </div>
+
+      {/* Action buttons */}
+      <div className="flex items-center justify-center gap-6">
+        <button
+          onClick={() => onDismiss(top.id)}
+          className="w-14 h-14 rounded-full border-2 border-red-400 text-red-400 flex items-center justify-center hover:bg-red-50 transition-colors shadow-sm"
+          title="Not for me"
+        >
+          <X className="w-6 h-6" />
+        </button>
+        <button
+          onClick={() => onSave(top.id)}
+          className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-colors shadow-sm ${
+            savedIdSet.has(top.id) ? "border-primary bg-primary/10 text-primary" : "border-foreground/30 text-foreground/50 hover:border-primary hover:text-primary"
+          }`}
+          title="Save for later"
+        >
+          {savedIdSet.has(top.id) ? <BookmarkCheck className="w-5 h-5" /> : <Bookmark className="w-5 h-5" />}
+        </button>
+        <button
+          onClick={() => onLike(top.id)}
+          className="w-14 h-14 rounded-full border-2 border-[#00E600] text-[#00E600] flex items-center justify-center hover:bg-[#00E600]/10 transition-colors shadow-sm"
+          title="Like — show me more like this"
+        >
+          <Heart className="w-6 h-6" />
+        </button>
+      </div>
+
+      <p className="font-body text-[10px] text-muted-foreground text-center">
+        Swipe right to like · swipe left to dismiss · tap card to view
+      </p>
+
+      <p className="font-body text-xs text-muted-foreground">{jobs.length} job{jobs.length !== 1 ? "s" : ""} in your stack</p>
+    </div>
   );
 }
 const MyJobs = () => {
@@ -1168,6 +1307,9 @@ const MyJobs = () => {
   const [minMatch, setMinMatch] = useState(60);
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [openedIds, setOpenedIds] = useState<Set<string>>(new Set());
+  const [likedIds, setLikedIds] = useState<Set<string>>(new Set());
+  const [likedJobs, setLikedJobs] = useState<Job[]>([]);
+  const [likedLoading, setLikedLoading] = useState(false);
   const [employerRequests, setEmployerRequests] = useState<Array<{
     id: string;
     company_name: string;
@@ -1179,8 +1321,8 @@ const MyJobs = () => {
   }>>([]);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
-  const initialTab = (searchParams.get("tab") as "search" | "jobs" | "saved" | "members" | "links") || "jobs";
-  const [inboxTab, setInboxTab] = useState<"search" | "jobs" | "saved" | "members" | "links">(initialTab);
+  const initialTab = (searchParams.get("tab") as "search" | "jobs" | "liked" | "saved" | "members" | "links") || "jobs";
+  const [inboxTab, setInboxTab] = useState<"search" | "jobs" | "liked" | "saved" | "members" | "links">(initialTab);
   const [savedJobs, setSavedJobs] = useState<Job[]>([]);
   const [savedLoading, setSavedLoading] = useState(false);
   const [memberAlerts, setMemberAlerts] = useState<number>(0);
@@ -1257,7 +1399,8 @@ const MyJobs = () => {
 
   useEffect(() => {
     loadSavedJobs();
-  }, [loadSavedJobs]);
+    loadLikedJobs();
+  }, [loadSavedJobs, loadLikedJobs]);
 
   const unsaveJob = async (jobId: string) => {
     if (!user) return;
@@ -1308,6 +1451,35 @@ const MyJobs = () => {
   }, [user, navigate, savedJobs, jobs]);
 
   const savedIdSet = useMemo(() => new Set(savedJobs.map((j) => j.id)), [savedJobs]);
+
+  const loadLikedJobs = useCallback(async () => {
+    if (!user) return;
+    setLikedLoading(true);
+    try {
+      const { data: likes } = await supabase
+        .from("liked_jobs")
+        .select("job_id, liked_at")
+        .eq("user_id", user.id)
+        .order("liked_at", { ascending: false });
+      const jobIds = (likes ?? []).map((l) => l.job_id as string);
+      if (jobIds.length === 0) { setLikedJobs([]); setLikedIds(new Set()); setLikedLoading(false); return; }
+      const now = new Date().toISOString();
+      const { data: jobData } = await supabase
+        .from("jobs")
+        .select("id,title,company,location,salary,industry,career_level,url,created_at,type,work_mode,role_category,ai_role_category,job_traits,description,tags,expires_at")
+        .in("id", jobIds)
+        .or(`expires_at.is.null,expires_at.gt.${now}`);
+      const liveIds = new Set((jobData ?? []).map((j: any) => j.id));
+      // Remove stale liked jobs automatically
+      const staleIds = jobIds.filter((id) => !liveIds.has(id));
+      if (staleIds.length > 0) {
+        await supabase.from("liked_jobs").delete().eq("user_id", user.id).in("job_id", staleIds);
+      }
+      setLikedJobs((jobData ?? []) as Job[]);
+      setLikedIds(new Set((jobData ?? []).map((j: any) => j.id)));
+    } catch (_) {}
+    setLikedLoading(false);
+  }, [user]);
 
   const loadData = async () => {
     if (!user) return;
@@ -1539,6 +1711,25 @@ const MyJobs = () => {
     });
   }, [user]);
 
+  const handleLike = useCallback(async (jobId: string) => {
+    if (!user) return;
+    setLikedIds((prev) => new Set(prev).add(jobId));
+    const job = jobs.find((j) => j.id === jobId);
+    if (job) setLikedJobs((prev) => [job, ...prev.filter((j) => j.id !== jobId)]);
+    try {
+      await supabase.from("liked_jobs").upsert({ user_id: user.id, job_id: jobId, liked_at: new Date().toISOString() }, { onConflict: "user_id,job_id" });
+      trackInteraction({ type: "job_click", industry: job?.industry ?? undefined, jobId, metadata: { source: "like" } });
+    } catch (_) {}
+    toast({ title: "Liked", description: "Howdy will show you more like this." });
+  }, [user, jobs]);
+
+  const handleUnlike = useCallback(async (jobId: string) => {
+    if (!user) return;
+    setLikedIds((prev) => { const n = new Set(prev); n.delete(jobId); return n; });
+    setLikedJobs((prev) => prev.filter((j) => j.id !== jobId));
+    try { await supabase.from("liked_jobs").delete().eq("user_id", user.id).eq("job_id", jobId); } catch (_) {}
+  }, [user]);
+
   const handleOpen = useCallback((url: string, jobId?: string) => {
     // Route to Marketplace's fuller job view with the "Howdy can help" helper
     // pre-opened, instead of sending users straight to the external posting.
@@ -1577,8 +1768,10 @@ const MyJobs = () => {
 
   // Build learning signals from dismiss/open history
   const learnedSignals = useMemo(() => {
-    return buildLearnedSignals(jobs, dismissedIds, openedIds);
-  }, [jobs, dismissedIds, openedIds]);
+    return buildLearnedSignals(jobs, dismissedIds, openedIds, likedIds);
+  }, [jobs, dismissedIds, openedIds, likedIds]);
+
+  const behavioralAffinity = useBehavioralAffinity();
 
   const scoredJobs = useMemo(() => {
     if (!profile) return [];
@@ -1589,7 +1782,7 @@ const MyJobs = () => {
 
     const baseScoredRaw = jobs
       .filter((job) => !dismissedIds.has(job.id))
-      .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals) }))
+      .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals, behavioralAffinity) }))
       .filter((job) => !shouldExcludeJob(job, profile))
       .filter((job) => passesSalaryFilter(job, minSalary))
       .sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -1674,7 +1867,7 @@ const MyJobs = () => {
     if (effectiveRoles.length === 0) return [];
     return jobs
       .filter((job) => job.industry === "other" && !dismissedIds.has(job.id))
-      .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals) }))
+      .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals, behavioralAffinity) }))
       .filter((job) => hasRoleMatch(job, profile) && job.score >= 30)
       .sort((a, b) => b.score - a.score)
       .slice(0, 20);
@@ -1701,10 +1894,11 @@ const MyJobs = () => {
   if (!user) return null;
 
   const navItems: { value: typeof inboxTab; label: string; icon: React.ReactNode; badge?: number; highlight?: boolean; to?: string }[] = [
-    { value: "search",  label: "Jobs",   icon: <Search className="w-[22px] h-[22px]" />, to: "/marketplace" },
+    { value: "search",  label: "Jobs",        icon: <Search className="w-[22px] h-[22px]" />, to: "/marketplace" },
     { value: "jobs",    label: "Howdy Jobs",  icon: <img src={howdyMascot} alt="" className="w-7 h-7 object-contain" />, badge: scoredJobs.length },
-    { value: "saved",   label: "Saved", icon: <Bookmark className="w-[22px] h-[22px]" />, badge: savedJobs.length || undefined },
-    { value: "links",   label: "Settings", icon: <Globe className="w-[22px] h-[22px]" /> },
+    { value: "liked",   label: "Liked",       icon: <Heart className="w-[22px] h-[22px]" />, badge: likedJobs.length || undefined },
+    { value: "saved",   label: "Saved",       icon: <Bookmark className="w-[22px] h-[22px]" />, badge: savedJobs.length || undefined },
+    { value: "links",   label: "Settings",    icon: <Globe className="w-[22px] h-[22px]" /> },
   ];
 
   return (
@@ -2009,73 +2203,51 @@ const MyJobs = () => {
               </div>
             )}
 
-            {/* Interaction hint */}
-            {hasPreferences && scoredJobs.length > 0 && (
-              <div className="flex items-center justify-center gap-4 mb-4 font-body text-[10px] text-muted-foreground">
-                <span className="flex items-center gap-1"><X className="w-3 h-3 text-red-400" /> Hit X to dismiss</span>
-                <span className="flex items-center gap-1"><ExternalLink className="w-3 h-3 text-green-500" /> Press to see more</span>
-              </div>
-            )}
-
-            {/* Results - inbox style with swipe */}
+            {/* Tinder card stack */}
             {hasPreferences && (
-              <>
-                {scoredJobs.length === 0 ? (
-                  <div className="border-2 border-foreground p-8 text-center rounded-2xl">
-                    <p className="font-body text-sm text-muted-foreground">
-                      No jobs match at {minMatch}% or above. Try lowering the accuracy slider.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="divide-y-2 divide-foreground/10 border-2 border-foreground rounded-2xl overflow-hidden">
-                    <AnimatePresence initial={false}>
-                      {scoredJobs.slice(0, 50).map((job) => (
-                        <SwipeableJobCard
-                          key={job.id}
-                          job={job}
-                          onDismiss={handleDismiss}
-                          onOpen={handleOpen}
-                          onToggleSave={toggleSaveJob}
-                          isSaved={savedIdSet.has(job.id)}
-                        />
-                      ))}
-                    </AnimatePresence>
-                  </div>
-                )}
+              <TinderCardStack
+                jobs={scoredJobs}
+                onDismiss={handleDismiss}
+                onLike={handleLike}
+                onSave={toggleSaveJob}
+                onOpen={handleOpen}
+                savedIdSet={savedIdSet}
+              />
+            )}
+          </TabsContent>
 
-                {dismissedIds.size > 0 && (
-                  <p className="font-body text-[10px] text-muted-foreground text-center mt-4">
-                    {dismissedIds.size} job{dismissedIds.size !== 1 ? "s" : ""} dismissed
-                  </p>
-                )}
-                <SourceAttributionFooter jobs={scoredJobs} className="mt-4 justify-center" />
-
-                {/* Discover section — role-matched jobs outside the user's stated industries */}
-                {discoverJobs.length > 0 && (
-                  <div className="mt-10">
-                    <div className="mb-4">
-                      <h3 className="font-display text-lg font-700">Roles you might not have considered<span className="text-primary">.</span></h3>
-                      <p className="font-body text-xs text-muted-foreground mt-1">
-                        These match what you want to do — just in places you haven't thought about yet.
-                      </p>
+          {/* ─── LIKED JOBS TAB ─── */}
+          <TabsContent value="liked" className="mt-0 focus-visible:outline-none">
+            {likedLoading ? (
+              <div className="flex items-center justify-center py-12"><Loader2 className="w-5 h-5 animate-spin text-muted-foreground" /></div>
+            ) : likedJobs.length === 0 ? (
+              <div className="border-2 border-foreground rounded-2xl p-10 text-center">
+                <Heart className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
+                <p className="font-display font-700 text-lg mb-1">No likes yet<span className="text-primary">.</span></p>
+                <p className="font-body text-sm text-muted-foreground">Swipe right on jobs you like — they'll appear here.</p>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <p className="font-body text-xs text-muted-foreground mb-4">{likedJobs.length} liked job{likedJobs.length !== 1 ? "s" : ""} — stale ones are removed automatically.</p>
+                <div className="divide-y-2 divide-foreground/10 border-2 border-foreground rounded-2xl overflow-hidden">
+                  {likedJobs.map((job) => (
+                    <div key={job.id} className="flex items-start gap-3 p-4 hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => handleOpen(job.url, job.id)}>
+                      <CompanyLogo company={job.company} size={36} className="mt-0.5 shrink-0" />
+                      <div className="min-w-0 flex-1">
+                        <p className="font-display font-700 text-sm truncate">{job.title}</p>
+                        <p className="font-body text-xs text-muted-foreground truncate">{job.company}{job.location && ` · ${job.location}`}{job.salary && ` · ${job.salary}`}</p>
+                      </div>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleUnlike(job.id); }}
+                        className="shrink-0 p-1.5 text-[#00E600] hover:text-red-400 transition-colors rounded-full hover:bg-red-50"
+                        title="Unlike"
+                      >
+                        <Heart className="w-4 h-4 fill-current" />
+                      </button>
                     </div>
-                    <div className="divide-y-2 divide-foreground/10 border-2 border-foreground rounded-2xl overflow-hidden">
-                      <AnimatePresence initial={false}>
-                        {discoverJobs.map((job) => (
-                          <SwipeableJobCard
-                            key={job.id}
-                            job={job}
-                            onDismiss={handleDismiss}
-                            onOpen={handleOpen}
-                            onToggleSave={toggleSaveJob}
-                            isSaved={savedIdSet.has(job.id)}
-                          />
-                        ))}
-                      </AnimatePresence>
-                    </div>
-                  </div>
-                )}
-              </>
+                  ))}
+                </div>
+              </div>
             )}
           </TabsContent>
 
