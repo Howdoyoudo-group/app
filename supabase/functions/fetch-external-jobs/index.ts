@@ -53,16 +53,47 @@ async function safeUpsertJobs(supabase: any, batch: any[]): Promise<number> {
         : mapped.expires_at,
     };
   });
+
+  // Several industries share overlapping keywords (e.g. "physiotherapist"
+  // used to live in both health and physiotherapy), so the same job URL can
+  // surface from more than one industry's sweep. A plain upsert-by-url
+  // merges every column including `industry`, so whichever industry's sweep
+  // ran later in the cron order would silently steal jobs already claimed by
+  // an earlier industry. Look up existing rows first and drop `industry`
+  // from the payload for any URL that's already tagged with a *different*
+  // industry, so re-scraping refreshes freshness/description but never
+  // re-assigns ownership.
+  const urls = remapped.map((r) => r.url).filter(Boolean);
+  const existingIndustryByUrl = new Map<string, string>();
+  if (urls.length > 0) {
+    const { data: existingRows } = await supabase
+      .from("jobs")
+      .select("url, industry")
+      .in("url", urls);
+    for (const r of existingRows || []) {
+      if (r.url && r.industry) existingIndustryByUrl.set(r.url, r.industry);
+    }
+  }
+
+  const finalRows = remapped.map((row) => {
+    const existingIndustry = existingIndustryByUrl.get(row.url);
+    if (existingIndustry && existingIndustry !== row.industry) {
+      const { industry: _dropped, ...rest } = row;
+      return rest;
+    }
+    return row;
+  });
+
   const { error, data } = await supabase
     .from("jobs")
-    .upsert(remapped, { onConflict: "url" })
+    .upsert(finalRows, { onConflict: "url" })
     .select("id");
   if (!error) return data?.length || 0;
 
   // Likely a unique-violation on the (title, company, location) index.
   // Retry one row at a time so a single bad row doesn't kill the batch.
   let inserted = 0;
-  for (const row of remapped) {
+  for (const row of finalRows) {
     const { data: oneData, error: oneErr } = await supabase
       .from("jobs")
       .upsert([row], { onConflict: "url" })
@@ -159,8 +190,12 @@ const INDUSTRY_KEYWORDS: Record<string, string[]> = {
     "podcast host", "podcaster", "newsletter writer", "substack writer",
     "live streamer", "twitch streamer",
     // Production & Craft
-    "video editor", "short form video editor", "reels editor", "youtube video editor",
-    "videographer", "creator videographer",
+    // Note: bare "video editor" / "videographer" deliberately excluded -
+    // they're cinema's keywords too, and the upsert-by-url overwrite (see
+    // safeUpsertJobs) meant influencing (processed later) was stealing
+    // cinema's jobs on every shared URL. Keep the creator-flavoured variants.
+    "short form video editor", "reels editor", "youtube video editor",
+    "creator videographer",
     "photographer creator", "content photographer",
     "podcast producer", "video producer creator", "shorts producer",
     "motion designer creator", "thumbnail designer", "graphic designer creator",
@@ -260,7 +295,10 @@ const INDUSTRY_KEYWORDS: Record<string, string[]> = {
     "psychiatrist", "registrar", "junior doctor", "FY1", "FY2", "ST1",
     "care worker", "carer", "care home manager", "live-in carer", "social worker",
     "pharmacist", "paramedic", "radiographer", "occupational therapist",
-    "physiotherapist", "speech and language therapist", "dietitian",
+    "speech and language therapist", "dietitian",
+    // Note: "physiotherapist" deliberately excluded - it's physiotherapy's
+    // own keyword, and the upsert-by-url overwrite (see safeUpsertJobs)
+    // meant health (processed later) was stealing every shared physio job.
     // Industry adjacencies
     "clinical researcher", "biomedical scientist", "medtech", "health data scientist",
     "pharma sales", "hospital manager", "practice manager GP", "public health",
@@ -3066,9 +3104,9 @@ const WORKDAY_TENANTS: Array<{
   /** Skip UK location filter - for tenants whose career site only lists domestic jobs. */
   allUk?: boolean;
 }> = [
-  { company: "LSEG",   industry: "money",    tenant: "lseg",   wd: "wd3", site: "LSEG_External_Career_Site" },
+  { company: "LSEG",   industry: "money",    tenant: "lseg",   wd: "wd3", site: "Careers" },
   { company: "Bupa",   industry: "health",   tenant: "bupa",   wd: "wd3", site: "External" },
-  { company: "Nike",   industry: "footwear", tenant: "nike",   wd: "wd1", site: "nikecareers" },
+  { company: "Nike",   industry: "footwear", tenant: "nike",   wd: "wd1", site: "nke" },
   { company: "Diageo", industry: "beer",     tenant: "diageo", wd: "wd3", site: "Diageo_Careers" },
   { company: "Skechers", industry: "footwear", tenant: "skechers", wd: "wd5", site: "skechers" },
   // John Lewis Partnership - multi-brand. Default John Lewis & Partners → fashion.
@@ -3087,7 +3125,7 @@ const WORKDAY_TENANTS: Array<{
   // Lloyds Banking Group - multi-brand (Lloyds, Halifax, Bank of Scotland, Scottish Widows).
   { company: "Lloyds Banking Group", industry: "money", tenant: "lbg", wd: "wd3", site: "LBG_Careers", allUk: true },
   // ===== Who's Hiring discoveries (May 2026) =====
-  { company: "Christie's",        industry: "fashion",   tenant: "christies",        wd: "wd1", site: "Christies" },
+  { company: "Christie's",        industry: "fashion",   tenant: "christies",        wd: "wd3", site: "Christies_Careers" },
   { company: "Deckers (UGG/HOKA)", industry: "footwear",  tenant: "deckers",          wd: "wd1", site: "Deckers" },
   { company: "Puma",              industry: "footwear",  tenant: "puma",             wd: "wd3", site: "puma_careers" },
   { company: "Clarks",            industry: "footwear",  tenant: "clarks",           wd: "wd3", site: "Clarks_Careers" },
@@ -3105,8 +3143,8 @@ const WORKDAY_TENANTS: Array<{
   { company: "Warner Music Group", industry: "music",     tenant: "warnermusic",      wd: "wd1", site: "Warner_Music" },
   { company: "Sony Music",         industry: "music",     tenant: "sonymusic",        wd: "wd5", site: "Sony_Music" },
   { company: "Live Nation",        industry: "music",     tenant: "livenation",       wd: "wd5", site: "Live_Nation" },
-  { company: "Medivet",            industry: "pets",      tenant: "medivet",          wd: "wd3", site: "Medivet" },
-  { company: "Ramsay Health Care",  industry: "health",    tenant: "ramsayhealthcare", wd: "wd3", site: "Ramsay_Health_Care" },
+  { company: "Medivet",            industry: "pets",      tenant: "medivet",          wd: "wd3", site: "MedivetCareers" },
+  { company: "Ramsay Health Care",  industry: "health",    tenant: "ramsayhealthcare", wd: "wd3", site: "Ramsay_Careers" },
   { company: "HSBC",               industry: "money",     tenant: "hsbc",             wd: "wd3", site: "HSBC_Careers", allUk: false },
   { company: "Expedia Group",      industry: "travel",    tenant: "expedia",          wd: "wd5", site: "Expedia_Group_Careers" },
   { company: "Unilever",           industry: "beauty",    tenant: "unilever",         wd: "wd3", site: "Unilever_Experienced_Professionals",
@@ -3130,7 +3168,7 @@ const WORKDAY_TENANTS: Array<{
   { company: "Brentford FC", industry: "football", tenant: "brentfordfootballclub", wd: "wd107", site: "BrentfordFC", allUk: true },
 
   // ===== Cinema / Film & TV =====
-  { company: "Sky",            industry: "cinema",   tenant: "sky",          wd: "wd3", site: "External",
+  { company: "Sky",            industry: "cinema",   tenant: "sky",          wd: "wd3", site: "Sky_Careers",
     routes: [
       { match: /\b(news|journalism|reporter|anchor|correspondent|newsroom)\b/i, industry: "journalism" },
       { match: /\b(sport|premier league|football|f1|formula)\b/i,              industry: "football" },
@@ -3150,6 +3188,7 @@ const WORKDAY_TENANTS: Array<{
 
   // ===== Journalism / Media =====
   { company: "News UK (Times / Sun)", industry: "journalism", tenant: "newsuk", wd: "wd3", site: "External", allUk: true },
+  { company: "Reuters", industry: "journalism", tenant: "thomsonreuters", wd: "wd5", site: "External_Career_Site" },
   { company: "ITV",            industry: "journalism", tenant: "itv",        wd: "wd3", site: "External",
     routes: [
       { match: /\b(drama|comedy|entertainment|reality|love island|production)\b/i, industry: "cinema" },
@@ -6473,6 +6512,32 @@ const PASSION_KEYWORDS: Record<string, string[]> = {
   Chocolate: ["chocolatier", "confectioner", "patissier chocolate"],
 };
 
+// Adzuna/Reed's keyword search is loose (OR-of-words, not exact phrase), so a
+// query like "tennis club" or "padel club" can surface completely unrelated
+// jobs (e.g. "Head of Strategic Procurement" at "Matchtech", or a hotel job
+// whose description happens to mention a "golf course"). Unlike cinema's
+// FILM_SIGNAL, this pipeline had no post-fetch relevance check at all - every
+// passion needs one. Require a genuine signal word in title+description
+// before accepting a result.
+const PASSION_SIGNAL: Record<string, RegExp> = {
+  Wine: /\b(wine|sommelier|vineyard|viticultur)/i,
+  Golf: /\b(golf|greenkeeper|\bpga\b)/i,
+  Tennis: /\b(tennis|padel|racquet|racket)/i,
+  Cycling: /\b(cycling|cyclist|bicycle|\bbike\b|rapha|brompton)/i,
+  Yoga: /\b(yoga|pilates)/i,
+  Sailing: /\b(yacht|sailing|marina|\brya\b)/i,
+  Skiing: /\b(\bski\b|skiing|chalet|snowsport)/i,
+  Surfing: /\b(surf|watersports)/i,
+  Climbing: /\b(climbing|route setter|bouldering)/i,
+  Photography: /\b(photo|photograph|retouch)/i,
+  Writing: /\b(copywrit|content writ|staff writer|feature writer)/i,
+  Art: /\b(gallery|curator|art handler|art dealer)/i,
+  Gardening: /\b(garden|horticultur|landscape|\brhs\b)/i,
+  Sustainability: /\b(sustainab|\besg\b|climate|carbon)/i,
+  Horses: /\b(equestrian|\bstable\b|racing yard|stud farm|\bhorse)/i,
+  Chocolate: /\b(chocolat|confection|patissier)/i,
+};
+
 async function fetchPassionJobs(
   passion: string,
   keywords: string[],
@@ -6567,7 +6632,9 @@ async function fetchPassionJobs(
     }
   }
 
-  return out;
+  const signal = PASSION_SIGNAL[passion];
+  if (!signal) return out;
+  return out.filter((job) => signal.test(`${job.title} ${job.description || ""}`));
 }
 
 // ── Main handler ────────────────────────────────────────────────────
