@@ -5,6 +5,40 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-03 (afternoon) — Woody (main branch)
+
+### What was done
+- **Fixed Andrew's GitHub access**: mirror repo (`origin` → `woody-versus/https-howdoyoudo-group`) 404'd for him because he wasn't added as a collaborator, not because the repo was missing/renamed. Added `andrewandtristia-max` at the repo's Settings → Access — resolved, both remotes now sync for both of us. Also fixed Woody's own expiring GitHub PAT (regenerated, updated both remote URLs).
+- **Fixed a real homepage/MyJobs crash**: `MyJobs.tsx` had a `ReferenceError: Cannot access 'loadLikedJobs' before initialization` — a `useEffect` called it before its `useCallback` definition further down the file. Because the app had **no error boundary anywhere**, this crash unmounted the entire React tree, leaving just the CSS background pattern visible — this was the mystery "blank page showing only doodles" bug reported earlier in the day too (turned out not to be DNS as first suspected). Fixed the ordering bug and added `src/components/ErrorBoundary.tsx` wrapping `<Routes>` in `App.tsx` so any future single-page crash shows a recoverable "Something went wrong" screen instead of blanking the whole site.
+- **Sent the June 2026 founding-member email** (`send-june-update` edge function) to all 46 subscribers (45 delivered, 1 bad address in DB). Added travel-suitcase doodle to the "30+ industries" section, social handles footer (Instagram/TikTok/YouTube/X), stripped em dashes.
+- **Added behavioural industry affinity to job scoring** — tracks industry page visits, Marketplace filter picks, and searches (`useTrackInteraction.ts` → `useBehavioralAffinity`), building a recency-weighted, threshold-gated per-industry score that softly boosts matching jobs (max +10pts, capped, requires 5+ weighted points to kick in) so genuine browsing behaviour — not just explicit profile settings — shapes the feed.
+- **Rebuilt Howdy Jobs as a proper Tinder-style swipe UI** (previously a boring static list with tiny buttons): drag-to-swipe cards with fly-off animation on both drag and button press, colour-coded score bands, chunky salary chips, Like/Dismiss/Save actions. New `liked_jobs` table + migration.
+- **Extensive debugging of "swiped jobs reappearing" bug** — multiple real bugs found and fixed along the way, but **the bug is not fully resolved as of end of session**:
+  - Liked jobs weren't excluded from the stack at all (missing filter) — fixed.
+  - `scoredJobs`/`discoverJobs` `useMemo`s used `likedIds` in their body without listing it as a dependency — stale closure, fixed.
+  - Stack rendered before dismissed/liked history had loaded from DB on every mount — added `historyReady` gate (spinner until both loaded).
+  - Cross-source duplicate postings (same job scraped by Adzuna/Reed/Jooble with different company text, e.g. "Insight" vs "Insight UK") weren't recognized as the same job — added `jobDedupeKey()` + `findDuplicateJobIds()`, swept on like/dismiss, cleaned up pre-existing duplicate likes.
+  - `likedIds` was only populated after a second, more failure-prone "fetch full job details" query succeeded — any hiccup left it silently empty for the whole session. Fixed to set immediately from the raw `liked_jobs` rows.
+  - **Despite all of the above, Woody confirmed the bug still reproduces 100% of the time** — swipe a job, reload immediately (even 5x in a row within seconds), same jobs come back. Not explained by any of the fixes above. Root cause not yet found — see handoff doc.
+- Also widened the job pool (21-day dismiss cooldown, cross-industry top-up query so fast swipers in narrow industries don't run dry) and added a "broader picks" fallback banner when the strict-match stack empties out.
+- Wrote a detailed debugging handoff prompt at `~/Desktop/tinder-bug-handoff-prompt.md` for the next session to pick up — lists everything tried, suspects not yet ruled out, and a concrete plan (log `likedIds` contents at render time, cross-reference against the actual DB row for a known-liked job) rather than more speculative fixes.
+
+### Current state
+- Live at: www.howdoyoudo.co.uk
+- Both Woody and Andrew have working git access on both remotes
+- June email sent (45/46 delivered)
+- Behavioural affinity scoring live
+- Tinder swipe UI live and mostly working, but **has an unresolved bug**: swiped jobs (confirmed via Liked tab) can still reappear in the Howdy Jobs stack on reload. Not a "hours later, new duplicate scraped" issue — reproduces instantly, every time.
+
+### Left for next session / Woody
+- **PRIORITY: finish debugging the reappearing-swiped-jobs bug.** Read `~/Desktop/tinder-bug-handoff-prompt.md` first — it has the full context, everything already tried, and a concrete debugging plan (inspect actual `likedIds` state at render time rather than guessing at more fixes). Do NOT re-attempt the same fixes listed there without checking first.
+- Add `A @ 216.198.79.1` DNS record in 123-reg (fixes bare howdoyoudo.co.uk)
+- Twilio keys needed for WhatsApp
+- Voxpops video needs permanent Supabase Storage upload (currently Lovable CDN)
+- Consider commissioning 4 new hand-drawn email icon illustrations (tennis, building, fixing, delivery) — currently reusing near-fit icons for those industries in emails
+
+---
+
 ## 2026-07-03 — Andrew (main branch, new laptop setup)
 
 ### What was done
