@@ -22,7 +22,7 @@ import { getIndustriesFromPassions, PASSION_INDUSTRY_MAP } from "@/lib/passion-i
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
 import CompanyLogo from "@/components/CompanyLogo";
-import { trackInteraction } from "@/hooks/useTrackInteraction";
+import { trackInteraction, useBehavioralAffinity, type IndustryAffinity } from "@/hooks/useTrackInteraction";
 import { getCompanySlug, getCompanyProfilePath } from "@/lib/company-profiles";
 import { getCompanyExternalUrl } from "@/lib/company-external-links";
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from "@/components/ui/alert-dialog";
@@ -832,11 +832,25 @@ function learningAdjustment(job: Job, signals: LearnedSignals): number {
   return Math.max(-15, Math.min(15, adjustment));
 }
 
+function applyBehavioralBoost(score: number, matches: string[], job: Job, affinity: IndustryAffinity | null): number {
+  if (!affinity || affinity.max === 0 || !job.industry) return score;
+  const ind = job.industry.toLowerCase().trim();
+  const affinityScore = affinity.scores.get(ind) ?? 0;
+  if (affinityScore === 0) return score;
+  // Normalise to 0-1 then scale to max +10 boost
+  const boost = Math.round((affinityScore / affinity.max) * 10);
+  if (boost >= 3 && !matches.some(m => m === "Industry")) {
+    matches.push("Trending for you");
+  }
+  return Math.min(100, score + boost);
+}
+
 function scoreJob(
   job: Job,
   profile: UserProfile,
   roleProfiles: Map<string, RoleRiasecProfile>,
-  learned?: LearnedSignals
+  learned?: LearnedSignals,
+  affinity?: IndustryAffinity | null,
 ): { score: number; matches: string[]; riasecMatch?: number } {
   const matches: string[] = [];
   const effectiveRoles = getEffectiveRoles(profile);
@@ -1066,6 +1080,9 @@ function scoreJob(
 
   // Fresh jobs should surface fast in the inbox.
   score = Math.min(100, score + getFreshnessBoost(job.created_at));
+
+  // Behavioural affinity boost - soft nudge based on what the user actually browses.
+  score = applyBehavioralBoost(score, matches, job, affinity ?? null);
 
   return { score, matches };
 }
@@ -1580,6 +1597,8 @@ const MyJobs = () => {
     return buildLearnedSignals(jobs, dismissedIds, openedIds);
   }, [jobs, dismissedIds, openedIds]);
 
+  const behavioralAffinity = useBehavioralAffinity();
+
   const scoredJobs = useMemo(() => {
     if (!profile) return [];
 
@@ -1589,7 +1608,7 @@ const MyJobs = () => {
 
     const baseScoredRaw = jobs
       .filter((job) => !dismissedIds.has(job.id))
-      .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals) }))
+      .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals, behavioralAffinity) }))
       .filter((job) => !shouldExcludeJob(job, profile))
       .filter((job) => passesSalaryFilter(job, minSalary))
       .sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -1674,7 +1693,7 @@ const MyJobs = () => {
     if (effectiveRoles.length === 0) return [];
     return jobs
       .filter((job) => job.industry === "other" && !dismissedIds.has(job.id))
-      .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals) }))
+      .map((job) => ({ ...job, ...scoreJob(job, profile, roleProfiles, learnedSignals, behavioralAffinity) }))
       .filter((job) => hasRoleMatch(job, profile) && job.score >= 30)
       .sort((a, b) => b.score - a.score)
       .slice(0, 20);

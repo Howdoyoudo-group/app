@@ -1309,6 +1309,13 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
       else next.delete("industry");
       return next;
     }, { replace: true });
+    if (nextIndustry && nextIndustry !== "All") {
+      trackInteraction({
+        type: "industry_view",
+        industry: nextIndustry.toLowerCase(),
+        metadata: { source: "marketplace_filter" },
+      });
+    }
   };
 
   const fetchOverviewCounts = useCallback(async () => {
@@ -2274,6 +2281,13 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
   const handleSmartSearch = async () => {
     const q = search.trim();
     if (!q) return;
+    if (industry && industry !== "All") {
+      trackInteraction({
+        type: "marketplace_search",
+        industry: industry.toLowerCase(),
+        metadata: { source: "marketplace_search", query: q.slice(0, 100) },
+      });
+    }
     // Always keep the keyword search active too
     if (q.length < 3) {
       // Too short for AI - just rely on keyword filter
