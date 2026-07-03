@@ -1549,8 +1549,32 @@ const MyJobs = () => {
       if (staleIds.length > 0) {
         await supabase.from("liked_jobs").delete().eq("user_id", user.id).in("job_id", staleIds);
       }
-      setLikedJobs((jobData ?? []) as Job[]);
-      setLikedIds(new Set((jobData ?? []).map((j: any) => j.id)));
+
+      // Clean up duplicate likes from before the dedupe fix - same real job
+      // liked multiple times as separate DB rows. `likes` is already ordered
+      // most-recent-first, so keep the first (newest) copy per dedupe key
+      // and delete the rest, both from the list and from the DB.
+      const jobById = new Map(((jobData ?? []) as any[]).map((j) => [j.id, j]));
+      const seenKeys = new Set<string>();
+      const deduped: Job[] = [];
+      const duplicateIdsToDelete: string[] = [];
+      for (const like of (likes ?? [])) {
+        const job = jobById.get(like.job_id);
+        if (!job) continue;
+        const key = jobDedupeKey(job);
+        if (seenKeys.has(key)) {
+          duplicateIdsToDelete.push(like.job_id);
+          continue;
+        }
+        seenKeys.add(key);
+        deduped.push(job as Job);
+      }
+      if (duplicateIdsToDelete.length > 0) {
+        await supabase.from("liked_jobs").delete().eq("user_id", user.id).in("job_id", duplicateIdsToDelete);
+      }
+
+      setLikedJobs(deduped);
+      setLikedIds(new Set(deduped.map((j) => j.id)));
     } catch (_) {}
     setLikedLoading(false);
     setLikedLoaded(true);
