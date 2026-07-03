@@ -1548,7 +1548,7 @@ const MyJobs = () => {
           .eq("id", user.id)
           .maybeSingle(),
         supabase.from("role_riasec_profiles").select("role_category, riasec_scores, work_values"),
-        supabase.from("dismissed_jobs").select("job_id, reason").eq("user_id", user.id),
+        supabase.from("dismissed_jobs").select("job_id, reason, dismissed_at").eq("user_id", user.id),
         supabase
           .from("contact_requests")
           .select("id, message, reply_message, replied_at, created_at, status, employer_companies:company_id(name)")
@@ -1578,13 +1578,19 @@ const MyJobs = () => {
       }
       setRoleProfiles(map);
 
+      // Dismissals older than the cooldown get a second chance — a "no" today
+      // doesn't mean "no" forever, and it keeps the stack from running dry for
+      // fast swipers in narrow industries.
+      const DISMISS_COOLDOWN_DAYS = 21;
+      const cooldownCutoff = Date.now() - DISMISS_COOLDOWN_DAYS * 86_400_000;
       const dismissed = new Set<string>();
       const opened = new Set<string>();
       for (const d of dismissedRes.data || []) {
         if ((d as any).reason === "opened") {
           opened.add((d as any).job_id);
         } else {
-          dismissed.add((d as any).job_id);
+          const dismissedAt = (d as any).dismissed_at ? new Date((d as any).dismissed_at).getTime() : Date.now();
+          if (dismissedAt >= cooldownCutoff) dismissed.add((d as any).job_id);
         }
       }
       setDismissedIds(dismissed);
@@ -1649,6 +1655,29 @@ const MyJobs = () => {
         matchedJobs.push(...(jobsPage as unknown as Job[]).filter(passesAllFilters));
 
         if (jobsPage.length < pageSize) break;
+      }
+
+      // Narrow industry lists (or fast swipers who've cleared their usual pool)
+      // can run the industry-scoped fetch dry. Top up with a cross-industry
+      // batch so the algorithm always has fresh material to recommend from —
+      // scoreJob still ranks these on role/passion/behaviour fit, this just
+      // stops the well running dry.
+      const TOPUP_TARGET = 150;
+      if (allIndustrySlugs.length > 0 && matchedJobs.length < TOPUP_TARGET) {
+        const seenIds = new Set(matchedJobs.map((j) => j.id));
+        const { data: topup } = await supabase
+          .from("jobs")
+          .select("id, title, company, location, salary, industry, career_level, url, created_at, type, work_mode, role_category, ai_role_category, job_traits, description, tags, ai_confidence, expires_at")
+          .gt("expires_at", new Date().toISOString())
+          .order("created_at", { ascending: false })
+          .range(0, 300);
+        for (const job of (topup as unknown as Job[]) || []) {
+          if (seenIds.has(job.id)) continue;
+          if (passesAllFilters(job)) {
+            matchedJobs.push(job);
+            seenIds.add(job.id);
+          }
+        }
       }
 
       setJobs(matchedJobs);
