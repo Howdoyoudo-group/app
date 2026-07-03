@@ -1185,6 +1185,33 @@ function getScoreBand(score: number) {
   return SCORE_BANDS.find((b) => score >= b.min) ?? SCORE_BANDS[SCORE_BANDS.length - 1];
 }
 
+const INDUSTRY_LABELS: Record<string, string> = {
+  bakery: "Bakery", beauty: "Beauty", beer: "Beer", building: "Building",
+  cars: "Cars", charity: "Charity", cinema: "Film & TV", coffee: "Coffee",
+  delivery: "Delivery", "estate-agency": "Estate Agency", farming: "Farming",
+  fashion: "Fashion", fixing: "Fixing", football: "Football", footwear: "Footwear",
+  gaming: "Gaming", grocery: "Grocery", health: "Health", "horse-racing": "Horse Racing",
+  hospitality: "Food & Drink", "interior-design": "Interior Design",
+  jewellery: "Jewellery", journalism: "Journalism", money: "Money", music: "Music",
+  pets: "Pets", physiotherapy: "Physio", psychotherapy: "Therapy",
+  teaching: "Teaching", tennis: "Tennis", travel: "Travel", wellness: "Wellness",
+};
+
+function normalizeJobType(raw: string | null): string | null {
+  if (!raw) return null;
+  // Take the first value when DB has comma-separated types
+  const first = raw.split(",")[0].trim();
+  const lc = first.toLowerCase();
+  if (lc.includes("full")) return "Full-time";
+  if (lc.includes("part")) return "Part-time";
+  if (lc.includes("intern")) return "Internship";
+  if (lc.includes("contract")) return "Contract";
+  if (lc.includes("temp")) return "Temporary";
+  if (lc.includes("perm")) return "Permanent";
+  if (lc.includes("freelance")) return "Freelance";
+  return first || null;
+}
+
 function TinderJobCard({
   job,
   onDismiss,
@@ -1203,42 +1230,46 @@ function TinderJobCard({
   exitDirection: "left" | "right" | null;
 }) {
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-200, 200], [-18, 18]);
-  const likeOpacity = useTransform(x, [20, 100], [0, 1]);
-  const nopeOpacity = useTransform(x, [-100, -20], [1, 0]);
-  const cardScale = isTop ? 1 : Math.max(0.92, 1 - stackIndex * 0.04);
-  const cardY = isTop ? 0 : stackIndex * 12;
+  const rotate = useTransform(x, [-200, 200], [-15, 15]);
+  const likeOpacity = useTransform(x, [30, 100], [0, 1]);
+  const nopeOpacity = useTransform(x, [-100, -30], [1, 0]);
+  const cardScale = isTop ? 1 : Math.max(0.93, 1 - stackIndex * 0.035);
+  const cardY = isTop ? 0 : stackIndex * 10;
 
   const handleDragEnd = (_: any, info: { offset: { x: number } }) => {
     if (info.offset.x < -80) onDismiss(job.id);
     else if (info.offset.x > 80) onLike(job.id);
   };
 
-  const reasons = matchesToReasons(job.matches, job.industry);
   const band = getScoreBand(job.score);
   const bandIsDark = band.bg === "#0a0a0a";
   const bandIsGreen = band.bg === "#00E600";
   const bandTextColor = bandIsDark || bandIsGreen ? "#ffffff" : "#0a0a0a";
+
+  const industryLabel = job.industry ? (INDUSTRY_LABELS[job.industry] ?? job.industry) : null;
+  const levelLabel = job.career_level ? (LEVEL_LABELS[job.career_level.toLowerCase()] ?? null) : null;
+  const jobTypeLabel = normalizeJobType(job.type);
+  const locationDisplay = [job.location, job.work_mode && job.work_mode !== job.location ? job.work_mode : null].filter(Boolean).join(" · ");
 
   return (
     <motion.div
       style={{ x: isTop ? x : 0, rotate: isTop ? rotate : 0, zIndex: 10 - stackIndex }}
       drag={isTop ? "x" : false}
       dragConstraints={{ left: 0, right: 0 }}
-      dragElastic={0.85}
+      dragElastic={0.7}
       onDragEnd={isTop ? handleDragEnd : undefined}
       className="absolute inset-0 bg-background border-[3px] border-foreground rounded-[28px] overflow-hidden cursor-grab active:cursor-grabbing select-none shadow-[6px_6px_0_0_rgba(10,10,10,0.15)]"
       initial={false}
       animate={
         exitDirection === "left"
-          ? { x: -600, rotate: -30, opacity: 0, transition: { duration: 0.35, ease: "easeIn" } }
+          ? { x: -600, rotate: -28, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } }
           : exitDirection === "right"
-          ? { x: 600, rotate: 30, opacity: 0, transition: { duration: 0.35, ease: "easeIn" } }
-          : { scale: cardScale, y: cardY, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 30 } }
+          ? { x: 600, rotate: 28, opacity: 0, transition: { duration: 0.3, ease: "easeIn" } }
+          : { scale: cardScale, y: cardY, opacity: 1, transition: { type: "spring", stiffness: 320, damping: 32 } }
       }
     >
       {/* Score band header */}
-      <div style={{ background: band.bg, color: bandTextColor }} className="px-5 py-3 flex items-center justify-between border-b-[3px] border-foreground">
+      <div style={{ background: band.bg, color: bandTextColor }} className="px-5 py-2.5 flex items-center justify-between border-b-[3px] border-foreground">
         <span className="font-display font-900 text-sm tracking-wide">{job.score}% · {band.label}</span>
         {(() => { const src = detectJobSource(job.url); return src ? <SourceAttribution source={src} variant="badge" /> : null; })()}
       </div>
@@ -1246,58 +1277,75 @@ function TinderJobCard({
       {/* LIKE overlay */}
       {isTop && (
         <motion.div style={{ opacity: likeOpacity }} className="absolute inset-0 z-10 flex items-start justify-end p-5 pointer-events-none">
-          <span className="border-4 border-[#00E600] text-[#00E600] bg-background font-display font-900 text-3xl px-5 py-2 rounded-2xl rotate-[-12deg] tracking-widest shadow-lg">LIKE</span>
+          <span className="border-[3px] border-[#00E600] text-[#00E600] bg-background/90 backdrop-blur-sm font-display font-900 text-2xl px-4 py-1.5 rounded-xl rotate-[-12deg] tracking-widest shadow-lg">LIKE</span>
         </motion.div>
       )}
       {/* NOPE overlay */}
       {isTop && (
         <motion.div style={{ opacity: nopeOpacity }} className="absolute inset-0 z-10 flex items-start justify-start p-5 pointer-events-none">
-          <span className="border-4 border-red-500 text-red-500 bg-background font-display font-900 text-3xl px-5 py-2 rounded-2xl rotate-[12deg] tracking-widest shadow-lg">NOPE</span>
+          <span className="border-[3px] border-red-500 text-red-500 bg-background/90 backdrop-blur-sm font-display font-900 text-2xl px-4 py-1.5 rounded-xl rotate-[12deg] tracking-widest shadow-lg">NOPE</span>
         </motion.div>
       )}
 
-      {/* Card content — tap to open */}
+      {/* Card content */}
       <div className="h-full flex flex-col p-5" onClick={isTop ? () => onOpen(job.url, job.id) : undefined}>
-        {/* Company logo + info */}
-        <div className="flex items-center gap-3 mb-4 mt-1">
-          <CompanyLogo company={job.company} size={52} />
-          <div className="min-w-0">
-            <p className="font-display font-800 text-base truncate">{job.company}</p>
-            <p className="font-body text-xs text-muted-foreground truncate">
-              {[job.location, job.type, job.work_mode].filter(Boolean).join(" · ")}
-            </p>
+        {/* Company logo + name + location */}
+        <div className="flex items-center gap-3 mb-3">
+          <CompanyLogo company={job.company} size={44} />
+          <div className="min-w-0 flex-1">
+            <p className="font-display font-800 text-sm truncate">{job.company}</p>
+            {locationDisplay && (
+              <p className="font-body text-xs text-muted-foreground truncate">{locationDisplay}</p>
+            )}
           </div>
         </div>
 
         {/* Title */}
-        <h3 className="font-display font-900 text-2xl leading-[1.05] mb-2">{job.title}</h3>
+        <h3 className="font-display font-900 text-xl leading-[1.1] mb-2.5">{job.title}</h3>
 
         {/* Salary */}
         {job.salary && (
-          <p className="inline-block w-fit font-display font-800 text-sm text-foreground bg-[#00E600]/20 border-2 border-[#00E600] px-2.5 py-1 rounded-lg mb-3">
+          <p className="inline-block w-fit font-display font-800 text-sm text-foreground bg-[#00E600]/20 border-2 border-[#00E600] px-2.5 py-1 rounded-lg mb-2.5">
             {job.salary}
           </p>
         )}
 
-        {/* Match tags */}
-        <div className="flex flex-wrap gap-1.5 mb-3">
-          {job.matches.slice(0, 4).map((m) => (
-            <span key={m} className="px-2.5 py-1 bg-foreground text-background font-display text-[10px] font-700 rounded-full">{m}</span>
-          ))}
+        {/* Metadata chips: industry · level · type */}
+        <div className="flex flex-wrap gap-1.5 mb-2.5">
+          {industryLabel && (
+            <span className="px-2.5 py-1 bg-primary/10 border border-primary/30 text-primary font-display text-[11px] font-700 rounded-full">
+              {industryLabel}
+            </span>
+          )}
+          {levelLabel && (
+            <span className="px-2.5 py-1 bg-muted border border-border text-foreground/70 font-display text-[11px] font-700 rounded-full">
+              {levelLabel}
+            </span>
+          )}
+          {jobTypeLabel && (
+            <span className="px-2.5 py-1 bg-muted border border-border text-foreground/70 font-display text-[11px] font-700 rounded-full">
+              {jobTypeLabel}
+            </span>
+          )}
         </div>
 
-        {/* Why this job */}
-        {reasons.length > 0 && (
-          <p className="font-body text-xs text-muted-foreground leading-relaxed line-clamp-2">{reasons.slice(0, 2).join(" · ")}</p>
+        {/* Match tags */}
+        {job.matches.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mb-2.5">
+            {job.matches.slice(0, 4).map((m) => (
+              <span key={m} className="px-2.5 py-1 bg-foreground text-background font-display text-[10px] font-700 rounded-full">{m}</span>
+            ))}
+          </div>
         )}
 
         {/* Description snippet */}
         {job.description && (
-          <p className="font-body text-[13px] text-foreground/70 leading-relaxed line-clamp-3 mt-2 flex-1">{job.description.slice(0, 200)}</p>
+          <p className="font-body text-[12px] text-foreground/65 leading-relaxed line-clamp-2 flex-1">{job.description.slice(0, 180)}</p>
         )}
 
-        <div className="mt-auto pt-3 border-t-2 border-foreground/10">
-          <p className="font-body text-[10px] text-muted-foreground text-center uppercase tracking-wide">Tap to view full job</p>
+        <div className="mt-auto pt-2.5 border-t border-foreground/10 flex items-center justify-between">
+          <p className="font-body text-[10px] text-muted-foreground uppercase tracking-wide">Tap to view full job</p>
+          <p className="font-body text-[10px] text-muted-foreground">← swipe · →</p>
         </div>
       </div>
     </motion.div>
@@ -1336,6 +1384,20 @@ function TinderCardStack({
     }, 300);
   };
 
+  // Keyboard shortcuts: ← dismiss, → like, ↑ save, Enter open
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (!jobs.length || exiting) return;
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (e.key === "ArrowLeft") { e.preventDefault(); runExit("left", onDismiss); }
+      else if (e.key === "ArrowRight") { e.preventDefault(); runExit("right", onLike); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); onSave(jobs[0].id); }
+      else if (e.key === "Enter") { e.preventDefault(); onOpen(jobs[0].url, jobs[0].id); }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [jobs, exiting]);
+
   if (jobs.length === 0) {
     return (
       <div className="border-[3px] border-foreground rounded-[28px] p-12 text-center bg-muted/20">
@@ -1356,7 +1418,7 @@ function TinderCardStack({
         </div>
       )}
       {/* Card stack */}
-      <div className="relative w-full" style={{ height: 460 }}>
+      <div className="relative w-full" style={{ height: 480 }}>
         {[...visible].reverse().map((job, i) => {
           const stackIndex = visible.length - 1 - i;
           return (
@@ -1404,7 +1466,7 @@ function TinderCardStack({
       </div>
 
       <p className="font-body text-[10px] text-muted-foreground text-center uppercase tracking-wide">
-        Swipe right to like · swipe left to dismiss · tap card to view
+        Swipe or use ← → keys · ↑ save · Enter to open
       </p>
 
       <p className="font-display font-700 text-xs text-muted-foreground">{jobs.length} job{jobs.length !== 1 ? "s" : ""} in your stack</p>
