@@ -7,6 +7,7 @@ import HowdyTour from "@/components/HowdyTour";
 import GlobalHomeButton from "@/components/GlobalHomeButton";
 import TermsAcceptBanner from "@/components/TermsAcceptBanner";
 import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const ConditionalHowdy = () => {
   const { pathname } = useLocation();
@@ -263,6 +264,7 @@ const App = () => (
         <TermsAcceptBanner />
         <ConditionalHomeButton />
         <Suspense fallback={<PageLoader />}>
+        <ErrorBoundary>
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/home-v2" element={<IndexV2 />} />
@@ -462,6 +464,7 @@ const App = () => (
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </ErrorBoundary>
         <ConditionalHowdy />
         </Suspense>
       </BrowserRouter>

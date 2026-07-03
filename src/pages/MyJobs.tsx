@@ -1399,8 +1399,7 @@ const MyJobs = () => {
 
   useEffect(() => {
     loadSavedJobs();
-    loadLikedJobs();
-  }, [loadSavedJobs, loadLikedJobs]);
+  }, [loadSavedJobs]);
 
   const unsaveJob = async (jobId: string) => {
     if (!user) return;
@@ -1480,6 +1479,10 @@ const MyJobs = () => {
     } catch (_) {}
     setLikedLoading(false);
   }, [user]);
+
+  useEffect(() => {
+    loadLikedJobs();
+  }, [loadLikedJobs]);
 
   const loadData = async () => {
     if (!user) return;
