@@ -181,7 +181,7 @@ export default function InboxPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEO path="/inbox" title="Inbox — Howdoyoudo?" />
+      <SEO path="/inbox" title="Inbox" noIndex />
 
       <main className="px-4 sm:px-6 md:px-12 max-w-3xl mx-auto py-10 md:py-16">
         {/* Header */}

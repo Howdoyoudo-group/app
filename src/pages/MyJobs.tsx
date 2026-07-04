@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo, useCallback, lazy, Suspense } from "react";
+import SEO from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getCached, setCached, invalidate as invalidateCache } from "@/lib/ttlCache";
@@ -2236,6 +2237,7 @@ const MyJobs = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO path="/my-jobs" title="Howdy Jobs" noIndex />
       <div className="max-w-3xl lg:max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-8">
 
         {/* Editorial header — calm, two-line greeting, tagline, inbox bubble */}

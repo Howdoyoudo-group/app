@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
+import SEO from "@/components/SEO";
 import SiteNav from "@/components/SiteNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -852,6 +853,7 @@ const MyProfile = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
+      <SEO path="/my-profile" title="My Profile" noIndex />
       <SiteNav />
 
       <div id="profile-export-root" className="max-w-7xl mx-auto px-4 sm:px-6 py-6 md:py-10">
