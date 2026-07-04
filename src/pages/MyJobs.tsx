@@ -2236,7 +2236,7 @@ const MyJobs = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-3xl lg:max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-[110px]">
+      <div className="max-w-3xl lg:max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-20 pb-8">
 
         {/* Editorial header — calm, two-line greeting, tagline, inbox bubble */}
         <header className="flex items-start gap-3 sm:gap-4 mb-7 sm:mb-9">
@@ -2599,61 +2599,55 @@ const MyJobs = () => {
           </TabsContent>
 
         </Tabs>
-      </div>
 
-      {/* iOS-style bottom navigation */}
-      <nav
-        aria-label="Primary"
-        className="fixed bottom-0 inset-x-0 z-40 bg-background/85 backdrop-blur-xl border-t border-foreground/10"
-        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 0.25rem)" }}
-      >
-        <ul className="max-w-3xl lg:max-w-6xl mx-auto px-2 grid grid-cols-4">
-          {navItems.map((item) => {
-            const active = inboxTab === item.value;
-            return (
-              <li key={item.value} className="flex">
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (item.to) {
-                      navigate(item.to);
-                      return;
-                    }
-                    setInboxTab(item.value as typeof inboxTab);
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  }}
-                  className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 pt-2 pb-1.5 transition-colors ${
-                    active ? "text-[#00E600]" : "text-foreground/55 hover:text-foreground"
-                  }`}
-                  aria-current={active ? "page" : undefined}
-                >
-                  <span
-                    className={`relative flex items-center justify-center ${
-                      active ? "w-11 h-11 rounded-full -mt-1 bg-[#00E600]/15" : ""
+        {/* Tab navigation — sits below the card content, not floating */}
+        <nav
+          aria-label="Primary"
+          className="mt-8 border-t-2 border-foreground/10"
+        >
+          <ul className="grid grid-cols-5">
+            {navItems.map((item) => {
+              const active = inboxTab === item.value;
+              return (
+                <li key={item.value} className="flex">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (item.to) {
+                        navigate(item.to);
+                        return;
+                      }
+                      setInboxTab(item.value as typeof inboxTab);
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    className={`relative flex-1 flex flex-col items-center justify-center gap-0.5 pt-3 pb-2 transition-colors ${
+                      active ? "text-[#00E600]" : "text-foreground/55 hover:text-foreground"
                     }`}
+                    aria-current={active ? "page" : undefined}
                   >
-                    {item.icon}
-                    {item.badge !== undefined && item.badge > 0 && (
-                      <span className="absolute -top-1 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-[#FF3B30] text-white font-display font-900 text-[9px]">
-                        {item.badge > 99 ? "99+" : item.badge}
-                      </span>
-                    )}
-                  </span>
-                  <span className={`font-display text-[10px] tracking-tight ${active ? "font-800 text-[#00E600]" : "font-600"}`}>
-                    {item.label}
-                  </span>
+                    <span
+                      className={`relative flex items-center justify-center ${
+                        active ? "w-11 h-11 rounded-full -mt-1 bg-[#00E600]/15" : ""
+                      }`}
+                    >
+                      {item.icon}
+                      {item.badge !== undefined && item.badge > 0 && (
+                        <span className="absolute -top-1 -right-1.5 min-w-[16px] h-4 px-1 flex items-center justify-center rounded-full bg-[#FF3B30] text-white font-display font-900 text-[9px]">
+                          {item.badge > 99 ? "99+" : item.badge}
+                        </span>
+                      )}
+                    </span>
+                    <span className={`font-display text-[10px] tracking-tight ${active ? "font-800 text-[#00E600]" : "font-600"}`}>
+                      {item.label}
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
 
-
-                </button>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-
-
-
-
+      </div>
     </div>
   );
 };
