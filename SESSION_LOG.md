@@ -5,6 +5,46 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-04 — Woody (main branch)
+
+### What was done
+- **Fixed `generate-daily-briefings` only producing briefings 2 days out of ~10** — two root causes:
+  1. `filterRecentlyCovered()` used a 21-day window to deduplicate source article links. For thin-content industries, this was exhausting the entire available article pool, so the function found nothing "new" to write about and produced no briefing. Fixed by introducing `DEDUP_FILTER_DAYS = 5`: the hard dedup filter only blocks articles from the last 5 days, while the 21-day window of summaries is still passed to AI as context (so it doesn't repeat recent angles). Deployed.
+
+- **Fixed new industries (Building, Delivery, Fixing, Tennis) not appearing in onboarding/profile picker** — `MyProfile.tsx` had its own hardcoded INDUSTRIES list that wasn't updated when these industries were added. Synced the list. Also fixed `send-daily-digest` SLUG_ALIASES which were mapped in the wrong direction (Film and TV users were getting no digest emails because "film-and-tv" wasn't being aliased to "cinema" correctly). Added missing INDUSTRY_NAMES entries for farming, money, health, horse-racing.
+
+- **Redesigned Howdy Jobs swipe card** — added three metadata chips (industry in primary colour, career level and job type in muted), salary chip in green, keyboard shortcuts (← dismiss, → like, ↑ save, Enter open), card stack height 480px, explainer banner above the stack. Removed the minimum match slider (kept 60% floor in code).
+
+- **Investigated job algorithm improvements** — discovered `ai_confidence` column is NULL for all 49,116 live jobs (was never populated), so the proposed quick fix of ordering by `ai_confidence DESC` wasn't viable. Identified available quality signals: salary (37,110/49,116 populated), description (97%), career_level (100%), tags (21%).
+
+- **Built server-side job pre-scoring infrastructure** (commit `cc5dcc2`):
+  - New `job_matches` table (user_id, job_id, score, computed_at) with RLS and a score DESC index. Migration applied to production DB.
+  - New `score-new-jobs` edge function: for each user with industry interests, fetches their latest 600 industry-matched jobs, scores them (industry match +40, career level +20, role keyword in title +20, has salary +5, freshness up to +15), keeps top 200 per user in job_matches. Deployed.
+  - `MyJobs.tsx loadData()` now checks job_matches first: if the user has ≥50 pre-scored matches, fetches those job IDs in score order instead of paginating 2,000 newest jobs. Client-side `scoreJob()` still runs on the result for accurate display scores and match tags. Gracefully falls back to old approach if pre-scores are absent.
+  - Triggered `score-new-jobs` manually to seed job_matches for all current users immediately.
+
+### What still needs doing
+- **Add cron for score-new-jobs** — couldn't be committed to git (contains anon key). Run this in Supabase Dashboard → SQL Editor:
+  ```sql
+  SELECT cron.schedule('score-new-jobs-morning','30 6 * * *', $$SELECT net.http_post(url:='https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/score-new-jobs',headers:='{"Content-Type":"application/json","Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnaXN0Y2t4eGJmcHN1dWxic3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1MDU5MjQsImV4cCI6MjA5NjA4MTkyNH0.Yph2PF4HUPPJJ7tVcZZrrEtjmhb4Oxo-kGKnFMyGb4E"}'::jsonb,body:='{}'::jsonb) AS request_id;$$);
+  SELECT cron.schedule('score-new-jobs-evening','30 18 * * *', $$SELECT net.http_post(url:='https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/score-new-jobs',headers:='{"Content-Type":"application/json","Authorization":"Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndnaXN0Y2t4eGJmcHN1dWxic3dyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA1MDU5MjQsImV4cCI6MjA5NjA4MTkyNH0.Yph2PF4HUPPJJ7tVcZZrrEtjmhb4Oxo-kGKnFMyGb4E"}'::jsonb,body:='{}'::jsonb) AS request_id;$$);
+  ```
+
+### Current state
+- Live at: www.howdoyoudo.co.uk (commit cc5dcc2)
+- job_matches table live in production DB, score-new-jobs deployed
+- Howdy Jobs using pre-scored order for users with ≥50 matches (seeded for all current users)
+- Daily briefings now generating reliably (DEDUP_FILTER_DAYS = 5 fix)
+
+### Standing backlog
+- Add `A @ 216.198.79.1` DNS record in 123-reg (fixes bare howdoyoudo.co.uk)
+- Twilio keys for WhatsApp
+- Voxpops video — permanent Supabase Storage upload (currently Lovable CDN)
+- Email all users — rewrite send-account-migration (Google vs email users)
+- Phase 2 of pre-scoring: post-scrape push notifications ("X new jobs matched you above 80%")
+
+---
+
 ## 2026-07-03 (afternoon) — Woody (main branch)
 
 ### What was done
