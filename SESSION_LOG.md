@@ -5,7 +5,40 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
-## 2026-07-04 — Woody (main branch)
+## 2026-07-04 (afternoon) — Woody (main branch)
+
+### What was done
+- **Fixed Howdy Jobs nav bar** — it was a fixed floating bar overlaying the whole viewport. Converted to an inline `<nav>` below the card stack. Also fixed Settings button wrapping to a second row (was `grid-cols-4` with 5 nav items — changed to `grid-cols-5`).
+
+- **SEO critical fixes** (commit `5b6cf65`):
+  - `src/components/SEO.tsx`: `BASE_URL` was pointing to `howdoyoudo.group` (old Lovable domain) — fixed to `www.howdoyoudo.co.uk`. This fixes canonical URLs, OG tags, and JSON-LD sitewide.
+  - `public/robots.txt`: sitemap pointer updated to `.co.uk`.
+  - `index.html`: all three description meta tags (meta, og:description, twitter:description) updated from stale old Lovable copy.
+  - `public/sitemap.xml`: full rewrite — all 100+ URLs now point to `www.howdoyoudo.co.uk`, all `lastmod` updated to 2026-07-04, added the four missing industry pages (Building, Delivery, Fixing, Tennis).
+  - `Auth.tsx`, `InboxPage.tsx`, `MyJobs.tsx`, `MyProfile.tsx`: added `<SEO noIndex />` so Google doesn't index private authenticated pages.
+
+- **Pre-scoring cron confirmed live** — user confirmed via Supabase screenshot that cron IDs 20 and 21 (score-new-jobs morning 6:30am + evening 6:30pm) were added successfully.
+
+### What still needs doing
+- **Submit sitemap to Google Search Console** — go to search.google.com/search-console, verify the `www.howdoyoudo.co.uk` property (use the HTML meta tag method — the tag goes in index.html), then submit `https://www.howdoyoudo.co.uk/sitemap.xml`
+- **Check Marketplace JSON-LD** — verify `Marketplace.tsx` is passing `jobPostingsJsonLd()` to `<SEO>` for Google Jobs rich results
+
+### Current state
+- Live at: www.howdoyoudo.co.uk (commit 5b6cf65)
+- All SEO pointing to correct domain
+- Pre-scored job feeds live (job_matches table + score-new-jobs cron at 6:30am/6:30pm)
+- Howdy Jobs nav is now inline below cards
+
+### Standing backlog
+- Add `A @ 216.198.79.1` DNS record in 123-reg (fixes bare howdoyoudo.co.uk)
+- Twilio keys for WhatsApp
+- Voxpops video — permanent Supabase Storage upload (currently Lovable CDN)
+- Email all users — rewrite send-account-migration (Google vs email users)
+- Phase 2 of pre-scoring: post-scrape push notifications ("X new jobs matched you above 80%")
+
+---
+
+## 2026-07-04 (morning) — Woody (main branch)
 
 ### What was done
 - **Fixed `generate-daily-briefings` only producing briefings 2 days out of ~10** — two root causes:
