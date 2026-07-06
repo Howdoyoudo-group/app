@@ -1825,10 +1825,14 @@ const MyJobs = () => {
             .filter(passesAllFiltersPreScored)
             .sort((a, b) => (scoreMap.get(b.id) ?? 0) - (scoreMap.get(a.id) ?? 0));
 
-          setJobs(sortedPreJobs);
-          setCached(jobsKey, sortedPreJobs);
-          setLoading(false);
-          return;
+          // Only use the pre-scored path if jobs remain after filtering out dismissed/excluded.
+          // If the entire pool has been swiped, fall through to the full paginated fetch.
+          if (sortedPreJobs.length > 0) {
+            setJobs(sortedPreJobs);
+            setCached(jobsKey, sortedPreJobs);
+            setLoading(false);
+            return;
+          }
         }
       }
       // ── End pre-scored path — fall through to paginated fetch ────────────────
