@@ -31,3 +31,6 @@ dist-ssr
 *.MP4
 *.mp4
 .vercel
+
+# Eval harness fixtures (contain real user profile data — never commit)
+scripts/eval-scoring/fixture.json
