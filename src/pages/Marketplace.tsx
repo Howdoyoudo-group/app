@@ -45,8 +45,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { inferCareerLevelFromUnderstandMe, normalizeCareerLevel, isCraftServiceJob, isBusinessRoleSlug, LEVEL_ORDER } from "@/lib/understand-me";
-import { getIndustryRankBoost } from "@/lib/industry-rankings";
+import { inferCareerLevelFromUnderstandMe, normalizeCareerLevel, isCraftServiceJob, isBusinessRoleSlug, LEVEL_ORDER } from "@scoring/understand-me.ts";
+import { getIndustryRankBoost } from "@scoring/industry-rankings.ts";
 import { getCompanyProfilePath, getCompanySlug } from "@/lib/company-profiles";
 import { getCompanyBrand } from "@/lib/company-brand";
 import { getCompanyExternalUrl } from "@/lib/company-external-links";

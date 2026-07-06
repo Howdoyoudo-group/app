@@ -13,9 +13,20 @@ export interface UnderstandMeIndustryFit {
   reason?: string;
 }
 
+export interface UnderstandMeIntersectionIdea {
+  role?: string;
+  blend?: string;
+  industry?: string;
+  reason?: string;
+  skills_needed?: string[];
+  example_companies?: string[];
+  search_query?: string;
+}
+
 export interface UnderstandMeResults {
   roleMatches?: UnderstandMeRoleMatch[];
   industryFit?: UnderstandMeIndustryFit[];
+  intersectionIdeas?: UnderstandMeIntersectionIdea[];
   transferableSkills?: string[];
   personalityInsights?: string;
   careerLevel?: CareerLevel | null;

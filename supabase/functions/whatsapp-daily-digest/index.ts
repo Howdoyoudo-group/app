@@ -215,7 +215,7 @@ Deno.serve(async (req) => {
 
       // Score with the SAME function MyJobs uses, then take ≥60% only.
       const scored = candidates
-        .map((j) => ({ j, ...scoreJob(j, userProfile, new Map()) }))
+        .map((j) => ({ j, ...scoreJob(j, userProfile, { roleProfiles: new Map() }) }))
         .filter((x) => x.score >= 60)
         .sort((a, b) => b.score - a.score || new Date(b.j.scraped_at || b.j.created_at).getTime() - new Date(a.j.scraped_at || a.j.created_at).getTime());
 

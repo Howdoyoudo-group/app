@@ -64,11 +64,12 @@ const ALGORITHMS: Record<string, ScoreFn> = {
 
   // Current canonical shared scorer, profile signals only (no swipe-derived
   // learning, so scores are honest for jobs the user hasn't seen).
-  v1: (job, profile, ctx) => scoreJob(job, profile, ctx.roleProfiles).score,
+  v1: (job, profile, ctx) => scoreJob(job, profile, { roleProfiles: ctx.roleProfiles }).score,
 
   // Shared scorer + learned signals built from training-window swipes.
   // Only meaningful with --train-before (otherwise it leaks test labels).
-  v1_learned: (job, profile, ctx) => scoreJob(job, profile, ctx.roleProfiles, ctx.learned).score,
+  v1_learned: (job, profile, ctx) =>
+    scoreJob(job, profile, { roleProfiles: ctx.roleProfiles, learned: ctx.learned }).score,
 };
 
 // ───── Evaluation ────────────────────────────────────────────────────────────

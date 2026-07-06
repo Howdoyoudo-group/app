@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => ({
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
+      "@scoring": path.resolve(__dirname, "./supabase/functions/_shared/scoring"),
       "@": path.resolve(__dirname, "./src"),
     },
   },
