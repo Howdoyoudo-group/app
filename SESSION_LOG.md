@@ -5,6 +5,60 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-07 — Woody (main branch) — Matching algorithm overhaul (Phases 0–3)
+
+Goal: make HDYD's job matching the best of any job site. Plan in
+`~/.claude/plans/snappy-honking-sprout.md`. 6 phases; 0–3 shipped this session.
+
+### Shipped
+- **Phase 0 — eval harness** (`scripts/eval-scoring/`, commit 2c59ab8): Deno
+  harness scoring algorithm variants against real swipe history (liked/saved =
+  positive, dismissed = negative). Per-user AUC / P@10 / MRR + bootstrap CIs.
+  Run: `deno run --allow-read --allow-env scripts/eval-scoring/run.ts --algo simple,v1`
+  (needs `--build-fixture` once with SUPABASE_URL + HDYD_SERVICE_JWT env; fixture
+  is gitignored — contains user data). Baseline: rich scorer only *tied* the
+  simple one (AUC 0.73) — proof lift must come from embeddings/learning, not rules.
+- **Phase 1 — one scorer everywhere** (commit 9a2bfb9): `_shared/scoring/score-job.ts`
+  is now the single source of truth. Deleted the 1,100-line duplicate from
+  MyJobs.tsx + 4 duplicate libs. New `scoreJob(job, profile, ctx)` signature.
+  Found+fixed drift: server scorers were MISSING the regulated-professions and
+  finance hard blocks (nurse/solicitor/HGV could reach digests). 12 parity tests
+  in `src/test/scoring.test.ts`. `@scoring` alias in vite/tsconfig/vitest.
+- **Phase 2 — career_level backfill** (commit 661afb3): extract-job-traits now
+  also classifies career_level (written only when the row has none). 10-min cron
+  live. career_level nulls: 40% → 0. Traits backlog ~42k, clearing ~6 days.
+- **Phase 3 — semantic matching + discovery** (commit c65331b): pgvector,
+  jobs.embedding + profiles.preference_embedding vector(768), embed-jobs function
+  (15-min cron, gemini-embedding-001). score-new-jobs v2 writes two pools:
+  `core` (declared industries) + `discovery` (out-of-industry, ≥2 bridge signals:
+  semantic ≥0.55 / adjacent industry / passion / skills / intersection). Client
+  interleaves 1 discovery card per 3 core with a "You might love this" badge.
+  Verified live: footwear user getting Interior-Design "Kitchen Designer" as
+  discovery; semantic scores 0.6+; 285 core / 10 discovery on first run.
+
+### In progress / watch
+- **Embedding backfill running** — ~99/49k done at time of writing; ~25h to
+  complete via the embed-jobs cron. Discovery quality + semantic coverage grow
+  as it fills. Feed works normally throughout (missing semantic just drops out
+  of scoring). Some early discovery cards land in industry "other" and look
+  weak — TUNE the bridge threshold via the eval harness once backfill completes.
+- **Cost**: ~£7 one-off (traits + embeddings), ~£7/month ongoing. Scales with
+  job count, NOT users. Confirm against Gemini usage log after backfill.
+
+### Remaining (Phases 4–6, not started)
+- Phase 4: learning loop v2 (per-user ridge-logistic weights, saved_jobs signal)
+- Phase 5: Skills England signal (skills_snapshot, stretch-role boost)
+- Phase 6: production measurement (like/save/dismiss by algorithm_version + match_kind)
+
+### Flagged separately (spawn_task)
+- **TypeScript gate is broken**: root `tsconfig.json` is solution-style so
+  `npx tsc --noEmit` checks NOTHING (always exits 0). Real check is
+  `tsc -p tsconfig.app.json`. It surfaces ~77 errors from stale generated
+  Supabase types (missing role_skills, user_skill_ratings, job_matches, etc.).
+  Needs `supabase gen types` regen + CLAUDE.md command fix.
+
+---
+
 ## 2026-07-04 (afternoon) — Woody (main branch)
 
 ### What was done
