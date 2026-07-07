@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import SEO from "@/components/SEO";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -119,6 +120,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
+      <SEO path="/auth" title="Sign In" noIndex />
       <div className="w-full max-w-md">
         {/* spacer */}
 

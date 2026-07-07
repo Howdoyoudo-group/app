@@ -1,6 +1,6 @@
 import { Helmet } from "react-helmet-async";
 
-const BASE_URL = "https://howdoyoudo.group";
+const BASE_URL = "https://www.howdoyoudo.co.uk";
 const DEFAULT_TITLE = "How do you do? Unpacking the industries we love and live in";
 const DEFAULT_DESC = "Unpacking the industries we love and live in - careers, jobs, courses and culture across footwear, fashion, grocery, cinema, music and more.";
 const DEFAULT_OG_IMAGE = `${BASE_URL}/og-image.jpg?v=5`;

@@ -94,4 +94,4 @@ Disallow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://howdoyoudo.group/sitemap.xml
+Sitemap: https://www.howdoyoudo.co.uk/sitemap.xml

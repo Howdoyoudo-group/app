@@ -1,5 +1,10 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { sendViaResend } from "../_shared/send-via-resend.ts";
+import {
+  scoreJob as sharedScoreJob,
+  type Job as ScoringJob,
+  type UserProfile as ScoringProfile,
+} from "../_shared/scoring/score-job.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -57,6 +62,10 @@ const INDUSTRY_NAMES: Record<string, string> = {
   fixing: "Fixing",
   delivery: "Delivery",
   tennis: "Tennis",
+  farming: "Farming",
+  money: "Money",
+  health: "Health",
+  "horse-racing": "Horse Racing",
 };
 
 const INDUSTRY_CONTEXT: Record<string, string> = {
@@ -387,13 +396,15 @@ function formatIndustryName(industry: string): string {
     industry.split(/[-\s]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
 }
 
-// Slug aliases: legacy industry names that should be presented as a unified
-// section in the digest. We treat "Hospitality" as "Food & Drink" so that
-// subscribers see one well-stocked section drawing on the broader pool
-// (hospitality + grocery + coffee + bakery + beer) instead of a hospitality-only
-// silo.
+// Slug aliases: map the slug produced by toSlug(displayName) → actual DB key
+// used in daily_briefings.industry. Needed where the display name doesn't
+// cleanly round-trip to the DB slug.
+// "Film and TV" → toSlug → "film-and-tv" → DB key "cinema"
+// "Food & Drink" → toSlug → "food-drink"  → DB key "hospitality"
+// Old profiles that stored "hospitality" directly still work (no alias needed).
 const SLUG_ALIASES: Record<string, string> = {
-  "hospitality": "food-drink",
+  "film-and-tv": "cinema",
+  "food-drink": "hospitality",
 };
 
 function toSlug(name: string): string {
@@ -642,73 +653,42 @@ function jobMaxSalaryNum(job: ScorableJob): number | null {
   return Math.max(...nums);
 }
 
+// Adapter over the canonical shared scorer — the digest, the inbox and the
+// server-side pre-scorer all rank with the same function. ScorableJob rows
+// lack created_at/traits, so freshness and trait components uniformly drop
+// out of the weighting (all digest jobs are same-day anyway).
+const DIGEST_EPOCH = "2020-01-01T00:00:00Z";
 function scoreJobForSubscriber(job: ScorableJob, profile: SubscriberProfile): number {
-  let weighted = 0;
-  let total = 0;
-
-  const titleLc = (job.title || "").toLowerCase();
-  const jobCat = ((job.ai_role_category || job.role_category || "") as string).toLowerCase();
-  const roles = (profile.role_preferences || []).map((r) => r.toLowerCase().trim()).filter(Boolean);
-  const industries = (profile.industry_interests || []).map((i) => i.toLowerCase().trim()).filter(Boolean);
-  const userLevel = normalizeCareerLevel(profile.career_level);
-
-  // Role - 35%
-  if (roles.length > 0) {
-    total += 35;
-    const match = roles.some((r) => {
-      if (!r) return false;
-      if (jobCat && jobCat.includes(r)) return true;
-      if (titleLc.includes(r)) return true;
-      // simple word splits
-      const words = r.split(/[\s/-]+/).filter((w) => w.length > 2);
-      return words.some((w) => titleLc.includes(w));
-    });
-    if (match) weighted += 35;
-  }
-
-  // Industry - 30%
-  if (industries.length > 0) {
-    total += 30;
-    if (job.industry && industries.some((i) => i === job.industry!.toLowerCase().trim())) {
-      weighted += 30;
-    }
-  }
-
-  // Career level - 20% (within 1 step)
-  if (userLevel) {
-    total += 20;
-    const jobLvl = normalizeCareerLevel(job.career_level || null);
-    if (jobLvl) {
-      const diff = Math.abs((LEVEL_ORDER[userLevel] ?? 1) - (LEVEL_ORDER[jobLvl] ?? 1));
-      if (diff === 0) weighted += 20;
-      else if (diff === 1) weighted += 12;
-    } else {
-      // unknown job level - don't penalise
-      weighted += 10;
-    }
-  }
-
-  // Location - 10%
-  if (profile.location_preference) {
-    total += 10;
-    const pref = profile.location_preference.toLowerCase();
-    if (job.location && job.location.toLowerCase().includes(pref)) weighted += 10;
-    else if ((job.work_mode || "").toLowerCase() === "remote" && pref === "remote") weighted += 10;
-  }
-
-  // Salary - 5% (lighter touch in newsletter)
-  const wanted = parseExpectedSalary(profile.salary_expectation);
-  if (wanted > 0) {
-    total += 5;
-    const jobMax = jobMaxSalaryNum(job);
-    if (jobMax === null) weighted += 2.5; // unknown - half credit
-    else if (jobMax >= wanted) weighted += 5;
-    else if (jobMax >= wanted * 0.85) weighted += 3;
-  }
-
-  if (total === 0) return Math.max(0, getIndustryRankBoost(job.industry || "", job.title, job.company));
-  // Add industry brand boost on top so recognisable employers and on-target titles win ties
-  return Math.round((weighted / total) * 100) + getIndustryRankBoost(job.industry || "", job.title, job.company);
+  const scoringJob: ScoringJob = {
+    id: job.id || job.url,
+    title: job.title,
+    company: job.company,
+    location: job.location,
+    salary: job.salary,
+    industry: job.industry,
+    career_level: job.career_level ?? null,
+    url: job.url,
+    created_at: DIGEST_EPOCH,
+    type: null,
+    work_mode: job.work_mode ?? null,
+    role_category: job.role_category ?? null,
+    ai_role_category: job.ai_role_category ?? null,
+    job_traits: null,
+    description: null,
+    tags: null,
+  };
+  const scoringProfile: ScoringProfile = {
+    career_level: profile.career_level,
+    industry_interests: profile.industry_interests,
+    location_preference: profile.location_preference,
+    role_preferences: profile.role_preferences,
+    salary_expectation: profile.salary_expectation,
+    understand_me_results: null,
+    riasec_scores: null,
+    work_values: null,
+    job_preferences: null,
+  };
+  return sharedScoreJob(scoringJob, scoringProfile, { roleProfiles: new Map() }).score;
 }
 
 /**

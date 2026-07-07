@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Briefcase, Building2, Shuffle, Zap, Brain, Layers, Edit3, RefreshCw, MapPin, CheckCircle2, Wallet } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { getMatchingIntersections, type SkillCategory, type IntersectionRole } from "@/data/intersection-roles";
+import { getMatchingIntersections, type SkillCategory, type IntersectionRole } from "@scoring/intersection-roles.ts";
 import { getEffectiveIndustriesTagged, getCvIndustriesTagged, type TaggedIndustry } from "@/lib/profile-matching";
 import { RoleMixer } from "@/components/RoleMixer";
 import SiteNav from "@/components/SiteNav";

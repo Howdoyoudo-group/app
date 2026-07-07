@@ -19,6 +19,9 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@scoring/*": [
+        "./supabase/functions/_shared/scoring/*"
       ]
     },
     "skipLibCheck": true,
