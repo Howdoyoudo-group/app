@@ -27,12 +27,6 @@ function last48hAgo(): string {
   return d.toISOString();
 }
 
-function last7dAgo(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 7);
-  return d.toISOString();
-}
-
 const INDUSTRY_NAMES: Record<string, string> = {
   beer: "Beer",
   cinema: "Film and TV",
@@ -2167,7 +2161,6 @@ Deno.serve(async (req) => {
   // The published_at floor (48h) still prevents truly stale stories.
   const since = last48hAgo();
   const publishedSince = last48hAgo(); // guard against stale published_at
-  const articlesSince = last7dAgo();
   // Dedup against headlines we sent in the last 36h so today's lead can't repeat
   // yesterday's. (Kept short so genuinely fresh follow-up stories aren't suppressed.)
   const yesterdayCutoff = new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString();
@@ -2306,8 +2299,8 @@ Deno.serve(async (req) => {
       supabase
         .from("articles")
         .select("title, source, url, industry")
-        .gte("scraped_at", articlesSince)
-        .order("scraped_at", { ascending: false })
+        .gte("published_at", publishedSince)
+        .order("published_at", { ascending: false })
         .limit(500),
       // Per-industry jobs: up to 300 most recent active jobs per industry, no global
       // recency cutoff (some brand sites only refresh weekly - we don't want to lose them).
@@ -2388,8 +2381,8 @@ Deno.serve(async (req) => {
         supabase
           .from("articles")
           .select("title, source, url, industry")
-          .gte("scraped_at", articlesSince)
-          .order("scraped_at", { ascending: false })
+          .gte("published_at", publishedSince)
+          .order("published_at", { ascending: false })
           .limit(500),
       ]);
 
