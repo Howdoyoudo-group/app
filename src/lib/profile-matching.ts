@@ -3,7 +3,7 @@
  * Ensures both pages use identical logic for determining what drives the algorithm.
  */
 
-import { getUnderstandMeIndustries, getUnderstandMeRoles, type UnderstandMeResults } from "./understand-me";
+import { getUnderstandMeIndustries, getUnderstandMeRoles, type UnderstandMeResults } from "@scoring/understand-me.ts";
 
 export type IndustrySource = "you set this" | "your CV";
 export type RoleSource = "dream role" | "your CV";

@@ -23,6 +23,19 @@ import {
   type RoleRiasecProfile,
   type UserProfile,
 } from "../_shared/scoring/score-job.ts";
+import { buildPreferenceDoc } from "../_shared/scoring/preference-doc.ts";
+import { getAdjacentIndustries } from "../_shared/scoring/industry-adjacency.ts";
+
+const ALGORITHM_VERSION = 2; // v2 = unified scorer + semantic + discovery pool
+
+// Pool split: ~70% core (declared industries), ~30% discovery (adjacent /
+// semantic / passion bridges outside declared industries).
+const CORE_LIMIT = 140;
+const DISCOVERY_LIMIT = 60;
+
+// Discovery cards must clear a floor so "adjacent" never means "random".
+const DISCOVERY_MIN_SCORE = 45;
+const DISCOVERY_SEMANTIC_BRIDGE = 0.55;
 
 declare const EdgeRuntime: { waitUntil?: (p: Promise<unknown>) => void } | undefined;
 
@@ -30,6 +43,30 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_KEY =
   Deno.env.get("HDYD_SERVICE_JWT") ||
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+
+// Embed the user's preference document (same model + dims as embed-jobs so
+// cosine similarity between user and job vectors is meaningful).
+async function embedPreferenceDoc(text: string): Promise<number[] | null> {
+  if (!GEMINI_API_KEY || !text.trim()) return null;
+  const res = await fetch(
+    "https://generativelanguage.googleapis.com/v1beta/openai/embeddings",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${GEMINI_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ model: "gemini-embedding-001", input: text, dimensions: 768 }),
+    },
+  );
+  if (!res.ok) {
+    console.error(`preference embedding failed ${res.status}: ${await res.text()}`);
+    return null;
+  }
+  const data = await res.json();
+  return data.data?.[0]?.embedding ?? null;
+}
 
 const JOB_COLUMNS =
   "id, title, company, location, salary, industry, career_level, url, created_at, type, work_mode, role_category, ai_role_category, job_traits, description, tags, expires_at";
@@ -104,7 +141,7 @@ async function scoreForUser(
   // Swipe history: excluded from the pool AND fed into learned signals.
   const [dismissedRes, likedRes, interactionsPromise] = await Promise.all([
     supabase.from("dismissed_jobs").select("job_id, reason").eq("user_id", profile.id),
-    supabase.from("liked_jobs").select("job_id").eq("user_id", profile.id),
+    supabase.from("liked_jobs").select("job_id, liked_at").eq("user_id", profile.id),
     buildBehavioralAffinity(supabase, profile.id),
   ]);
   const dismissedIds = new Set<string>(
@@ -116,10 +153,56 @@ async function scoreForUser(
   const likedIds = new Set<string>((likedRes.data ?? []).map((r) => r.job_id as string));
   const behavioralAffinity = interactionsPromise;
 
-  // Candidate pool: recent live jobs in the user's industries, plus a slice of
-  // the newest jobs from ANY industry so passion/target-company/intersection
-  // matches outside their declared industries aren't invisible.
-  const [industryJobsRes, anyJobsRes] = await Promise.all([
+  // Refresh the user's preference embedding when new likes/saves have landed
+  // since it was last computed (or it has never been computed).
+  const [savedRes, { data: profRow }] = await Promise.all([
+    supabase.from("saved_jobs").select("job_id, created_at").eq("user_id", profile.id),
+    supabase.from("profiles").select("preference_embedded_at, updated_at").eq("id", profile.id).single(),
+  ]);
+  const savedIds = new Set<string>((savedRes.data ?? []).map((r) => r.job_id as string));
+  const prof = profRow as { preference_embedded_at?: string | null; updated_at?: string | null } | null;
+  const embeddedAt = prof?.preference_embedded_at ? new Date(prof.preference_embedded_at) : null;
+  const profileUpdatedAt = prof?.updated_at ? new Date(prof.updated_at) : null;
+  const needsRefresh =
+    !embeddedAt ||
+    (profileUpdatedAt !== null && profileUpdatedAt > embeddedAt) ||
+    (likedRes.data ?? []).some((r) => {
+      const at = (r as { liked_at?: string }).liked_at;
+      return at !== undefined && new Date(at) > embeddedAt;
+    }) ||
+    (savedRes.data ?? []).some((r) => {
+      const at = (r as { created_at?: string }).created_at;
+      return at !== undefined && new Date(at) > embeddedAt;
+    });
+
+  if (needsRefresh) {
+    const positiveIds = [...new Set([...likedIds, ...savedIds])].slice(-40);
+    let recentPositives: { title: string; company: string | null }[] = [];
+    if (positiveIds.length > 0) {
+      const { data } = await supabase
+        .from("jobs")
+        .select("title, company")
+        .in("id", positiveIds)
+        .limit(20);
+      recentPositives = (data ?? []) as { title: string; company: string | null }[];
+    }
+    const vector = await embedPreferenceDoc(buildPreferenceDoc(profile, recentPositives));
+    if (vector) {
+      await supabase
+        .from("profiles")
+        .update({
+          preference_embedding: JSON.stringify(vector),
+          preference_embedded_at: now,
+        })
+        .eq("id", profile.id);
+    }
+  }
+
+  // Candidate pool: recent live jobs in the user's industries, a slice of the
+  // newest jobs from ANY industry (passion/target-company/intersection matches
+  // outside declared industries), and the top jobs by semantic similarity to
+  // the user's preference embedding (discovery sourcing).
+  const [industryJobsRes, anyJobsRes, semanticTopRes] = await Promise.all([
     supabase
       .from("jobs")
       .select(JOB_COLUMNS)
@@ -134,13 +217,39 @@ async function scoreForUser(
       .gt("expires_at", now)
       .order("created_at", { ascending: false })
       .limit(300),
+    supabase.rpc("top_jobs_semantic", { p_user_id: profile.id, p_limit: 200 }),
   ]);
 
   const candidates = new Map<string, Job>();
   for (const j of [...(industryJobsRes.data ?? []), ...(anyJobsRes.data ?? [])] as unknown as Job[]) {
     candidates.set(j.id, j);
   }
+
+  // Hydrate semantic-sourced jobs not already in the pool.
+  const semanticSourcedIds = ((semanticTopRes.data ?? []) as { job_id: string }[])
+    .map((r) => r.job_id)
+    .filter((id) => !candidates.has(id));
+  for (let i = 0; i < semanticSourcedIds.length; i += 100) {
+    const { data } = await supabase
+      .from("jobs")
+      .select(JOB_COLUMNS)
+      .in("id", semanticSourcedIds.slice(i, i + 100));
+    for (const j of (data ?? []) as unknown as Job[]) candidates.set(j.id, j);
+  }
   if (candidates.size === 0) return;
+
+  // Semantic similarity for every candidate in one round trip.
+  const semanticScores = new Map<string, number>();
+  const allIds = [...candidates.keys()];
+  for (let i = 0; i < allIds.length; i += 500) {
+    const { data } = await supabase.rpc("match_jobs_semantic", {
+      p_user_id: profile.id,
+      p_job_ids: allIds.slice(i, i + 500),
+    });
+    for (const r of (data ?? []) as { job_id: string; similarity: number }[]) {
+      semanticScores.set(r.job_id, r.similarity);
+    }
+  }
 
   // Learned signals need the job rows for the user's swipe history.
   const historyIds = [...dismissedIds, ...openedIds, ...likedIds].filter((id) => !candidates.has(id));
@@ -163,24 +272,64 @@ async function scoreForUser(
     ? SALARY_THRESHOLDS[profile.salary_expectation] || 0
     : 0;
 
-  const scored: { job_id: string; score: number }[] = [];
+  const slugSet = new Set(industrySlugs);
+  const adjacent = getAdjacentIndustries(industrySlugs);
+
+  interface ScoredRow {
+    job_id: string;
+    score: number;
+    semantic: number | null;
+    kind: "core" | "discovery";
+  }
+  const core: ScoredRow[] = [];
+  const discovery: ScoredRow[] = [];
+
   for (const job of candidates.values()) {
     if (dismissedIds.has(job.id) || likedIds.has(job.id)) continue;
     if (!isLiveJob(job)) continue;
     if (shouldExcludeJob(job, profile)) continue;
     if (!passesSalaryFilter(job, minSalary)) continue;
-    const { score } = scoreJob(job, profile, { roleProfiles, learned, behavioralAffinity });
-    scored.push({ job_id: job.id, score });
+
+    const semanticSimilarity = semanticScores.get(job.id);
+    const { score, matches } = scoreJob(job, profile, {
+      roleProfiles,
+      learned,
+      behavioralAffinity,
+      semanticSimilarity,
+    });
+
+    const jobSlug = (job.industry ?? "").toLowerCase();
+    if (slugSet.has(jobSlug)) {
+      core.push({ job_id: job.id, score, semantic: semanticSimilarity ?? null, kind: "core" });
+      continue;
+    }
+
+    // Discovery: outside declared industries, needs ≥2 independent bridge
+    // signals so an adjacent suggestion never feels random.
+    let bridges = 0;
+    if ((semanticSimilarity ?? 0) >= DISCOVERY_SEMANTIC_BRIDGE) bridges++;
+    if (adjacent.has(jobSlug)) bridges++;
+    if (matches.some((m) => m.startsWith("Passion post"))) bridges++;
+    if (matches.includes("Skills")) bridges++;
+    if (matches.includes("Intersection match")) bridges++;
+    if (matches.some((m) => m.startsWith("Wanted"))) bridges++;
+    if (bridges >= 2 && score >= DISCOVERY_MIN_SCORE) {
+      discovery.push({ job_id: job.id, score, semantic: semanticSimilarity ?? null, kind: "discovery" });
+    }
   }
 
-  scored.sort((a, b) => b.score - a.score);
-  const top = scored.slice(0, 200);
+  core.sort((a, b) => b.score - a.score);
+  discovery.sort((a, b) => b.score - a.score);
+  const top = [...core.slice(0, CORE_LIMIT), ...discovery.slice(0, DISCOVERY_LIMIT)];
   if (top.length === 0) return;
 
   const rows = top.map((s) => ({
     user_id: profile.id,
     job_id: s.job_id,
     score: s.score,
+    semantic_score: s.semantic,
+    match_kind: s.kind,
+    algorithm_version: ALGORITHM_VERSION,
     computed_at: now,
   }));
 
