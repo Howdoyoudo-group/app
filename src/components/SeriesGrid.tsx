@@ -18,6 +18,7 @@ import seriesBakery from "@/assets/series-bakery.jpg";
 import seriesBeer from "@/assets/series-beer.jpg";
 import seriesFootwear from "@/assets/series-footwear.jpg";
 import seriesPhysiotherapy from "@/assets/series-physiotherapy.jpg";
+import seriesPolitics from "@/assets/series-politics.jpg";
 import seriesPsychotherapy from "@/assets/series-psychotherapy.jpg";
 import seriesWellness from "@/assets/series-wellness.jpg";
 import seriesGaming from "@/assets/series-gaming.jpg";
@@ -237,6 +238,13 @@ const series = [
       "From NHS wards to elite sports clubs - the people getting the world moving again.",
     image: seriesPhysiotherapy,
     href: "/physiotherapy",
+  },
+  {
+    title: "Politics",
+    description:
+      "Whitehall, Westminster, town halls and think tanks - every way to build a career shaping how the UK is run.",
+    image: seriesPolitics,
+    href: "/politics",
   },
   {
     title: "Psychotherapy",
