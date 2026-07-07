@@ -5,6 +5,80 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-07 (evening) — Woody (main branch) — Added Politics as 35th industry
+
+Full audit → sector research → build, in one session. Live at /politics.
+
+### What was done
+- **Fixed a real sync bug**: `src/data/industries.ts` says "source of truth" in
+  its own comment, but `Onboarding.tsx` (line 20) and `MyProfile.tsx` (line 37)
+  each had their own hand-copied industry array not importing from it — the
+  exact root cause of the Building/Delivery/Fixing/Tennis onboarding bug from
+  an earlier session. Both now import from the canonical list; this class of
+  bug can't recur.
+- **New `src/pages/Politics.tsx`**: 5 CareerMap stages (Civil Service,
+  Parliament & Elected Politics, Local Government, Think Tanks & Policy
+  Research, Public Affairs & Government Relations), 27 roles, 12 real employer
+  profiles (UK Parliament, Cabinet Office, HM Treasury, NAO, LGA, IPPR,
+  Institute for Government, etc.), routed at `/politics`.
+- **5 new Politics-specific roles** in `src/data/roles.ts` (Policy Advisor,
+  Parliamentary Researcher, Council Officer, Think Tank Researcher, Public
+  Affairs Manager) + tagged Legal & Compliance/Project Management/Strategy as
+  cross-cutting into Politics.
+- **Jobs pipeline**: added a full `IndustrySpec` to
+  `industry-registry.ts` (~100 synonyms) — this auto-merges into
+  `fetch-external-jobs`'s keyword list, so NO bespoke scraper was needed to
+  launch. Added Thursday to the Adzuna day-schedule. Full `validate-jobs`
+  quality-control layer: company map (~50 depts/regulators/think tanks),
+  title blocklist (blocks "policy" false positives like insurance/warranty),
+  relevance keywords (deliberately avoids bare "policy"/"council" — too
+  broad), and added "politics" to `TECH_ALLOWED_INDUSTRIES` so genuine
+  Government Digital Service roles at known departments survive the
+  cross-industry tech-role filter.
+- **Content pipeline**: wired into all 6 functions (fetch-rss-news,
+  scrape-articles, generate-daily-briefings, send-daily-digest,
+  fetch-industry-videos, fetch-industry-events) with the same
+  `INDUSTRY_CONTEXT`/`INDUSTRY_NAMES` pattern every other industry uses.
+- **Verified live, not just typechecked**: triggered a real
+  `fetch-external-jobs` + `validate-jobs` run. **149 real jobs landed from
+  Tier 1 alone** (generic Adzuna/Reed/Jooble + registry keywords) — confirms
+  a bespoke civilservicejobs.service.gov.uk scraper genuinely isn't needed
+  yet (deferred, as planned, rather than built blind). First validate-jobs
+  pass caught a real gap — Ofgem, Crown Commercial Service, National
+  Archives and several other genuine departments were missing from the
+  company map, so their legitimate postings were failing the relevance
+  check. Fixed and redeployed → **188 clean live jobs** covering DWP, Ofgem,
+  Electoral Commission, IPO, Northern Ireland Office and more.
+- Visually verified `/politics` end-to-end in the preview browser: hero,
+  Plan tab (5 stages, correct role counts), Jobs tab ("Live politics &
+  government jobs" + Who's hiring), Who? tab (12 company profiles with
+  stage filter chips) all render correctly.
+- **Merged Andrew's parallel commits** (LinkedIn RapidAPI call caps, CV
+  Builder mobile fix, admin mailing-list toggle) — one real file overlap in
+  `fetch-external-jobs/index.ts` (rate-limiting logic vs my industry
+  keywords, different sections), auto-merged cleanly, re-verified and
+  redeployed after merging.
+
+### Known gap for next session
+- Some duplicate/recruiter-noise postings remain (e.g. "Inspire People"
+  posting the same SRE role 5-6x) — these should collapse client-side via
+  the existing `jobDedupeKey` title+company dedup, not yet spot-checked in
+  the live Howdy Jobs swipe UI itself.
+- `FEATURED_EMPLOYERS` entry for Politics intentionally skipped in
+  Marketplace.tsx — it requires a `/company/<slug>` page that doesn't exist
+  yet (would've been a broken link). Low-priority nice-to-have.
+
+### Standing backlog
+- Add `A @ 216.198.79.1` DNS record in 123-reg (fixes bare howdoyoudo.co.uk)
+- Twilio keys for WhatsApp
+- Voxpops video — permanent Supabase Storage upload (currently Lovable CDN)
+- Email all users — rewrite send-account-migration (Google vs email users)
+- Matching algorithm Phases 4-6 (learning loop v2, Skills England signal,
+  production measurement) — paused pending embedding backfill completion
+  and more real swipe data (see cron delivery diagnosis note below)
+
+---
+
 ## 2026-07-07 — Woody (main branch) — Matching algorithm overhaul (Phases 0–3)
 
 Goal: make HDYD's job matching the best of any job site. Plan in
