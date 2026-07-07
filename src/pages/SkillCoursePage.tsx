@@ -61,9 +61,8 @@ export default function SkillCoursePage() {
     setCourse(c as CourseData ?? null);
     setLessons((ls ?? []) as Lesson[]);
     setQuestions((qs ?? []) as Question[]);
-    setCompleted((prog?.data as any)?.lessons_completed ?? []);
-    const p = (prog?.data as any);
-    if (p?.passed) setPassed({ score: p.score, at: p.completed_at });
+    setCompleted(prog?.lessons_completed ?? []);
+    if (prog?.passed) setPassed({ score: prog.score, at: prog.completed_at });
     setLoading(false);
   };
 

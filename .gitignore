@@ -34,3 +34,6 @@ dist-ssr
 
 # Eval harness fixtures (contain real user profile data — never commit)
 scripts/eval-scoring/fixture.json
+
+# tsc -b incremental build info
+*.tsbuildinfo

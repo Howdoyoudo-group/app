@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.4"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -110,6 +110,54 @@ export type Database = {
           source?: string
           title?: string
           url?: string
+        }
+        Relationships: []
+      }
+      ats_detection_results: {
+        Row: {
+          ats_type: string | null
+          board_slug: string | null
+          career_url: string
+          company: string
+          detected_at: string | null
+          final_url: string | null
+          id: string
+          in_scraper: boolean | null
+          industry: string
+          notes: string | null
+          wd_site: string | null
+          wd_tenant: string | null
+          wd_version: string | null
+        }
+        Insert: {
+          ats_type?: string | null
+          board_slug?: string | null
+          career_url: string
+          company: string
+          detected_at?: string | null
+          final_url?: string | null
+          id?: string
+          in_scraper?: boolean | null
+          industry: string
+          notes?: string | null
+          wd_site?: string | null
+          wd_tenant?: string | null
+          wd_version?: string | null
+        }
+        Update: {
+          ats_type?: string | null
+          board_slug?: string | null
+          career_url?: string
+          company?: string
+          detected_at?: string | null
+          final_url?: string | null
+          id?: string
+          in_scraper?: boolean | null
+          industry?: string
+          notes?: string | null
+          wd_site?: string | null
+          wd_tenant?: string | null
+          wd_version?: string | null
         }
         Relationships: []
       }
@@ -960,6 +1008,44 @@ export type Database = {
         }
         Relationships: []
       }
+      job_matches: {
+        Row: {
+          algorithm_version: number
+          computed_at: string
+          job_id: string
+          match_kind: string
+          score: number
+          semantic_score: number | null
+          user_id: string
+        }
+        Insert: {
+          algorithm_version?: number
+          computed_at?: string
+          job_id: string
+          match_kind?: string
+          score: number
+          semantic_score?: number | null
+          user_id: string
+        }
+        Update: {
+          algorithm_version?: number
+          computed_at?: string
+          job_id?: string
+          match_kind?: string
+          score?: number
+          semantic_score?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_matches_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           ai_confidence: number | null
@@ -970,6 +1056,7 @@ export type Database = {
           company: string
           created_at: string
           description: string | null
+          embedding: string | null
           expires_at: string | null
           featured: boolean | null
           id: string
@@ -1000,6 +1087,7 @@ export type Database = {
           company: string
           created_at?: string
           description?: string | null
+          embedding?: string | null
           expires_at?: string | null
           featured?: boolean | null
           id?: string
@@ -1030,6 +1118,7 @@ export type Database = {
           company?: string
           created_at?: string
           description?: string | null
+          embedding?: string | null
           expires_at?: string | null
           featured?: boolean | null
           id?: string
@@ -1050,6 +1139,30 @@ export type Database = {
           url?: string
           value_chain_stage?: string | null
           work_mode?: string | null
+        }
+        Relationships: []
+      }
+      liked_jobs: {
+        Row: {
+          created_at: string
+          id: string
+          job_id: string
+          liked_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          job_id: string
+          liked_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          job_id?: string
+          liked_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1257,6 +1370,8 @@ export type Database = {
           newsletter_industries: string[] | null
           phone: string | null
           photo_url: string | null
+          preference_embedded_at: string | null
+          preference_embedding: string | null
           riasec_scores: Json | null
           role_preferences: string[] | null
           salary_expectation: string | null
@@ -1296,6 +1411,8 @@ export type Database = {
           newsletter_industries?: string[] | null
           phone?: string | null
           photo_url?: string | null
+          preference_embedded_at?: string | null
+          preference_embedding?: string | null
           riasec_scores?: Json | null
           role_preferences?: string[] | null
           salary_expectation?: string | null
@@ -1335,6 +1452,8 @@ export type Database = {
           newsletter_industries?: string[] | null
           phone?: string | null
           photo_url?: string | null
+          preference_embedded_at?: string | null
+          preference_embedding?: string | null
           riasec_scores?: Json | null
           role_preferences?: string[] | null
           salary_expectation?: string | null
@@ -1347,6 +1466,81 @@ export type Database = {
           whatsapp_opt_in?: boolean
           whatsapp_verified_at?: string | null
           work_values?: Json | null
+        }
+        Relationships: []
+      }
+      role_metadata: {
+        Row: {
+          cp_career_progression: Json | null
+          cp_entry_routes: Json | null
+          cp_fetched_at: string | null
+          cp_growth: string | null
+          cp_related_roles: Json | null
+          cp_salary_max: number | null
+          cp_salary_min: number | null
+          cp_url: string | null
+          cp_work_environment: string | null
+          fetched_at: string | null
+          ncs_entry_routes: Json | null
+          ncs_hours: string | null
+          ncs_qualifications: string | null
+          ncs_related_roles: Json | null
+          ncs_salary_experienced: number | null
+          ncs_salary_starter: number | null
+          ncs_skills: Json | null
+          ncs_tasks: Json | null
+          ncs_url: string | null
+          ncs_work_pattern: string | null
+          se_synced_at: string | null
+          slug: string
+        }
+        Insert: {
+          cp_career_progression?: Json | null
+          cp_entry_routes?: Json | null
+          cp_fetched_at?: string | null
+          cp_growth?: string | null
+          cp_related_roles?: Json | null
+          cp_salary_max?: number | null
+          cp_salary_min?: number | null
+          cp_url?: string | null
+          cp_work_environment?: string | null
+          fetched_at?: string | null
+          ncs_entry_routes?: Json | null
+          ncs_hours?: string | null
+          ncs_qualifications?: string | null
+          ncs_related_roles?: Json | null
+          ncs_salary_experienced?: number | null
+          ncs_salary_starter?: number | null
+          ncs_skills?: Json | null
+          ncs_tasks?: Json | null
+          ncs_url?: string | null
+          ncs_work_pattern?: string | null
+          se_synced_at?: string | null
+          slug: string
+        }
+        Update: {
+          cp_career_progression?: Json | null
+          cp_entry_routes?: Json | null
+          cp_fetched_at?: string | null
+          cp_growth?: string | null
+          cp_related_roles?: Json | null
+          cp_salary_max?: number | null
+          cp_salary_min?: number | null
+          cp_url?: string | null
+          cp_work_environment?: string | null
+          fetched_at?: string | null
+          ncs_entry_routes?: Json | null
+          ncs_hours?: string | null
+          ncs_qualifications?: string | null
+          ncs_related_roles?: Json | null
+          ncs_salary_experienced?: number | null
+          ncs_salary_starter?: number | null
+          ncs_skills?: Json | null
+          ncs_tasks?: Json | null
+          ncs_url?: string | null
+          ncs_work_pattern?: string | null
+          se_synced_at?: string | null
+          slug?: string
         }
         Relationships: []
       }
@@ -1383,6 +1577,86 @@ export type Database = {
           role_category?: string
           typical_traits?: string[] | null
           work_values?: Json
+        }
+        Relationships: []
+      }
+      role_se_mapping: {
+        Row: {
+          match_method: string | null
+          match_score: number | null
+          se_level: number | null
+          se_occ_code: string | null
+          se_occ_name: string | null
+          se_route: string | null
+          slug: string
+          synced_at: string
+        }
+        Insert: {
+          match_method?: string | null
+          match_score?: number | null
+          se_level?: number | null
+          se_occ_code?: string | null
+          se_occ_name?: string | null
+          se_route?: string | null
+          slug: string
+          synced_at?: string
+        }
+        Update: {
+          match_method?: string | null
+          match_score?: number | null
+          se_level?: number | null
+          se_occ_code?: string | null
+          se_occ_name?: string | null
+          se_route?: string | null
+          slug?: string
+          synced_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_se_mapping_slug_fkey"
+            columns: ["slug"]
+            isOneToOne: true
+            referencedRelation: "role_metadata"
+            referencedColumns: ["slug"]
+          },
+        ]
+      }
+      role_skills: {
+        Row: {
+          broad_domain: string | null
+          display_order: number | null
+          id: string
+          se_ksb_ref: string | null
+          skill_area: string | null
+          skill_title: string
+          skill_type: string | null
+          slug: string
+          source: string
+          synced_at: string
+        }
+        Insert: {
+          broad_domain?: string | null
+          display_order?: number | null
+          id?: string
+          se_ksb_ref?: string | null
+          skill_area?: string | null
+          skill_title: string
+          skill_type?: string | null
+          slug: string
+          source: string
+          synced_at?: string
+        }
+        Update: {
+          broad_domain?: string | null
+          display_order?: number | null
+          id?: string
+          se_ksb_ref?: string | null
+          skill_area?: string | null
+          skill_title?: string
+          skill_type?: string | null
+          slug?: string
+          source?: string
+          synced_at?: string
         }
         Relationships: []
       }
@@ -1479,6 +1753,144 @@ export type Database = {
           count?: number
           month?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      skill_course_lessons: {
+        Row: {
+          body_markdown: string
+          course_id: string
+          id: string
+          slot: number
+          title: string
+        }
+        Insert: {
+          body_markdown: string
+          course_id: string
+          id?: string
+          slot: number
+          title: string
+        }
+        Update: {
+          body_markdown?: string
+          course_id?: string
+          id?: string
+          slot?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_course_lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "skill_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skill_course_progress: {
+        Row: {
+          completed_at: string | null
+          course_id: string
+          id: string
+          lessons_completed: number[] | null
+          passed: boolean | null
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          course_id: string
+          id?: string
+          lessons_completed?: number[] | null
+          passed?: boolean | null
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          course_id?: string
+          id?: string
+          lessons_completed?: number[] | null
+          passed?: boolean | null
+          score?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_course_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "skill_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skill_course_questions: {
+        Row: {
+          correct_index: number
+          course_id: string
+          explanation: string | null
+          id: string
+          options: Json
+          question: string
+        }
+        Insert: {
+          correct_index: number
+          course_id: string
+          explanation?: string | null
+          id?: string
+          options: Json
+          question: string
+        }
+        Update: {
+          correct_index?: number
+          course_id?: string
+          explanation?: string | null
+          id?: string
+          options?: Json
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "skill_course_questions_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "skill_courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      skill_courses: {
+        Row: {
+          course_title: string
+          focus_skills: string[]
+          generated_at: string | null
+          id: string
+          role_slug: string
+          role_title: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          course_title?: string
+          focus_skills?: string[]
+          generated_at?: string | null
+          id?: string
+          role_slug: string
+          role_title: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          course_title?: string
+          focus_skills?: string[]
+          generated_at?: string | null
+          id?: string
+          role_slug?: string
+          role_title?: string
+          status?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1703,6 +2115,44 @@ export type Database = {
         }
         Relationships: []
       }
+      user_skill_ratings: {
+        Row: {
+          evidenced: boolean
+          id: string
+          rating: number
+          skill_id: string
+          source: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          evidenced?: boolean
+          id?: string
+          rating: number
+          skill_id: string
+          source?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          evidenced?: boolean
+          id?: string
+          rating?: number
+          skill_id?: string
+          source?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_skill_ratings_skill_id_fkey"
+            columns: ["skill_id"]
+            isOneToOne: false
+            referencedRelation: "role_skills"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_send_log: {
         Row: {
           created_at: string
@@ -1788,10 +2238,15 @@ export type Database = {
           is_admin: boolean
           is_employer: boolean
           is_premium: boolean
+          is_subscribed: boolean
         }[]
       }
       admin_set_admin: {
         Args: { _is_admin: boolean; _user_id: string }
+        Returns: undefined
+      }
+      admin_set_mailing_list: {
+        Args: { _subscribed: boolean; _user_id: string }
         Returns: undefined
       }
       admin_set_premium: {
@@ -1802,6 +2257,7 @@ export type Database = {
         Args: { _a: string; _b: string }
         Returns: boolean
       }
+      check_email_exists: { Args: { p_email: string }; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
@@ -1897,6 +2353,7 @@ export type Database = {
       get_public_member_preview: {
         Args: { _industry?: string; _limit?: number }
         Returns: {
+          created_at: string
           first_name: string
           home_town: string
           id: string
@@ -1916,6 +2373,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      match_jobs_semantic: {
+        Args: { p_job_ids: string[]; p_user_id: string }
+        Returns: {
+          job_id: string
+          similarity: number
+        }[]
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -1931,6 +2395,13 @@ export type Database = {
           message: Json
           msg_id: number
           read_ct: number
+        }[]
+      }
+      top_jobs_semantic: {
+        Args: { p_limit?: number; p_user_id: string }
+        Returns: {
+          job_id: string
+          similarity: number
         }[]
       }
     }
