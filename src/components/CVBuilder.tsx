@@ -1229,15 +1229,22 @@ const CVBuilder = () => {
   };
 
   const previewProfile = async () => {
+    // Open the tab synchronously, inside the click handler, so mobile Safari/Chrome
+    // don't treat it as an unrequested popup - they block window.open() called after
+    // an await because the user-gesture context has expired by then. Navigate this
+    // already-open tab to the real blob URL once the PDF is ready.
+    const previewWindow = window.open("", "_blank", "noopener,noreferrer");
     setGeneratingPdf(true);
     try {
       const pdf = await buildPdf();
-      if (!pdf) return;
+      if (!pdf) { previewWindow?.close(); return; }
       const url = pdf.output("bloburl") as unknown as string;
-      window.open(url, "_blank", "noopener,noreferrer");
+      if (previewWindow) previewWindow.location.href = url;
+      else window.open(url, "_blank", "noopener,noreferrer");
     } catch (err) {
       console.error(err);
       toast.error("Could not generate CV preview.");
+      previewWindow?.close();
     } finally {
       setGeneratingPdf(false);
     }
@@ -2599,6 +2606,19 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
             </Button>
             <Button variant="outline" onClick={downloadWord} className="font-body gap-2 rounded-full flex-1">
               <Download className="w-4 h-4" /> Word
+            </Button>
+            <Button variant="outline" onClick={previewProfile} disabled={generatingPdf} className="font-body gap-2 rounded-full flex-1">
+              {generatingPdf ? <Loader2 className="w-4 h-4 animate-spin" /> : <Eye className="w-4 h-4" />} Preview
+            </Button>
+            <Button variant="outline" onClick={emailProfile} disabled={emailing || !user} className="font-body gap-2 rounded-full flex-1">
+              {emailing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />} Email
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => { setShowAts(v => !v); setMobileTab("edit"); }}
+              className="font-body gap-2 rounded-full flex-1 border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+            >
+              <Sparkles className="w-4 h-4" /> ATS CV
             </Button>
           </div>
           <motion.div
