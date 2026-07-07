@@ -63,11 +63,11 @@ Deno.serve(async (req) => {
       const results = await Promise.allSettled(
         batch.map(async (job) => {
           const description = (job.description || "").slice(0, 2000);
-          const prompt = `Analyze this job listing and extract the personality traits, work values, and key skills it requires.
+          const prompt = `Analyze this job listing and extract the personality traits, work values, key skills and career level it requires.
 
 Job Title: ${job.title}
 Industry: ${job.industry || "Unknown"}
-Career Level: ${job.career_level || "Unknown"}
+Career Level: ${job.career_level || "Unknown - classify it from the title and description"}
 Description: ${description}`;
 
           const response = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
@@ -129,8 +129,13 @@ Description: ${description}`;
                           items: { type: "string" },
                           description: "Top 5-10 key skills or traits this job requires",
                         },
+                        career_level: {
+                          type: "string",
+                          enum: ["entry", "mid", "senior", "executive"],
+                          description: "Seniority of the role: entry (junior/graduate/trainee/no experience), mid (some experience, individual contributor or first-line manager), senior (significant experience, lead/head/senior manager), executive (director/VP/C-suite)",
+                        },
                       },
-                      required: ["riasec", "values", "key_skills"],
+                      required: ["riasec", "values", "key_skills", "career_level"],
                       additionalProperties: false,
                     },
                   },
@@ -177,11 +182,20 @@ Description: ${description}`;
             traits.values[k] = Math.max(0, Math.min(100, Math.round(traits.values[k] || 0)));
           }
           traits.key_skills = (traits.key_skills || []).slice(0, 10);
+
+          // career_level backfill: only written when the row has none — the
+          // scraped value (when present) is more trustworthy than the model's.
+          const VALID_LEVELS = new Set(["entry", "mid", "senior", "executive"]);
+          const inferredLevel = VALID_LEVELS.has(traits.career_level) ? traits.career_level : null;
+          delete traits.career_level; // job_traits stays riasec/values/key_skills
           traits.extracted_at = new Date().toISOString();
+
+          const update: Record<string, unknown> = { job_traits: traits };
+          if (!job.career_level && inferredLevel) update.career_level = inferredLevel;
 
           const { error: updateError } = await supabase
             .from("jobs")
-            .update({ job_traits: traits })
+            .update(update)
             .eq("id", job.id);
 
           if (updateError) throw updateError;
