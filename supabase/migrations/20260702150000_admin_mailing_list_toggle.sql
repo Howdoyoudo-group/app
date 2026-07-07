@@ -1,4 +1,6 @@
 -- Let superadmins see mailing list subscription status and toggle it from /admin/users
+DROP FUNCTION IF EXISTS public.admin_list_users(text, integer, integer);
+
 CREATE OR REPLACE FUNCTION public.admin_list_users(_search text DEFAULT NULL::text, _limit integer DEFAULT 100, _offset integer DEFAULT 0)
  RETURNS TABLE(id uuid, email text, full_name text, created_at timestamp with time zone, is_premium boolean, is_admin boolean, is_employer boolean, is_subscribed boolean)
  LANGUAGE sql
