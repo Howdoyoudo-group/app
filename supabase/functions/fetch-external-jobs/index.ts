@@ -2656,8 +2656,20 @@ async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiK
 // Migrated to v4 (June 2026): endpoint active-jb-7d → active-jb?time_frame=7d,
 // params title_filter → title, location_filter → location,
 // field remote_derived → ai_work_arrangement, locations_derived → locations.
+//
+// Unlike Glassdoor/Indeed/JSearch, this had NO per-run call cap - it fired for
+// every industry (~30) x up to 3 pages x 2 cron runs/day with nothing stopping
+// it, which is what drove the RapidAPI plan over quota (100%+ usage) while only
+// yielding a small fraction of the jobs JSearch delivers for less. Added the
+// same soft-cap pattern as its siblings so a plan upgrade decision can be made
+// on real numbers instead of unbounded demand. Tunable without a redeploy via
+// LINKEDIN_MAX_CALLS_PER_RUN. Kill switch: LINKEDIN_RAPIDAPI_ENABLED=false.
+let linkedinCallsThisRun = 0;
+const LINKEDIN_MAX_CALLS_PER_RUN = Math.max(1, Number(Deno.env.get("LINKEDIN_MAX_CALLS_PER_RUN") ?? "40"));
+
 async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiKey: string) {
   if (!keywords.length) return [];
+  if (Deno.env.get("LINKEDIN_RAPIDAPI_ENABLED") === "false") return [];
   const titleFilter = keywords
     .slice(0, 6)
     .map(k => `"${k}"`)
@@ -2669,6 +2681,10 @@ async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiK
 
   try {
     for (let page = 0; page < MAX_PAGES; page++) {
+    if (linkedinCallsThisRun >= LINKEDIN_MAX_CALLS_PER_RUN) {
+      console.warn(`[${industry}] LinkedIn: soft cap of ${LINKEDIN_MAX_CALLS_PER_RUN} calls reached (used ${linkedinCallsThisRun}) - skipping`);
+      break;
+    }
     const url = new URL("https://linkedin-job-search-api.p.rapidapi.com/active-jb-7d");
     url.searchParams.set("title", titleFilter);
     url.searchParams.set("location", '"United Kingdom" OR "UK"');
@@ -2683,6 +2699,7 @@ async function fetchLinkedInJobs(industry: string, keywords: string[], rapidApiK
         "x-rapidapi-host": "linkedin-job-search-api.p.rapidapi.com",
       },
     });
+    linkedinCallsThisRun++;
     if (!res.ok) {
       console.error(`LinkedIn error for "${industry}": ${res.status}`);
         break;
@@ -7025,7 +7042,7 @@ Deno.serve(async (req) => {
         const linkedInJobs = await fetchLinkedInJobs(industry, keywords, rapidApiKey);
         if (linkedInJobs.length > 0) {
           allJobs.push(...linkedInJobs);
-          console.log(`[${industry}] LinkedIn: ${linkedInJobs.length} jobs`);
+          console.log(`[${industry}] LinkedIn: ${linkedInJobs.length} jobs (calls used: ${linkedinCallsThisRun})`);
         }
       }
 
