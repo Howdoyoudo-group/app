@@ -55,6 +55,7 @@ import { useSavedJobs } from "@/hooks/useSavedJobs";
 import SourceAttribution, { SourceAttributionFooter, detectJobSource } from "@/components/AdzunaAttribution";
 import SignUpPopup, { useSignUpPopup } from "@/components/SignUpPopup";
 import { roles as ROLE_DEFINITIONS } from "@/data/roles";
+import { INDUSTRIES as CANONICAL_INDUSTRIES } from "@/data/industries";
 
 // Featured employer per industry - when a user filters by an industry, this
 // brand is shown as the second tile in the job list as an "Employer Spotlight".
@@ -709,7 +710,10 @@ const featuredEmployers = [
   { name: "Birkenstock", industry: "Footwear" },
 ];
 
-const industries = ["All", "Bakery", "Beauty", "Beer", "Building", "Cars", "Charity", "Coffee", "Delivery", "Estate Agency", "Farming", "Fashion", "Film and TV", "Fixing", "Food & Drink", "Football", "Footwear", "Formula 1", "Gaming", "Grocery", "Health", "Horse Racing", "Influencing", "Interior Design", "Jewellery", "Journalism", "Money", "Music", "Pets", "Physiotherapy", "Psychotherapy", "Teaching", "Tennis", "Travel", "Wellness"];
+// Derived from the canonical industry list (src/data/industries.ts) so new
+// industries appear as filter chips automatically - no separate hardcoded list
+// to drift. "All" is prepended as the default no-filter option.
+const industries = ["All", ...CANONICAL_INDUSTRIES.map((i) => i.name)];
 const locations = ["All", "London", "Manchester", "Remote", "Leicester", "Hatfield", "Loughborough"];
 const jobTypes = ["All", "Full-time", "Part-time", "Temporary", "Internship / Graduate", "Freelance"];
 const workModes = ["All", "Remote", "Hybrid", "On-site"];
