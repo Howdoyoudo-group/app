@@ -142,6 +142,14 @@ return new Response(JSON.stringify({ accepted: true }), { ... });
 
 ## Workflow Rules — IMPORTANT
 
+### Verifying types — use `npm run typecheck`, NOT bare `tsc --noEmit`
+The root `tsconfig.json` is solution-style (`"files": []` + project references), so
+`npx tsc --noEmit` type-checks **nothing** and always exits 0 — it is not a real gate.
+Always verify with `npm run typecheck` (`tsc -b`, which builds the app + node projects).
+`npm run build` does NOT run tsc, so it won't catch type errors either.
+Regenerate DB types after schema changes:
+`SUPABASE_ACCESS_TOKEN=<token> npx supabase gen types typescript --linked --schema public > src/integrations/supabase/types.ts`
+
 ### At the start of EVERY session (do this automatically, without being asked):
 1. Run `git pull` to get the latest code
 2. Read `SESSION_LOG.md` to see what the other person did last

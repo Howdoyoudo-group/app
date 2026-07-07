@@ -5,6 +5,77 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-07 — Woody (main branch) — Matching algorithm overhaul (Phases 0–3)
+
+Goal: make HDYD's job matching the best of any job site. Plan in
+`~/.claude/plans/snappy-honking-sprout.md`. 6 phases; 0–3 shipped this session.
+
+### Shipped
+- **Phase 0 — eval harness** (`scripts/eval-scoring/`, commit 2c59ab8): Deno
+  harness scoring algorithm variants against real swipe history (liked/saved =
+  positive, dismissed = negative). Per-user AUC / P@10 / MRR + bootstrap CIs.
+  Run: `deno run --allow-read --allow-env scripts/eval-scoring/run.ts --algo simple,v1`
+  (needs `--build-fixture` once with SUPABASE_URL + HDYD_SERVICE_JWT env; fixture
+  is gitignored — contains user data). Baseline: rich scorer only *tied* the
+  simple one (AUC 0.73) — proof lift must come from embeddings/learning, not rules.
+- **Phase 1 — one scorer everywhere** (commit 9a2bfb9): `_shared/scoring/score-job.ts`
+  is now the single source of truth. Deleted the 1,100-line duplicate from
+  MyJobs.tsx + 4 duplicate libs. New `scoreJob(job, profile, ctx)` signature.
+  Found+fixed drift: server scorers were MISSING the regulated-professions and
+  finance hard blocks (nurse/solicitor/HGV could reach digests). 12 parity tests
+  in `src/test/scoring.test.ts`. `@scoring` alias in vite/tsconfig/vitest.
+- **Phase 2 — career_level backfill** (commit 661afb3): extract-job-traits now
+  also classifies career_level (written only when the row has none). 10-min cron
+  live. career_level nulls: 40% → 0. Traits backlog ~42k, clearing ~6 days.
+- **Phase 3 — semantic matching + discovery** (commit c65331b): pgvector,
+  jobs.embedding + profiles.preference_embedding vector(768), embed-jobs function
+  (15-min cron, gemini-embedding-001). score-new-jobs v2 writes two pools:
+  `core` (declared industries) + `discovery` (out-of-industry, ≥2 bridge signals:
+  semantic ≥0.55 / adjacent industry / passion / skills / intersection). Client
+  interleaves 1 discovery card per 3 core with a "You might love this" badge.
+  Verified live: footwear user getting Interior-Design "Kitchen Designer" as
+  discovery; semantic scores 0.6+; 285 core / 10 discovery on first run.
+
+### In progress / watch
+- **Embedding backfill STALLED at ~300/49k — cron delivery broken.** Diagnosed
+  via `net._http_response`: the embed-jobs + extract-job-traits crons fire and
+  the `SELECT net.http_post` "succeeds" (queues the request), but delivery shows
+  a mix of `200`, `401`, and `Timeout of 5000 ms`. Two real bugs + a platform
+  incident (Supabase "investigating a technical issue" banner was up 2026-07-07 ~11am):
+  1. **401s** — embed-jobs & score-new-jobs deployed with verify_jwt=true (were
+     missing from config.toml). FIXED in config.toml (commit df02471); needs
+     redeploy of both functions to take effect.
+  2. **5000ms timeouts** — extract-job-traits does its Gemini batch synchronously,
+     over pg_net's default 5s timeout. NOT yet fixed. Two options: (a) convert it
+     to the EdgeRuntime.waitUntil fast-return pattern like embed-jobs (best for
+     throughput), or (b) pass `timeout_milliseconds := 55000` in the cron SQL and
+     drop batch_size to ~15 (simpler, lower throughput). embed-jobs already uses
+     waitUntil and works when invoked manually (curl advanced it 99→297).
+  NEXT SESSION (after incident clears): redeploy embed-jobs + score-new-jobs
+  (picks up verify_jwt fix), decide+apply the extract-job-traits timeout fix,
+  re-run the crons, confirm counts advance, THEN measure Phase 3 via eval harness.
+  Manual trigger to push backfill meanwhile:
+  `curl -X POST .../functions/v1/embed-jobs -H "Authorization: Bearer <service_jwt>" -d '{"batch_size":200}'`
+  (idempotent; embeds jobs where embedding IS NULL, newest first).
+- Some early discovery cards land in industry "other" and look weak — TUNE the
+  bridge threshold via the eval harness once backfill completes.
+- **Cost**: ~£7 one-off (traits + embeddings), ~£7/month ongoing. Scales with
+  job count, NOT users. Confirm against Gemini usage log after backfill.
+
+### Remaining (Phases 4–6, not started)
+- Phase 4: learning loop v2 (per-user ridge-logistic weights, saved_jobs signal)
+- Phase 5: Skills England signal (skills_snapshot, stretch-role boost)
+- Phase 6: production measurement (like/save/dismiss by algorithm_version + match_kind)
+
+### Flagged separately (spawn_task)
+- **TypeScript gate is broken**: root `tsconfig.json` is solution-style so
+  `npx tsc --noEmit` checks NOTHING (always exits 0). Real check is
+  `tsc -p tsconfig.app.json`. It surfaces ~77 errors from stale generated
+  Supabase types (missing role_skills, user_skill_ratings, job_matches, etc.).
+  Needs `supabase gen types` regen + CLAUDE.md command fix.
+
+---
+
 ## 2026-07-04 (afternoon) — Woody (main branch)
 
 ### What was done

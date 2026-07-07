@@ -198,7 +198,7 @@ export default function RoleNCSPanel({ slug }: { slug: string }) {
       .eq("slug", slug)
       .maybeSingle()
       .then(({ data: row }) => {
-        if (!cancelled && row) setData(row as RoleMetadata);
+        if (!cancelled && row) setData(row as unknown as RoleMetadata);
       });
     return () => { cancelled = true; };
   }, [slug]);

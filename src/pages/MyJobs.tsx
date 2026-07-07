@@ -107,6 +107,33 @@ const INDUSTRY_LABELS: Record<string, string> = {
   teaching: "Teaching", tennis: "Tennis", travel: "Travel", wellness: "Wellness",
 };
 
+const LEVEL_LABELS: Record<string, string> = {
+  entry: "Entry Level",
+  mid: "Mid Level",
+  senior: "Senior Level",
+  director: "Director",
+  executive: "Executive",
+};
+
+// Jobs fetched via the pre-scored path carry their server-computed semantic
+// similarity and whether they're a core match or a discovery suggestion.
+type JobWithMeta = Job & { _semantic?: number; _matchKind?: "core" | "discovery" };
+
+// Insert one discovery card after every `gap` core cards. Leftover discovery
+// cards go to the back so they still surface when the core stream runs long.
+function interleaveDiscovery<T>(core: T[], discovery: T[], gap = 3): T[] {
+  if (discovery.length === 0) return core;
+  if (core.length === 0) return discovery;
+  const out: T[] = [];
+  let d = 0;
+  for (let i = 0; i < core.length; i++) {
+    out.push(core[i]);
+    if ((i + 1) % gap === 0 && d < discovery.length) out.push(discovery[d++]);
+  }
+  while (d < discovery.length) out.push(discovery[d++]);
+  return out;
+}
+
 function normalizeJobType(raw: string | null): string | null {
   if (!raw) return null;
   // Take the first value when DB has comma-separated types
@@ -712,13 +739,15 @@ const MyJobs = () => {
 
       const { data: preMatches } = await supabase
         .from("job_matches")
-        .select("job_id, score")
+        .select("job_id, score, semantic_score, match_kind")
         .eq("user_id", user.id)
         .order("score", { ascending: false })
         .limit(500);
 
+      type PreMatch = { job_id: string; score: number; semantic_score: number | null; match_kind: "core" | "discovery" | null };
+
       if (preMatches && preMatches.length >= 50) {
-        const preJobIds = (preMatches as { job_id: string; score: number }[]).map((m) => m.job_id);
+        const preJobIds = (preMatches as PreMatch[]).map((m) => m.job_id);
         const { data: preJobs } = await supabase
           .from("jobs")
           .select("id, title, company, location, salary, industry, career_level, url, created_at, type, work_mode, role_category, ai_role_category, job_traits, description, tags, ai_confidence, expires_at")
@@ -726,11 +755,24 @@ const MyJobs = () => {
           .gt("expires_at", new Date().toISOString());
 
         if (preJobs && preJobs.length > 0) {
-          // Re-order by pre-score — the DB fetch doesn't preserve IN-list order
+          // Re-order by pre-score — the DB fetch doesn't preserve IN-list order.
+          // Semantic score + match kind travel on the job object so the display
+          // scorer and the discovery interleave can use them without extra fetches.
+          const matchMeta = new Map(
+            (preMatches as PreMatch[]).map((m) => [m.job_id, m]),
+          );
           const scoreMap = new Map(
-            (preMatches as { job_id: string; score: number }[]).map((m) => [m.job_id, m.score]),
+            (preMatches as PreMatch[]).map((m) => [m.job_id, m.score]),
           );
           const sortedPreJobs = (preJobs as unknown as Job[])
+            .map((j) => {
+              const meta = matchMeta.get(j.id);
+              return {
+                ...j,
+                _semantic: meta?.semantic_score ?? undefined,
+                _matchKind: meta?.match_kind ?? "core",
+              } as JobWithMeta;
+            })
             .filter(passesAllFiltersPreScored)
             .sort((a, b) => (scoreMap.get(b.id) ?? 0) - (scoreMap.get(a.id) ?? 0));
 
@@ -1027,7 +1069,15 @@ const MyJobs = () => {
 
     const baseScoredRaw = jobs
       .filter((job) => !dismissedIds.has(job.id) && !likedIds.has(job.id) && !likedDedupeKeys.has(jobDedupeKey(job)))
-      .map((job) => ({ ...job, ...scoreJob(job, profile, { roleProfiles, learned: learnedSignals, behavioralAffinity }) }))
+      .map((job) => ({
+        ...job,
+        ...scoreJob(job, profile, {
+          roleProfiles,
+          learned: learnedSignals,
+          behavioralAffinity,
+          semanticSimilarity: (job as JobWithMeta)._semantic,
+        }),
+      }))
       .filter((job) => !shouldExcludeJob(job, profile))
       .filter((job) => passesSalaryFilter(job, minSalary))
       .sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
@@ -1048,12 +1098,20 @@ const MyJobs = () => {
       return true;
     });
 
+    // Discovery cards skip the role-match and industry-guarantee funnels —
+    // they are deliberate out-of-industry suggestions vetted server-side
+    // (≥2 bridge signals: adjacent industry / semantic fit / passion / skills).
+    const discoveryPool = baseScored
+      .filter((j) => (j as JobWithMeta)._matchKind === "discovery")
+      .map((j) => ({ ...j, matches: ["You might love this", ...j.matches] }));
+    const coreBase = baseScored.filter((j) => (j as JobWithMeta)._matchKind !== "discovery");
+
     const allScored = requireRoleMatch
       ? (() => {
-          const roleMatched = baseScored.filter((job) => hasRoleMatch(job, profile));
-          return roleMatched.length > 0 ? roleMatched : baseScored;
+          const roleMatched = coreBase.filter((job) => hasRoleMatch(job, profile));
+          return roleMatched.length > 0 ? roleMatched : coreBase;
         })()
-      : baseScored;
+      : coreBase;
 
     // Guarantee at least MIN_PER_INDUSTRY jobs per interested industry
     const guaranteed = new Set<string>();
@@ -1089,14 +1147,24 @@ const MyJobs = () => {
       }
     }
 
+    const byScoreThenDate = (a: typeof allScored[number], b: typeof allScored[number]) =>
+      b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+
+    const coreCards = [...aboveThreshold, ...belowThreshold.filter((j) => guaranteed.has(j.id))]
+      .filter((j) => j.industry !== "other")
+      .sort(byScoreThenDate);
+
+    // Discovery interleave: one "you might love this" card after every 3rd
+    // core card, instead of sinking out-of-industry suggestions to the bottom
+    // of a score sort.
+    const discoveryCards = discoveryPool.sort(byScoreThenDate);
+
     return {
-      primary: [...aboveThreshold, ...belowThreshold.filter((j) => guaranteed.has(j.id))]
-        .filter((j) => j.industry !== "other")
-        .sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+      primary: interleaveDiscovery(coreCards, discoveryCards),
       // Broader pool: everything that passed scoring/exclusion, no industry-only
       // restriction and no minMatch cutoff — this is the algorithm's best guess
       // at what else you'd like, used when the strict stack runs dry.
-      broader: allScored.sort((a, b) => b.score - a.score || new Date(b.created_at).getTime() - new Date(a.created_at).getTime()),
+      broader: allScored.sort(byScoreThenDate),
     };
   }, [jobs, profile, minMatch, roleProfiles, dismissedIds, likedIds, likedDedupeKeys, openedIds, learnedSignals, behavioralAffinity]);
 

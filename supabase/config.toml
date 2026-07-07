@@ -27,6 +27,10 @@ project_id = "wgistckxxbfpsuulbswr"
     verify_jwt = false
   [functions.extract-job-traits]
     verify_jwt = false
+  [functions.embed-jobs]
+    verify_jwt = false
+  [functions.score-new-jobs]
+    verify_jwt = false
   [functions.weekly-employer-report]
     verify_jwt = false
   [functions.scrape-ats-jobs]
