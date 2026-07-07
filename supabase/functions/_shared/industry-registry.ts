@@ -683,6 +683,56 @@ export const INDUSTRY_REGISTRY: IndustrySpec[] = [
       "IMG tennis", "Tennis Foundation",
     ],
   },
+  {
+    slug: "politics",
+    name: "Politics",
+    baseline: 250,
+    synonyms: [
+      // Civil service grades and roles - avoid bare "policy" (too broad,
+      // catches insurance/HR policy roles); always paired with a qualifier.
+      "civil service", "civil servant", "policy advisor", "policy adviser",
+      "policy officer", "policy manager", "government policy", "public policy",
+      "government economist", "government social researcher", "government statistician",
+      "civil service fast stream", "fast streamer", "private secretary",
+      "administrative officer civil service", "executive officer civil service",
+      "deputy director", "director general", "permanent secretary",
+      "special adviser", "special advisor", "spad",
+      // Departments and central government
+      "cabinet office", "hm treasury", "home office", "foreign commonwealth development office",
+      "fcdo", "ministry of defence", "ministry of justice", "department for education",
+      "department of health and social care", "defra", "department for transport",
+      "dcms", "department for business and trade", "department for work and pensions",
+      "dwp", "hmrc", "department for energy security", "department for science innovation",
+      "ministry of housing communities and local government", "mhclg",
+      "whitehall", "government department",
+      // Parliament and elected politics
+      "parliamentary researcher", "parliamentary assistant", "caseworker mp",
+      "member of parliament", "house of commons", "house of lords", "hansard",
+      "westminster", "office manager mp", "chief of staff mp",
+      "scottish parliament", "msp", "senedd", "welsh parliament", "northern ireland assembly",
+      "party headquarters", "cchq", "labour party staff", "liberal democrats staff",
+      // Local government
+      "local government", "local authority", "council officer", "county council",
+      "district council", "borough council", "unitary authority", "planning officer",
+      "environmental health officer", "electoral services officer", "democratic services officer",
+      "housing officer council", "trading standards officer", "building control surveyor",
+      "licensing officer council", "national graduate development programme",
+      // Regulators and quangos
+      "office for national statistics", "ons statistician", "ofcom", "ofgem",
+      "national crime agency", "health and safety executive", "environment agency",
+      "national audit office", "electoral commission", "office for budget responsibility",
+      "companies house", "government digital service",
+      // Think tanks and policy research
+      "think tank", "policy institute", "research fellow policy", "policy researcher",
+      "institute for public policy research", "ippr", "institute of economic affairs",
+      "centre for policy studies", "institute for government", "resolution foundation",
+      "policy exchange", "demos", "fabian society",
+      // Public affairs / government relations
+      "public affairs", "government relations", "government affairs manager",
+      "public affairs consultant", "public affairs executive", "lobbyist",
+      "political consultant", "stakeholder engagement government",
+    ],
+  },
 ];
 
 // ──────────────────────────────────────────────────────────────────────

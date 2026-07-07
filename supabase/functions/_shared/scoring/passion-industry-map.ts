@@ -73,6 +73,12 @@ export const PASSION_INDUSTRY_MAP: Record<string, string[]> = {
 
   // Lifestyle
   volunteering: ["Charity"],
+  politics: ["Politics"],
+  government: ["Politics"],
+  policy: ["Politics"],
+  activism: ["Charity", "Politics"],
+  campaigning: ["Politics"],
+  "current affairs": ["Politics", "Journalism"],
   animals: ["Pets"],
   gardening: ["Interior Design"],
   cars: ["Cars"],

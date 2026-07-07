@@ -37,6 +37,7 @@ export const INDUSTRIES: Industry[] = [
   { name: "Music", slug: "music" },
   { name: "Pets", slug: "pets" },
   { name: "Physiotherapy", slug: "physiotherapy" },
+  { name: "Politics", slug: "politics" },
   { name: "Psychotherapy", slug: "psychotherapy" },
   { name: "Teaching", slug: "teaching" },
   { name: "Tennis", slug: "tennis" },

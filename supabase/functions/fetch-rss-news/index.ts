@@ -40,6 +40,7 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   fixing: "trades industry, electricians, plumbers, gas engineers, HVAC, building maintenance, heat pumps, boilers, apprenticeships, skills shortage in trades",
   delivery: "last-mile delivery, courier industry, logistics, Royal Mail, DPD, Evri, Amazon Logistics, e-commerce fulfilment, HGV drivers, parcel delivery",
   tennis: "professional tennis, ATP Tour, WTA Tour, Wimbledon, LTA, Grand Slams, tennis business, coaching careers, ITF, player earnings, tournament operations",
+  politics: "UK politics, government policy, Parliament, Westminster, civil service, Whitehall departments, local government, councils, think tanks, public affairs, elections, careers in government",
 };
 
 const VALID_INDUSTRIES = Object.keys(INDUSTRY_CONTEXT);
@@ -184,6 +185,7 @@ Return real, verifiable stories. For each, give the EXACT real headline as publi
       "interior-design": ["UK interior design", "UK furniture retail"],
       "formula-1": ["Formula 1 business", "F1 team investment", "McLaren Racing", "Red Bull Racing", "Motorsport Valley UK"],
       influencing: ["UK influencer marketing", "creator economy UK", "social media talent agency"],
+      politics: ["UK Parliament legislation", "government policy announcement", "Whitehall civil service", "UK general election", "think tank policy report"],
     };
 
     // Resolve Google News' interstitial RSS URL to the publisher URL by following

@@ -5562,7 +5562,7 @@ const INDUSTRY_DAY_SCHEDULE: Record<number, string[]> = {
   1: ["fashion", "footwear", "jewellery", "beauty", "interior-design"],     // Mon
   2: ["hospitality", "food-drink", "coffee", "bakery", "beer"],             // Tue
   3: ["health", "wellness", "physiotherapy", "psychotherapy", "pets"],       // Wed
-  4: ["money", "estate-agency", "journalism", "teaching", "charity"],       // Thu
+  4: ["money", "estate-agency", "journalism", "teaching", "charity", "politics"], // Thu
   5: ["cinema", "travel", "influencing", "cars", "grocery"],                // Fri
   6: ["farming", "building", "fixing", "delivery", "remote", "tennis"],   // Sat
 };

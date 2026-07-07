@@ -152,6 +152,11 @@ const QUERIES: Record<string, string[]> = {
     "day in the life UK footwear shoe industry careers",
     "UK footwear sneaker industry business careers",
   ],
+  politics: [
+    "day in the life UK civil servant Whitehall",
+    "working in Westminster MP researcher career",
+    "UK government careers civil service fast stream",
+  ],
 };
 
 const UA =
@@ -383,6 +388,7 @@ const INDUSTRY_SIGNALS: Record<string, RegExp> = {
   travel: /\b(travel|travel industry|tourism|tour operator|tour operators|abta|atol|travel agent|travel agency|airline|airlines|aviation|cabin crew|pilot|pilots|airport|airports|easyJet|ryanair|british airways|ba\b|virgin atlantic|jet2|tui\b|hays travel|trailfinders|kuoni|expedia|booking\.com|airbnb|hotel chain|cruise|p&o cruises|cunard|royal caribbean)\b/i,
   wellness: /\b(wellness|wellbeing|well[- ]being|fitness|gym|gyms|personal trainer|pt\b|pilates|yoga|spin class|crossfit|nutrition|nutritionist|dietitian|david lloyd|virgin active|pure ?gym|gymshark|f45|barrys?\b|barre|reformer|psoas|mindfulness|meditation|peloton)\b/i,
   footwear: /\b(footwear|shoe|shoes|sneaker|sneakers|trainers|boot|boots|cobbler|last\b|lasts|leather|shoemak|cordwainer|dr\.?\s*martens|clarks|church's|crockett & jones|grenson|loake|nike|adidas|puma|new balance|on running|hoka|asics|reebok)\b/i,
+  politics: /\b(civil servant|civil service|whitehall|westminster|parliament|parliamentary|house of commons|house of lords|mp\b|mps\b|member of parliament|cabinet office|hm treasury|home office|ministry of defence|ministry of justice|fast stream|special adviser|spad\b|policy advisor|policy adviser|policy officer|think tank|policy institute|local government|council officer|electoral commission|scottish parliament|senedd|hansard)\b/i,
 };
 
 function passesIndustryFilter(slug: string, v: ParsedVideo): boolean {

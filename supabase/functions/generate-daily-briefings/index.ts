@@ -38,6 +38,7 @@ const INDUSTRY_NAMES: Record<string, string> = {
   fixing: "Fixing",
   delivery: "Delivery",
   tennis: "Tennis",
+  politics: "Politics",
 };
 
 const INDUSTRY_CONTEXT: Record<string, string> = {
@@ -73,6 +74,7 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   fixing: "trades industry, electricians, plumbers, gas engineers, HVAC, building maintenance, facilities management, heat pumps, boilers, skills shortage, apprenticeships",
   delivery: "last-mile delivery, courier industry, logistics, Royal Mail, DPD, Evri, Ocado, Amazon Logistics, e-commerce logistics, driver shortage, HGV, parcel volumes",
   tennis: "professional tennis, ATP Tour, WTA Tour, Wimbledon, LTA, Grand Slams, tennis business, tennis coaching, ITF, player earnings, tournament operations, tennis sponsorship",
+  politics: "UK politics, government policy, Parliament, Westminster, civil service careers, Whitehall departments, local government, councils, think tanks, public affairs, elections",
 };
 
 interface NewsItem {

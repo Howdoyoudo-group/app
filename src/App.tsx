@@ -62,6 +62,7 @@ const EstateAgency = lazy(() => import("./pages/EstateAgency.tsx"));
 const Bakery = lazy(() => import("./pages/Bakery.tsx"));
 const Footwear = lazy(() => import("./pages/Footwear.tsx"));
 const Physiotherapy = lazy(() => import("./pages/Physiotherapy.tsx"));
+const Politics = lazy(() => import("./pages/Politics.tsx"));
 const Psychotherapy = lazy(() => import("./pages/Psychotherapy.tsx"));
 const Wellness = lazy(() => import("./pages/Wellness.tsx"));
 const Gaming = lazy(() => import("./pages/Gaming.tsx"));
@@ -287,6 +288,7 @@ const App = () => (
           <Route path="/bakery" element={<Bakery />} />
           <Route path="/footwear" element={<Footwear />} />
           <Route path="/physiotherapy" element={<Physiotherapy />} />
+          <Route path="/politics" element={<Politics />} />
           <Route path="/psychotherapy" element={<Psychotherapy />} />
           <Route path="/wellness" element={<Wellness />} />
           <Route path="/gaming" element={<Gaming />} />

@@ -347,6 +347,30 @@ export const INDUSTRY_RANKINGS: Record<string, IndustryRanking> = {
     priorityTitles: /\b(head of|director of|brand manager|marketing manager|product manager|operations manager|studio manager|general manager|trainer manager|head of fitness|head of programming|wellness director|spa director|head therapist|partnerships|head of retail|category)\b/i,
     deprioritise: /\b(personal trainer entry|gym instructor|class instructor casual|receptionist|spa receptionist|cleaner|locker attendant|nail technician|beauty therapist entry|massage therapist entry)\b/i,
   },
+
+  politics: {
+    knownCompanies: [
+      "cabinet office", "hm treasury", "home office", "foreign, commonwealth & development office",
+      "foreign commonwealth development office", "ministry of defence", "ministry of justice",
+      "department for education", "department of health and social care", "defra",
+      "department for transport", "dcms", "department for business and trade",
+      "department for work and pensions", "hmrc", "hm revenue",
+      "department for energy security", "department for science, innovation",
+      "ministry of housing, communities", "uk parliament", "house of commons", "house of lords",
+      "scottish parliament", "welsh parliament", "senedd", "northern ireland assembly",
+      "office for national statistics", "national crime agency", "national audit office",
+      "electoral commission", "office for budget responsibility", "companies house",
+      "government digital service", "local government association",
+      "institute for public policy research", "ippr", "institute of economic affairs",
+      "centre for policy studies", "institute for government", "resolution foundation",
+      "policy exchange", "fabian society", "tony blair institute", "fgs global",
+      "ofgem", "ofcom", "health and safety executive", "environment agency",
+      "crown commercial service", "national archives", "ai security institute",
+      "intellectual property office",
+    ],
+    priorityTitles: /\b(policy advisor|policy adviser|policy officer|policy manager|civil servant|fast stream|parliamentary researcher|parliamentary assistant|caseworker|special adviser|special advisor|council officer|planning officer|environmental health officer|electoral services officer|democratic services officer|research fellow|research assistant|public affairs|government relations|permanent secretary|deputy director|director general|private secretary)\b/i,
+    deprioritise: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|cleaner|warehouse operative|forklift|delivery driver|retail assistant|sales assistant)\b/i,
+  },
 };
 
 /**

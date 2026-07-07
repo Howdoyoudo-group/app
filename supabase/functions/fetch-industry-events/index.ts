@@ -42,6 +42,7 @@ const INDUSTRIES: { slug: string; name: string; hint: string; eventbrite?: strin
   { slug: "building", name: "UK construction and building industry", hint: "UK Construction Week, Futurebuild, CIBSE Build2Perform, Ecobuild, CITB apprenticeship events, Bauma, Plantworx, King's Trust construction programmes", eventbrite: "construction+building+UK", meetup: "construction+architecture+london" },
   { slug: "fixing", name: "UK skilled trades and home services", hint: "Screwfix Live, NICEIC roadshows, Gas Safe events, BESA conference, Installer Show NEC, Electricians Summit, JTL apprenticeship open days, King's Trust trades programmes", eventbrite: "electrician+plumber+trades+UK", meetup: "trades+diy+home+london" },
   { slug: "delivery", name: "UK delivery and logistics industry", hint: "Logistics UK Summit, IMHX NEC, Last Mile Fulfilment Expo, Multimodal, APC conference, Parcel and Post Expo, Fleet Management Live, King's Trust logistics programmes", eventbrite: "logistics+delivery+supply+chain+UK", meetup: "logistics+supply+chain+london" },
+  { slug: "politics", name: "UK politics and government", hint: "Institute for Government conferences, Local Government Association annual conference, party conference season (Labour, Conservative, Liberal Democrat), Institute for Public Policy Research events, civil service Fast Stream open days", eventbrite: "politics+government+policy+UK", meetup: "politics+policy+london" },
 ];
 
 const SYSTEM_PROMPT = `You are a UK events researcher. Return ONLY real events with URLs you have confirmed exist.

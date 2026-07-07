@@ -152,6 +152,65 @@ const COMPANY_INDUSTRY_MAP: Record<string, string> = {
   "fujifilm healthcare": "tech",
   "fujifilm medical": "tech",
   "fujifilm diosynth": "tech",
+  // Politics / government - central departments, Parliament, regulators, think tanks
+  "cabinet office": "politics",
+  "hm treasury": "politics",
+  "home office": "politics",
+  "foreign, commonwealth & development office": "politics",
+  "foreign commonwealth development office": "politics",
+  "ministry of defence": "politics",
+  "ministry of justice": "politics",
+  "department for education": "politics",
+  "department of health and social care": "politics",
+  "department for transport": "politics",
+  "department for business and trade": "politics",
+  "department for work and pensions": "politics",
+  "hmrc": "politics",
+  "hm revenue": "politics",
+  "department for energy security": "politics",
+  "department for science, innovation": "politics",
+  "ministry of housing, communities": "politics",
+  "uk parliament": "politics",
+  "house of commons": "politics",
+  "house of lords": "politics",
+  "scottish parliament": "politics",
+  "welsh parliament": "politics",
+  "senedd": "politics",
+  "northern ireland assembly": "politics",
+  "office for national statistics": "politics",
+  "national crime agency": "politics",
+  "national audit office": "politics",
+  "electoral commission": "politics",
+  "office for budget responsibility": "politics",
+  "companies house": "politics",
+  "government digital service": "politics",
+  "local government association": "politics",
+  "institute for public policy research": "politics",
+  "institute of economic affairs": "politics",
+  "centre for policy studies": "politics",
+  "institute for government": "politics",
+  "resolution foundation": "politics",
+  "policy exchange": "politics",
+  // Additional confirmed regulators/agencies/departments (found via live scrape
+  // data - any genuine job at these bodies is a real government career,
+  // regardless of the specific title, mirroring how e.g. Nike jobs all count
+  // as footwear even when the title itself doesn't mention shoes)
+  "ofgem": "politics",
+  "ofcom": "politics",
+  "health and safety executive": "politics",
+  "environment agency": "politics",
+  "crown commercial service": "politics",
+  "national archives": "politics",
+  "defence infrastructure organisation": "politics",
+  "defence nuclear enterprise": "politics",
+  "ai security institute": "politics",
+  "scottish prison service": "politics",
+  "natural resources wales": "politics",
+  "national museums scotland": "politics",
+  "medicines and healthcare products regulatory agency": "politics",
+  "intellectual property office": "politics",
+  "defence equipment and support": "politics",
+  "northern ireland office": "politics",
 };
 
 // ── Negative keywords: titles that should NEVER appear in an industry ──
@@ -172,6 +231,9 @@ const INDUSTRY_TITLE_BLOCKLIST: Record<string, RegExp> = {
   hospitality: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|forklift|wind turbine|gas turbine|power plant|substation|transmission|grid|hvdc|nuclear|electrical engineer|commissioning specialist|wams|epc)\b/i,
   travel: /\b(estate agent|real estate agent|lettings negotiator|property valuer|conveyancer|mortgage adviser)\b/i,
   cars: /\b(warehouse operative|warehouse manager|warehouse supervisor|3pl|third.party logistics|logistics coordinator|logistics manager|logistics administrator|transport coordinator|transport planner|transport administrator|freight coordinator|freight manager|haulage|pallet|forklift|class 1 driver|class 2 driver|hgv driver|lgv driver|tramper driver|night trunk|delivery driver|multi.?drop driver|van driver|courier driver|last mile|parcel operative|picker packer|fulfilment operative|distribution operative|care assistant|nurse|nursing|social worker|support worker|healthcare|cook|chef|catering|barista|bartender|waiter|waitress)\b/i,
+  // "policy" alone would catch insurance/HR/warranty "policy" roles - block the
+  // most common false-positive title patterns that slip through that word.
+  politics: /\b(insurance policy|policy holder|warranty policy|hr policy administrator|return policy|returns policy|policy document|policy wording|underwrit)\b/i,
 };
 
 // ── Placeholder/seed description detector ──
@@ -204,7 +266,13 @@ const COMPANY_ALLOWED_INDUSTRIES: Record<string, string[]> = {
 
 // ── Cross-industry title blocklist: IT/cyber/dev roles never belong in non-tech industries ──
 const TECH_ROLE_REGEX = /\b(cyber security|cybersecurity|it support|software engineer|devops|sre|data engineer|cloud engineer|java developer|\.net developer|salesforce developer|sap consultant|oracle dba|kafka engineer|spring boot|backend engineer|frontend engineer|full[- ]?stack|qa engineer|test engineer|systems engineer|network engineer|infrastructure engineer)\b/i;
-const TECH_ALLOWED_INDUSTRIES = new Set(["gaming", "tech", "remote", "graduate"]);
+// "politics" included because Government Digital Service / digital civil
+// service roles are a real, named profession (GOV.UK, departmental data/tech
+// teams) - genuine tech jobs at KNOWN government bodies (company map) survive
+// this check and are then never re-examined; genuine unknown-company tech
+// spam that slipped in via a synonym match still gets caught by the later
+// relevance-keyword step, which requires a real politics/government term.
+const TECH_ALLOWED_INDUSTRIES = new Set(["gaming", "tech", "remote", "graduate", "politics"]);
 
 // ── Industry relevance keywords: at least one must appear in title OR description ──
 // CRITICAL: keep these tight - they are the primary defence against generic IT/finance/recruiter spam
@@ -241,6 +309,11 @@ const INDUSTRY_RELEVANCE_KEYWORDS: Record<string, RegExp> = {
   journalism: /\b(journalist|reporter|editor|news|writer|correspondent|sub.editor|newsroom|publication|magazine|broadcast|investigative|features|columnist|press)\b/i,
   football: /\b(football|soccer|club|premier league|championship|EFL|FA|UEFA|FIFA|player|coach|scout|matchday|stadium|broadcasting|sponsorship|commercial partnership|kit|football operations|academy|youth development)\b/i,
   "horse-racing": /\b(horse[- ]?rac(?:e|ing)|racehorse|racecourse|race.?course|race.?day|equine|equestrian|thoroughbred|jockey|amateur jockey|apprentice jockey|conditional jockey|jockey coach|stable lad|stable lass|stable hand|head lad|head girl|work rider|exercise rider|travelling head|yard manager|racing yard|stud farm|stud manager|stud groom|bloodstock|bloodstock agent|farrier|paddock|turf club|BHA|British Horseracing|gallops|point.to.point|hunt yard|riding school|riding centre|racing manager|racing secretary|racing administrator|racecourse manager|clerk of the course)\b/i,
+  // Politics relevance - deliberately excludes bare "policy" and bare "council"
+  // (too broad: insurance policy, HR policy, student council, parish council
+  // notices). Every term below is either a distinctive institution/grade name
+  // or a compound phrase that's genuinely government/politics-specific.
+  politics: /\b(civil servant|civil service|policy advisor|policy adviser|policy officer|policy manager|government policy|public policy|government economist|government social researcher|fast stream|whitehall|cabinet office|hm treasury|home office|foreign commonwealth|ministry of defence|ministry of justice|department for education|department of health and social care|defra|department for transport|dcms|department for business and trade|department for work and pensions|hmrc|hm revenue|parliamentary researcher|parliamentary assistant|caseworker mp|member of parliament|house of commons|house of lords|hansard|westminster|special adviser|special advisor|scottish parliament|senedd|welsh parliament|northern ireland assembly|local government officer|local authority|council officer|planning officer|environmental health officer|electoral services officer|democratic services officer|trading standards officer|building control surveyor|licensing officer|national graduate development programme|office for national statistics|national crime agency|national audit office|electoral commission|office for budget responsibility|government digital service|think tank|policy institute|policy researcher|policy fellow|public affairs|government relations|government affairs manager|lobbyist|political consultant|permanent secretary|deputy director civil service|director general civil service)\b/i,
 };
 
 function lookupCompanyIndustry(company: string): string | null {

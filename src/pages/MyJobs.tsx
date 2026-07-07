@@ -103,7 +103,7 @@ const INDUSTRY_LABELS: Record<string, string> = {
   gaming: "Gaming", grocery: "Grocery", health: "Health", "horse-racing": "Horse Racing",
   hospitality: "Food & Drink", "interior-design": "Interior Design",
   jewellery: "Jewellery", journalism: "Journalism", money: "Money", music: "Music",
-  pets: "Pets", physiotherapy: "Physio", psychotherapy: "Therapy",
+  pets: "Pets", physiotherapy: "Physio", politics: "Politics", psychotherapy: "Therapy",
   teaching: "Teaching", tennis: "Tennis", travel: "Travel", wellness: "Wellness",
 };
 

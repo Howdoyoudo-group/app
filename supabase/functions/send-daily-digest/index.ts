@@ -66,6 +66,7 @@ const INDUSTRY_NAMES: Record<string, string> = {
   money: "Money",
   health: "Health",
   "horse-racing": "Horse Racing",
+  politics: "Politics",
 };
 
 const INDUSTRY_CONTEXT: Record<string, string> = {
@@ -98,6 +99,7 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   fixing: "trades industry, electricians, plumbers, gas engineers, HVAC, building maintenance, heat pumps, skills shortage",
   delivery: "last-mile delivery, courier industry, logistics, Royal Mail, DPD, Evri, Amazon Logistics, HGV drivers",
   tennis: "professional tennis, ATP Tour, WTA Tour, Wimbledon, LTA, Grand Slams, tennis business, tennis coaching, ITF, tournament operations",
+  politics: "UK politics, government policy, Parliament, Westminster, civil service careers, Whitehall departments, local government, councils, think tanks, public affairs",
 };
 
 const ASSET_BASE = "https://siqwclmzncubkrwabmvb.supabase.co/storage/v1/object/public/email-assets";
@@ -455,6 +457,7 @@ const INDUSTRY_KNOWN_COMPANIES: Record<string, string[]> = {
   pets: ["pets at home","vets4pets","ivc evidensia","cvs group","medivet","tails.com","butternut box","lily's kitchen","battersea","dogs trust","rspca","blue cross","pdsa","cats protection"],
   beauty: ["l'oréal","l'oreal","loreal","estée lauder","estee lauder","rituals","the body shop","molton brown","jo malone","charlotte tilbury","space nk","sephora","boots","superdrug","mac cosmetics","clinique","aesop","glossier","cult beauty","lookfantastic"],
   cars: ["tesla","ford","vauxhall","bmw","mercedes-benz","audi","volkswagen","jaguar land rover","stellantis","toyota","honda","nissan","kwik fit","halfords"],
+  politics: ["cabinet office","hm treasury","home office","foreign commonwealth development office","ministry of defence","ministry of justice","department for education","department of health and social care","defra","department for transport","dcms","department for work and pensions","hmrc","uk parliament","house of commons","house of lords","local government association","institute for public policy research","ippr","institute of economic affairs","centre for policy studies","institute for government","resolution foundation","policy exchange"],
 };
 
 const INDUSTRY_DEPRIORITISE: Record<string, RegExp> = {
