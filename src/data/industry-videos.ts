@@ -154,6 +154,14 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "RnHsG2UV4uU", title: "A Day in the Life of a Physiotherapist UK", description: "What a typical working day looks like for a UK physiotherapist.", tag: "Careers", duration: "5:33", channel: "Days of Dan" },
     { youtubeId: "Q-GyjPzQTg4", title: "Beyond the Bench: A Pro Sports Physio's Journey", description: "Philip Andersson on building a career in professional sports physiotherapy.", tag: "Interview", duration: "40:28", channel: "Physiotutors" },
   ],
+  politics: [
+    { youtubeId: "ql1Rr2KS_Bc", title: "A Day in the Life of a 23-Year-Old Civil Servant (Fast Stream)", description: "What life is really like inside the Civil Service Fast Stream — the flagship graduate route into Whitehall.", tag: "Careers", channel: "Dr. Vee Kativhu" },
+    { youtubeId: "AysryzEoF2k", title: "Day in the Life of a Policy & Public Affairs Officer", description: "A behind-the-scenes look at the day-to-day of working in policy and public affairs.", tag: "Careers", channel: "JustFrankie" },
+    { youtubeId: "b9ryIATceT4", title: "Working in the Think Tank Sector", description: "Resolution Foundation's webinar for students on how to break into policy research and what think tank work involves.", tag: "Careers", channel: "Resolution Foundation" },
+    { youtubeId: "RAMbIz3Y2JA", title: "An Introduction to Parliament", description: "The official explainer on how the UK Parliament works — the Commons, the Lords and the monarch.", tag: "Explainer", channel: "UK Parliament" },
+    { youtubeId: "CfkAZnVVRjc", title: "What is Prorogation? | House of Lords", description: "A quick explainer on one of Westminster's key procedures, from the House of Lords itself.", tag: "Explainer", channel: "House of Lords" },
+    { youtubeId: "5wpuqp_c1sQ", title: "Meet the Think Tanks Shaping Government Policy", description: "The New Statesman goes inside the think tanks that quietly shape UK political decisions.", tag: "Explainer", channel: "The New Statesman" },
+  ],
   psychotherapy: [
     { youtubeId: "o17nmOsJWi0", title: "How to Become a CBT Therapist: Training & Qualifications", description: "The training pathway, accreditation, and what to expect as a CBT therapist in the UK.", tag: "Careers", duration: "22:35", channel: "Dr Marianne Trent" },
   ],
