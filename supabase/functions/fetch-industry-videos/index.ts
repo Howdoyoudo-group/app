@@ -152,11 +152,11 @@ const QUERIES: Record<string, string[]> = {
     "day in the life UK footwear shoe industry careers",
     "UK footwear sneaker industry business careers",
   ],
-  politics: [
-    "day in the life UK civil servant Whitehall",
-    "working in Westminster MP researcher career",
-    "UK government careers civil service fast stream",
-  ],
+  // NOTE: politics is deliberately NOT auto-scraped. UK political YouTube is
+  // dominated by partisan news/commentary (e.g. "MP second jobs", Farage debate
+  // clips) that the generic relevance filters can't distinguish from careers
+  // content — inappropriate for a careers platform. The Politics Watch tab is
+  // curated by hand in src/data/industry-videos.ts instead.
 };
 
 const UA =
