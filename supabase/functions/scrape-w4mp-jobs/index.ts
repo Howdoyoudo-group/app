@@ -150,17 +150,21 @@ Deno.serve(async (req) => {
       console.log(`[scrape-w4mp-jobs] parsed ${jobs.length} jobs`);
       if (jobs.length === 0) return;
 
+      // How many were new (for logging) vs already known.
       const urls = jobs.map((j) => j.url);
       const { data: existing } = await supabase.from("jobs").select("url").in("url", urls);
       const existingSet = new Set((existing ?? []).map((r: { url: string }) => r.url));
-      const fresh = jobs.filter((j) => !existingSet.has(j.url));
-      if (fresh.length === 0) {
-        console.log("[scrape-w4mp-jobs] no new jobs");
-        return;
-      }
+      const newCount = jobs.filter((j) => !existingSet.has(j.url)).length;
 
+      // Upsert ALL scraped jobs (not just new ones) so that every weekly run
+      // refreshes expires_at for vacancies still listed on W4MP — they stay
+      // live as long as they're open. Jobs that drop off W4MP simply stop
+      // being refreshed and age out at their last expiry. created_at is not in
+      // the payload, so freshness ranking of existing rows is preserved.
+      // These JobDetails.aspx?jobid= URLs are unique to W4MP, so updating on
+      // conflict never clobbers another source's data.
       const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
-      const rows = fresh.map((j) => ({
+      const rows = jobs.map((j) => ({
         title: j.title,
         company: j.company,
         location: j.location,
@@ -170,19 +174,15 @@ Deno.serve(async (req) => {
         industry: INDUSTRY,
         type: "Full-time",
         work_mode: "On-site",
-        featured: false,
         source_url: SEARCH_URL,
         expires_at: expiresAt,
       }));
 
-      const { data: inserted, error } = await supabase
-        .from("jobs")
-        .upsert(rows, { onConflict: "url", ignoreDuplicates: true })
-        .select("id");
+      const { error } = await supabase.from("jobs").upsert(rows, { onConflict: "url" });
       if (error) {
-        console.error("[scrape-w4mp-jobs] insert error:", error);
+        console.error("[scrape-w4mp-jobs] upsert error:", error);
       } else {
-        console.log(`[scrape-w4mp-jobs] done: parsed=${jobs.length}, fresh=${fresh.length}, inserted=${inserted?.length ?? 0}`);
+        console.log(`[scrape-w4mp-jobs] done: parsed=${jobs.length}, new=${newCount}, refreshed=${jobs.length - newCount}`);
       }
     })();
 
