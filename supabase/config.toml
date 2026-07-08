@@ -31,6 +31,8 @@ project_id = "wgistckxxbfpsuulbswr"
     verify_jwt = false
   [functions.score-new-jobs]
     verify_jwt = false
+  [functions.scrape-w4mp-jobs]
+    verify_jwt = false
   [functions.weekly-employer-report]
     verify_jwt = false
   [functions.scrape-ats-jobs]

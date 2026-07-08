@@ -241,6 +241,13 @@ const INDUSTRY_TITLE_BLOCKLIST: Record<string, RegExp> = {
 // demo data and test imports. Any job with one of these terms is fake.
 const FAKE_DESCRIPTION_REGEX = /\b(gentrify|taiyaki|banh mi|chambray|artisan kale chips|vape tattooed|tilde taiyaki|glossier neutra|quinoa chartreuse)\b/i;
 
+// ── Trusted specialist job boards ──
+// Curated, single-sector boards where every listing is inherently on-theme.
+// Jobs from these sources skip the keyword-relevance purge (their titles are
+// often generic — "Development Manager", "Client Executive" — even though the
+// role is genuinely political / sector-specific).
+const TRUSTED_SPECIALIST_SOURCES = /\b(w4mpjobs\.org|jobsinfootball\.com|jobs\.nhs\.uk)\b/i;
+
 // ── Banned companies: regardless of industry, these should never appear ──
 // (Generic recruiters/staffing agencies pollute industry feeds with hundreds of unrelated roles)
 const BANNED_COMPANIES = /\b(ge vernova|vernova)\b/i;
@@ -390,6 +397,14 @@ Deno.serve(async (req) => {
         const company = job.company || "";
         const industry = job.industry || "";
         const description = job.description || "";
+        const sourceUrl = job.source_url || "";
+
+        // Curated specialist job boards are inherently on-theme (e.g. every
+        // w4mpjobs.org listing is a political role, even when the title is
+        // generic like "Development Manager"). Trust them: skip the keyword
+        // relevance purge below. They still pass through fake-description and
+        // banned-company checks.
+        const isTrustedSource = TRUSTED_SPECIALIST_SOURCES.test(sourceUrl);
 
         // 0. Fake/seed description (hipster lorem ipsum from Lovable demo data)
         if (FAKE_DESCRIPTION_REGEX.test(description)) {
@@ -480,11 +495,12 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // 3. Relevance check - apply to ALL jobs from unknown companies, regardless of source
-        // (Adzuna, Reed, Jooble, RapidAPI all push generic jobs into specific industries)
+        // 3. Relevance check - apply to jobs from unknown companies from the
+        // generic aggregators (Adzuna, Reed, Jooble, RapidAPI push generic jobs
+        // into specific industries). Trusted specialist boards are exempt.
         const isKnownCompany = lookupCompanyIndustry(company) !== null;
 
-        if (!isKnownCompany && !isRelevantToIndustry(title, description, industry)) {
+        if (!isTrustedSource && !isKnownCompany && !isRelevantToIndustry(title, description, industry)) {
           if (!dryRun) {
             await supabase.from("jobs").delete().eq("id", job.id);
           }
