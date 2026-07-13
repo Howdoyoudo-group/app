@@ -14,8 +14,8 @@ const SXSW_STORAGE = "https://wgistckxxbfpsuulbswr.supabase.co/storage/v1/object
 
 const FEATURED_VIDEOS = [
   {
-    title: "How Do You Do?",
-    description: "Meet Howdoyoudo — helping you explore the industries you could love.",
+    title: "Pitch Over a Pint",
+    description: "Episode 1 — Elma",
     src: `${VIDEO_STORAGE}/hdyd-pop-elma.mp4#t=0.001`,
     poster: "/videos/hdyd-pop-poster.jpg",
     portrait: false,
