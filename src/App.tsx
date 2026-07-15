@@ -6,7 +6,7 @@ import CareerAssistant from "@/components/CareerAssistant";
 import HowdyTour from "@/components/HowdyTour";
 import GlobalHomeButton from "@/components/GlobalHomeButton";
 import TermsAcceptBanner from "@/components/TermsAcceptBanner";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
 import ErrorBoundary from "@/components/ErrorBoundary";
 
 const ConditionalHowdy = () => {
@@ -86,7 +86,6 @@ const MatchMe = lazy(() => import("./pages/MatchMe.tsx"));
 const MatchMeSectionPage = lazy(() => import("./pages/MatchMeSectionPage.tsx"));
 const HelpMeApply = lazy(() => import("./pages/HelpMeApply.tsx"));
 const HowToStandOut = lazy(() => import("./pages/HowToStandOut.tsx"));
-const Videos = lazy(() => import("./pages/Videos.tsx"));
 const SkillsPassport = lazy(() => import("./pages/SkillsPassport.tsx"));
 const SkillCoursePage = lazy(() => import("./pages/SkillCoursePage.tsx"));
 const Articles = lazy(() => import("./pages/Articles.tsx"));
@@ -312,7 +311,7 @@ const App = () => (
           <Route path="/match-me/:section" element={<MatchMeSectionPage />} />
           <Route path="/help-me-apply" element={<HelpMeApply />} />
           <Route path="/how-to-stand-out" element={<HowToStandOut />} />
-          <Route path="/videos" element={<Videos />} />
+          <Route path="/videos" element={<Navigate to="/the-show" replace />} />
           <Route path="/skills-passport" element={<SkillsPassport />} />
           <Route path="/skill-course/:courseId" element={<SkillCoursePage />} />
           <Route path="/articles" element={<Articles />} />

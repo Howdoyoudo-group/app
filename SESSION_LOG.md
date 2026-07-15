@@ -5,6 +5,35 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-15 (later) — Woody (main branch) — Merged Videos + The Show into "The HDYD Show"
+
+### What was done
+- **Consolidated `/videos` and `/the-show` into ONE page** — "The HDYD Show" at `/the-show`,
+  rebuilt as a tabbed hub (`src/pages/TheShowPage.tsx`) with 4 sections:
+  - **The Show** — "Episode 1 — Coming Soon" placeholder card + the 2 YouTube explainer
+    teasers (o0YUzxz4eSs, NrYsqaJRqFo).
+  - **Pitch Over a Pint** — the Elma video (`the-show/videos/hdyd-pop-elma.mp4`).
+  - **What the Streets Are Saying** — all 11 vox pops (general, dream-job, guess-sound,
+    guess-job, what-industry, SXSW mashup + SXSW 1–5).
+  - **Gallery** — the 13 show photos (`the-show/gallery`).
+- **`/videos` now redirects to `/the-show`** (`<Navigate replace>` in App.tsx) so old
+  links/bookmarks still work. Removed the lazy `Videos` import.
+- **Deleted `src/pages/Videos.tsx`** (fully superseded).
+- **Nav collapsed** from two entries ("The Show" + "Videos") to a single "The HDYD Show"
+  in both `SiteHeader.tsx` (INSPIRE dropdown) and `GlobalMobileMenu.tsx` (Inspire section).
+- **Dropped** the 3 old "Short Stories" street-interview clips (Woody's call).
+- **Verified**: `npm run typecheck` clean; all 4 tabs render correct content in preview;
+  `/videos`→`/the-show` redirect confirmed; mobile (375px, tabs wrap, 44px targets) and
+  desktop both good. Only console noise is the pre-existing nested-`<a>` warning from
+  RolesGrid on the homepage (untouched).
+
+### Pending / next (unchanged from earlier today)
+- Run/confirm the two scraper crons (W4MP, lgjobs) — Woody says now live.
+- Get Andrew his own Supabase access token.
+- Matching algorithm Phases 4–6 — plan in ~/.claude/plans/snappy-honking-sprout.md.
+
+---
+
 ## 2026-07-15 — Woody (main branch) — Politics job sources, hero video, feed outage fix
 
 ### What was done

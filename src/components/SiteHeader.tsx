@@ -336,8 +336,7 @@ const GroupedNavDropdown = ({
 /* -------------------------------------------------------------------------- */
 
 const INSPIRE: DropdownItem[] = [
-  { label: "The Show", to: "/the-show", description: "Our original series" },
-  { label: "Videos", to: "/videos", description: "Watch the best career stories" },
+  { label: "The HDYD Show", to: "/the-show", description: "Episodes, pitches, street interviews & photos" },
   { label: "Articles", to: "/articles", description: "Read & learn" },
 ];
 
