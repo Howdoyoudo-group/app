@@ -5,6 +5,60 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-15 — Woody (main branch) — Politics job sources, hero video, feed outage fix
+
+### What was done
+- **Two new job scrapers for Politics** (both free, no Firecrawl — sites served plain/SSR HTML):
+  - `scrape-w4mp-jobs` — W4MP parliamentary/political jobs board. ASP.NET postback
+    pagination (carries __VIEWSTATE, follows "Next Page"); schema.org microdata parse.
+    Adds ~142 jobs (MP caseworkers, researchers, policy, public affairs).
+  - `scrape-lgjobs` — lgjobs.com local government. Next.js + Apollo app; jobs extracted
+    from `__APOLLO_STATE__` in the page HTML, `?page=N` pagination. Filtered by title to
+    the ~27 genuine governance/policy roles (NOT all ~1,910 council jobs). GraphQL-API
+    spike confirmed the free path first.
+  - Both use refresh-expiry upsert (stay live while listed, age out ~30d after they drop
+    off). Both added to `validate-jobs` TRUSTED_SPECIALIST_SOURCES so the nightly cleanup
+    doesn't purge them for generic titles. Politics jobs: 188 → 357.
+  - **CRON SQL NOT YET RUN for these two** — user needs to add `scrape-w4mp-jobs-weekly`
+    and `scrape-lgjobs-weekly` in Supabase SQL Editor (net.http_post, real anon key).
+    Until then they're one-off (jobs live 30d).
+  - CharityJob: its configured RSS feed (`charityjob.co.uk/jobs/rss`) is DEAD (returns
+    HTML now). Charity has 391 jobs from aggregators so not urgent; would need a JS-app
+    scraper. civilservicejobs.service.gov.uk = CAPTCHA-gated, deferred.
+- **Hero video** on /videos (Inspire): "Pitch Over a Pint — Episode 1 — Elma". Source
+  344MB → compressed to 45MB (H.264, faststart), uploaded to `the-show/videos` bucket,
+  added as first FEATURED_VIDEOS entry. (Project storage upload limit ≈ 50MB.)
+- **FEED OUTAGE fixed**: daily briefings stopped 3 Jul. Root cause = **Gemini credit ran
+  out** (£20 added 5 Jun lasted ~4 weeks → dry ~3 Jul). Function/cron were fine; Gemini
+  returned rate_limited/429. User switched Gemini to **pay-as-you-go** (Google Cloud,
+  project hdyd-498512) → fixed. Regenerated all briefings manually to catch up.
+- **Briefings cron → 2×/week**: was `0 5 * * 1-5` (jobid 7), changed to `0 5 * * 1,4`
+  (Mon/Thu 5am) to trim Gemini cost. Gemini burn ≈ £20/mo before, ~£30/mo now (embeddings
+  + traits added this session). Set a Google budget alert.
+- **Supabase deploy token rotated**: old `sbp_2bffcc...` expired ~3 Jul (silent 401 on all
+  deploys). New token in memory file, EXPIRES 13 Jul 2027. Deploys verified working.
+- **Andrew "no Howdy Jobs" investigated** — NOT a bug. His profile is Executive + £90k–£120k
+  in footwear/grocery/music/football/estate-agency; only ~22 jobs site-wide match that, he
+  swiped them. Fix is for him to broaden his profile (Senior/£50k → 326 eligible). His
+  194 "excluded" job_matches were harmless stale rows from a 3 Jul run, auto-pruning.
+
+### Pending / next
+- **Run the two scraper crons** (W4MP, lgjobs) in SQL Editor — see above.
+- **Get Andrew his own Supabase access token** (don't share Woody's over SMS) — add him as
+  org member, he generates his own.
+- **Matching algorithm Phases 4–6** still to do (learning loop v2, Skills England signal,
+  production measurement) — plan in ~/.claude/plans/snappy-honking-sprout.md. Phase 0–3
+  shipped (eval harness, unified scorer, traits backfill, embeddings + discovery).
+
+### ⚠️ Operational health — CHECK THESE (they fail silently)
+- **Gemini billing** (Google Cloud hdyd-498512) — now pay-as-you-go + budget alert. This
+  killed the feed for ~11 days undetected. Watch the budget.
+- **Perplexity billing** (news/articles) + **Resend billing** (emails) — confirm live too.
+- **Supabase deploy token** — expires 13 Jul 2027.
+- **"Is the feed fresh?"** — check daily_briefings has today's/this-week's date.
+
+---
+
 ## 2026-07-07 (evening) — Woody (main branch) — Added Politics as 35th industry
 
 Full audit → sector research → build, in one session. Live at /politics.
