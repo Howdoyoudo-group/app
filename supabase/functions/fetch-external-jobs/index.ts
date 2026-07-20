@@ -1120,6 +1120,11 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
         // Tennis: title OR description must mention tennis or a tennis org/role.
         // Wimbledon is NOT here — it's a London suburb, too generic for a signal.
         tennis: /\b(tennis|lawn tennis association|\bLTA\b|\baeltc\b|all england club|ATP tour|\bWTA\b|\bITF\b|international tennis federation|tennis coach|tennis instructor|tennis academy|tennis club|tennis development|tennis tournament|tennis umpire|chair umpire|tennis referee|tennis operations|tennis marketing|tennis sponsorship|tennis director|tennis foundation|national tennis association|tennis australia|tennis europe|hawk.?eye|billie jean king cup|davis cup|grand slam tennis|US open tennis|french open tennis|australian open tennis|Roland Garros)\b/i,
+        // Theatre: Adzuna's free-text "what=" search on terms like "stage
+        // management" or "production manager" returns any generic "Project
+        // Manager"/"Senior Manager" role whose description shares a word -
+        // same INDUSTRY_SIGNALS regex used for the resolveIndustry() gate.
+        theatre: /\b(theatre|theatres|theatrical|west end|stage manager|stage management|deputy stage manager|assistant stage manager|touring stage manager|company manager theatre|production manager theatre|wardrobe (?:supervisor|assistant|mistress|master)|costume (?:designer|maker|supervisor) theatre|set designer theatre|scenic (?:designer|artist|painter)|lighting (?:designer|technician) theatre|theatre (?:lighting|sound|technician|crew)|dramaturg|literary manager|casting director|panto\b|pantomime|am[- ]?dram|box office theatre|front of house theatre|foh theatre|national theatre|royal shakespeare company|\brsc\b|ambassador theatre group|\batg\b(?! plc automotive)|lw theatres|delfont mackintosh|sonia friedman|cameron mackintosh|\bprg\b production resource|white light lighting|glyndebourne|royal exchange theatre|bristol old vic|chichester festival theatre|sheffield theatres|birmingham rep|donmar warehouse|royal court theatre|nimax theatres|rada\b|royal academy of dramatic art|mandy\.com|spotlight\.com casting)\b/i,
       };
       const requiredSignal = REQUIRED_SIGNAL[industry];
 
@@ -1131,6 +1136,7 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
         "formula-1": /\b(formula\s?1|formula one|\bf1\b|motorsport|motor sport|mclaren racing|mercedes-amg petronas|red bull racing|oracle red bull|aston martin aramco|aston martin f1|williams racing|williams f1|alpine f1|haas f1|racing bulls|sauber motorsport|f1 management|motorsport uk|silverstone|fia)\b/i,
         // Tennis orgs use generic titles — "Marketing Manager @ LTA" is a tennis job.
         tennis: /\b(lawn tennis association|\bLTA\b|\baeltc\b|all england club|ATP tour|\bWTA\b|\bITF\b|international tennis federation|hawk.?eye|tennis foundation|national tennis association|tennis australia|tennis europe|tennis club|tennis academy|david lloyd|virgin active tennis|wimbledon championships)\b/i,
+        theatre: /\b(national theatre|royal shakespeare company|\brsc\b|royal court theatre|ambassador theatre group|\batg\b|lw theatres|delfont mackintosh|sonia friedman|nimax theatres|donmar warehouse|bristol old vic|chichester festival theatre|sheffield theatres|birmingham rep|royal exchange theatre|glyndebourne|production resource group|\bprg\b|white light|rada\b|mandy\.com|spotlight\b)\b/i,
       };
       const companyAllowlist = COMPANY_ALLOWLIST[industry];
 
