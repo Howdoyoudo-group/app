@@ -46,11 +46,23 @@ This file is updated by Claude at the start and end of every session.
     full company/location/salary from the AI extraction, rest from the
     link-derived fallback (title/url only). No junk, no hallucinated listings.
   - Verified end-to-end: onboarding picker includes Theatre, daily-digest
-    content maps include it, `fetch-external-jobs` dry-run for theatre alone
-    correctly returned **zero** false-positive matches from generic
-    aggregators (Adzuna/Reed/Jooble) this run — the strict signal regex is
-    doing its job; Mandy is currently the only live source, which is expected
-    for a niche craft industry.
+    content maps include it.
+  - **Found and fixed a real false-positive bug**: a manual trigger of
+    `fetch-external-jobs` for theatre (to test the generic-aggregator path)
+    tagged 735 jobs `industry=theatre`, of which 587 were completely
+    unrelated (Senior Project Manager @ a cement company, Quantity Surveyor,
+    Workday Engagement Manager, KS1 teachers, etc). Root cause: Adzuna's
+    free-text `what=` search is loose by design, and niche industries need an
+    explicit entry in a *separate* `REQUIRED_SIGNAL`/`COMPANY_ALLOWLIST` map
+    inside `fetchAdzunaJobs()` (distinct from the `INDUSTRY_SIGNALS` map used
+    by the generic `resolveIndustry()` gate, which I had added Theatre to —
+    but this second, Adzuna-specific gate only covered horse-racing/formula-1/
+    tennis and I'd missed adding theatre to it). Added it, redeployed, then
+    ran a scoped `validate-jobs` pass (dry-run first) to clean up the
+    already-inserted bad rows — 142 genuine theatre jobs remain (Sonia
+    Friedman Productions/ATG West End crew for Stranger Things & Paddington
+    The Musical, Glyndebourne via Mandy, Royal & Derngate, etc). Marketplace
+    confirmed showing 126 jobs, all genuinely theatre-related.
 - **Reconciled with Woody's concurrent commits** (`259dc69`, `f95372e`,
   `e668070` — blast-radius guard on the expired-job purge, word-boundary
   company-key matching, cron documentation in CLAUDE.md, new `fetch-cvlibrary-jobs`
@@ -62,8 +74,9 @@ This file is updated by Claude at the start and end of every session.
 ### Current state
 - Live at: www.howdoyoudo.co.uk
 - Theatre is a fully live industry: page, onboarding, daily digest, job
-  pipeline (specialist Mandy scraper populated, generic aggregators wired but
-  quiet so far), all committed and pushed.
+  pipeline (specialist Mandy scraper + generic aggregators both populated and
+  verified clean — 142 real jobs, 126 showing live in Marketplace), all
+  committed and pushed.
 - `npm run typecheck` clean.
 
 ### Left for next session / Woody
@@ -74,6 +87,17 @@ This file is updated by Claude at the start and end of every session.
 - Add `scrape-mandy-jobs` to a weekly cron (same pattern as
   `scrape-w4mp-jobs-weekly` / `scrape-lgjobs-weekly`) — currently one-off,
   jobs live ~30d before aging out.
+- A handful (~10) of the remaining 142 theatre jobs are "Drama Teacher"
+  school postings (Wayman Learning Trust) that matched on incidental
+  "theatre"/"pantomime" mentions in the description — genuinely theatre-
+  adjacent but arguably belong under Teaching instead. Left in as a judgment
+  call (not a bug like the cement/engineering false positives were); worth
+  a look if it feels off in practice.
+- Worth double-checking whether the other Adzuna-gated niche industries
+  (anything using `INDUSTRY_SIGNALS`/`resolveIndustry()` but *not* yet in
+  `fetchAdzunaJobs`'s `REQUIRED_SIGNAL` map) have the same latent exposure
+  Theatre just had — the two maps are easy to keep out of sync since they
+  live ~1000 lines apart in the same file.
 - The 3 untracked root-level files (`33D0A656-...PNG`, `HDYD_Business_Plan_2026_v3.pdf`,
   `NEWS_JOBS_REPORT_2026-06-21.md`) look like accidental drops into the repo
   root, not part of any commit — worth checking with whoever added them.
