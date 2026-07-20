@@ -366,8 +366,42 @@ Deno.serve(async (req) => {
       blocked_titles: 0,
       irrelevant: 0,
       banned_company: 0,
+      expired: 0,
       details: [] as string[],
     };
+
+    // Purge expired listings first, in one bulk delete rather than per-row
+    // in the scan loop below - expires_at is set on ingestion (typically
+    // now + 60d) but nothing was ever actually deleting rows once it passed.
+    // Marketplace.tsx has its own query-level filter for display, but the
+    // rows themselves were piling up here indefinitely (found via a 6-week-old
+    // Tesla job still live 15 days past its expiry).
+    {
+      const nowIso = new Date().toISOString();
+      let expiredQuery = supabase
+        .from("jobs")
+        .select("id", { count: "exact" })
+        .not("expires_at", "is", null)
+        .lt("expires_at", nowIso);
+      if (targetIndustry) expiredQuery = expiredQuery.eq("industry", targetIndustry);
+      const { count: expiredCount, error: expiredCountError } = await expiredQuery;
+      if (expiredCountError) throw expiredCountError;
+
+      if (expiredCount && expiredCount > 0) {
+        results.expired = expiredCount;
+        results.details.push(`EXPIRED: ${expiredCount} job(s) past expires_at`);
+        if (!dryRun) {
+          let deleteQuery = supabase
+            .from("jobs")
+            .delete()
+            .not("expires_at", "is", null)
+            .lt("expires_at", nowIso);
+          if (targetIndustry) deleteQuery = deleteQuery.eq("industry", targetIndustry);
+          const { error: deleteError } = await deleteQuery;
+          if (deleteError) throw deleteError;
+        }
+      }
+    }
 
     // Process in pages
     let offset = 0;
