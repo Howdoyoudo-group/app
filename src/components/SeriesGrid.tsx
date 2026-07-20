@@ -37,6 +37,7 @@ import seriesBuilding from "@/assets/series-building.jpg";
 import seriesFixing from "@/assets/series-fixing.jpg";
 import seriesDelivery from "@/assets/series-delivery.jpg";
 import seriesTennis from "@/assets/series-tennis.jpg";
+import seriesTheatre from "@/assets/series-theatre.jpg";
 
 const series = [
   {
@@ -266,6 +267,13 @@ const series = [
       "The LTA, Wimbledon, ATP Tour, and the careers behind the world's most prestigious sport.",
     image: seriesTennis,
     href: "/tennis",
+  },
+  {
+    title: "Theatre",
+    description:
+      "On stage and behind it - performing, stage management, technical and production careers in UK theatre.",
+    image: seriesTheatre,
+    href: "/theatre",
   },
   {
     title: "Travel",

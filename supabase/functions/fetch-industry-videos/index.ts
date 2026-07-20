@@ -152,6 +152,10 @@ const QUERIES: Record<string, string[]> = {
     "day in the life UK footwear shoe industry careers",
     "UK footwear sneaker industry business careers",
   ],
+  theatre: [
+    "day in the life UK theatre stage manager backstage careers",
+    "UK theatre industry West End careers business",
+  ],
   // NOTE: politics is deliberately NOT auto-scraped. UK political YouTube is
   // dominated by partisan news/commentary (e.g. "MP second jobs", Farage debate
   // clips) that the generic relevance filters can't distinguish from careers
@@ -389,6 +393,7 @@ const INDUSTRY_SIGNALS: Record<string, RegExp> = {
   wellness: /\b(wellness|wellbeing|well[- ]being|fitness|gym|gyms|personal trainer|pt\b|pilates|yoga|spin class|crossfit|nutrition|nutritionist|dietitian|david lloyd|virgin active|pure ?gym|gymshark|f45|barrys?\b|barre|reformer|psoas|mindfulness|meditation|peloton)\b/i,
   footwear: /\b(footwear|shoe|shoes|sneaker|sneakers|trainers|boot|boots|cobbler|last\b|lasts|leather|shoemak|cordwainer|dr\.?\s*martens|clarks|church's|crockett & jones|grenson|loake|nike|adidas|puma|new balance|on running|hoka|asics|reebok)\b/i,
   politics: /\b(civil servant|civil service|whitehall|westminster|parliament|parliamentary|house of commons|house of lords|mp\b|mps\b|member of parliament|cabinet office|hm treasury|home office|ministry of defence|ministry of justice|fast stream|special adviser|spad\b|policy advisor|policy adviser|policy officer|think tank|policy institute|local government|council officer|electoral commission|scottish parliament|senedd|hansard)\b/i,
+  theatre: /\b(theatre|theatres|theatrical|west end|stage manager|stage management|deputy stage manager|assistant stage manager|backstage|lighting design|lighting technician|sound design theatre|set design(?:er)?|scenic design|costume design(?:er)?|wardrobe|dramaturg|national theatre|royal shakespeare company|\brsc\b|ambassador theatre group|glyndebourne|rada\b|panto\b|pantomime|touring production|touring musical)\b/i,
 };
 
 function passesIndustryFilter(slug: string, v: ParsedVideo): boolean {

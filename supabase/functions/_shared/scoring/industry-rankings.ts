@@ -371,6 +371,20 @@ export const INDUSTRY_RANKINGS: Record<string, IndustryRanking> = {
     priorityTitles: /\b(policy advisor|policy adviser|policy officer|policy manager|civil servant|fast stream|parliamentary researcher|parliamentary assistant|caseworker|special adviser|special advisor|council officer|planning officer|environmental health officer|electoral services officer|democratic services officer|research fellow|research assistant|public affairs|government relations|permanent secretary|deputy director|director general|private secretary)\b/i,
     deprioritise: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|cleaner|warehouse operative|forklift|delivery driver|retail assistant|sales assistant)\b/i,
   },
+
+  theatre: {
+    knownCompanies: [
+      "national theatre", "royal shakespeare company", "royal court theatre",
+      "ambassador theatre group", "atg entertainment", "lw theatres",
+      "delfont mackintosh", "sonia friedman productions", "nimax theatres",
+      "donmar warehouse", "bristol old vic", "chichester festival theatre",
+      "sheffield theatres", "birmingham rep", "royal exchange theatre",
+      "glyndebourne", "production resource group", "prg", "white light",
+      "rada", "royal academy of dramatic art",
+    ],
+    priorityTitles: /\b(stage manager|deputy stage manager|assistant stage manager|company manager|production manager|lighting technician|lx\b|sound engineer|sound designer|set designer|scenic designer|scenic artist|costume designer|wardrobe supervisor|wardrobe assistant|wigs hair.*makeup|theatre producer|general manager theatre|casting director|literary manager|dramaturg|house manager|box office manager|venue technician|touring stage manager)\b/i,
+    deprioritise: /\b(care assistant|nurse|nursing|warehouse operative|forklift|delivery driver|hgv driver|cleaner domestic|security guard|kitchen porter)\b/i,
+  },
 };
 
 /**

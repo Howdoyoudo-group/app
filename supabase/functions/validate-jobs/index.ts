@@ -211,6 +211,27 @@ const COMPANY_INDUSTRY_MAP: Record<string, string> = {
   "intellectual property office": "politics",
   "defence equipment and support": "politics",
   "northern ireland office": "politics",
+  // Theatre - major companies/venues that should always tag as theatre
+  // regardless of a generic job title (finance, HR, marketing etc.)
+  "national theatre": "theatre",
+  "royal shakespeare company": "theatre",
+  "royal court theatre": "theatre",
+  "ambassador theatre group": "theatre",
+  "atg entertainment": "theatre",
+  "lw theatres": "theatre",
+  "delfont mackintosh": "theatre",
+  "sonia friedman productions": "theatre",
+  "nimax theatres": "theatre",
+  "donmar warehouse": "theatre",
+  "bristol old vic": "theatre",
+  "chichester festival theatre": "theatre",
+  "sheffield theatres": "theatre",
+  "birmingham rep": "theatre",
+  "royal exchange theatre": "theatre",
+  "glyndebourne": "theatre",
+  "production resource group": "theatre",
+  "white light": "theatre",
+  "rada": "theatre",
 };
 
 // ── Negative keywords: titles that should NEVER appear in an industry ──
@@ -246,7 +267,7 @@ const FAKE_DESCRIPTION_REGEX = /\b(gentrify|taiyaki|banh mi|chambray|artisan kal
 // Jobs from these sources skip the keyword-relevance purge (their titles are
 // often generic — "Development Manager", "Client Executive" — even though the
 // role is genuinely political / sector-specific).
-const TRUSTED_SPECIALIST_SOURCES = /\b(w4mpjobs\.org|lgjobs\.com|jobsinfootball\.com|jobs\.nhs\.uk)\b/i;
+const TRUSTED_SPECIALIST_SOURCES = /\b(w4mpjobs\.org|lgjobs\.com|jobsinfootball\.com|jobs\.nhs\.uk|mandy\.com)\b/i;
 
 // ── Banned companies: regardless of industry, these should never appear ──
 // (Generic recruiters/staffing agencies pollute industry feeds with hundreds of unrelated roles)
@@ -321,6 +342,11 @@ const INDUSTRY_RELEVANCE_KEYWORDS: Record<string, RegExp> = {
   // notices). Every term below is either a distinctive institution/grade name
   // or a compound phrase that's genuinely government/politics-specific.
   politics: /\b(civil servant|civil service|policy advisor|policy adviser|policy officer|policy manager|government policy|public policy|government economist|government social researcher|fast stream|whitehall|cabinet office|hm treasury|home office|foreign commonwealth|ministry of defence|ministry of justice|department for education|department of health and social care|defra|department for transport|dcms|department for business and trade|department for work and pensions|hmrc|hm revenue|parliamentary researcher|parliamentary assistant|caseworker mp|member of parliament|house of commons|house of lords|hansard|westminster|special adviser|special advisor|scottish parliament|senedd|welsh parliament|northern ireland assembly|local government officer|local authority|council officer|planning officer|environmental health officer|electoral services officer|democratic services officer|trading standards officer|building control surveyor|licensing officer|national graduate development programme|office for national statistics|national crime agency|national audit office|electoral commission|office for budget responsibility|government digital service|think tank|policy institute|policy researcher|policy fellow|public affairs|government relations|government affairs manager|lobbyist|political consultant|permanent secretary|deputy director civil service|director general civil service)\b/i,
+  // Theatre relevance - deliberately excludes bare "stage"/"director"/"producer"
+  // (too broad: staging area, project stage-gate, sales/finance director, TV
+  // producer). Every term below is either a distinctive theatre-specific
+  // compound phrase or a named theatre company/venue.
+  theatre: /\b(theatre|theatres|theatrical|west end|stage manager|stage management|deputy stage manager|assistant stage manager|touring stage manager|company manager theatre|production manager theatre|wardrobe supervisor|wardrobe assistant|wardrobe mistress|costume designer|costume maker|set designer|scenic designer|scenic artist|scenic painter|lighting designer theatre|lighting technician theatre|theatre technician|sound designer theatre|dramaturg|literary manager|casting director|panto\b|pantomime|national theatre|royal shakespeare company|\brsc\b|ambassador theatre group|lw theatres|delfont mackintosh|sonia friedman|nimax theatres|donmar warehouse|bristol old vic|chichester festival theatre|sheffield theatres|birmingham rep|royal exchange theatre|glyndebourne|production resource group|white light lighting|rada drama school)\b/i,
 };
 
 // Company keys are matched on WORD BOUNDARIES, not as raw substrings.

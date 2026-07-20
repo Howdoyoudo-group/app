@@ -67,6 +67,7 @@ const INDUSTRY_NAMES: Record<string, string> = {
   health: "Health",
   "horse-racing": "Horse Racing",
   politics: "Politics",
+  theatre: "Theatre",
 };
 
 const INDUSTRY_CONTEXT: Record<string, string> = {
@@ -100,6 +101,7 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   delivery: "last-mile delivery, courier industry, logistics, Royal Mail, DPD, Evri, Amazon Logistics, HGV drivers",
   tennis: "professional tennis, ATP Tour, WTA Tour, Wimbledon, LTA, Grand Slams, tennis business, tennis coaching, ITF, tournament operations",
   politics: "UK politics, government policy, Parliament, Westminster, civil service careers, Whitehall departments, local government, councils, think tanks, public affairs",
+  theatre: "UK theatre, West End, stage management, backstage and technical theatre, lighting and sound design, touring productions, National Theatre, Royal Shakespeare Company",
 };
 
 const ASSET_BASE = "https://siqwclmzncubkrwabmvb.supabase.co/storage/v1/object/public/email-assets";
@@ -458,6 +460,7 @@ const INDUSTRY_KNOWN_COMPANIES: Record<string, string[]> = {
   beauty: ["l'oréal","l'oreal","loreal","estée lauder","estee lauder","rituals","the body shop","molton brown","jo malone","charlotte tilbury","space nk","sephora","boots","superdrug","mac cosmetics","clinique","aesop","glossier","cult beauty","lookfantastic"],
   cars: ["tesla","ford","vauxhall","bmw","mercedes-benz","audi","volkswagen","jaguar land rover","stellantis","toyota","honda","nissan","kwik fit","halfords"],
   politics: ["cabinet office","hm treasury","home office","foreign commonwealth development office","ministry of defence","ministry of justice","department for education","department of health and social care","defra","department for transport","dcms","department for work and pensions","hmrc","uk parliament","house of commons","house of lords","local government association","institute for public policy research","ippr","institute of economic affairs","centre for policy studies","institute for government","resolution foundation","policy exchange"],
+  theatre: ["national theatre","royal shakespeare company","royal court theatre","ambassador theatre group","atg entertainment","lw theatres","delfont mackintosh","sonia friedman productions","nimax theatres","donmar warehouse","bristol old vic","chichester festival theatre","sheffield theatres","birmingham rep","royal exchange theatre","glyndebourne","production resource group","prg","white light","rada"],
 };
 
 const INDUSTRY_DEPRIORITISE: Record<string, RegExp> = {
@@ -475,6 +478,7 @@ const INDUSTRY_DEPRIORITISE: Record<string, RegExp> = {
   beer: /\b(bar staff|bartender|waiter|waitress|cleaner|kitchen porter|warehouse operative|delivery driver|merchandiser)\b/i,
   jewellery: /\b(security guard|cleaner|warehouse operative|delivery driver|stockroom|sales assistant)\b/i,
   pets: /\b(dog walker|pet sitter|kennel assistant|cattery assistant|grooming assistant|reception|store assistant|warehouse operative)\b/i,
+  theatre: /\b(usher|cleaner|security guard|bar staff|catering assistant|cloakroom|car park attendant)\b/i,
 };
 
 function isWhoSectionCompany(industry: string, company: string): boolean {

@@ -41,6 +41,7 @@ export const INDUSTRIES: Industry[] = [
   { name: "Psychotherapy", slug: "psychotherapy" },
   { name: "Teaching", slug: "teaching" },
   { name: "Tennis", slug: "tennis" },
+  { name: "Theatre", slug: "theatre" },
   { name: "Travel", slug: "travel" },
   { name: "Wellness", slug: "wellness" },
 ];

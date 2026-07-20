@@ -67,8 +67,12 @@ export const PASSION_INDUSTRY_MAP: Record<string, string[]> = {
   architecture: ["Interior Design"],
 
   // Stage
-  dance: ["Music", "Wellness"],
-  theatre: ["Film and TV", "Music"],
+  dance: ["Music", "Wellness", "Theatre"],
+  theatre: ["Theatre", "Film and TV"],
+  acting: ["Theatre", "Film and TV"],
+  drama: ["Theatre", "Film and TV"],
+  "musical theatre": ["Theatre", "Music"],
+  "west end": ["Theatre"],
   comedy: ["Film and TV", "Music"],
 
   // Lifestyle

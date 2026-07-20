@@ -41,6 +41,7 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   delivery: "last-mile delivery, courier industry, logistics, Royal Mail, DPD, Evri, Amazon Logistics, e-commerce fulfilment, HGV drivers, parcel delivery",
   tennis: "professional tennis, ATP Tour, WTA Tour, Wimbledon, LTA, Grand Slams, tennis business, coaching careers, ITF, player earnings, tournament operations",
   politics: "UK politics, government policy, Parliament, Westminster, civil service, Whitehall departments, local government, councils, think tanks, public affairs, elections, careers in government",
+  theatre: "UK theatre, West End, stage management, backstage, lighting and sound design, costume, touring productions, National Theatre, Royal Shakespeare Company, theatre careers",
 };
 
 const VALID_INDUSTRIES = Object.keys(INDUSTRY_CONTEXT);
@@ -186,6 +187,7 @@ Return real, verifiable stories. For each, give the EXACT real headline as publi
       "formula-1": ["Formula 1 business", "F1 team investment", "McLaren Racing", "Red Bull Racing", "Motorsport Valley UK"],
       influencing: ["UK influencer marketing", "creator economy UK", "social media talent agency"],
       politics: ["UK Parliament legislation", "government policy announcement", "Whitehall civil service", "UK general election", "think tank policy report"],
+      theatre: ["West End theatre news", "UK theatre production", "National Theatre", "Royal Shakespeare Company", "theatre industry UK"],
     };
 
     // Resolve Google News' interstitial RSS URL to the publisher URL by following

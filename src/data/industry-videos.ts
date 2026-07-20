@@ -170,6 +170,13 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "YFzD8mLh4Ho", title: "Sal Khan on AI and the Future of Education", description: "Khan Academy's founder discusses how AI is reshaping teaching and learning with Adam Grant.", tag: "Explainer", duration: "38:33", channel: "TED Audio Collective" },
     { youtubeId: "1EQYB08ArG0", title: "New Teacher Struggles at His First School", description: "A raw look at the challenges facing early-career teachers in a UK school.", tag: "Documentary", channel: "Our Stories" },
   ],
+  theatre: [
+    { youtubeId: "oBV8pqN4MFs", title: "Welcome to the National Theatre", description: "A look behind the scenes at the National Theatre, and who it takes to make a production for one of its three stages.", tag: "Explainer", duration: "3:48", channel: "National Theatre" },
+    { youtubeId: "Cp6mXLWGF_w", title: "Backstage at the National Theatre in the hour before a play begins", description: "The hour before actors go on stage is a performance in and of itself - a real-time look at backstage life.", tag: "Documentary", duration: "30:25", channel: "Aeon Video" },
+    { youtubeId: "fFqBJ0RsjX8", title: "Behind the Scenes of a West End Production - Deputy Stage Manager (DSM)", description: "A working DSM shows the technical side of calling a West End show - lighting, flies, sound, MD, pyros and SFX.", tag: "Careers", channel: "Rebs Tries It" },
+    { youtubeId: "x0OIw29TyFw", title: "Behind the scenes at Disney's Frozen in the West End", description: "The hard work, dedication and skill of the many people who brought Arendelle to life on a West End stage.", tag: "Documentary", channel: "OfficialLondonTheatre" },
+    { youtubeId: "V4bMY3Icme4", title: "My RADA: BA (Hons) in Acting the audition", description: "The UK's most prestigious drama school on what it's actually training actors, stage managers and technical specialists for.", tag: "Careers", channel: "RADA" },
+  ],
   travel: [
     { youtubeId: "q3F8f1dhJEA", title: "So You Want to Be a Travel Agent in 2025?", description: "What the modern travel agent role looks like and how to get started.", tag: "Careers", channel: "YouTube" },
   ],

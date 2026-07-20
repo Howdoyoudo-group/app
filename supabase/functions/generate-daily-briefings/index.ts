@@ -39,6 +39,7 @@ const INDUSTRY_NAMES: Record<string, string> = {
   delivery: "Delivery",
   tennis: "Tennis",
   politics: "Politics",
+  theatre: "Theatre",
 };
 
 const INDUSTRY_CONTEXT: Record<string, string> = {
@@ -75,6 +76,7 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   delivery: "last-mile delivery, courier industry, logistics, Royal Mail, DPD, Evri, Ocado, Amazon Logistics, e-commerce logistics, driver shortage, HGV, parcel volumes",
   tennis: "professional tennis, ATP Tour, WTA Tour, Wimbledon, LTA, Grand Slams, tennis business, tennis coaching, ITF, player earnings, tournament operations, tennis sponsorship",
   politics: "UK politics, government policy, Parliament, Westminster, civil service careers, Whitehall departments, local government, councils, think tanks, public affairs, elections",
+  theatre: "UK theatre, West End, stage management, backstage and technical theatre, lighting and sound design, touring productions, National Theatre, Royal Shakespeare Company, theatre careers",
 };
 
 interface NewsItem {

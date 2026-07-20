@@ -733,6 +733,45 @@ export const INDUSTRY_REGISTRY: IndustrySpec[] = [
       "political consultant", "stakeholder engagement government",
     ],
   },
+  {
+    slug: "theatre",
+    name: "Theatre",
+    baseline: 150,
+    synonyms: [
+      // Performing - avoid bare "actor"/"performer" collisions are low risk but
+      // still pair broad terms where sensible.
+      "actor", "actress", "stage performer", "ensemble member", "musical theatre performer",
+      "understudy", "swing performer", "west end performer", "touring performer",
+      // Stage & production management - "stage" and "production manager" alone
+      // are dangerously broad (staging area, manufacturing), always qualified.
+      "stage manager", "stage management", "deputy stage manager", "dsm theatre",
+      "assistant stage manager", "asm theatre", "company manager theatre",
+      "production manager theatre", "touring stage manager", "get in get out theatre",
+      // Design & technical
+      "theatre technician", "lighting technician theatre", "lx technician", "lx operator",
+      "sound engineer theatre", "sound number one", "theatre sound designer",
+      "lighting designer theatre", "set designer", "scenic designer", "scenic artist",
+      "scenic painter", "costume designer", "costume maker", "wardrobe supervisor",
+      "wardrobe assistant", "wardrobe mistress", "wigs hair and makeup", "theatre rigger",
+      "flying systems technician", "automation technician theatre",
+      // Producing & administration
+      "theatre producer", "general manager theatre", "casting director",
+      "literary manager", "dramaturg", "theatre marketing manager", "press officer theatre",
+      // Front of house & venue operations
+      "front of house theatre", "house manager theatre", "box office manager theatre",
+      "box office assistant", "usher theatre", "venue technician theatre",
+      // West End / genre signals
+      "west end", "west end theatre", "pantomime", "panto season", "touring musical",
+      "touring production", "repertory theatre", "rep theatre",
+      // Companies
+      "national theatre", "royal shakespeare company", "royal court theatre",
+      "ambassador theatre group", "lw theatres", "delfont mackintosh",
+      "sonia friedman productions", "nimax theatres", "donmar warehouse",
+      "bristol old vic", "chichester festival theatre", "sheffield theatres",
+      "birmingham rep", "royal exchange theatre manchester", "glyndebourne",
+      "production resource group", "white light lighting", "rada drama school",
+    ],
+  },
 ];
 
 // ──────────────────────────────────────────────────────────────────────

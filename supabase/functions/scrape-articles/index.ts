@@ -38,6 +38,7 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   delivery: "last-mile delivery, courier industry, logistics, Royal Mail, DPD, Evri, Amazon Logistics, e-commerce fulfilment, HGV drivers",
   tennis: "professional tennis, ATP Tour, WTA Tour, Wimbledon, LTA, Grand Slams, tennis business, coaching careers, ITF, player earnings, tournament operations, tennis sponsorship, Hawk-Eye",
   politics: "UK politics, government policy, Parliament, Westminster, civil service careers, Whitehall departments, local government, councils, think tanks, public affairs, elections, devolved parliaments",
+  theatre: "UK theatre, West End, stage management careers, backstage and technical theatre, lighting and sound design, costume and wardrobe, touring productions, National Theatre, Royal Shakespeare Company",
 };
 
 const VALID_INDUSTRIES = Object.keys(INDUSTRY_CONTEXT);
