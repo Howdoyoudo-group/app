@@ -1337,9 +1337,14 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
       }
     };
     try {
+      // Exclude expired listings everywhere - expires_at is set on ingestion
+      // (typically now + 60d) but was never actually filtered on here, so
+      // long-expired jobs (e.g. postings from 6+ weeks ago) kept inflating
+      // every count and showing up in every industry/filter indefinitely.
+      const notExpired = `expires_at.is.null,expires_at.gt.${new Date().toISOString()}`;
       // Use exact count for "All Jobs" so the headline matches Site Insights (estimated counts can drift far from reality between ANALYZE runs).
-      const all = await safeCount(() => supabase.from('jobs').select('*', { count: 'exact', head: true }), tabCounts.all);
-      const featured = await safeCount(() => supabase.from('jobs').select('*', { count: 'estimated', head: true }).eq('featured', true), tabCounts.featured);
+      const all = await safeCount(() => supabase.from('jobs').select('*', { count: 'exact', head: true }).or(notExpired), tabCounts.all);
+      const featured = await safeCount(() => supabase.from('jobs').select('*', { count: 'estimated', head: true }).eq('featured', true).or(notExpired), tabCounts.featured);
       // "Internships and Graduates" tab - internship type OR titles like
       // graduate / apprentice / trainee / placement so the badge matches the
       // tab label (was previously only counting type='Internship').
@@ -1348,13 +1353,14 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
           supabase
             .from('jobs')
             .select('*', { count: 'estimated', head: true })
-            .or('type.eq.Internship,title.ilike.%graduate%,title.ilike.%intern%,title.ilike.%apprentice%,title.ilike.%trainee%,title.ilike.%placement%'),
+            .or('type.eq.Internship,title.ilike.%graduate%,title.ilike.%intern%,title.ilike.%apprentice%,title.ilike.%trainee%,title.ilike.%placement%')
+            .or(notExpired),
         tabCounts.internships,
       );
-      const freelance = await safeCount(() => supabase.from('jobs').select('*', { count: 'estimated', head: true }).eq('type', 'Freelance'), tabCounts.freelance);
-      const remote = await safeCount(() => supabase.from('jobs').select('*', { count: 'estimated', head: true }).eq('work_mode', 'Remote'), tabCounts.remote);
-      const temp = await safeCount(() => supabase.from('jobs').select('*', { count: 'estimated', head: true }).eq('type', 'Temporary'), tabCounts.temp);
-      const parttime = await safeCount(() => supabase.from('jobs').select('*', { count: 'estimated', head: true }).eq('type', 'Part-time'), tabCounts.parttime);
+      const freelance = await safeCount(() => supabase.from('jobs').select('*', { count: 'estimated', head: true }).eq('type', 'Freelance').or(notExpired), tabCounts.freelance);
+      const remote = await safeCount(() => supabase.from('jobs').select('*', { count: 'estimated', head: true }).eq('work_mode', 'Remote').or(notExpired), tabCounts.remote);
+      const temp = await safeCount(() => supabase.from('jobs').select('*', { count: 'estimated', head: true }).eq('type', 'Temporary').or(notExpired), tabCounts.temp);
+      const parttime = await safeCount(() => supabase.from('jobs').select('*', { count: 'estimated', head: true }).eq('type', 'Part-time').or(notExpired), tabCounts.parttime);
       const counts = { all, featured, internships, freelance, remote, temp, parttime };
       setTabCounts(counts);
       try { localStorage.setItem('marketplace-tab-counts', JSON.stringify(counts)); } catch {}
@@ -1388,9 +1394,14 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
       setIsLoadingJobs(true);
       setHasLoadedSelection(false);
     }
+    // Exclude expired listings - expires_at is set on ingestion (typically
+    // now + 60d) but was never actually filtered on here, so long-expired
+    // jobs kept showing up in every industry/filter indefinitely.
+    const notExpired = `expires_at.is.null,expires_at.gt.${new Date().toISOString()}`;
     let query = supabase
       .from('jobs')
       .select('id, title, company, location, salary, description, tags, industry, type, work_mode, featured, url, ai_role_category, role_category, career_level, salary_min, salary_max, scraped_at, ai_confidence')
+      .or(notExpired)
       // Rank highest-confidence classifications first so well-matched jobs surface
       // and noisy unclassified rows fall to the bottom of the list.
       .order('ai_confidence', { ascending: false, nullsFirst: false })
@@ -1414,6 +1425,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
               .from('jobs')
               .select('id, title, company, location, salary, description, tags, industry, type, work_mode, featured, url, ai_role_category, role_category, career_level, salary_min, salary_max, scraped_at')
               .in('id', ids)
+              .or(notExpired)
           )
         );
         if (requestId !== requestIdRef.current) return;
@@ -1535,7 +1547,8 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
       let featuredQuery = supabase
         .from('jobs')
         .select('id, title, company, location, salary, description, tags, industry, type, work_mode, featured, url, ai_role_category, role_category, career_level, salary_min, salary_max, scraped_at')
-        .eq('featured', true);
+        .eq('featured', true)
+        .or(notExpired);
       featuredQuery = slugs.length > 1
         ? featuredQuery.in('industry', slugs)
         : featuredQuery.eq('industry', slug);
