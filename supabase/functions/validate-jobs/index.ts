@@ -358,6 +358,10 @@ Deno.serve(async (req) => {
     const batchSize = body.batch_size || 500;
     const targetIndustry = body.industry || null;
     const dryRun = body.dry_run || false;
+    // Manual override for the expiry-purge safety limit below. Deliberately
+    // opt-in per invocation — the nightly cron never sets it, so a genuine
+    // mass-expiry needs a human to look first and then re-run.
+    const forceExpiredPurge = body.force_expired_purge || false;
 
     const results = {
       scanned: 0,
@@ -367,8 +371,20 @@ Deno.serve(async (req) => {
       irrelevant: 0,
       banned_company: 0,
       expired: 0,
+      expired_purge_aborted: false as boolean,
       details: [] as string[],
     };
+
+    // Safety valve for the expiry purge below. The purge runs unattended at
+    // 23:59 and deletes in bulk with no backup, so a single bad expires_at
+    // (a scraper parsing bug, a timezone slip, a source that starts emitting
+    // past dates) could wipe a large slice of the table before anyone noticed.
+    // If a run wants to delete more than this share of live jobs, we abort and
+    // report instead — a stuck purge is recoverable, a mass delete is not.
+    const EXPIRED_PURGE_MAX_SHARE = 0.10;
+    // Below this count the percentage guard is meaningless (and would block
+    // legitimate small per-industry purges), so always allow it.
+    const EXPIRED_PURGE_ALWAYS_ALLOW_BELOW = 500;
 
     // Purge expired listings first, in one bulk delete rather than per-row
     // in the scan loop below - expires_at is set on ingestion (typically
@@ -390,7 +406,32 @@ Deno.serve(async (req) => {
       if (expiredCount && expiredCount > 0) {
         results.expired = expiredCount;
         results.details.push(`EXPIRED: ${expiredCount} job(s) past expires_at`);
-        if (!dryRun) {
+
+        // Blast-radius check: compare against the total in the same scope, so
+        // a per-industry run is measured against that industry, not the whole
+        // table.
+        let totalQuery = supabase.from("jobs").select("id", { count: "exact", head: true });
+        if (targetIndustry) totalQuery = totalQuery.eq("industry", targetIndustry);
+        const { count: totalCount, error: totalCountError } = await totalQuery;
+        if (totalCountError) throw totalCountError;
+
+        const share = totalCount && totalCount > 0 ? expiredCount / totalCount : 0;
+        const overShare = share > EXPIRED_PURGE_MAX_SHARE;
+        const smallEnoughToAllow = expiredCount < EXPIRED_PURGE_ALWAYS_ALLOW_BELOW;
+
+        if (overShare && !smallEnoughToAllow && !forceExpiredPurge) {
+          results.expired_purge_aborted = true;
+          results.details.push(
+            `EXPIRED PURGE ABORTED: ${expiredCount} of ${totalCount} ` +
+              `(${(share * 100).toFixed(1)}%) exceeds the ${(EXPIRED_PURGE_MAX_SHARE * 100).toFixed(0)}% ` +
+              `safety limit${targetIndustry ? ` for industry '${targetIndustry}'` : ""}. ` +
+              `Nothing deleted — check for a source writing bad expires_at values, ` +
+              `then re-run with force_expired_purge:true if this is genuinely correct.`,
+          );
+          console.error(
+            `[validate-jobs] Expired purge aborted: ${expiredCount}/${totalCount} (${(share * 100).toFixed(1)}%)`,
+          );
+        } else if (!dryRun) {
           let deleteQuery = supabase
             .from("jobs")
             .delete()
