@@ -2552,6 +2552,13 @@ async function fetchJoobleJobs(industry: string, keywords: string[], apiKey: str
 // Pulls direct-from-ATS listings (Greenhouse, Workday, Lever, etc.).
 // Active Jobs DB: /active-ats endpoint does not exist (404). Use /active-ats-7d.
 // Location param is ignored server-side; UK filtering done client-side.
+//
+// Was on -7d, which Fantastic.jobs' own docs say is for one-time backfill only -
+// recurring pollers should use 1h/24h "this way you will never receive duplicate
+// jobs". This cron runs twice daily forever, so every run was re-fetching (and
+// burning Jobs-credit quota on) the same rolling week of jobs repeatedly - almost
+// certainly why this hit 100% of its free quota while yielding almost nothing.
+// Switched to -24h to match the cron cadence.
 async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiKey: string) {
   if (!keywords.length) return [];
   const titleFilter = keywords
@@ -2559,7 +2566,7 @@ async function fetchActiveJobsDb(industry: string, keywords: string[], rapidApiK
     .map(k => `"${k}"`)
     .join(" OR ");
   try {
-    const url = new URL("https://active-jobs-db.p.rapidapi.com/active-ats-7d");
+    const url = new URL("https://active-jobs-db.p.rapidapi.com/active-ats-24h");
     url.searchParams.set("title_filter", titleFilter);
     url.searchParams.set("location_filter", "United Kingdom");
     url.searchParams.set("description_type", "text");
