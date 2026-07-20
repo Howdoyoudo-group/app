@@ -443,6 +443,7 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
       { name: "Do IT", description: "The UK's largest volunteering platform — thousands of opportunities from big charities and local community groups.", url: "https://doit.life/volunteer", tags: ["UK", "Find roles"] },
       { name: "Volunteering Matters", description: "UK charity connecting volunteers with meaningful community projects, especially for young people and those facing barriers.", url: "https://volunteeringmatters.org.uk", tags: ["UK", "Young people"] },
       { name: "CharityJob - Volunteer roles", description: "Search hundreds of UK volunteer opportunities across every cause area.", url: "https://www.charityjob.co.uk/volunteer-jobs", tags: ["UK", "Find roles"] },
+      { name: "Studenteer", description: "Matches students and recent grads with remote, skills-based volunteering placements at charities - includes mentorship, workshops and webinars along the way.", url: "https://studenteer.co.uk", tags: ["UK", "Students", "Remote"] },
     ],
   },
   {
