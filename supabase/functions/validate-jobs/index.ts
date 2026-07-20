@@ -323,10 +323,36 @@ const INDUSTRY_RELEVANCE_KEYWORDS: Record<string, RegExp> = {
   politics: /\b(civil servant|civil service|policy advisor|policy adviser|policy officer|policy manager|government policy|public policy|government economist|government social researcher|fast stream|whitehall|cabinet office|hm treasury|home office|foreign commonwealth|ministry of defence|ministry of justice|department for education|department of health and social care|defra|department for transport|dcms|department for business and trade|department for work and pensions|hmrc|hm revenue|parliamentary researcher|parliamentary assistant|caseworker mp|member of parliament|house of commons|house of lords|hansard|westminster|special adviser|special advisor|scottish parliament|senedd|welsh parliament|northern ireland assembly|local government officer|local authority|council officer|planning officer|environmental health officer|electoral services officer|democratic services officer|trading standards officer|building control surveyor|licensing officer|national graduate development programme|office for national statistics|national crime agency|national audit office|electoral commission|office for budget responsibility|government digital service|think tank|policy institute|policy researcher|policy fellow|public affairs|government relations|government affairs manager|lobbyist|political consultant|permanent secretary|deputy director civil service|director general civil service)\b/i,
 };
 
+// Company keys are matched on WORD BOUNDARIES, not as raw substrings.
+//
+// A naive `lower.includes(key)` silently reassigns any company whose name
+// merely contains a key as a substring. Real cases this produced:
+//
+//   "Blake Stephenson MP (Mid Bedfordshire)"  -> "ford"  -> cars
+//   "Oxford University Hospitals NHS Trust"   -> "ford"  -> cars
+//   "Hertfordshire Partnership NHS"           -> "ford"  -> cars
+//   "Vuelio" (a PR/monitoring firm)           -> "vue"   -> cinema
+//
+// Every UK place name containing "ford" — Oxford, Bedfordshire, Chelmsford,
+// Salford, Watford, Guildford, Brentford, Trafford, Hertfordshire — was in
+// scope, along with anything containing "vue", "seat", "mini" etc. Worse, a
+// job reassigned into the wrong industry then fails that industry's relevance
+// check on the next run and gets DELETED.
+//
+// \b anchors mean "Ford Motor Company" still matches while "Bedfordshire"
+// does not. Patterns are precompiled once at module load rather than rebuilt
+// per company.
+const COMPANY_KEY_PATTERNS: { re: RegExp; industry: string }[] = Object
+  .entries(COMPANY_INDUSTRY_MAP)
+  .map(([key, industry]) => ({
+    re: new RegExp(`\\b${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i"),
+    industry,
+  }));
+
 function lookupCompanyIndustry(company: string): string | null {
   const lower = company.toLowerCase().trim();
-  for (const [key, industry] of Object.entries(COMPANY_INDUSTRY_MAP)) {
-    if (lower.includes(key)) return industry;
+  for (const { re, industry } of COMPANY_KEY_PATTERNS) {
+    if (re.test(lower)) return industry;
   }
   return null;
 }
