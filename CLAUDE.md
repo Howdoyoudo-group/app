@@ -64,7 +64,7 @@ New Supabase projects auto-inject `SUPABASE_SERVICE_ROLE_KEY` in `sb_*` format w
 - **Auth email hook:** ENABLED — branded emails via Resend
 
 ## Jobs Pipeline
-- **25,694 live jobs** in DB as of 2026-06-06
+- **~60,000 live jobs** in DB as of 2026-07-20 (was 25,694 on 2026-06-06)
 - Main scraper: `fetch-external-jobs` (Adzuna + Reed + Jooble + ATS boards) — runs 6am/6pm UTC
 - Specialist: `scrape-jobs-in-football`, `scrape-film-boards`, `fetch-nhs-jobs`
 - Emergency topup: `jobs-emergency-topup`

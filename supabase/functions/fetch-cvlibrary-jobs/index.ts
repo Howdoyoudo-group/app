@@ -13,6 +13,8 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { INDUSTRY_REGISTRY } from "../_shared/industry-registry.ts";
 
+declare const EdgeRuntime: { waitUntil?: (p: Promise<unknown>) => void } | undefined;
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -60,16 +62,65 @@ interface ParsedJob {
   salaryMax: number | null;
   jobtype: string | null;
   date: string | null;
+  // Fields the feed supplies that we previously discarded.
+  city: string;
+  county: string;
+  country: string;
+  category: string;
+  fullPart: string;
+  image: string;
+}
+
+// CV-Library DOUBLE-ENCODES entities: the feed literally contains
+// "&amp;pound;17.34" and "&amp;rsquo;". A single decode pass turns that into
+// "&pound;17.34" — still broken — which is why job titles were rendering as
+// "Support Worker &ndash; Children&rsquo;s Residential Care" on the site.
+//
+// So: decode repeatedly until the string stops changing (capped, to avoid any
+// chance of a loop), and cover the full set of entities the feed actually uses
+// rather than the six we started with.
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'",
+  nbsp: " ", pound: "£", euro: "€", cent: "¢", yen: "¥",
+  ndash: "–", mdash: "—", hellip: "…", bull: "•", middot: "·",
+  lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”",
+  copy: "©", reg: "®", trade: "™", deg: "°", plusmn: "±",
+  frac12: "½", frac14: "¼", frac34: "¾", times: "×", divide: "÷",
+  eacute: "é", egrave: "è", agrave: "à", ccedil: "ç", uuml: "ü", ouml: "ö", auml: "ä",
+};
+
+function decodeOnce(s: string): string {
+  return s
+    // numeric: &#39; and &#x27;
+    .replace(/&#(\d+);/g, (_, d) => {
+      const code = parseInt(d, 10);
+      return Number.isFinite(code) && code > 0 && code <= 0x10ffff
+        ? String.fromCodePoint(code)
+        : _;
+    })
+    .replace(/&#[xX]([0-9a-fA-F]+);/g, (_, h) => {
+      const code = parseInt(h, 16);
+      return Number.isFinite(code) && code > 0 && code <= 0x10ffff
+        ? String.fromCodePoint(code)
+        : _;
+    })
+    // named
+    .replace(/&([a-zA-Z][a-zA-Z0-9]*);/g, (m, name) => {
+      const key = String(name).toLowerCase();
+      return key in NAMED_ENTITIES ? NAMED_ENTITIES[key] : m;
+    });
 }
 
 function decodeEntities(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&pound;/g, "£");
+  let out = s;
+  // 3 passes is ample for the double-encoding seen in the feed; the loop exits
+  // as soon as a pass makes no change.
+  for (let i = 0; i < 3; i++) {
+    const next = decodeOnce(out);
+    if (next === out) break;
+    out = next;
+  }
+  return out;
 }
 
 function extractTag(block: string, tag: string): string {
@@ -111,22 +162,65 @@ function parseJobBlock(block: string): ParsedJob | null {
     salaryMax: salaryMaxStr ? parseFloat(salaryMaxStr) : null,
     jobtype: extractTag(block, "jobtype") || null,
     date: extractTag(block, "date") || null,
+    city: extractTag(block, "city"),
+    county: extractTag(block, "county"),
+    country: extractTag(block, "country"),
+    category: extractTag(block, "category"),
+    fullPart: extractTag(block, "full_part"),
+    image: extractTag(block, "image"),
   };
+}
+
+// The feed's <country> is a display string ("United Kingdom"). Normalise to an
+// ISO-ish code for the jobs.country column.
+function toCountryCode(country: string): string {
+  const t = country.trim().toLowerCase();
+  if (!t) return "GB";
+  if (/united kingdom|great britain|\bgb\b|\buk\b|england|scotland|wales|northern ireland/.test(t)) {
+    return "GB";
+  }
+  if (/ireland/.test(t)) return "IE";
+  return t.slice(0, 2).toUpperCase();
+}
+
+// Prefer the feed's structured city/county over the free-text <location>,
+// falling back to whichever is present.
+function buildLocation(job: ParsedJob): string | null {
+  const structured = [job.city, job.county]
+    .map((p) => p.trim())
+    .filter(Boolean)
+    // "Trafford Park, Greater Manchester" — drop a county that just repeats the city
+    .filter((p, i, arr) => i === 0 || p.toLowerCase() !== arr[0].toLowerCase())
+    .join(", ");
+  return structured || job.location.trim() || null;
 }
 
 function mapToRow(job: ParsedJob, industry: string) {
   // The feed's <url> already contains the affiliate tracking param (?s=<affid>).
   // Never modify or strip it.
+  //
+  // The affid is a CONSTANT per-publisher token, not a per-search one, so
+  // keeping it in `url` does not break the jobs_url_unique_idx dedup the way
+  // Jooble's per-search params would. No separate apply_url needed.
+  const tags = [
+    job.category && job.category.toLowerCase() !== "other" ? job.category : null,
+    job.fullPart || null,
+    job.jobtype || null,
+  ].filter(Boolean) as string[];
+
   return {
     title: job.title.slice(0, 500),
     company: job.company.slice(0, 250),
     url: job.url,
-    location: job.location || null,
+    location: buildLocation(job)?.slice(0, 200) ?? null,
+    country: toCountryCode(job.country),
+    company_logo: job.image || null,
     description: job.description ? job.description.slice(0, 5000) : null,
     salary: job.salary,
     salary_min: job.salaryMin,
     salary_max: job.salaryMax,
     type: job.jobtype,
+    tags: tags.length > 0 ? tags : null,
     industry,
     source_url: "cv-library.co.uk",
     expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
