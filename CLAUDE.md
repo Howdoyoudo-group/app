@@ -77,18 +77,42 @@ New Supabase projects auto-inject `SUPABASE_SERVICE_ROLE_KEY` in `sb_*` format w
 - `generate-daily-briefings` — 5am weekdays, all 30 industries
 - `send-daily-digest` — 7am weekdays
 
-## Cron Jobs (all active)
+## Cron Jobs
+21 scheduled. Crons live in the DB (`cron.job`), NOT in migrations — list them with:
+`select jobname, schedule, active from cron.job order by jobname;`
+
 - `process-email-queue` — every minute
+- `embed-jobs-continuous` — every 15 min (semantic embeddings)
+- `extract-job-traits-backfill` — every 10 min ⚠️ see below
 - `fetch-external-jobs` — 6am + 6pm daily
-- `generate-daily-briefings` — 5am weekdays
+- `fetch-cvlibrary-jobs` — 3am daily (affiliate XML feed)
+- `score-new-jobs` — 6:30am + 6:30pm
+- `generate-daily-briefings` — 5am Mon/Thu
 - `send-daily-digest` — 7am weekdays
 - `audit-job-links` — 2am nightly
-- `validate-jobs` — 23:59 weeknights
-- `fetch-rss-news` — every 4 hours
-- `scrape-articles` — every 6 hours
+- `validate-jobs` — 23:59 Sun–Thu
+- `refresh-all-content` — every 6h + 6am weekdays
 - `industry-health-monitor` — every 6 hours
 - `whatsapp-daily-digest` — 8am weekdays
 - `fetch-industry-events` — 8am Mondays
+- `fetch-industry-videos-weekly` — 7am Mondays
+- `scrape-w4mp-jobs-weekly` / `scrape-lgjobs-weekly` — 7am Mondays
+- `daily-jobs-report` — 7am daily
+
+### ⚠️ Crons fail SILENTLY — check them
+A cron can be `active` and still never work. Check actual HTTP results:
+```sql
+select status_code, count(*), max(created) from net._http_response
+where created > now() - interval '6 hours' group by status_code;
+```
+- **`401 UNAUTHORIZED_INVALID_JWT_FORMAT`** = the cron's Authorization header
+  has an `sb_*`-format key. Crons must use the **service_role JWT** (`eyJ...`),
+  same rule as `HDYD_SERVICE_JWT` elsewhere. This silently disabled
+  `embed-jobs` from launch until 2026-07-20 — only 306 of 64k jobs had
+  embeddings, so semantic matching never actually ran in production.
+- **`status_code` NULL** = timeout, no response. Function likely blocks instead
+  of returning immediately; use the `EdgeRuntime.waitUntil` pattern.
+- Fix a cron's command with `cron.alter_job(job_id := ..., command := ...)`.
 
 ## Users
 - 56 migrated user accounts from old Lovable site
