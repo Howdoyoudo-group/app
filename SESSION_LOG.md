@@ -5,6 +5,81 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-20 — Andrew (main branch) — Added Theatre as a full industry
+
+### What was done
+- **Built out Theatre as a complete industry**, covering both performing and
+  behind-the-scenes/production roles, mirroring the exact pattern every other
+  industry follows:
+  - `src/pages/Theatre.tsx` — 5 career stages (Performing, Stage & Production
+    Management, Design & Technical, Producing & Theatre Administration, Front
+    of House & Venue Operations), 11 companies, full `IndustryPageLayout`.
+  - Added to `src/data/industries.ts` (onboarding/profile picker — auto-flows
+    everywhere via `CANONICAL_INDUSTRIES`), `src/data/roles.ts` (5 new craft
+    roles + added to 5 cross-cutting business roles), `SeriesGrid.tsx`
+    (homepage 9-box doodle collage — new placeholder image
+    `src/assets/series-theatre.jpg`, Python/Pillow line art of comedy/tragedy
+    masks; **flagged as a placeholder, worth commissioning a proper doodle to
+    match the richness of the other 8 images**).
+  - **5 videos, 3 podcasts — every single one individually verified as real**
+    (not hallucinated) via live web checks: National Theatre, RADA, West End
+    Frozen behind-the-scenes, Stage/London Theatre Podcast/A Sense Of
+    Direction, etc.
+  - Job pipeline: full `IndustrySpec` in `industry-registry.ts` (~50
+    synonyms), entries in `industry-rankings.ts` and `passion-industry-map.ts`,
+    a careful qualified-phrase `INDUSTRY_SIGNALS` regex in
+    `fetch-external-jobs` (avoided bare "stage"/"director"/"producer" to dodge
+    a repeat of the earlier Tesla-in-Charity false-positive bug), added to the
+    Adzuna day-of-week rotation (Sunday, alongside music/football/gaming).
+  - Content pipeline: Theatre added to all 6 functions
+    (`fetch-rss-news`, `scrape-articles`, `generate-daily-briefings`,
+    `send-daily-digest`, `fetch-industry-videos`, `fetch-industry-events`) and
+    to `validate-jobs` (`COMPANY_INDUSTRY_MAP`, `TRUSTED_SPECIALIST_SOURCES`
+    incl. mandy.com, relevance regex).
+  - **New specialist scraper `scrape-mandy-jobs`** — mandy.com/uk/jobs/stage/
+    blocks plain `fetch()`/curl with a 403 (TLS/browser fingerprinting, not a
+    simple UA check — confirmed from both Supabase's edge and a residential
+    IP). Routed through Firecrawl (AI-structured JSON extraction + raw-links
+    fallback), same pattern as `scrape-jobs-in-football`. First real run
+    landed **51 genuine UK theatre/backstage jobs** (Billy Elliot, Glyndebourne,
+    Macbeth, Mamma Mia! The Party, touring pantomimes, etc.) — 37 of 51 with
+    full company/location/salary from the AI extraction, rest from the
+    link-derived fallback (title/url only). No junk, no hallucinated listings.
+  - Verified end-to-end: onboarding picker includes Theatre, daily-digest
+    content maps include it, `fetch-external-jobs` dry-run for theatre alone
+    correctly returned **zero** false-positive matches from generic
+    aggregators (Adzuna/Reed/Jooble) this run — the strict signal regex is
+    doing its job; Mandy is currently the only live source, which is expected
+    for a niche craft industry.
+- **Reconciled with Woody's concurrent commits** (`259dc69`, `f95372e`,
+  `e668070` — blast-radius guard on the expired-job purge, word-boundary
+  company-key matching, cron documentation in CLAUDE.md, new `fetch-cvlibrary-jobs`
+  affiliate source). Clean auto-merge on `validate-jobs/index.ts`; redeployed
+  it with both his safety fixes and my Theatre entries together. Note:
+  `fetch-cvlibrary-jobs` auto-derives its relevance filter from
+  `industry-registry.ts`, so Theatre is picked up there for free.
+
+### Current state
+- Live at: www.howdoyoudo.co.uk
+- Theatre is a fully live industry: page, onboarding, daily digest, job
+  pipeline (specialist Mandy scraper populated, generic aggregators wired but
+  quiet so far), all committed and pushed.
+- `npm run typecheck` clean.
+
+### Left for next session / Woody
+- Commission a proper multi-icon doodle collage for Theatre's homepage
+  9-box image — current `series-theatre.jpg` is a basic placeholder.
+- Consider whether `INDUSTRY_DAY_SCHEDULE` (fetch-external-jobs) needs
+  rebalancing now that Theatre's been added to Sunday.
+- Add `scrape-mandy-jobs` to a weekly cron (same pattern as
+  `scrape-w4mp-jobs-weekly` / `scrape-lgjobs-weekly`) — currently one-off,
+  jobs live ~30d before aging out.
+- The 3 untracked root-level files (`33D0A656-...PNG`, `HDYD_Business_Plan_2026_v3.pdf`,
+  `NEWS_JOBS_REPORT_2026-06-21.md`) look like accidental drops into the repo
+  root, not part of any commit — worth checking with whoever added them.
+
+---
+
 ## 2026-07-15 (later) — Woody (main branch) — Merged Videos + The Show into "The HDYD Show"
 
 ### What was done
