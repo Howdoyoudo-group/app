@@ -16,14 +16,16 @@ clicking through external dashboards, nothing Claude can do on your behalf. Item
 
 ## Phase 0 — Policy decision (5 min, do regardless of everything else)
 
-- [ ] **[YOU]** Say go on: split `robots.txt` so it still blocks AI *training* scrapers
+- [x] **[YOU]** Say go on: split `robots.txt` so it still blocks AI *training* scrapers
       (GPTBot, ClaudeBot, CCBot, etc. — protects content from being used to train
       models) but **allows** the AI *answer* bots (OAI-SearchBot, ChatGPT-User,
       PerplexityBot, Perplexity-User, Google-Extended) — right now ALL of these are
       blocked, which directly prevents HDYD from ever appearing in ChatGPT Search,
       Perplexity answers, or Google AI Overviews. This reverses a deliberate earlier
       choice, hence the separate sign-off.
-- [ ] **[CLAUDE]** Make the robots.txt change once you say go.
+- [x] **[CLAUDE]** Make the robots.txt change once you say go. **Done, live, verified
+      2026-07-21** — confirmed all 5 answer bots now return `Allow: /` on the production
+      `robots.txt`.
 
 ## Your three account setups (do any time, needed before their linked phase completes)
 
@@ -32,16 +34,28 @@ clicking through external dashboards, nothing Claude can do on your behalf. Item
       half-done. Submit the sitemap once Phase 1 makes it dynamic.
 - [ ] **[YOU]** [Bing Webmaster Tools](https://www.bing.com/webmasters) — can import
       straight from Search Console. ~5 minutes.
-- [ ] **[YOU]** GA4 or Vercel Analytics property — create it, send Claude the
-      measurement ID. Nothing below is measurable without this.
+- [ ] **[YOU]** **GA4** (chosen over Vercel Analytics — pairs with Search Console under
+      the same Google account). Steps:
+      1. [analytics.google.com](https://analytics.google.com) → **Admin** → **Create
+         Account** → name it `Howdoyoudo`.
+      2. **Create a Property** → name `Howdoyoudo`, timezone **United Kingdom**,
+         currency **GBP**.
+      3. Business details — pick whatever's closest, doesn't affect anything technical.
+      4. Data collection → **Web**.
+      5. Site URL `https://www.howdoyoudo.co.uk`, stream name `Howdoyoudo main site`.
+      6. Copy the **Measurement ID** (`G-XXXXXXXXXX`) from the Data Stream screen and
+         send it to Claude — that's the only thing needed to wire it in.
 
 ## Phase 1 — Foundations
 
-- [ ] **[CLAUDE]** Wire the analytics ID into the site once you've sent it over.
-- [ ] **[CLAUDE]** Rebuild `sitemap.xml` as dynamically generated (currently static,
+- [ ] **[CLAUDE]** Wire the GA4 measurement ID into the site once you've sent it over,
+      verify via GA4's Realtime report.
+- [x] **[CLAUDE]** Rebuild `sitemap.xml` as dynamically generated (currently static,
       hand-maintained, and already missing Politics + Theatre) — pulled from the
       canonical industries/roles/companies data so nothing can silently go missing
-      again.
+      again. **Done, live, verified 2026-07-21** — `https://www.howdoyoudo.co.uk/sitemap.xml`
+      now serves 178 URLs including Politics and Theatre, generated fresh from
+      `src/data/industries.ts` / `src/data/roles.ts` + the `employer_companies` table.
 - [ ] **[YOU]** Submit the new sitemap in Search Console + Bing Webmaster Tools.
 
 ## Phase 2 — Wire up code that's already written
