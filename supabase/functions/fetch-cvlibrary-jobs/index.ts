@@ -12,6 +12,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { INDUSTRY_REGISTRY } from "../_shared/industry-registry.ts";
+import { decodeEntities } from "../_shared/decode-entities.ts";
 
 declare const EdgeRuntime: { waitUntil?: (p: Promise<unknown>) => void } | undefined;
 
@@ -69,58 +70,6 @@ interface ParsedJob {
   category: string;
   fullPart: string;
   image: string;
-}
-
-// CV-Library DOUBLE-ENCODES entities: the feed literally contains
-// "&amp;pound;17.34" and "&amp;rsquo;". A single decode pass turns that into
-// "&pound;17.34" — still broken — which is why job titles were rendering as
-// "Support Worker &ndash; Children&rsquo;s Residential Care" on the site.
-//
-// So: decode repeatedly until the string stops changing (capped, to avoid any
-// chance of a loop), and cover the full set of entities the feed actually uses
-// rather than the six we started with.
-const NAMED_ENTITIES: Record<string, string> = {
-  amp: "&", lt: "<", gt: ">", quot: '"', apos: "'",
-  nbsp: " ", pound: "£", euro: "€", cent: "¢", yen: "¥",
-  ndash: "–", mdash: "—", hellip: "…", bull: "•", middot: "·",
-  lsquo: "‘", rsquo: "’", ldquo: "“", rdquo: "”",
-  copy: "©", reg: "®", trade: "™", deg: "°", plusmn: "±",
-  frac12: "½", frac14: "¼", frac34: "¾", times: "×", divide: "÷",
-  eacute: "é", egrave: "è", agrave: "à", ccedil: "ç", uuml: "ü", ouml: "ö", auml: "ä",
-};
-
-function decodeOnce(s: string): string {
-  return s
-    // numeric: &#39; and &#x27;
-    .replace(/&#(\d+);/g, (_, d) => {
-      const code = parseInt(d, 10);
-      return Number.isFinite(code) && code > 0 && code <= 0x10ffff
-        ? String.fromCodePoint(code)
-        : _;
-    })
-    .replace(/&#[xX]([0-9a-fA-F]+);/g, (_, h) => {
-      const code = parseInt(h, 16);
-      return Number.isFinite(code) && code > 0 && code <= 0x10ffff
-        ? String.fromCodePoint(code)
-        : _;
-    })
-    // named
-    .replace(/&([a-zA-Z][a-zA-Z0-9]*);/g, (m, name) => {
-      const key = String(name).toLowerCase();
-      return key in NAMED_ENTITIES ? NAMED_ENTITIES[key] : m;
-    });
-}
-
-function decodeEntities(s: string): string {
-  let out = s;
-  // 3 passes is ample for the double-encoding seen in the feed; the loop exits
-  // as soon as a pass makes no change.
-  for (let i = 0; i < 3; i++) {
-    const next = decodeOnce(out);
-    if (next === out) break;
-    out = next;
-  }
-  return out;
 }
 
 function extractTag(block: string, tag: string): string {

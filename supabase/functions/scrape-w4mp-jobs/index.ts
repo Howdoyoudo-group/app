@@ -14,6 +14,7 @@
 // without touching the DB.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { decodeEntities } from "../_shared/decode-entities.ts";
 
 declare const EdgeRuntime: { waitUntil?: (p: Promise<unknown>) => void } | undefined;
 
@@ -38,12 +39,6 @@ interface W4mpJob {
 }
 
 // ── HTML helpers ─────────────────────────────────────────────────────────────
-function decodeEntities(s: string): string {
-  return s
-    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&pound;/g, "£")
-    .replace(/&nbsp;/g, " ").replace(/&#(\d+);/g, (_, n) => String.fromCharCode(+n));
-}
 function stripTags(s: string): string {
   return decodeEntities(s.replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim();
 }

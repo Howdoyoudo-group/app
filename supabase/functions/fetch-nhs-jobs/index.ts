@@ -12,6 +12,9 @@
 // value-chain stages, and upsert on URL.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { decodeEntities } from "../_shared/decode-entities.ts";
+
+declare const EdgeRuntime: { waitUntil?: (p: Promise<unknown>) => void } | undefined;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -66,17 +69,6 @@ function classifyNhsRole(title: string): { stage: string; level: string } {
 }
 
 // ── HTML utilities ───────────────────────────────────────────────────
-function decodeEntities(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&nbsp;/g, " ")
-    .replace(/&#39;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&pound;/g, "£");
-}
-
 function stripTags(s: string): string {
   return decodeEntities(s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
 }

@@ -5,6 +5,7 @@ const corsHeaders = {
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { INDUSTRY_SYNONYMS, INDUSTRY_REGISTRY } from "../_shared/industry-registry.ts";
+import { decodeEntities } from "../_shared/decode-entities.ts";
 
 // ── Hospitality remap ───────────────────────────────────────────────
 // We don't have a "Hospitality" industry page anymore. Hospitality jobs
@@ -45,8 +46,15 @@ async function safeUpsertJobs(supabase: any, batch: any[]): Promise<number> {
   const remapped = batch.map((row) => {
     const mapped = remapHospitalityIndustry(row);
     const existingExpiry = mapped.expires_at ? new Date(mapped.expires_at).getTime() : 0;
+    // Single choke point for entity decoding: every adapter (Adzuna/Reed/Jooble
+    // JSON as well as the HTML/ATS scrapers) flows through here. The JSON APIs
+    // return raw "Sales &amp; Marketing" titles with no decoding of their own,
+    // so decode at the write boundary. Idempotent — already-clean text and rows
+    // an adapter already ran through cleanHtmlText are unaffected.
     return {
       ...mapped,
+      title: mapped.title ? decodeEntities(mapped.title) : mapped.title,
+      description: mapped.description ? decodeEntities(mapped.description) : mapped.description,
       scraped_at: new Date().toISOString(),
       expires_at: !existingExpiry || existingExpiry < new Date(minFreshExpiry).getTime()
         ? minFreshExpiry
@@ -2372,15 +2380,11 @@ const NHS_RSS_KEYWORDS_HEALTH = [
 const HEALTHJOBSUK_UA =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
 
+// Delegates to the shared decoder: covers the full named-entity set and unwinds
+// double-encoding, rather than the six-entity single pass this used to be.
+// cleanHtmlText() and the NHS RSS path both flow through here.
 function decodeXmlEntities(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&#x([0-9a-f]+);/gi, (_m, n) => String.fromCharCode(parseInt(n, 16)))
-    .replace(/&#(\d+);/g, (_m, n) => String.fromCharCode(Number(n)));
+  return decodeEntities(s);
 }
 
 function parseNhsRssItem(itemXml: string, keyword: string): any | null {

@@ -13,6 +13,7 @@
 // Accepts { dry_run?: boolean, max_pages?: number }.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { decodeEntities } from "../_shared/decode-entities.ts";
 
 declare const EdgeRuntime: { waitUntil?: (p: Promise<unknown>) => void } | undefined;
 
@@ -166,9 +167,9 @@ Deno.serve(async (req) => {
       // scrape-w4mp-jobs. lgjobs URLs are unique to this source.
       const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
       const rows = jobs.map((j) => ({
-        title: j.title,
-        company: j.company,
-        location: j.location,
+        title: decodeEntities(j.title),
+        company: decodeEntities(j.company),
+        location: j.location ? decodeEntities(j.location) : j.location,
         salary: j.salary,
         url: j.url,
         tags: ["Politics", "Local Government", "LGJobs"],
