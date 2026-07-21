@@ -173,7 +173,7 @@ const Building = () => {
           <div className="mt-12">
             <DayInTheLife industry="building" />
           </div>
-          <div className="mt-12"><IndustryRolesLink industry="Building" /></div>
+          
         </>
       ),
     },
@@ -183,6 +183,7 @@ const Building = () => {
       content: (
         <>
           <CareerMap title="Where You Fit In" subtitle="From blueprint to building — every role in the construction value chain." stages={buildingStages} industry="building" />
+          <div className="mt-12"><IndustryRolesLink industry="Building" /></div>
           <ExploreFurther links={[
             { title: "CIOB — Chartered Institute of Building", description: "The professional body for construction management — qualifications, membership, and career resources.", url: "https://www.ciob.org/careers" },
             { title: "RICS Careers", description: "The Royal Institution of Chartered Surveyors — routes into surveying, development, and project management.", url: "https://www.rics.org/uk/careers-in-land-property-construction" },

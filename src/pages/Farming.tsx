@@ -191,12 +191,13 @@ const Farming = () => {
         </a>
         <CompanyProfileGrid companies={farmingCompanies} />
         <div className="mt-12"><DayInTheLife industry="farming" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Farming" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From the farm gate to AgriTech and rural business - every role in British farming." stages={farmingStages} industry="farming" />
+          <div className="mt-12"><IndustryRolesLink industry="Farming" /></div>
         <ExploreFurther links={[
           { title: "Institute of Agricultural Management", description: "Professional body for farm managers and rural business leaders - qualifications, events, networking.", url: "https://www.iagrm.com" },
           { title: "LANTRA - Land-Based Careers", description: "The skills body for the UK's land-based and environmental sector - courses, apprenticeships, careers.", url: "https://www.lantra.co.uk" },

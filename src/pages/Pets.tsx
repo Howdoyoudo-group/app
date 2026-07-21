@@ -126,12 +126,13 @@ const Pets = () => {
       <>
         <CompanyProfileGrid companies={petsCompanies} />
         <div className="mt-12"><DayInTheLife industry="pets" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Pets" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From veterinary practice to pet food innovation - every role in the pets industry." stages={petsStages} industry="pets" />
+          <div className="mt-12"><IndustryRolesLink industry="Pets" /></div>
         <ExploreFurther links={[
           { title: "RCVS - Careers in Veterinary", description: "The Royal College of Veterinary Surgeons' guide to careers as a vet, vet nurse, and allied roles.", url: "https://www.rcvs.org.uk" },
           { title: "BVA - Become a Vet", description: "The British Veterinary Association's guide to veterinary training, routes, and what to expect.", url: "https://www.bva.co.uk/your-career/" },

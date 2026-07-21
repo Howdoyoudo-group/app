@@ -202,7 +202,7 @@ const Bakery = () => {
               ))}
             </div>
           </div>
-          <div className="mt-12"><IndustryRolesLink industry="Bakery" /></div>
+          
         </>
       ),
     },
@@ -212,6 +212,7 @@ const Bakery = () => {
       content: (
         <>
           <CareerMap title="Where You Fit In" subtitle="From flour to franchise - every role in the bakery value chain." stages={bakeryStages} industry="bakery" />
+          <div className="mt-12"><IndustryRolesLink industry="Bakery" /></div>
           <ExploreFurther links={[
             { title: "The Craft Bakers Association", description: "The trade body for independent and craft bakeries - training, events, and career resources.", url: "https://www.craftbakersassociation.co.uk" },
           ]} />

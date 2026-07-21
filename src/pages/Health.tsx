@@ -134,12 +134,13 @@ const Health = () => {
       <>
         <CompanyProfileGrid companies={healthCompanies} />
         <div className="mt-12"><DayInTheLife industry="health" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Health" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From the NHS to MedTech, care to pharma - every career in UK health and social care." stages={healthStages} industry="health" />
+          <div className="mt-12"><IndustryRolesLink industry="Health" /></div>
         <ExploreFurther links={[
           { title: "NHS Careers", description: "The official guide to 350+ NHS roles - clinical and non-clinical, training routes and apprenticeships.", url: "https://www.healthcareers.nhs.uk" },
           { title: "Skills for Care", description: "The strategic body for the adult social care workforce in England - careers, training, employers.", url: "https://www.skillsforcare.org.uk" },

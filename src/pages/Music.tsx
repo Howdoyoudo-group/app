@@ -144,12 +144,13 @@ const Music = () => {
           <h2 className="font-display text-2xl md:text-3xl font-700 mb-6">Infographics<span className="text-primary">.</span></h2>
           <img src={musicCareerMap} alt="The Music Value Chain" className="w-full rounded-sm" loading="lazy" />
         </div>
-        <div className="mt-12"><IndustryRolesLink industry="Music" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From songwriting to stage - the roles that make the music industry work." stages={musicStages} industry="music" />
+          <div className="mt-12"><IndustryRolesLink industry="Music" /></div>
         <ExploreFurther links={[
           { title: "UK Music - Careers", description: "The industry body representing the UK's commercial music sector, with career guides and workforce data.", url: "https://www.ukmusic.org/skills-academy/" },
           { title: "UK Music - Skills Academy", description: "The umbrella body for the UK's commercial music industry - workforce data, skills resources, and career pathways.", url: "https://www.ukmusic.org/skills-academy/" },

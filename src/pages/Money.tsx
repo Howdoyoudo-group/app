@@ -133,12 +133,13 @@ const Money = () => {
       <>
         <CompanyProfileGrid companies={moneyCompanies} />
         <div className="mt-12"><DayInTheLife industry="money" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Money" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From the high street to Lloyd's, hedge funds to fintech - every career in the money industry." stages={moneyStages} industry="money" />
+          <div className="mt-12"><IndustryRolesLink industry="Money" /></div>
         <ExploreFurther links={[
           { title: "FCA Careers", description: "The Financial Conduct Authority - the UK's financial regulator hires across policy, supervision and enforcement.", url: "https://www.fca.org.uk/about/careers" },
           { title: "ICAEW - Become a Chartered Accountant", description: "The Institute of Chartered Accountants in England and Wales - qualifications, ACA and careers.", url: "https://www.icaew.com/learning-and-development/aca" },

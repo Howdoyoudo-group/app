@@ -166,7 +166,7 @@ const Delivery = () => {
           <div className="mt-12">
             <DayInTheLife industry="delivery" />
           </div>
-          <div className="mt-12"><IndustryRolesLink industry="Delivery" /></div>
+          
         </>
       ),
     },
@@ -176,6 +176,7 @@ const Delivery = () => {
       content: (
         <>
           <CareerMap title="Where You Fit In" subtitle="From the depot to the data team — every role in the delivery and logistics industry." stages={deliveryStages} industry="delivery" />
+          <div className="mt-12"><IndustryRolesLink industry="Delivery" /></div>
           <ExploreFurther links={[
             { title: "CILT — Chartered Institute of Logistics and Transport", description: "Professional body for logistics, supply chain, and transport — qualifications, events, and career support.", url: "https://www.ciltuk.org.uk/Careers/Career-Resources" },
             { title: "Road Haulage Association", description: "The UK trade body for road haulage — advice on HGV licensing, driver training, and industry news.", url: "https://www.rha.uk.net/membership/rha-membership/drivers" },

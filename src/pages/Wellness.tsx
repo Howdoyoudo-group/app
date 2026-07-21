@@ -141,12 +141,13 @@ const Wellness = () => {
       <>
         <CompanyProfileGrid companies={wellnessCompanies} />
         <div className="mt-12"><DayInTheLife industry="wellness" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Wellness" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From the gym floor to the boardroom - every role in the wellness value chain." stages={wellnessStages} industry="wellness" />
+          <div className="mt-12"><IndustryRolesLink industry="Wellness" /></div>
         <ExploreFurther links={[
           { title: "CIMSPA - Careers in Sport & Physical Activity", description: "The Chartered Institute for the Management of Sport and Physical Activity - career pathways and professional standards.", url: "https://www.cimspa.co.uk/careers" },
           { title: "ukactive - Workforce", description: "The sector body for the UK's physical activity industry, with workforce development resources.", url: "https://www.ukactive.com" },

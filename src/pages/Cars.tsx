@@ -151,9 +151,6 @@ const Cars = () => {
           <div className="mt-12">
             <DayInTheLife industry="cars" />
           </div>
-          <div className="mt-12">
-            <IndustryRolesLink industry="Cars" />
-          </div>
         </>
       ),
     },
@@ -163,6 +160,9 @@ const Cars = () => {
       content: (
         <>
           <CareerMap title="Where You Fit In" subtitle="From design studio to showroom - the roles that power every stage of the automotive industry." stages={carsStages} industry="cars" />
+          <div className="mt-12">
+            <IndustryRolesLink industry="Cars" />
+          </div>
           <ExploreFurther links={[
             { title: "IMI Motor Careers", description: "Explore career paths across the motor industry with the Institute of the Motor Industry.", url: "https://tide.theimi.org.uk/motor-careers" },
             { title: "SMMT - Workforce of the Future", description: "The Society of Motor Manufacturers and Traders on skills, talent, and the future automotive workforce.", url: "https://www.smmt.co.uk/automotive-intelligence/workforce-of-the-future/" },

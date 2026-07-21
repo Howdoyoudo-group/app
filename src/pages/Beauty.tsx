@@ -145,9 +145,6 @@ const Beauty = () => {
           <div className="mt-12">
             <DayInTheLife industry="beauty" />
           </div>
-          <div className="mt-12">
-            <IndustryRolesLink industry="Beauty" />
-          </div>
         </>
       ),
     },
@@ -157,6 +154,9 @@ const Beauty = () => {
       content: (
         <>
           <CareerMap title="Where You Fit In" subtitle="From the lab to the salon - the roles that power every stage of the beauty industry." stages={beautyStages} industry="beauty" />
+          <div className="mt-12">
+            <IndustryRolesLink industry="Beauty" />
+          </div>
           <ExploreFurther links={[
             { title: "HABIA - Careers in Hair & Beauty", description: "The government-approved standards setting body for hair, beauty, nails, and spa industries.", url: "https://www.habia.org/careers/" },
             { title: "BABTAC - Career Hub", description: "The British Association of Beauty Therapy & Cosmetology's career advice and industry resources.", url: "https://www.babtac.com" },

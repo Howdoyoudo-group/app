@@ -155,12 +155,13 @@ const Footwear = () => {
             ))}
           </div>
         </div>
-        <div className="mt-12"><IndustryRolesLink industry="Footwear" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From last to lace - every role in the footwear value chain." stages={footwearStages} industry="footwear" />
+          <div className="mt-12"><IndustryRolesLink industry="Footwear" /></div>
         <ExploreFurther links={[
           { title: "British Footwear Association", description: "The trade body for the UK footwear industry - industry data, careers, and events.", url: "https://www.britishfootwearassociation.co.uk" },
         ]} />

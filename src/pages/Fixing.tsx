@@ -169,7 +169,7 @@ const Fixing = () => {
           <div className="mt-12">
             <DayInTheLife industry="fixing" />
           </div>
-          <div className="mt-12"><IndustryRolesLink industry="Fixing" /></div>
+          
         </>
       ),
     },
@@ -179,6 +179,7 @@ const Fixing = () => {
       content: (
         <>
           <CareerMap title="Where You Fit In" subtitle="From first call-out to running your own business — every role in the fixing industry." stages={fixingStages} industry="fixing" />
+          <div className="mt-12"><IndustryRolesLink industry="Fixing" /></div>
           <ExploreFurther links={[
             { title: "JIB — Joint Industry Board (Electrical)", description: "The industry body for electricians — grading, pay scales, training, and apprenticeships.", url: "https://www.jib.org.uk/career-information/" },
             { title: "Gas Safe Register", description: "The official gas registration body — essential for anyone working with gas appliances in the UK.", url: "https://www.gassaferegister.co.uk/about-gas-safe-register/careers-in-gas/" },

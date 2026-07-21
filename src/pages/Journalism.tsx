@@ -142,12 +142,13 @@ const Journalism = () => {
       <>
         <CompanyProfileGrid companies={journalismCompanies} />
         <div className="mt-12"><DayInTheLife industry="journalism" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Journalism" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From the newsroom to the front page - every role behind the stories that matter." stages={journalismStages} industry="journalism" />
+          <div className="mt-12"><IndustryRolesLink industry="Journalism" /></div>
         <ExploreFurther links={[
           { title: "NCTJ - Careers in Journalism", description: "The National Council for the Training of Journalists - the industry's accreditation body for training and qualifications.", url: "https://www.nctj.com/journalism-careers/" },
           { title: "BBC Academy", description: "Free training resources and career advice from the BBC across journalism, production, and technology.", url: "https://www.bbc.co.uk/academy" },

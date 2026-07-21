@@ -174,9 +174,6 @@ const Coffee = () => {
             <DayInTheLife industry="coffee" />
           </div>
           <div className="mt-12">
-            <IndustryRolesLink industry="Coffee" />
-          </div>
-          <div className="mt-12">
             <h2 className="font-display text-2xl md:text-3xl font-700 mb-6">Infographics<span className="text-primary">.</span></h2>
             <img src={coffeeInfographic} alt="The Business of Beans infographic" className="w-full rounded-sm" />
             <img src={coffeeCareerMap} alt="The Coffee Value Chain infographic" className="w-full rounded-sm mt-6" loading="lazy" />
@@ -190,6 +187,9 @@ const Coffee = () => {
       content: (
         <>
           <CareerMap title="Where You Fit In" subtitle="From farm to cup - the roles that power every stage of the coffee value chain." stages={coffeeStages} industry="coffee" />
+          <div className="mt-12">
+            <IndustryRolesLink industry="Coffee" />
+          </div>
           <ExploreFurther links={[
             { title: "SCA - Specialty Coffee Association", description: "The global trade body for specialty coffee - training, certifications, and career development.", url: "https://sca.coffee/education" },
           ]} />

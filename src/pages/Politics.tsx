@@ -170,7 +170,7 @@ const Politics = () => {
           <div className="mt-12">
             <DayInTheLife industry="politics" />
           </div>
-          <div className="mt-12"><IndustryRolesLink industry="Politics" /></div>
+          
         </>
       ),
     },
@@ -180,6 +180,7 @@ const Politics = () => {
       content: (
         <>
           <CareerMap title="Where You Fit In" subtitle="From a council planning office to the Cabinet Office — every route into UK politics and government." stages={politicsStages} industry="politics" />
+          <div className="mt-12"><IndustryRolesLink industry="Politics" /></div>
           <ExploreFurther links={[
             { title: "Civil Service Careers", description: "Official hub for civil service professions, the Fast Stream, and entry routes including apprenticeships.", url: "https://www.civil-service-careers.gov.uk" },
             { title: "w4mp — Working for an MP", description: "The definitive jobs board and guide for anyone working for an MP in Westminster.", url: "https://w4mp.org" },

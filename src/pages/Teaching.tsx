@@ -137,12 +137,13 @@ const Teaching = () => {
           <h2 className="font-display text-2xl md:text-3xl font-700 mb-6">Infographics<span className="text-primary">.</span></h2>
           <img src={teachingCareerMap} alt="The Teaching Value Chain" className="w-full rounded-sm" loading="lazy" />
         </div>
-        <div className="mt-12"><IndustryRolesLink industry="Teaching" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From policy to the classroom - every role in the education value chain." stages={teachingStages} industry="teaching" />
+          <div className="mt-12"><IndustryRolesLink industry="Teaching" /></div>
         <ExploreFurther links={[
           { title: "Get Into Teaching", description: "The Department for Education's official guide to becoming a teacher - routes, funding, and application support.", url: "https://getintoteaching.education.gov.uk" },
           { title: "Teach First - Career Changers", description: "A leading charity placing graduates and career changers into schools serving low-income communities.", url: "https://www.teachfirst.org.uk" },

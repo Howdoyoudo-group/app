@@ -154,12 +154,13 @@ const Grocery = () => {
           <img src={ocadoInfographic} alt="From Grocer to Global Tech Powerhouse: 25 Years of Ocado Innovation" className="w-full border border-border" loading="lazy" />
            <img src={groceryCareerMap} alt="The Grocery Value Chain: Careers From Farm to Shelf" className="w-full rounded-sm mt-6" loading="lazy" />
          </div>
-         <div className="mt-12"><IndustryRolesLink industry="Grocery" /></div>
+         
        </>
      )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From field to fridge - every role across the grocery supply chain." stages={groceryStages} industry="grocery" />
+          <div className="mt-12"><IndustryRolesLink industry="Grocery" /></div>
         <ExploreFurther links={[
           { title: "IGD - Careers in Food & Grocery", description: "The research and training charity for the food and grocery industry - career pathways and workforce insights.", url: "https://www.igd.com" },
           { title: "Food & Drink Federation - Careers", description: "The FDF's guide to careers in food and drink manufacturing - the UK's largest manufacturing sector.", url: "https://www.fdf.org.uk" },

@@ -141,12 +141,13 @@ const Travel = () => {
       <>
         <CompanyProfileGrid companies={travelCompanies} />
         <div className="mt-12"><DayInTheLife industry="travel" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Travel" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From runways to railways, platforms to packages - the people and business behind how the world moves." stages={travelStages} industry="travel" />
+          <div className="mt-12"><IndustryRolesLink industry="Travel" /></div>
         <ExploreFurther links={[
           { title: "ABTA - Careers in Travel", description: "The Association of British Travel Agents - career resources, qualifications, and training for the travel industry.", url: "https://www.abta.com/industry-zone/education-and-career-development/careers-in-travel" },
           { title: "Institute of Travel and Tourism", description: "The UK's professional body for travel and tourism - education, CPD, and career pathways.", url: "https://www.itt.co.uk" },

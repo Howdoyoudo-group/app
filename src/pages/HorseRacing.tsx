@@ -134,12 +134,13 @@ const HorseRacing = () => {
       <>
         <CompanyProfileGrid companies={horseRacingCompanies} />
         <div className="mt-12"><DayInTheLife industry="horse-racing" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Horse Racing" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From the stable yard to the saddle, the racecourse to the boardroom - every role in British racing." stages={horseRacingStages} industry="horse-racing" />
+          <div className="mt-12"><IndustryRolesLink industry="Horse Racing" /></div>
         <ExploreFurther links={[
           { title: "Careers in Racing", description: "The official careers hub for British horseracing - jobs, training and apprenticeships.", url: "https://www.careersinracing.com" },
           { title: "British Racing School", description: "Newmarket-based training centre - foundation, jockey and stable-staff courses.", url: "https://www.brs.org.uk" },

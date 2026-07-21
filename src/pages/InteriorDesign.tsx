@@ -141,12 +141,13 @@ const InteriorDesign = () => {
           <h2 className="font-display text-2xl md:text-3xl font-700 mb-6">Infographics<span className="text-primary">.</span></h2>
           <img src={interiorDesignCareerMap} alt="The Interior Design Value Chain" className="w-full rounded-sm" loading="lazy" />
         </div>
-        <div className="mt-12"><IndustryRolesLink industry="Interior Design" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From brief to handover - the roles that shape every space." stages={interiorDesignStages} industry="interior-design" />
+          <div className="mt-12"><IndustryRolesLink industry="Interior Design" /></div>
         <ExploreFurther links={[
           { title: "BIID - Become an Interior Designer", description: "The British Institute of Interior Design's guide to qualifications, accreditation, and career development.", url: "https://biid.org.uk" },
         ]} />

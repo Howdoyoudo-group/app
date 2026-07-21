@@ -124,12 +124,13 @@ const Physiotherapy = () => {
       <>
         <CompanyProfileGrid companies={physiotherapyCompanies} />
         <div className="mt-12"><DayInTheLife industry="physiotherapy" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Physiotherapy" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From student placement to consultant practitioner - every role in the physiotherapy value chain." stages={physiotherapyStages} industry="physiotherapy" />
+          <div className="mt-12"><IndustryRolesLink industry="Physiotherapy" /></div>
         <ExploreFurther links={[
           { title: "CSP - Careers in Physiotherapy", description: "The Chartered Society of Physiotherapy's guide to becoming a physio, career development, and specialisms.", url: "https://www.csp.org.uk/careers-jobs" },
           { title: "NHS Health Careers - Physiotherapist", description: "The NHS guide to physiotherapy careers, training routes, and what to expect from the role.", url: "https://www.healthcareers.nhs.uk/explore-roles/allied-health-professionals/physiotherapist" },

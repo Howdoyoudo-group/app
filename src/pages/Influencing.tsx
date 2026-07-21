@@ -127,12 +127,13 @@ const Influencing = () => {
       <>
         <CompanyProfileGrid companies={influencingCompanies} />
         <div className="mt-12"><DayInTheLife industry="influencing" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Influencing" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From solo creators to global agencies - every role in the creator economy." stages={influencingStages} industry="influencing" />
+          <div className="mt-12"><IndustryRolesLink industry="Influencing" /></div>
         <ExploreFurther links={[
           { title: "Influencer Marketing Hub - Careers", description: "Industry research, salary benchmarks and career routes across the global creator economy.", url: "https://influencermarketinghub.com" },
           { title: "Passionfroot - For Creators", description: "Tools and resources for creators turning content into a business.", url: "https://www.passionfroot.me" },

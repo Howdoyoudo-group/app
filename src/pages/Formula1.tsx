@@ -131,12 +131,13 @@ const Formula1 = () => {
       <>
         <CompanyProfileGrid companies={formula1Companies} />
         <div className="mt-12"><DayInTheLife industry="formula-1" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Formula 1" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From the factory floor to the pit wall, the wind tunnel to the boardroom - every role in F1." stages={formula1Stages} industry="formula-1" />
+          <div className="mt-12"><IndustryRolesLink industry="Formula 1" /></div>
         <ExploreFurther links={[
           { title: "F1 Careers", description: "Official Formula 1 careers page - roles across the sport's London HQ.", url: "https://corp.formula1.com/careers/" },
           { title: "Motorsportjobs.com", description: "The dedicated F1 and motorsport jobs board - 200+ live roles.", url: "https://www.motorsportjobs.com/en/jobs/industry/formula-1-10611" },

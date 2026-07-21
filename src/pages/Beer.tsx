@@ -133,12 +133,13 @@ const Beer = () => {
       <>
         <CompanyProfileGrid companies={beerCompanies} />
         <div className="mt-12"><DayInTheLife industry="beer" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Beer" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From grain to glass - the roles behind every pint, tap, and taproom." stages={beerStages} industry="beer" />
+          <div className="mt-12"><IndustryRolesLink industry="Beer" /></div>
         <ExploreFurther links={[
           { title: "SIBA - Careers in Brewing", description: "The Society of Independent Brewers' resources on careers, apprenticeships, and training in the brewing industry.", url: "https://www.siba.co.uk" },
           { title: "British Beer & Pub Association", description: "The trade body representing UK brewers and pubs - industry data, careers, and workforce insights.", url: "https://beerandpub.com" },

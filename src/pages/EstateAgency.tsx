@@ -138,10 +138,11 @@ const EstateAgency = () => {
       <div className="mt-12"><SubstackNewsletters industry="estate-agency" /></div>
     </>) },
     { id: "watch", label: "Watch", content: <><VideoShowcase heading="Unpacking on Screen" clips={industryVideos["estate-agency"] || []} /><div className="mt-12"><YouTubeChannels industry="estate-agency" /><TikTokCreators industry="estate-agency" /></div></> },
-    { id: "work", label: "Who?", content: (<><CompanyProfileGrid companies={estateAgencyCompanies} /><div className="mt-12"><DayInTheLife industry="estate-agency" /></div><div className="mt-12"><IndustryRolesLink industry="Estate Agency" /></div></>) },
+    { id: "work", label: "Who?", content: (<><CompanyProfileGrid companies={estateAgencyCompanies} /><div className="mt-12"><DayInTheLife industry="estate-agency" /></div></>) },
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From valuation to completion - the roles behind every property transaction." stages={estateAgencyStages} industry="estate-agency" />
+          <div className="mt-12"><IndustryRolesLink industry="Estate Agency" /></div>
         <ExploreFurther links={[
           { title: "Propertymark - Careers", description: "The professional body for estate and letting agents - qualifications, regulation, and career development.", url: "https://www.propertymark.co.uk/careers-in-property/" },
           { title: "RICS - Surveying Careers", description: "The Royal Institution of Chartered Surveyors' guide to careers in property, construction, and land.", url: "https://www.rics.org/surveying-profession/pathways-into-surveying" },

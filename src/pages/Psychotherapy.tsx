@@ -125,12 +125,13 @@ const Psychotherapy = () => {
       <>
         <CompanyProfileGrid companies={psychotherapyCompanies} />
         <div className="mt-12"><DayInTheLife industry="psychotherapy" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Psychotherapy" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From trainee to thought leader - every role in the talking therapies value chain." stages={psychotherapyStages} industry="psychotherapy" />
+          <div className="mt-12"><IndustryRolesLink industry="Psychotherapy" /></div>
         <ExploreFurther links={[
           { title: "BACP - Careers in Counselling", description: "The British Association for Counselling and Psychotherapy's guide to training, qualifications, and career paths.", url: "https://www.bacp.co.uk/careers/" },
           { title: "UKCP - Become a Psychotherapist", description: "The UK Council for Psychotherapy's resources on training routes and professional registration.", url: "https://www.psychotherapy.org.uk" },

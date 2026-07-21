@@ -161,13 +161,14 @@ const Charity = () => {
             <h2 className="font-display text-2xl md:text-3xl font-700 mb-6">Infographics<span className="text-primary">.</span></h2>
             <img src={charityCareerMap} alt="The Charity Value Chain infographic" className="w-full rounded-sm" loading="lazy" />
           </div>
-          <div className="mt-12"><IndustryRolesLink industry="Charity" /></div>
+          
         </>
       ),
     },
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From mission to impact - the roles that power the third sector." stages={charityStages} industry="charity" />
+          <div className="mt-12"><IndustryRolesLink industry="Charity" /></div>
         <ExploreFurther links={[
           { title: "NCVO - Working in the Voluntary Sector", description: "The National Council for Voluntary Organisations' career resources, training, and sector insights.", url: "https://www.ncvo.org.uk/get-involved/volunteering/" },
           { title: "Charity Job - Career Advice", description: "The UK's largest charity sector job board, with guides on breaking into and progressing in the third sector.", url: "https://www.charityjob.co.uk/careeradvice" },

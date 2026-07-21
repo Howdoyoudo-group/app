@@ -87,10 +87,11 @@ const Fashion = () => {
       <div className="mt-12"><SubstackNewsletters industry="fashion" /></div>
     </>) },
     { id: "watch", label: "Watch", content: <><VideoShowcase heading="Unpacking on Screen" clips={industryVideos["fashion"] || []} /><div className="mt-12"><YouTubeChannels industry="fashion" /><TikTokCreators industry="fashion" /></div></> },
-    { id: "work", label: "Who?", content: (<><CompanyProfileGrid companies={fashionCompanies} /><div className="mt-12"><DayInTheLife industry="fashion" /></div><div className="mt-12"><IndustryRolesLink industry="Fashion" /></div><div className="mt-12"><h2 className="font-display text-2xl md:text-3xl font-700 mb-6">Infographics<span className="text-primary">.</span></h2><img src={fashionInfographic} alt="Fashion infographic" className="w-full rounded-sm" /><img src={fashionCareerMap} alt="Fashion career map infographic" className="w-full rounded-sm mt-6" loading="lazy" /></div></>) },
+    { id: "work", label: "Who?", content: (<><CompanyProfileGrid companies={fashionCompanies} /><div className="mt-12"><DayInTheLife industry="fashion" /></div><div className="mt-12"><h2 className="font-display text-2xl md:text-3xl font-700 mb-6">Infographics<span className="text-primary">.</span></h2><img src={fashionInfographic} alt="Fashion infographic" className="w-full rounded-sm" /><img src={fashionCareerMap} alt="Fashion career map infographic" className="w-full rounded-sm mt-6" loading="lazy" /></div></>) },
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From sketch to wardrobe - the roles across the fashion value chain." stages={fashionStages} industry="fashion" />
+          <div className="mt-12"><IndustryRolesLink industry="Fashion" /></div>
         <ExploreFurther links={[
           { title: "British Fashion Council - Careers", description: "The BFC supports emerging talent and provides career resources across the UK fashion industry.", url: "https://www.britishfashioncouncil.co.uk/careers" },
           { title: "Fashion Minority Report", description: "Resources, mentorship, and career advice promoting diversity and inclusion in fashion.", url: "https://www.fashionminorityreport.com" },

@@ -170,7 +170,7 @@ const Theatre = () => {
           <div className="mt-12">
             <DayInTheLife industry="theatre" />
           </div>
-          <div className="mt-12"><IndustryRolesLink industry="Theatre" /></div>
+          
         </>
       ),
     },
@@ -180,6 +180,7 @@ const Theatre = () => {
       content: (
         <>
           <CareerMap title="Where You Fit In" subtitle="From front of house at your local venue to designing lighting for a West End musical — every route into UK theatre, on stage and off it." stages={theatreStages} industry="theatre" />
+          <div className="mt-12"><IndustryRolesLink industry="Theatre" /></div>
           <ExploreFurther links={[
             { title: "Spotlight", description: "The essential UK casting directory — build a profile here once you have professional credits, training or agent representation. The single most important platform for a performing career.", url: "https://www.spotlight.com" },
             { title: "UK Theatre — Industry Job Vacancies", description: "The trade body's own jobs board, covering venues and companies across the UK.", url: "https://uktheatre.org/jobs/" },

@@ -157,12 +157,13 @@ const Hospitality = () => {
           <h2 className="font-display text-2xl md:text-3xl font-700 mb-6">Infographics<span className="text-primary">.</span></h2>
           <img src={hospitalityCareerMap} alt="The Food and Drink Value Chain" className="w-full rounded-sm" loading="lazy" />
         </div>
-        <div className="mt-12"><IndustryRolesLink industry="Hospitality" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From concept to customer - the roles behind every restaurant, bar, and kitchen." stages={hospitalityStages} industry="food-drink" />
+          <div className="mt-12"><IndustryRolesLink industry="Hospitality" /></div>
         <ExploreFurther links={[
           { title: "Institute of Hospitality", description: "The professional body for the hospitality industry - qualifications, career support, and networking.", url: "https://www.instituteofhospitality.org/careers/" },
           { title: "Springboard - Hospitality Careers", description: "The charity supporting people into careers across hospitality, leisure, and tourism.", url: "https://springboard.uk.net" },

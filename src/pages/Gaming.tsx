@@ -134,12 +134,13 @@ const Gaming = () => {
       <>
         <CompanyProfileGrid companies={gamingCompanies} />
         <div className="mt-12"><DayInTheLife industry="gaming" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Gaming" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From concept art to competitive esports - every role in the games industry." stages={gamingStages} industry="gaming" />
+          <div className="mt-12"><IndustryRolesLink industry="Gaming" /></div>
         <ExploreFurther links={[
           { title: "UKIE - The UK Games Industry Body", description: "The trade body for the UK games industry, with career resources, events, and workforce data.", url: "https://ukie.org.uk" },
           { title: "Into Games", description: "Free career resources, mentoring, and events helping people break into the games industry.", url: "https://intogames.org" },

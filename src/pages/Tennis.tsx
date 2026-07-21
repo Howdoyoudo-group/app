@@ -255,7 +255,7 @@ const Tennis = () => {
           <div className="mt-12">
             <DayInTheLife industry="tennis" />
           </div>
-          <div className="mt-12"><IndustryRolesLink industry="Tennis" /></div>
+          
         </>
       ),
     },
@@ -265,6 +265,7 @@ const Tennis = () => {
       content: (
         <>
           <CareerMap title="Where You Fit In" subtitle="From the practice court to the boardroom — every career in the tennis industry." stages={tennisStages} industry="tennis" />
+          <div className="mt-12"><IndustryRolesLink industry="Tennis" /></div>
           <ExploreFurther links={[
             { title: "LTA Coaching Pathway", description: "The official route to becoming a qualified tennis coach in Great Britain — Level 1 through to Master Professional.", url: "https://www.lta.org.uk/play-and-compete/ways-to-play/coaching/become-a-coach/" },
             { title: "ITF Officiating", description: "How to become an international tennis umpire or referee — training courses, grading, and progression to Grand Slam events.", url: "https://www.itftennis.com/en/growing-the-game/officiating/" },

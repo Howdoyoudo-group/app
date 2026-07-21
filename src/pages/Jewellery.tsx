@@ -128,12 +128,13 @@ const Jewellery = () => {
       <>
         <CompanyProfileGrid companies={jewelleryCompanies} />
         <div className="mt-12"><DayInTheLife industry="jewellery" /></div>
-        <div className="mt-12"><IndustryRolesLink industry="Jewellery" /></div>
+        
       </>
     )},
     { id: "plan", label: "Plan", content: (
       <>
         <CareerMap title="Where You Fit In" subtitle="From gemstone sourcing to Mayfair boutiques - every role in the jewellery industry." stages={jewelleryStages} industry="jewellery" />
+          <div className="mt-12"><IndustryRolesLink industry="Jewellery" /></div>
         <ExploreFurther links={[
           { title: "NAJ - Careers in Jewellery", description: "The National Association of Jewellers' career resources, training pathways, and industry insights.", url: "https://www.naj.co.uk/about" },
           { title: "The Goldsmiths' Company - Training", description: "Apprenticeships and training programmes from the historic City of London livery company.", url: "https://www.thegoldsmiths.co.uk/about/" },

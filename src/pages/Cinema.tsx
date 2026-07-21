@@ -127,9 +127,6 @@ const Cinema = () => {
           <div className="mt-12">
             <DayInTheLife industry="cinema" />
           </div>
-          <div className="mt-12">
-            <IndustryRolesLink industry="Film and TV" />
-          </div>
         </>
       ),
     },
@@ -139,6 +136,9 @@ const Cinema = () => {
       content: (
         <>
           <CinemaCareerMap />
+          <div className="mt-12">
+            <IndustryRolesLink industry="Film and TV" />
+          </div>
           <ExploreFurther links={[
             { title: "ScreenSkills", description: "The industry-led skills body for the UK's screen industries - careers advice, training, and bursaries.", url: "https://www.screenskills.com/starting-your-career/" },
             { title: "BFI - Work in Film", description: "The British Film Institute's guide to careers, training, and opportunities across the UK film sector.", url: "https://www.bfi.org.uk" },
