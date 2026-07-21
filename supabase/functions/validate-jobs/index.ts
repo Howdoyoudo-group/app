@@ -551,7 +551,10 @@ function classifyRow(job: RowJob): Verdict {
 
 // Delete/update in chunks so a page's worth of verdicts costs a couple of
 // round-trips instead of one per row.
-const DB_CHUNK = 200;
+// Small chunks: the jobs table's HNSW embedding index makes each row
+// delete/update cost ~30-80ms, so a 200-row statement can pass the 8s timeout.
+// 60 keeps every write statement comfortably under it.
+const DB_CHUNK = 60;
 async function chunkedDelete(supabase: SupabaseClient, ids: string[]) {
   for (let i = 0; i < ids.length; i += DB_CHUNK) {
     const { error } = await supabase.from("jobs").delete().in("id", ids.slice(i, i + DB_CHUNK));
@@ -593,6 +596,7 @@ Deno.serve(async (req) => {
       banned_company: 0,
       expired: 0,
       expired_purge_aborted: false as boolean,
+      timed_out: false as boolean,
       details: [] as string[],
     };
 
@@ -673,87 +677,100 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Scan in pages. Per page, collect verdicts and flush deletes/reassigns
-      // in bulk — the old code awaited one DB round-trip PER ROW, which is what
-      // pushed a full ~60k-row run past the worker's CPU budget.
-      let offset = 0;
-      let hasMore = true;
-      while (hasMore) {
+      // Walk the table by PRIMARY KEY (id) from a persisted cursor. This is a
+      // fast index-only read and — crucially — writes NOTHING to jobs just to
+      // track position (the HNSW embedding index makes per-row jobs updates far
+      // too slow to stamp every row). The only jobs writes are the necessary
+      // deletes/reassigns. Runs SYNCHRONOUSLY, bounded by maxRows + a time-box,
+      // so it returns within the request limit; the cursor + a frequent cron
+      // cover the whole table over successive runs. When the walk reaches the
+      // end it wraps back to the start (id 0) next run.
+      const ZERO_UUID = "00000000-0000-0000-0000-000000000000";
+      const RUN_BUDGET_MS = dryRun ? 120_000 : 25_000;
+      const maxRows = dryRun ? Infinity : (typeof body.max_rows === "number" ? body.max_rows : 1500);
+      const persistCursor = !dryRun && !targetIndustry;
+      const saveCursor = async (id: string | null) => {
+        if (persistCursor) {
+          await supabase.from("validate_cursor").update({ last_id: id, updated_at: new Date().toISOString() }).eq("id", true);
+        }
+      };
+      const runStart = Date.now();
+
+      // Full (unscoped) real runs resume from the saved cursor; scoped and dry
+      // runs walk their (small) set from the start each time.
+      let cursor = ZERO_UUID;
+      if (persistCursor) {
+        const { data: cur } = await supabase.from("validate_cursor").select("last_id").eq("id", true).maybeSingle();
+        if (cur?.last_id) cursor = cur.last_id;
+      }
+
+      let reachedEnd = false;
+      while (true) {
+        if (Date.now() - runStart > RUN_BUDGET_MS) { results.timed_out = true; break; }
+        if (results.scanned >= maxRows) break;
+
         let query = supabase
           .from("jobs")
           .select("id, title, company, industry, description, source_url")
-          .range(offset, offset + batchSize - 1);
+          .gt("id", cursor)
+          .order("id", { ascending: true })
+          .limit(batchSize);
         if (targetIndustry) query = query.eq("industry", targetIndustry);
 
         const { data: jobs, error } = await query;
         if (error) throw error;
-        if (!jobs || jobs.length === 0) break;
-
+        if (!jobs || jobs.length === 0) { reachedEnd = true; break; }
+        cursor = jobs[jobs.length - 1].id;
         results.scanned += jobs.length;
 
         const toDelete: string[] = [];
         const toReassign = new Map<string, string[]>();
-
         for (const job of jobs as RowJob[]) {
           const v = classifyRow(job);
-          if (v.action === "keep") continue;
           if (v.action === "delete") {
             toDelete.push(job.id);
             results[v.counter]++;
             addDetail(v.detail);
-          } else {
+          } else if (v.action === "reassign") {
             let ids = toReassign.get(v.industry);
             if (!ids) { ids = []; toReassign.set(v.industry, ids); }
             ids.push(job.id);
             results.reassigned++;
             addDetail(v.detail);
           }
+          // kept rows need no write — no per-row marking (see comment above)
         }
 
         if (!dryRun) {
           if (toDelete.length) await chunkedDelete(supabase, toDelete);
           for (const [ind, ids] of toReassign) await chunkedReassign(supabase, ids, ind);
         }
+        // Save progress after every batch, so a later slow batch that times out
+        // never loses the batches already done — the next run resumes past them.
+        await saveCursor(cursor);
 
-        if (jobs.length < batchSize) hasMore = false;
-        else offset += batchSize;
+        if (jobs.length < batchSize) { reachedEnd = true; break; }
       }
+
+      // Wrap back to the start when the walk finished the table.
+      if (reachedEnd) await saveCursor(null);
     };
 
-    // Dry runs return the full report synchronously (for manual inspection and
-    // per-industry tuning). Real runs — including the nightly cron — can scan
-    // 60k+ rows, which exceeds a single request's CPU budget, so they run as a
-    // background task and return immediately. The cron fires via net.http_post
-    // and never reads the response body, so it loses nothing.
-    if (dryRun) {
-      await runValidation();
-      return new Response(
-        JSON.stringify({
-          message: `Validated ${results.scanned} jobs`,
-          dry_run: true,
-          ...results,
-          details: results.details.slice(0, 100),
-          details_truncated: results.details.length > 100,
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
-    }
-
-    const work = (async () => {
-      try {
-        await runValidation();
-        console.log(`[validate-jobs] done: ${JSON.stringify({ ...results, details: undefined })}`);
-      } catch (e) {
-        console.error("[validate-jobs] background run failed:", e);
-      }
-    })();
-    if (typeof EdgeRuntime !== "undefined" && EdgeRuntime?.waitUntil) {
-      EdgeRuntime.waitUntil(work);
-    } else {
-      await work;
-    }
+    // Runs synchronously: real runs are bounded (maxRows + a 25s time-box) so
+    // they return well within the request limit, and the rotation means the
+    // next invocation continues where this one left off. The nightly cron is
+    // bumped to run frequently so the whole table is covered over the day.
+    // (Backgrounding via EdgeRuntime.waitUntil was unreliable here — the task
+    // was killed before a large run did any work.)
+    await runValidation();
     return new Response(
-      JSON.stringify({ accepted: true, message: "validate-jobs running in background" }),
+      JSON.stringify({
+        message: `Validated ${results.scanned} jobs`,
+        dry_run: dryRun,
+        ...results,
+        details: results.details.slice(0, 100),
+        details_truncated: results.details.length > 100,
+      }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
