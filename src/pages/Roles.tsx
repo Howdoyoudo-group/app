@@ -10,13 +10,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Button } from "@/components/ui/button";
 
 // ── All unique industries from role data ──────────────────────────────────────
-const ALL_INDUSTRIES = [
-  "Bakery", "Beauty", "Beer", "Cars", "Charity", "Coffee", "Estate Agency",
-  "Farming", "Fashion", "Film and TV", "Football", "Footwear", "Formula 1",
-  "Gaming", "Grocery", "Health", "Horse Racing", "Hospitality", "Influencing",
-  "Interior Design", "Jewellery", "Journalism", "Money", "Music", "Pets",
-  "Physiotherapy", "Psychotherapy", "Teaching", "Travel", "Wellness",
-];
+const ALL_INDUSTRIES = Array.from(new Set(roles.flatMap((r) => r.industries))).sort();
 
 const CATEGORY_OPTIONS: { value: RoleCategory | "all"; label: string }[] = [
   { value: "all",       label: "All roles" },
