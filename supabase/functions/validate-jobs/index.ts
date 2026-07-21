@@ -234,6 +234,82 @@ const COMPANY_INDUSTRY_MAP: Record<string, string> = {
   "production resource group": "theatre",
   "white light": "theatre",
   "rada": "theatre",
+  // Music - labels, publishers, streaming, live, tech and bodies. Any role at
+  // these (finance, legal, marketing, tech, admin) is a genuine music-industry
+  // job, so they tag as music regardless of a generic title. Keys are full,
+  // unambiguous forms — short names that collide with non-music companies
+  // (tidal→energy, dice→games, aeg→appliances, boiler room→sales) are avoided.
+  // Major labels
+  "universal music": "music",
+  "warner music": "music",
+  "sony music": "music",
+  "bmg": "music",
+  "polydor": "music",
+  "island records": "music",
+  "decca records": "music",
+  "parlophone": "music",
+  "columbia records": "music",
+  "atlantic records": "music",
+  "capitol records": "music",
+  "virgin music": "music",
+  "rca records": "music",
+  "def jam": "music",
+  "emi records": "music",
+  // Independent labels
+  "beggars group": "music",
+  "xl recordings": "music",
+  "rough trade": "music",
+  "domino recording": "music",
+  "ninja tune": "music",
+  "warp records": "music",
+  "ministry of sound": "music",
+  "defected": "music",
+  "cooking vinyl": "music",
+  "dirty hit": "music",
+  "because music": "music",
+  "mute records": "music",
+  "hospital records": "music",
+  "kobalt": "music",
+  "secretly group": "music",
+  "partisan records": "music",
+  // Publishing / rights / royalties
+  "prs for music": "music",
+  "phonographic performance": "music",
+  "concord music": "music",
+  "reservoir media": "music",
+  "downtown music": "music",
+  "sentric music": "music",
+  "hipgnosis": "music",
+  "round hill music": "music",
+  // Streaming / music tech
+  "spotify": "music",
+  "deezer": "music",
+  "soundcloud": "music",
+  "believe digital": "music",
+  "bandcamp": "music",
+  "beatport": "music",
+  "songtradr": "music",
+  "native instruments": "music",
+  "focusrite": "music",
+  // Live / venues / promoters / ticketing
+  "live nation": "music",
+  "aeg presents": "music",
+  "dice fm": "music",
+  "academy music group": "music",
+  "sjm concerts": "music",
+  "kilimanjaro live": "music",
+  "festival republic": "music",
+  "ticketmaster": "music",
+  "see tickets": "music",
+  "o2 academy": "music",
+  "cuffe and taylor": "music",
+  // Industry bodies
+  "uk music": "music",
+  "musicians union": "music",
+  "musicians' union": "music",
+  "association of independent music": "music",
+  "music venue trust": "music",
+  "british phonographic industry": "music",
 };
 
 // ── Negative keywords: titles that should NEVER appear in an industry ──
@@ -243,7 +319,7 @@ const INDUSTRY_TITLE_BLOCKLIST: Record<string, RegExp> = {
   football: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare)\b/i,
   beer: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare)\b/i,
   coffee: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|butcher|butchery|hgv|forklift|warehouse|picker|replenishment|branch assistant|wholesale)\b/i,
-  music: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare)\b/i,
+  music: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|makeup artist|make-up artist|tattoo artist|nail artist|hair artist|cgi artist|vfx artist|3d artist|clothing label|private label|labelling|band saw|broadband|train conductor|bus conductor|concrete|mixing plant|food festival|wedding venue|conference venue|sales promoter|health promoter|forklift|hgv|warehouse operative|care worker)\b/i,
   teaching: /\b(plumber|electrician|welder|forklift|hgv|driver|paralegal|solicitor|barrister|legal counsel|swim|swimming|swim school|lifeguard|marketing executive|marketing manager|marketing assistant|sales executive|recruitment consultant|estate agent|nurse|nursing|care assistant|support worker|psychologist|aspiring child|psychology graduate|software engineer|cyber)\b/i,
   pets: /\b(lecturer|fe teacher|further education|btec|examiner|teacher of|sen teacher|primary teacher|secondary teacher|teaching assistant|tutor|cyber security|cybersecurity|software engineer|java developer|devops|sap consultant|hgv|forklift)\b/i,
   farming: /\b(uber|drive with uber|driver account|deliveroo|just eat courier|amazon flex|care assistant|care worker|carer|support worker|nurse|nursing|social worker|lawyer|solicitor|paralegal|barrister|legal counsel|legal secretary|legal assistant|head of prosecutions|prosecutor|conveyancer|compliance officer|export compliance|counsellor|counselor|psychotherapist|hgv class|delivery driver|courier|warehouse operative|forklift|cleaner|housekeep|draughtsperson|draughtsman|draftsman|cad technician|architectural technician|refrigeration|electrician|plumber|cyber security|software engineer)\b/i,
@@ -333,7 +409,15 @@ const INDUSTRY_RELEVANCE_KEYWORDS: Record<string, RegExp> = {
   beauty: /\b(beauty|cosmetic|skincare|haircare|makeup|nail|spa|salon|aesthetic|laser|waxing|brow|lash|massage|facial|microblading|dermatology)\b/i,
   hospitality: /\b(hotel|restaurant|bar|pub|café|cafe|chef|waiter|waitress|sommelier|concierge|housekeeping|front of house|F&B|catering|hospitality|barista|bartender|reception)\b/i,
   charity: /\b(charity|charit|fundrais|non.profit|nfp|third sector|donor|giving|grant|trustee|volunteer coordinator|community engagement|impact|cause|advocacy|outreach|nhs charity|hospice|aid|relief)\b/i,
-  music: /\b(music|musician|composer|producer|sound engineer|recording|mixing|mastering|songwriter|a&r|label|artist|band|tour manager|music supervisor|orchestra|conductor|DJ|disc jockey|venue|festival|booking agent|session musician|session vocalist|touring musician|live performer|performing arts|royalt|sync licensing|sync supervisor|music rights|music catalogue|music publishing|music streaming|music coordinator|music assistant|label assistant|label manager|label coordinator|music accountant|entertainment lawyer|studio runner|music runner|FOH engineer|monitor engineer|live sound|promoter|music producer|music marketing|artist manager|music agent|music licensing|music business)\b/i,
+  // Precision-first gate for jobs from UNKNOWN companies via generic aggregators.
+  // Only UNAMBIGUOUS music terms — bare "producer/label/artist/venue/festival/
+  // conductor/promoter/band" are deliberately excluded because they match TV
+  // producers, clothing labels, makeup artists, wedding venues, train conductors,
+  // sales promoters, band saws. Ambiguous-but-real music roles (Tour Manager,
+  // Label Manager, Royalty Accountant, Social Media Manager) are caught instead
+  // by the company map — any role at a known music company counts as music.
+  // Verified 34/34 precision against a false-friend test set (2026-07-21).
+  music: /\b(music|musician|musical director|composer|songwriter|lyricist|topliner|record producer|music producer|vocal producer|beatmaker|session musician|session vocalist|backing vocalist|touring musician|recording engineer|mixing engineer|mastering engineer|audio engineer|sound engineer|monitor engineer|foh engineer|front of house engineer|live sound engineer|playback engineer|a&r manager|a&r coordinator|a&r administrator|a&r scout|artists and repertoire|record label|music label|recording artist|artist manager|artist relations|artist liaison|music publisher|music publishing|sync licensing|sync agent|sync supervisor|neighbouring rights|music rights|music copyright|royalties manager|royalty accountant|music royalt|music supervisor|music coordinator|music assistant|music runner|music catalogue|music catalog|music marketing|music pr|music publicist|music promoter|gig promoter|concert promoter|talent buyer|music venue|live music venue|concert venue|music festival|gig booker|orchestra|orchestral|orchestra conductor|choir|choral|opera house|opera singer|operatic|\bDJ\b|disc jockey|music licensing|music business|music industry|music streaming|music tech|recording studio|mastering studio|entertainment lawyer|music lawyer)\b/i,
   teaching: /\b(teach|teacher|education|school|college|university|tutor|lecturer|TA|teaching assistant|SENCO|head teacher|deputy head|primary|secondary|EYFS|ofsted|safeguarding|curriculum)\b/i,
   farming: /\b(farm|farming|farmer|agronomist|agricultural|agriculture|agritech|livestock|dairy|herd|shepherd|stockperson|poultry|tractor|combine|harvest|arable|crop|horticultur|glasshouse|vineyard|viticulture|nursery|grain|silage|fertiliser|fertilizer|defra|nfu|ahdb|estate manager|rural|smallholding|orchard|equine farm|farmhand)\b/i,
   journalism: /\b(journalist|reporter|editor|news|writer|correspondent|sub.editor|newsroom|publication|magazine|broadcast|investigative|features|columnist|press)\b/i,
@@ -438,12 +522,19 @@ function classifyRow(job: RowJob): Verdict {
       return { action: "delete", counter: "banned_company", detail: `WRONG-INDUSTRY: "${title}" @ ${company} in ${industry}` };
     }
   }
-  // 0d. Tech/IT roles in non-tech industries
-  if (TECH_ROLE_REGEX.test(title) && !TECH_ALLOWED_INDUSTRIES.has(industry)) {
+  // Resolve the company's canonical industry up front — it gates several checks.
+  const correctIndustry = lookupCompanyIndustry(company);
+  const isKnownCompany = correctIndustry !== null;
+
+  // 0d. Tech/IT roles in non-tech industries — UNKNOWN companies only.
+  // A known company's postings are trusted for its industry, so e.g. a Backend
+  // Engineer at Spotify (a music company) is a genuine music-industry job and
+  // must survive. Unknown-company tech roles are still purged from non-tech
+  // industries. (Politics-style carve-out, generalised via the company map.)
+  if (TECH_ROLE_REGEX.test(title) && !TECH_ALLOWED_INDUSTRIES.has(industry) && !isKnownCompany) {
     return { action: "delete", counter: "blocked_titles", detail: `TECH ROLE LEAK: "${title}" @ ${company} in ${industry}` };
   }
   // 1. Company→industry mapping (reassign, don't delete)
-  const correctIndustry = lookupCompanyIndustry(company);
   if (correctIndustry && correctIndustry !== industry) {
     return { action: "reassign", industry: correctIndustry, detail: `REASSIGN: "${title}" @ ${company} from ${industry} → ${correctIndustry}` };
   }
@@ -452,7 +543,6 @@ function classifyRow(job: RowJob): Verdict {
     return { action: "delete", counter: "blocked_titles", detail: `BLOCKED: "${title}" @ ${company} in ${industry}` };
   }
   // 3. Relevance check — only for unknown companies from generic aggregators.
-  const isKnownCompany = correctIndustry !== null;
   if (!isTrustedSource && !isKnownCompany && !isRelevantToIndustry(title, description, industry)) {
     return { action: "delete", counter: "irrelevant", detail: `IRRELEVANT: "${title}" @ ${company} in ${industry}` };
   }

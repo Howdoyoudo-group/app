@@ -159,6 +159,15 @@ const INDUSTRY_KEYWORDS: Record<string, string[]> = {
     // Live & technical
     "live sound engineer", "monitor engineer", "FOH engineer",
     "stage manager music", "production manager music",
+    // Music-company names — pulls ALL roles at these employers (finance, legal,
+    // marketing, tech) since any job at a music company is a music-industry job.
+    // Mirrors the validate-jobs company map that keeps them.
+    "Universal Music", "Warner Music", "Sony Music", "BMG", "Polydor",
+    "Island Records", "Beggars Group", "XL Recordings", "Ninja Tune",
+    "Ministry of Sound", "Kobalt", "PRS for Music", "Concord Music",
+    "Downtown Music", "Spotify", "Deezer", "SoundCloud", "Believe",
+    "Beatport", "Live Nation", "AEG Presents", "DICE", "Academy Music Group",
+    "Festival Republic", "Ticketmaster", "Focusrite", "Native Instruments",
   ],
   teaching: [
     "teacher", "teaching assistant", "school teacher", "education", "curriculum",
