@@ -130,16 +130,20 @@ Deno.serve(async (req) => {
 
   let dryRun = false;
   let limit = 1000; // per invocation - 4x increase to clear backlog faster
+  let industry: string | null = null; // optional: audit a single industry only
   try {
     if (req.method === "POST") {
       const body = await req.json().catch(() => ({}));
       dryRun = body?.dryRun === true;
       if (typeof body?.limit === "number") limit = Math.min(2000, Math.max(1, body.limit));
+      if (typeof body?.industry === "string" && body.industry.trim()) industry = body.industry.trim();
     } else {
       const u = new URL(req.url);
       dryRun = u.searchParams.get("dryRun") === "1";
       const ql = u.searchParams.get("limit");
       if (ql) limit = Math.min(2000, Math.max(1, parseInt(ql, 10)));
+      const qi = u.searchParams.get("industry");
+      if (qi && qi.trim()) industry = qi.trim();
     }
   } catch (_) {}
 
@@ -148,22 +152,26 @@ Deno.serve(async (req) => {
   let staleReedDeleted = 0;
   if (!dryRun) {
     const staleCutoff = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
-    const { error: staleErr, count } = await supabase
+    let staleQ = supabase
       .from("jobs")
       .delete({ count: "exact" })
       .ilike("source_url", "%reed.co.uk%")
       .lt("scraped_at", staleCutoff);
+    if (industry) staleQ = staleQ.eq("industry", industry); // keep a scoped run scoped
+    const { error: staleErr, count } = await staleQ;
     if (!staleErr && count) staleReedDeleted = count;
     if (staleReedDeleted > 0) console.log(`Pre-pass: deleted ${staleReedDeleted} stale Reed jobs (>60 days old)`);
   }
 
   // Fetch oldest-checked first by created_at - rotate through inventory daily
-  const { data: jobs, error } = await supabase
+  let jobsQuery = supabase
     .from("jobs")
     .select("id, url, company, source_url, scraped_at")
     .or("source_url.is.null,source_url.not.ilike.%adzuna%")
     .order("scraped_at", { ascending: true })
     .limit(limit);
+  if (industry) jobsQuery = jobsQuery.eq("industry", industry);
+  const { data: jobs, error } = await jobsQuery;
 
   if (error) {
     return new Response(JSON.stringify({ error: error.message }), {
