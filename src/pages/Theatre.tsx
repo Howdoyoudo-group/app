@@ -213,6 +213,15 @@ const Theatre = () => {
               View Jobs
             </Link>
           </div>
+          <ExploreFurther
+            title="More places to look"
+            subtitle="A few specialist theatre job boards we can't pull into the Marketplace automatically - worth checking directly."
+            links={[
+              { title: "The Stage Jobs", description: "The UK's biggest theatre and performing arts jobs board - performing, backstage, technical and touring roles, plus auditions.", url: "https://jobs.thestage.co.uk/" },
+              { title: "Arts Jobs (Arts Council England)", description: "Vacancies across the wider UK arts and culture sector, hosted by Arts Council England.", url: "https://www.artsjobs.org.uk/jobs" },
+              { title: "UK Theatre — Industry Job Vacancies", description: "The trade body's own jobs board, covering venues and companies across the UK.", url: "https://uktheatre.org/jobs/" },
+            ]}
+          />
           <IndustryRolesShowcase stages={theatreStages} industry="Theatre" companies={theatreCompanies} />
           <IndustryCVBuilder industry="Theatre" stages={theatreStages} />
         </>

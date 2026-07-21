@@ -111,6 +111,10 @@ export const usPostgradByIndustry: Record<string, Degree[]> = {
     { title: "GIA Graduate Gemologist", university: "GIA Carlsbad", url: "https://www.gia.edu/", duration: "6 months", type: "postgraduate" },
     { title: "MBA Luxury & Fashion", university: "NYU Stern", url: "https://www.stern.nyu.edu/", duration: "2 years", type: "postgraduate" },
   ],
+  theatre: [
+    { title: "MFA Acting", university: "David Geffen School of Drama at Yale", url: "https://drama.yale.edu/", duration: "3 years", type: "postgraduate" },
+    { title: "MFA Acting", university: "NYU Tisch School of the Arts", url: "https://tisch.nyu.edu/", duration: "3 years", type: "postgraduate" },
+  ],
   travel: [
     { title: "MS Hospitality Management (Tourism)", university: "Cornell SHA", url: "https://sha.cornell.edu/", duration: "1–2 years", type: "postgraduate" },
     { title: "MS Tourism Management", university: "NYU SPS Jonathan M. Tisch Center", url: "https://www.sps.nyu.edu/", duration: "1–2 years", type: "postgraduate" },

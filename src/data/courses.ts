@@ -601,6 +601,14 @@ export const coursesByIndustry: Record<string, Course[]> = {
     { title: "Dog Grooming Diploma", provider: "iPET Network", url: "https://www.ipetnetwork.co.uk/", description: "Professional dog grooming qualification - breed-specific grooming, handling, and salon management.", free: false },
     { title: "Pet First Aid", provider: "British Red Cross", url: "https://www.redcross.org.uk/first-aid", description: "Learn essential first aid for pets - emergency response and common conditions.", free: true },
   ],
+  theatre: [
+    { title: "RADA Short Courses", provider: "RADA", url: "https://www.rada.ac.uk/short-courses/", description: "Acting, directing and technical theatre short courses for beginners through to working professionals.", free: false },
+    { title: "ABTT Bronze, Silver & Gold Awards", provider: "Association of British Theatre Technicians", url: "https://www.abtt.org.uk/training/", description: "The industry-standard tiered technical theatre qualification - a general skills overview through to specialist and managerial levels, accredited by the Royal Conservatoire of Scotland.", free: false },
+    { title: "LAMDA Undergraduate & Short Courses", provider: "LAMDA", url: "https://www.lamda.ac.uk/undergraduate-courses", description: "Acting, musical theatre and technical training from one of the UK's leading drama schools.", free: false },
+    { title: "National Youth Theatre Courses", provider: "National Youth Theatre", url: "https://www.nyt.org.uk/our-courses", description: "Acting and technical theatre courses (costume, lighting and sound, scenery and props, stage management) for ages 11-25.", free: false },
+    { title: "Get Into Theatre", provider: "UK Theatre / SOLT / The Stage", url: "https://getintotheatre.org/", description: "The UK's dedicated theatre careers resource - training, work experience and funding opportunities across every theatre role.", free: true },
+    { title: "Stage Management Short Course", provider: "Guildhall School of Music & Drama", url: "https://www.gsmd.ac.uk/study-with-guildhall/short-courses-summer-schools/find-a-short-course-or-summer-school/stage-management", description: "Five-day introduction to stage management skills, including blocking and cueing to music.", free: false },
+  ],
   travel: [
     { title: "IATA Travel & Tourism Training", provider: "IATA", url: "https://www.iata.org/en/training/", description: "The global aviation body's professional courses - airline operations, travel agency, cargo, and airport management.", free: false },
     { title: "Level 2/3 Travel & Tourism", provider: "City & Guilds", url: "https://www.cityandguilds.com/qualifications-and-apprenticeships/leisure/travel-tourism", description: "UK industry-standard qualifications for careers across travel agencies, tour operators and visitor attractions.", free: false },
