@@ -1,4 +1,6 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, type SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+declare const EdgeRuntime: { waitUntil?: (p: Promise<unknown>) => void } | undefined;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -396,6 +398,83 @@ function isRelevantToIndustry(title: string, description: string, industry: stri
   return relevance.test(combined);
 }
 
+// The verdict for a single job. Pure — no DB access — so the scan loop can
+// batch the resulting deletes/updates instead of one round-trip per row (the
+// per-row awaits were a primary cause of WORKER_RESOURCE_LIMIT on full runs).
+type RowJob = { id: string; title: string; company: string; industry: string; description: string; source_url: string };
+type Verdict =
+  | { action: "keep" }
+  | { action: "delete"; counter: "banned_company" | "blocked_titles" | "irrelevant"; detail: string }
+  | { action: "reassign"; industry: string; detail: string };
+
+function classifyRow(job: RowJob): Verdict {
+  const title = job.title || "";
+  const company = job.company || "";
+  const industry = job.industry || "";
+  const description = job.description || "";
+  const sourceUrl = job.source_url || "";
+  const companyLower = company.toLowerCase();
+
+  // Curated specialist boards are inherently on-theme; they skip the keyword
+  // relevance purge (step 3) but still face the checks above it.
+  const isTrustedSource = TRUSTED_SPECIALIST_SOURCES.test(sourceUrl);
+
+  // 0. Fake/seed description (hipster lorem ipsum from Lovable demo data)
+  if (FAKE_DESCRIPTION_REGEX.test(description)) {
+    return { action: "delete", counter: "banned_company", detail: `FAKE DESCRIPTION: "${title}" @ ${company}` };
+  }
+  // 0. Banned company - delete regardless of industry
+  if (BANNED_COMPANIES.test(company)) {
+    return { action: "delete", counter: "banned_company", detail: `BANNED COMPANY: "${title}" @ ${company} in ${industry}` };
+  }
+  // 0b. Industry-specific banned companies (recruiters polluting grocery)
+  if (industry === "grocery" && BANNED_IN_GROCERY.test(company)) {
+    return { action: "delete", counter: "banned_company", detail: `RECRUITER IN GROCERY: "${title}" @ ${company}` };
+  }
+  // 0c. Cross-industry company allow-list - kill rows where a company appears
+  // in an industry that isn't in its allow-list (e.g. Hitachi in fashion).
+  for (const [key, allowed] of Object.entries(COMPANY_ALLOWED_INDUSTRIES)) {
+    if (companyLower.includes(key) && !allowed.includes(industry)) {
+      return { action: "delete", counter: "banned_company", detail: `WRONG-INDUSTRY: "${title}" @ ${company} in ${industry}` };
+    }
+  }
+  // 0d. Tech/IT roles in non-tech industries
+  if (TECH_ROLE_REGEX.test(title) && !TECH_ALLOWED_INDUSTRIES.has(industry)) {
+    return { action: "delete", counter: "blocked_titles", detail: `TECH ROLE LEAK: "${title}" @ ${company} in ${industry}` };
+  }
+  // 1. Company→industry mapping (reassign, don't delete)
+  const correctIndustry = lookupCompanyIndustry(company);
+  if (correctIndustry && correctIndustry !== industry) {
+    return { action: "reassign", industry: correctIndustry, detail: `REASSIGN: "${title}" @ ${company} from ${industry} → ${correctIndustry}` };
+  }
+  // 2. Title blocklist
+  if (isBlockedTitle(title, industry)) {
+    return { action: "delete", counter: "blocked_titles", detail: `BLOCKED: "${title}" @ ${company} in ${industry}` };
+  }
+  // 3. Relevance check — only for unknown companies from generic aggregators.
+  const isKnownCompany = correctIndustry !== null;
+  if (!isTrustedSource && !isKnownCompany && !isRelevantToIndustry(title, description, industry)) {
+    return { action: "delete", counter: "irrelevant", detail: `IRRELEVANT: "${title}" @ ${company} in ${industry}` };
+  }
+  return { action: "keep" };
+}
+
+// Delete/update in chunks so a page's worth of verdicts costs a couple of
+// round-trips instead of one per row.
+const DB_CHUNK = 200;
+async function chunkedDelete(supabase: SupabaseClient, ids: string[]) {
+  for (let i = 0; i < ids.length; i += DB_CHUNK) {
+    const { error } = await supabase.from("jobs").delete().in("id", ids.slice(i, i + DB_CHUNK));
+    if (error) throw error;
+  }
+}
+async function chunkedReassign(supabase: SupabaseClient, ids: string[], industry: string) {
+  for (let i = 0; i < ids.length; i += DB_CHUNK) {
+    const { error } = await supabase.from("jobs").update({ industry }).in("id", ids.slice(i, i + DB_CHUNK));
+    if (error) throw error;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -438,226 +517,154 @@ Deno.serve(async (req) => {
     // legitimate small per-industry purges), so always allow it.
     const EXPIRED_PURGE_ALWAYS_ALLOW_BELOW = 500;
 
-    // Purge expired listings first, in one bulk delete rather than per-row
-    // in the scan loop below - expires_at is set on ingestion (typically
-    // now + 60d) but nothing was ever actually deleting rows once it passed.
-    // Marketplace.tsx has its own query-level filter for display, but the
-    // rows themselves were piling up here indefinitely (found via a 6-week-old
-    // Tesla job still live 15 days past its expiry).
-    {
-      const nowIso = new Date().toISOString();
-      let expiredQuery = supabase
-        .from("jobs")
-        .select("id", { count: "exact" })
-        .not("expires_at", "is", null)
-        .lt("expires_at", nowIso);
-      if (targetIndustry) expiredQuery = expiredQuery.eq("industry", targetIndustry);
-      const { count: expiredCount, error: expiredCountError } = await expiredQuery;
-      if (expiredCountError) throw expiredCountError;
+    // Cap detail memory on full runs: counters stay exact, but only the first
+    // N human-readable lines are retained (all the response/logs surface).
+    const MAX_DETAILS = 500;
+    const addDetail = (line: string) => {
+      if (results.details.length < MAX_DETAILS) results.details.push(line);
+    };
 
-      if (expiredCount && expiredCount > 0) {
-        results.expired = expiredCount;
-        results.details.push(`EXPIRED: ${expiredCount} job(s) past expires_at`);
+    const runValidation = async () => {
+      // Purge expired listings first, in one bulk delete rather than per-row
+      // in the scan loop below - expires_at is set on ingestion (typically
+      // now + 60d) but nothing was ever actually deleting rows once it passed.
+      // Marketplace.tsx has its own query-level filter for display, but the
+      // rows themselves were piling up here indefinitely (found via a 6-week-old
+      // Tesla job still live 15 days past its expiry).
+      {
+        const nowIso = new Date().toISOString();
+        let expiredQuery = supabase
+          .from("jobs")
+          .select("id", { count: "exact", head: true })
+          .not("expires_at", "is", null)
+          .lt("expires_at", nowIso);
+        if (targetIndustry) expiredQuery = expiredQuery.eq("industry", targetIndustry);
+        const { count: expiredCount, error: expiredCountError } = await expiredQuery;
+        if (expiredCountError) throw expiredCountError;
 
-        // Blast-radius check: compare against the total in the same scope, so
-        // a per-industry run is measured against that industry, not the whole
-        // table.
-        let totalQuery = supabase.from("jobs").select("id", { count: "exact", head: true });
-        if (targetIndustry) totalQuery = totalQuery.eq("industry", targetIndustry);
-        const { count: totalCount, error: totalCountError } = await totalQuery;
-        if (totalCountError) throw totalCountError;
+        if (expiredCount && expiredCount > 0) {
+          results.expired = expiredCount;
+          addDetail(`EXPIRED: ${expiredCount} job(s) past expires_at`);
 
-        const share = totalCount && totalCount > 0 ? expiredCount / totalCount : 0;
-        const overShare = share > EXPIRED_PURGE_MAX_SHARE;
-        const smallEnoughToAllow = expiredCount < EXPIRED_PURGE_ALWAYS_ALLOW_BELOW;
+          // Blast-radius check: compare against the total in the same scope, so
+          // a per-industry run is measured against that industry, not the whole
+          // table.
+          let totalQuery = supabase.from("jobs").select("id", { count: "exact", head: true });
+          if (targetIndustry) totalQuery = totalQuery.eq("industry", targetIndustry);
+          const { count: totalCount, error: totalCountError } = await totalQuery;
+          if (totalCountError) throw totalCountError;
 
-        if (overShare && !smallEnoughToAllow && !forceExpiredPurge) {
-          results.expired_purge_aborted = true;
-          results.details.push(
-            `EXPIRED PURGE ABORTED: ${expiredCount} of ${totalCount} ` +
-              `(${(share * 100).toFixed(1)}%) exceeds the ${(EXPIRED_PURGE_MAX_SHARE * 100).toFixed(0)}% ` +
-              `safety limit${targetIndustry ? ` for industry '${targetIndustry}'` : ""}. ` +
-              `Nothing deleted — check for a source writing bad expires_at values, ` +
-              `then re-run with force_expired_purge:true if this is genuinely correct.`,
-          );
-          console.error(
-            `[validate-jobs] Expired purge aborted: ${expiredCount}/${totalCount} (${(share * 100).toFixed(1)}%)`,
-          );
-        } else if (!dryRun) {
-          let deleteQuery = supabase
-            .from("jobs")
-            .delete()
-            .not("expires_at", "is", null)
-            .lt("expires_at", nowIso);
-          if (targetIndustry) deleteQuery = deleteQuery.eq("industry", targetIndustry);
-          const { error: deleteError } = await deleteQuery;
-          if (deleteError) throw deleteError;
-        }
-      }
-    }
+          const share = totalCount && totalCount > 0 ? expiredCount / totalCount : 0;
+          const overShare = share > EXPIRED_PURGE_MAX_SHARE;
+          const smallEnoughToAllow = expiredCount < EXPIRED_PURGE_ALWAYS_ALLOW_BELOW;
 
-    // Process in pages
-    let offset = 0;
-    let hasMore = true;
-
-    while (hasMore) {
-      let query = supabase
-        .from("jobs")
-        .select("id, title, company, industry, description, source_url")
-        .range(offset, offset + batchSize - 1);
-
-      if (targetIndustry) {
-        query = query.eq("industry", targetIndustry);
-      }
-
-      const { data: jobs, error } = await query;
-      if (error) throw error;
-      if (!jobs || jobs.length === 0) {
-        hasMore = false;
-        break;
-      }
-
-      results.scanned += jobs.length;
-
-      for (const job of jobs) {
-        const title = job.title || "";
-        const company = job.company || "";
-        const industry = job.industry || "";
-        const description = job.description || "";
-        const sourceUrl = job.source_url || "";
-
-        // Curated specialist job boards are inherently on-theme (e.g. every
-        // w4mpjobs.org listing is a political role, even when the title is
-        // generic like "Development Manager"). Trust them: skip the keyword
-        // relevance purge below. They still pass through fake-description and
-        // banned-company checks.
-        const isTrustedSource = TRUSTED_SPECIALIST_SOURCES.test(sourceUrl);
-
-        // 0. Fake/seed description (hipster lorem ipsum from Lovable demo data)
-        if (FAKE_DESCRIPTION_REGEX.test(description)) {
-          if (!dryRun) {
-            await supabase.from("jobs").delete().eq("id", job.id);
-          }
-          results.banned_company++;
-          results.details.push(`FAKE DESCRIPTION: "${title}" @ ${company}`);
-          continue;
-        }
-
-        // 0. Banned company - delete regardless of industry
-        if (BANNED_COMPANIES.test(company)) {
-          if (!dryRun) {
-            await supabase.from("jobs").delete().eq("id", job.id);
-          }
-          results.banned_company++;
-          results.details.push(`BANNED COMPANY: "${title}" @ ${company} in ${industry}`);
-          continue;
-        }
-
-        // 0b. Industry-specific banned companies (recruiters polluting grocery)
-        if (industry === "grocery" && BANNED_IN_GROCERY.test(company)) {
-          if (!dryRun) {
-            await supabase.from("jobs").delete().eq("id", job.id);
-          }
-          results.banned_company++;
-          results.details.push(`RECRUITER IN GROCERY: "${title}" @ ${company}`);
-          continue;
-        }
-
-        // 0c. Cross-industry company allow-list - kill rows where a company appears
-        // in an industry that isn't in its allow-list (e.g. Hitachi in fashion, BHF in hospitality)
-        const companyLower = company.toLowerCase();
-        for (const [key, allowed] of Object.entries(COMPANY_ALLOWED_INDUSTRIES)) {
-          if (companyLower.includes(key) && !allowed.includes(industry)) {
-            if (!dryRun) {
-              await supabase.from("jobs").delete().eq("id", job.id);
-            }
-            results.banned_company++;
-            results.details.push(`WRONG-INDUSTRY: "${title}" @ ${company} in ${industry}`);
-            break;
-          }
-        }
-        // If the previous loop deleted, skip the rest. Re-fetch via a flag isn't possible here,
-        // so use the simpler approach: check again at top of next iteration via `continue`.
-        if (companyLower && Object.keys(COMPANY_ALLOWED_INDUSTRIES).some(
-          (k) => companyLower.includes(k) && !COMPANY_ALLOWED_INDUSTRIES[k].includes(industry)
-        )) {
-          continue;
-        }
-
-        // 0d. Tech/IT roles in non-tech industries
-        if (TECH_ROLE_REGEX.test(title) && !TECH_ALLOWED_INDUSTRIES.has(industry)) {
-          if (!dryRun) {
-            await supabase.from("jobs").delete().eq("id", job.id);
-          }
-          results.blocked_titles++;
-          results.details.push(`TECH ROLE LEAK: "${title}" @ ${company} in ${industry}`);
-          continue;
-        }
-
-        // 1. Check company→industry mapping
-        const correctIndustry = lookupCompanyIndustry(company);
-        if (correctIndustry && correctIndustry !== industry) {
-          if (!dryRun) {
-            await supabase
+          if (overShare && !smallEnoughToAllow && !forceExpiredPurge) {
+            results.expired_purge_aborted = true;
+            addDetail(
+              `EXPIRED PURGE ABORTED: ${expiredCount} of ${totalCount} ` +
+                `(${(share * 100).toFixed(1)}%) exceeds the ${(EXPIRED_PURGE_MAX_SHARE * 100).toFixed(0)}% ` +
+                `safety limit${targetIndustry ? ` for industry '${targetIndustry}'` : ""}. ` +
+                `Nothing deleted — check for a source writing bad expires_at values, ` +
+                `then re-run with force_expired_purge:true if this is genuinely correct.`,
+            );
+            console.error(
+              `[validate-jobs] Expired purge aborted: ${expiredCount}/${totalCount} (${(share * 100).toFixed(1)}%)`,
+            );
+          } else if (!dryRun) {
+            let deleteQuery = supabase
               .from("jobs")
-              .update({ industry: correctIndustry })
-              .eq("id", job.id);
+              .delete()
+              .not("expires_at", "is", null)
+              .lt("expires_at", nowIso);
+            if (targetIndustry) deleteQuery = deleteQuery.eq("industry", targetIndustry);
+            const { error: deleteError } = await deleteQuery;
+            if (deleteError) throw deleteError;
           }
-          results.reassigned++;
-          results.details.push(
-            `REASSIGN: "${title}" @ ${company} from ${industry} → ${correctIndustry}`
-          );
-          continue;
-        }
-
-        // 2. Check title blocklist
-        if (isBlockedTitle(title, industry)) {
-          if (!dryRun) {
-            await supabase.from("jobs").delete().eq("id", job.id);
-          }
-          results.blocked_titles++;
-          results.details.push(
-            `BLOCKED: "${title}" @ ${company} in ${industry}`
-          );
-          continue;
-        }
-
-        // 3. Relevance check - apply to jobs from unknown companies from the
-        // generic aggregators (Adzuna, Reed, Jooble, RapidAPI push generic jobs
-        // into specific industries). Trusted specialist boards are exempt.
-        const isKnownCompany = lookupCompanyIndustry(company) !== null;
-
-        if (!isTrustedSource && !isKnownCompany && !isRelevantToIndustry(title, description, industry)) {
-          if (!dryRun) {
-            await supabase.from("jobs").delete().eq("id", job.id);
-          }
-          results.irrelevant++;
-          results.details.push(
-            `IRRELEVANT: "${title}" @ ${company} in ${industry}`
-          );
-          continue;
         }
       }
 
-      if (jobs.length < batchSize) {
-        hasMore = false;
-      } else {
-        offset += batchSize;
+      // Scan in pages. Per page, collect verdicts and flush deletes/reassigns
+      // in bulk — the old code awaited one DB round-trip PER ROW, which is what
+      // pushed a full ~60k-row run past the worker's CPU budget.
+      let offset = 0;
+      let hasMore = true;
+      while (hasMore) {
+        let query = supabase
+          .from("jobs")
+          .select("id, title, company, industry, description, source_url")
+          .range(offset, offset + batchSize - 1);
+        if (targetIndustry) query = query.eq("industry", targetIndustry);
+
+        const { data: jobs, error } = await query;
+        if (error) throw error;
+        if (!jobs || jobs.length === 0) break;
+
+        results.scanned += jobs.length;
+
+        const toDelete: string[] = [];
+        const toReassign = new Map<string, string[]>();
+
+        for (const job of jobs as RowJob[]) {
+          const v = classifyRow(job);
+          if (v.action === "keep") continue;
+          if (v.action === "delete") {
+            toDelete.push(job.id);
+            results[v.counter]++;
+            addDetail(v.detail);
+          } else {
+            let ids = toReassign.get(v.industry);
+            if (!ids) { ids = []; toReassign.set(v.industry, ids); }
+            ids.push(job.id);
+            results.reassigned++;
+            addDetail(v.detail);
+          }
+        }
+
+        if (!dryRun) {
+          if (toDelete.length) await chunkedDelete(supabase, toDelete);
+          for (const [ind, ids] of toReassign) await chunkedReassign(supabase, ids, ind);
+        }
+
+        if (jobs.length < batchSize) hasMore = false;
+        else offset += batchSize;
       }
+    };
+
+    // Dry runs return the full report synchronously (for manual inspection and
+    // per-industry tuning). Real runs — including the nightly cron — can scan
+    // 60k+ rows, which exceeds a single request's CPU budget, so they run as a
+    // background task and return immediately. The cron fires via net.http_post
+    // and never reads the response body, so it loses nothing.
+    if (dryRun) {
+      await runValidation();
+      return new Response(
+        JSON.stringify({
+          message: `Validated ${results.scanned} jobs`,
+          dry_run: true,
+          ...results,
+          details: results.details.slice(0, 100),
+          details_truncated: results.details.length > 100,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
     }
 
-    // Truncate details for response
-    const truncatedDetails = results.details.slice(0, 100);
-
+    const work = (async () => {
+      try {
+        await runValidation();
+        console.log(`[validate-jobs] done: ${JSON.stringify({ ...results, details: undefined })}`);
+      } catch (e) {
+        console.error("[validate-jobs] background run failed:", e);
+      }
+    })();
+    if (typeof EdgeRuntime !== "undefined" && EdgeRuntime?.waitUntil) {
+      EdgeRuntime.waitUntil(work);
+    } else {
+      await work;
+    }
     return new Response(
-      JSON.stringify({
-        message: `Validated ${results.scanned} jobs`,
-        dry_run: dryRun,
-        ...results,
-        details: truncatedDetails,
-        details_truncated: results.details.length > 100,
-      }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      JSON.stringify({ accepted: true, message: "validate-jobs running in background" }),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
     console.error("validate-jobs error:", err);
