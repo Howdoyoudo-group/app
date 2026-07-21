@@ -48,8 +48,11 @@ clicking through external dashboards, nothing Claude can do on your behalf. Item
 
 ## Phase 1 — Foundations
 
-- [ ] **[CLAUDE]** Wire the GA4 measurement ID into the site once you've sent it over,
-      verify via GA4's Realtime report.
+- [x] **[CLAUDE]** Wire the GA4 measurement ID into the site once you've sent it over,
+      verify via GA4's Realtime report. **Done, live, verified 2026-07-21** — ID
+      `G-PPVT9V863C` deployed in `index.html`; confirmed firing via live-browser
+      `dataLayer`/`gtag` inspection. **[YOU]**: check GA4 → Reports → Realtime
+      yourself for the final confirmation from your own account.
 - [x] **[CLAUDE]** Rebuild `sitemap.xml` as dynamically generated (currently static,
       hand-maintained, and already missing Politics + Theatre) — pulled from the
       canonical industries/roles/companies data so nothing can silently go missing
