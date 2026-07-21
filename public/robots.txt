@@ -26,17 +26,32 @@ Allow: /
 User-agent: WhatsApp
 Allow: /
 
+# AI answer/search engines - welcome.
+# These fetch content in real time to answer a user's question or build a
+# search result (ChatGPT Search, Perplexity's answer engine, Google AI
+# Overviews) rather than to train a foundation model. Allowed from
+# 2026-07-21 so Howdoyoudo career content can actually surface via AI
+# search - distinct from the training-scraper block below.
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
 # AI training & scraper bots - not welcome.
 # Howdoyoudo content (articles, career maps, briefings, job summaries) is
 # editorially curated. It may not be used to train AI models or be
 # scraped/republished without written permission.
 User-agent: GPTBot
-Disallow: /
-
-User-agent: ChatGPT-User
-Disallow: /
-
-User-agent: OAI-SearchBot
 Disallow: /
 
 User-agent: ClaudeBot
@@ -46,15 +61,6 @@ User-agent: Claude-Web
 Disallow: /
 
 User-agent: anthropic-ai
-Disallow: /
-
-User-agent: PerplexityBot
-Disallow: /
-
-User-agent: Perplexity-User
-Disallow: /
-
-User-agent: Google-Extended
 Disallow: /
 
 User-agent: CCBot
