@@ -3,6 +3,8 @@ project_id = "wgistckxxbfpsuulbswr"
 [functions]
   [functions.auth-email-hook]
     verify_jwt = false
+  [functions.generate-sitemap]
+    verify_jwt = false
   [functions.click-tracker]
     verify_jwt = false
   [functions.fetch-external-jobs]
