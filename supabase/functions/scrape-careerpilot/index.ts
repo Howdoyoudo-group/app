@@ -60,6 +60,8 @@ const CP_MAP: Record<string, string> = {
   "theatre-stage-manager":    "performing-arts/job-profile/stage-manager",
   "theatre-technician":       "performing-arts/job-profile/stagehand",
   "theatre-costume-designer": "performing-arts/job-profile/costume-designer",
+  // Sustainability
+  "sustainability":           "admin-hr-legal/job-profile/corporate-responsibility-and-sustainability-practitioner",
 };
 
 // ── Firecrawl fetch ───────────────────────────────────────────────────────────

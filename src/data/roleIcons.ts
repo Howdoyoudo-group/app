@@ -74,6 +74,8 @@ export const ROLE_ICONS: Record<string, string> = {
   finance: roleFinance,
   operations: roleOperations,
   strategy: roleStrategy,
+  // Placeholder - reuses the Strategy icon until a bespoke Sustainability icon exists
+  sustainability: roleStrategy,
   sales: roleSales,
   product: roleProduct,
   creative: roleCreative,

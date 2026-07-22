@@ -90,6 +90,7 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(strategy|strategist|chief strategy officer|chief transformation officer)\b/i, slug: "strategy" },
   { test: /\b(commercial manager|chief commercial officer|chief revenue officer|commercial director|sponsorship manager|partnerships manager)\b/i, slug: "commercial" },
   { test: /\b(ecommerce|e-commerce|digital trading|online merchandiser)\b/i, slug: "ecommerce" },
+  { test: /\b(sustainability manager|sustainability lead|sustainability officer|esg manager|corporate responsibility)\b/i, slug: "sustainability" },
 
   // Sales / customer
   { test: /\b(sales|account executive|account manager|business development|bdm|sdr|inside sales|sales director)\b/i, slug: "sales" },

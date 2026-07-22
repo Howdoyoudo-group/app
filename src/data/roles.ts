@@ -124,6 +124,14 @@ export const roles: RoleDefinition[] = [
     category: "business",
     keywords: ["strategist", "consultant", "management consultant", "McKinsey", "BCG", "corporate development", "M&A", "analyst"],
   },
+  {
+    title: "Sustainability Manager",
+    slug: "sustainability",
+    description: "Environmental strategy, ethical sourcing, and net-zero targets - making sure a business's growth doesn't cost the planet.",
+    industries: ["Beer", "Cars", "Coffee", "Hospitality", "Pets", "Travel", "Wellness", "Beauty", "Farming", "Footwear", "Grocery"],
+    category: "business",
+    keywords: ["sustainability lead", "ESG", "corporate responsibility", "CSR", "environmental manager", "net zero", "carbon reduction", "ethical sourcing", "green jobs"],
+  },
   // Craft & industry roles
   {
     title: "Barista",

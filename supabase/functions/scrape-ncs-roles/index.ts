@@ -91,6 +91,8 @@ const NCS_MAP: Record<string, string> = {
   "performer": "actor",
   "theatre-stage-manager": "stage-manager",
   "theatre-technician": "stagehand",
+  // Sustainability
+  "sustainability": "corporate-responsibility-and-sustainability-practitioner",
 };
 
 const NCS_BASE = "https://nationalcareers.service.gov.uk/job-profiles/";

@@ -453,6 +453,9 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "9GumiLIxLMM", title: "How Millionaire Bankers Actually Work | Authorized Account | Insider", channel: "Insider" },
     
   ],
+  "sustainability": [
+    { id: "NFzqvsVH7D0", title: "Your Guide to Becoming a Sustainability Manager | Career Roadmap No. 5", channel: "Maddy Albee" },
+  ],
   "stylist": [
     { id: "e-HZ2TIVULI", title: "A Day in the Life of Fashion Designer Thom Browne | Vogue", channel: "Vogue" },
     { id: "ohexJG7_tXk", title: "A Day in the Life of a Stylist in Paris | Jordan Boothe", channel: "Jordan Boothe" },
