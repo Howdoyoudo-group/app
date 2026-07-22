@@ -56,7 +56,10 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   // Health
   { test: /\b(nurse|staff nurse|matron)\b/i, slug: "nurse" },
   { test: /\bmidwife\b/i, slug: "midwife" },
-  { test: /\bdoctor|gp|consultant physician|registrar|fy[12]\b/i, slug: "doctor" },
+  // Deliberately NOT bare "gp" - that 2-letter token also turns up as a
+  // parenthetical qualifier on non-clinical roles (e.g. Health's "Practice
+  // Manager (GP)", an admin/business role, not a doctor).
+  { test: /\b(doctor|general practitioner|consultant physician|registrar|fy[12])\b/i, slug: "doctor" },
   { test: /\boccupational therapist|ot\b/i, slug: "occupational-therapist" },
   { test: /\bpsychotherapist|cbt therapist|counsellor\b/i, slug: "psychotherapist" },
   { test: /\bhealthcare assistant|hca\b/i, slug: "healthcare-assistant" },
@@ -78,14 +81,14 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\bfinancial advisor|financial adviser|ifa\b/i, slug: "financial-advisor" },
   { test: /\bwealth manager|private banker\b/i, slug: "wealth-manager" },
   { test: /\binvestment analyst|equity analyst\b/i, slug: "investment-analyst" },
-  { test: /\b(cfo|chief financial officer|finance director|financial controller|accountant|accounts assistant|fp&a|treasury)\b/i, slug: "finance" },
+  { test: /\b(cfo|chief financial officer|finance director|finance manager|financial controller|accountant|accounts assistant|fp&a|treasury)\b/i, slug: "finance" },
 
   // Marketing / brand / creative / product / strategy
-  { test: /\b(marketing|brand manager|cmo|chief marketing officer|marketing director|growth marketer|content marketer|seo manager)\b/i, slug: "marketing" },
-  { test: /\b(creative director|art director|copywriter|graphic designer|chief creative officer)\b/i, slug: "creative" },
+  { test: /\b(marketing|brand manager|cmo|chief marketing officer|marketing director|growth marketer|content marketer|seo manager|social media manager|community manager|pr manager|pr (&|and) communications manager)\b/i, slug: "marketing" },
+  { test: /\b(creative director|art director|copywriter|graphic designer|chief creative officer|content creator)\b/i, slug: "creative" },
   { test: /\b(product manager|associate product manager|product owner|chief product officer|head of product)\b/i, slug: "product" },
   { test: /\b(strategy|strategist|chief strategy officer|chief transformation officer)\b/i, slug: "strategy" },
-  { test: /\b(commercial manager|chief commercial officer|chief revenue officer|commercial director)\b/i, slug: "commercial" },
+  { test: /\b(commercial manager|chief commercial officer|chief revenue officer|commercial director|sponsorship manager)\b/i, slug: "commercial" },
   { test: /\b(ecommerce|e-commerce|digital trading|online merchandiser)\b/i, slug: "ecommerce" },
 
   // Sales / customer
@@ -93,13 +96,17 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(customer service|customer support|customer success|contact centre)\b/i, slug: "customer-service" },
 
   // Ops / PM
-  { test: /\b(operations|coo|chief operating officer|ops manager|operations director)\b/i, slug: "operations" },
+  { test: /\b(operations|coo|chief operating officer|ops manager|operations director|logistics coordinator|logistics manager|production manager|quality assurance manager|quality controller)\b/i, slug: "operations" },
   { test: /\b(project manager|programme manager|pmo|delivery manager)\b/i, slug: "project-management" },
 
   // People / legal / IT / AI / data
   { test: /\b(hr|human resources|people partner|people director|chief people officer|talent acquisition|recruiter)\b/i, slug: "hr-people" },
   { test: /\b(legal counsel|solicitor|paralegal|chief legal officer|general counsel|compliance)\b/i, slug: "legal-compliance" },
-  { test: /\b(software engineer|developer|devops|cio|chief information officer|it manager|cyber|sysadmin)\b/i, slug: "it-technology" },
+  // Deliberately NOT bare "developer" - that word alone also appears in
+  // non-software job titles across other industries (e.g. Beauty's
+  // "Fragrance Developer", Coffee's "Blend Developer", Footwear's "Product
+  // Developer"), which would otherwise false-match into IT & Technology.
+  { test: /\b(software engineer|software developer|web developer|app developer|game developer|devops|cio|chief information officer|it manager|cyber|sysadmin)\b/i, slug: "it-technology" },
   { test: /\b(data analyst|business analyst|data scientist|bi analyst)\b/i, slug: "data-analyst" },
   { test: /\b(ai engineer|machine learning|ml engineer|chief ai officer|ai product|ai policy)\b/i, slug: "ai" },
 
@@ -133,7 +140,7 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(football analyst|performance analyst|opposition analyst)\b/i, slug: "football-analyst" },
   { test: /\b(kit manager|kit assistant)\b/i, slug: "kit-manager" },
   { test: /\b(groundsperson|groundsman|head groundsperson)\b/i, slug: "groundsperson" },
-  { test: /\b(sports scientist|s&c coach|strength and conditioning)\b/i, slug: "sports-scientist" },
+  { test: /\b(sports scientist|s&c coach|strength\s*(?:&|and)\s*conditioning)\b/i, slug: "sports-scientist" },
 
   // Motorsport / engineering
   { test: /\b(aerodynamicist|aero performance)\b/i, slug: "aerodynamicist" },
@@ -143,7 +150,11 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
 
   // Media / broadcast / games / events / interiors / travel
   { test: /\b(broadcast journalist|news reporter|news presenter)\b/i, slug: "broadcast-journalist" },
-  { test: /\b(reporter|correspondent|journalist|sub[- ]editor)\b/i, slug: "reporter" },
+  // "Sub-Editor / Copy Editor" is deliberately left OUT of this alias - it's
+  // editing work ("commissioning, shaping, quality-checking"), not reporting
+  // ("researching, interviewing, writing") - it falls through to the bare
+  // "editor" alias below instead.
+  { test: /\b(reporter|correspondent|journalist)\b/i, slug: "reporter" },
   { test: /\b(editor|editor[- ]in[- ]chief|features editor)\b/i, slug: "editor" },
   { test: /\b(producer|line producer|series producer)\b/i, slug: "producer" },
   { test: /\b(sound engineer|audio engineer|live sound)\b/i, slug: "sound-engineer" },

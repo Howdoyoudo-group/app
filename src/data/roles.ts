@@ -528,7 +528,7 @@ export const roles: RoleDefinition[] = [
     title: "Sports Scientist",
     slug: "sports-scientist",
     description: "Monitoring player fitness, load management and recovery using GPS, testing and data analysis.",
-    industries: ["Football"],
+    industries: ["Football", "Tennis", "Physiotherapy", "Wellness"],
     category: "craft",
   },
   {

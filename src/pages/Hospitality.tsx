@@ -162,7 +162,7 @@ const Hospitality = () => {
     )},
     { id: "plan", label: "Plan", content: (
       <>
-        <CareerMap title="Where You Fit In" subtitle="From concept to customer - the roles behind every restaurant, bar, and kitchen." stages={hospitalityStages} industry="food-drink" />
+        <CareerMap title="Where You Fit In" subtitle="From concept to customer - the roles behind every restaurant, bar, and kitchen." stages={hospitalityStages} industry="hospitality" />
           <div className="mt-12"><IndustryRolesLink industry="Hospitality" /></div>
         <ExploreFurther links={[
           { title: "Institute of Hospitality", description: "The professional body for the hospitality industry - qualifications, career support, and networking.", url: "https://www.instituteofhospitality.org/careers/" },
