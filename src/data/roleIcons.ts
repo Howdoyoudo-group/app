@@ -165,6 +165,13 @@ export const ROLE_ICONS: Record<string, string> = {
   // Vocational additions (Formula 1)
   "race-engineer": roleRaceEngineer,
   mechanic: roleMechanic,
+  // Placeholders - reuse Mechanic/Vehicle Technician icons until bespoke
+  // Fixing-trade icons exist
+  electrician: roleMechanic,
+  plumber: roleVehicleTechnician,
+  "heating-engineer": roleMechanic,
+  "repair-technician": roleVehicleTechnician,
+  handyperson: roleMechanic,
   aerodynamicist: roleAerodynamicist,
   "performance-engineer": rolePerformanceEngineer,
   "composite-technician": roleCompositeTechnician,

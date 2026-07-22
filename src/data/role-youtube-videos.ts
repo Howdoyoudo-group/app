@@ -139,6 +139,9 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "-v4gHA8uYnk", title: "A Day With Eva Chen: CondÃ© Nast's Youngest Editor-In-Chief | Forbes", channel: "ForbesWomen" },
     { id: "WPJxoZevpYU", title: "FREELANCE YOUTUBE EDITING ð§â¨ | Realistic Day in My Life + How to Get Started! (Tips & Tricks)", channel: "Beth Gould" },
   ],
+  "electrician": [
+    { id: "yhRRRR2Tsx8", title: "Day in the life of an electrician - How much electricians earn in a day.", channel: "OM Electrical" },
+  ],
   "estate-agent": [
     { id: "0tvv74Ek--E", title: "CHAOTIC Day in the life of an Estate Agent | one year later", channel: "Christina Williams" },
     { id: "bxhTGSAca2Y", title: "VLOG | A Work Week in My Life ð  As an estate agent", channel: "Alisha Franklin" },
@@ -362,6 +365,9 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "s1jm_V9W3XY", title: "A Day in the Life of a Physical Therapist | Indeed", channel: "Indeed" },
     { id: "RkaCXTnvC7A", title: "Day in The Life as a Physiotherapist", channel: "Shayaan" },
     { id: "XYY3z-VGLYk", title: "A day in the life of a physiotherapist", channel: "LSC Health + Care Partnership" },
+  ],
+  "plumber": [
+    { id: "P2RpK3Jv4jU", title: "Should You Become A Plumber In 2024 - Apprentice Edition - Day In The Life Apprentice Plumber", channel: "Celsius Heating and Plumbing (Edinburgh)" },
   ],
   "producer": [
     { id: "ENb164Blk7E", title: "A Day In The Life Of A Music Producer REALISTIC", channel: "Elliott In The Studio" },

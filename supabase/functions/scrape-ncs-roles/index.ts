@@ -93,6 +93,11 @@ const NCS_MAP: Record<string, string> = {
   "theatre-technician": "stagehand",
   // Sustainability
   "sustainability": "corporate-responsibility-and-sustainability-practitioner",
+  // Fixing (trades)
+  "electrician": "electrician",
+  "plumber": "plumber",
+  "heating-engineer": "gas-service-technician",
+  "repair-technician": "domestic-appliance-service-engineer",
 };
 
 const NCS_BASE = "https://nationalcareers.service.gov.uk/job-profiles/";

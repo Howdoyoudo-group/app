@@ -62,6 +62,10 @@ const CP_MAP: Record<string, string> = {
   "theatre-costume-designer": "performing-arts/job-profile/costume-designer",
   // Sustainability
   "sustainability":           "admin-hr-legal/job-profile/corporate-responsibility-and-sustainability-practitioner",
+  // Fixing (trades)
+  "electrician":              "on-site/job-profile/electrician",
+  "plumber":                  "on-site/job-profile/plumber",
+  "heating-engineer":         "on-site/job-profile/gas-service-technician",
 };
 
 // ── Firecrawl fetch ───────────────────────────────────────────────────────────

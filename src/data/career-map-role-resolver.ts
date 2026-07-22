@@ -97,17 +97,17 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(customer service|customer support|customer success|contact centre)\b/i, slug: "customer-service" },
 
   // Ops / PM
-  { test: /\b(operations|coo|chief operating officer|ops manager|operations director|logistics coordinator|logistics manager|production manager|quality assurance manager|quality controller|supply chain coordinator|supply chain analyst|fleet manager|procurement manager)\b/i, slug: "operations" },
+  { test: /\b(operations|coo|chief operating officer|ops manager|operations director|logistics coordinator|logistics manager|production manager|quality assurance manager|quality controller|supply chain coordinator|supply chain analyst|fleet manager|procurement manager|facilities manager)\b/i, slug: "operations" },
   { test: /\b(project manager|programme manager|pmo|delivery manager)\b/i, slug: "project-management" },
 
   // People / legal / IT / AI / data
-  { test: /\b(hr|human resources|people partner|people director|chief people officer|talent acquisition|recruiter)\b/i, slug: "hr-people" },
+  { test: /\b(hr|human resources|people partner|people director|chief people officer|talent acquisition|recruiter|training manager)\b/i, slug: "hr-people" },
   { test: /\b(legal counsel|solicitor|paralegal|chief legal officer|general counsel|compliance)\b/i, slug: "legal-compliance" },
   // Deliberately NOT bare "developer" - that word alone also appears in
   // non-software job titles across other industries (e.g. Beauty's
   // "Fragrance Developer", Coffee's "Blend Developer", Footwear's "Product
   // Developer"), which would otherwise false-match into IT & Technology.
-  { test: /\b(software engineer|software developer|web developer|app developer|game developer|devops|cio|chief information officer|it manager|cyber|sysadmin)\b/i, slug: "it-technology" },
+  { test: /\b(software engineer|software developer|web developer|app developer|game developer|devops|cio|chief information officer|it manager|it support technician|field engineer|network engineer|cyber|sysadmin)\b/i, slug: "it-technology" },
   { test: /\b(data analyst|business analyst|data scientist|bi analyst)\b/i, slug: "data-analyst" },
   { test: /\b(ai engineer|machine learning|ml engineer|chief ai officer|ai product|ai policy)\b/i, slug: "ai" },
 
@@ -173,6 +173,18 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(jockey|apprentice jockey)\b/i, slug: "jockey" },
   { test: /\b(racehorse trainer|trainer.*racing)\b/i, slug: "racehorse-trainer" },
   { test: /\b(stable hand|stable staff|work rider|groom)\b/i, slug: "stable-hand" },
+
+  // Fixing (trades) - Electrical Engineer is deliberately grouped in with
+  // Electrician (same underlying trade, bigger-scale work), unlike the
+  // Theatre precedent where genuinely distinct disciplines were kept apart.
+  { test: /\b(electrician|electrical engineer|solar panel installer|ev charger installer)\b/i, slug: "electrician" },
+  { test: /\bplumber\b/i, slug: "plumber" },
+  // Gas/heating/heat-pump/HVAC are one real trade cluster per NCS itself -
+  // its own Heat Pump Engineer profile lists "gas service technician,
+  // heating and ventilation engineer or plumber" as the entry routes in.
+  { test: /\b(heating engineer|gas engineer|heat pump engineer|hvac engineer)\b/i, slug: "heating-engineer" },
+  { test: /\b(appliance repair technician|mobile phone repair technician|electronics repair technician)\b/i, slug: "repair-technician" },
+  { test: /\b(multi-trade engineer|maintenance technician|handyperson)\b/i, slug: "handyperson" },
 
   // Charity
   { test: /\b(charity fundraiser|fundraiser|fundraising manager|trusts and foundations|partnerships manager)\b/i, slug: "charity-fundraiser" },
