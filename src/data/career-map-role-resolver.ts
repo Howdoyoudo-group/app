@@ -88,7 +88,7 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(creative director|art director|copywriter|graphic designer|chief creative officer|content creator)\b/i, slug: "creative" },
   { test: /\b(product manager|associate product manager|product owner|chief product officer|head of product)\b/i, slug: "product" },
   { test: /\b(strategy|strategist|chief strategy officer|chief transformation officer)\b/i, slug: "strategy" },
-  { test: /\b(commercial manager|chief commercial officer|chief revenue officer|commercial director|sponsorship manager)\b/i, slug: "commercial" },
+  { test: /\b(commercial manager|chief commercial officer|chief revenue officer|commercial director|sponsorship manager|partnerships manager)\b/i, slug: "commercial" },
   { test: /\b(ecommerce|e-commerce|digital trading|online merchandiser)\b/i, slug: "ecommerce" },
 
   // Sales / customer
@@ -96,7 +96,7 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(customer service|customer support|customer success|contact centre)\b/i, slug: "customer-service" },
 
   // Ops / PM
-  { test: /\b(operations|coo|chief operating officer|ops manager|operations director|logistics coordinator|logistics manager|production manager|quality assurance manager|quality controller)\b/i, slug: "operations" },
+  { test: /\b(operations|coo|chief operating officer|ops manager|operations director|logistics coordinator|logistics manager|production manager|quality assurance manager|quality controller|supply chain coordinator|supply chain analyst|fleet manager|procurement manager)\b/i, slug: "operations" },
   { test: /\b(project manager|programme manager|pmo|delivery manager)\b/i, slug: "project-management" },
 
   // People / legal / IT / AI / data
@@ -161,11 +161,11 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(game designer|level designer|narrative designer)\b/i, slug: "game-designer" },
   { test: /\b(qa tester|qa analyst|test analyst)\b/i, slug: "qa-tester" },
   { test: /\b(interior designer|fit[- ]out designer)\b/i, slug: "interior-designer" },
-  { test: /\b(live events manager|events producer|event manager)\b/i, slug: "live-events-manager" },
+  { test: /\b(live events manager|events producer|event manager|events coordinator)\b/i, slug: "live-events-manager" },
   { test: /\b(travel consultant|travel agent|reservations consultant)\b/i, slug: "travel-consultant" },
 
   // Buyer / merchandiser / garment
-  { test: /\b(buyer|assistant buyer|merchandiser)\b/i, slug: "buyer" },
+  { test: /\b(buyer|assistant buyer|merchandiser|category manager)\b/i, slug: "buyer" },
   { test: /\b(garment technologist|gt)\b/i, slug: "garment-technologist" },
 
   // Equine
@@ -174,7 +174,12 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(stable hand|stable staff|work rider|groom)\b/i, slug: "stable-hand" },
 
   // Charity
-  { test: /\b(charity fundraiser|fundraiser|fundraising manager|trusts and foundations)\b/i, slug: "charity-fundraiser" },
+  { test: /\b(charity fundraiser|fundraiser|fundraising manager|trusts and foundations|partnerships manager)\b/i, slug: "charity-fundraiser" },
+
+  // Politics uses the US spelling "Advisor" (matches the slug directly),
+  // but Charity/Teaching/Psychotherapy's Career Maps use the UK spelling
+  // "Adviser" - slugify() alone won't bridge that, so spell both out.
+  { test: /\bpolicy advis(?:e|o)r\b/i, slug: "policy-advisor" },
 
   // Theatre - CareerMap uses different display names than the roles.ts
   // titles/slugs (e.g. "Actor" vs "Performer"), so these need explicit

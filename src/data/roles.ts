@@ -80,7 +80,7 @@ export const roles: RoleDefinition[] = [
     title: "Operations",
     slug: "operations",
     description: "Supply chains, logistics, and the systems that keep industries running day to day.",
-    industries: ["Beauty", "Cars", "Fashion", "Coffee", "Farming", "Film and TV", "Football", "Formula 1", "Grocery", "Health", "Horse Racing", "Influencing", "Hospitality", "Footwear", "Wellness", "Bakery", "Beer", "Estate Agency", "Interior Design", "Gaming", "Journalism", "Jewellery", "Pets", "Travel"],
+    industries: ["Beauty", "Cars", "Fashion", "Coffee", "Farming", "Film and TV", "Football", "Formula 1", "Grocery", "Health", "Horse Racing", "Influencing", "Hospitality", "Footwear", "Wellness", "Bakery", "Beer", "Estate Agency", "Interior Design", "Gaming", "Journalism", "Jewellery", "Pets", "Travel", "Delivery"],
     category: "business",
     keywords: ["logistics", "supply chain", "procurement", "COO", "ops manager", "facilities", "office manager", "planning", "forecasting"],
   },
@@ -306,7 +306,7 @@ export const roles: RoleDefinition[] = [
     title: "Buyer / Merchandiser",
     slug: "buyer",
     description: "Choosing what brands stock and sell - range planning, supplier relationships and the numbers behind every product on the shelf.",
-    industries: ["Fashion", "Footwear", "Grocery", "Beauty", "Interior Design", "Jewellery", "Pets"],
+    industries: ["Fashion", "Footwear", "Grocery", "Beauty", "Interior Design", "Jewellery", "Pets", "Beer", "Building", "Wellness"],
     category: "business",
   },
   {
@@ -614,8 +614,8 @@ export const roles: RoleDefinition[] = [
   {
     title: "Live Events / Tour Manager",
     slug: "live-events-manager",
-    description: "Planning and running live shows, festivals and tours - logistics, artists and audiences under one roof.",
-    industries: ["Music"],
+    description: "Planning and running live shows, festivals and tours - logistics, guests and audiences under one roof.",
+    industries: ["Music", "Beer", "Coffee", "Wellness", "Film and TV", "Hospitality"],
     category: "craft",
   },
   // ─── Travel (craft/frontline) ───
@@ -636,10 +636,10 @@ export const roles: RoleDefinition[] = [
   },
   // ─── Grocery (craft) ───
   {
-    title: "Store Manager (Grocery)",
+    title: "Store Manager (Retail)",
     slug: "grocery-store-manager",
-    description: "Running a supermarket - P&L, team leadership, stock management and customer experience across a busy store.",
-    industries: ["Grocery"],
+    description: "Running a retail store - P&L, team leadership, stock management and customer experience across a busy shop floor.",
+    industries: ["Grocery", "Footwear", "Jewellery", "Pets", "Wellness"],
     category: "craft",
   },
   // ─── Politics (craft) ───
@@ -647,7 +647,7 @@ export const roles: RoleDefinition[] = [
     title: "Policy Advisor",
     slug: "policy-advisor",
     description: "Drafting and developing government policy - the largest and most iconic civil service function, from local council strategy up to Cabinet Office briefings.",
-    industries: ["Politics"],
+    industries: ["Politics", "Charity", "Teaching", "Psychotherapy"],
     category: "craft",
     keywords: ["policy officer", "policy manager", "civil servant", "government advisor", "fast stream", "government economist", "government social researcher"],
   },
