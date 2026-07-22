@@ -295,7 +295,7 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
                 .map((role, ri) => {
                   const level = deriveLevel(role.salary);
                   const isSaved = targetRoles.includes(role.name);
-                  const roleSlug = resolveCareerMapRoleSlug(role.name);
+                  const roleSlug = resolveCareerMapRoleSlug(role.name, industry);
 
                   return (
                     <CareerMapRoleCard

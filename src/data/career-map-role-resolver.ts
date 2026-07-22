@@ -5,9 +5,35 @@
 // Returns null when no confident match exists - caller falls back to the
 // existing "Save to Most Wanted" CTA only.
 
-import { roles } from "./roles";
+import { roles, industryToSlug } from "./roles";
 
 const ROLE_SLUGS = new Set(roles.map((r) => r.slug));
+const SLUG_TO_ROLE = new Map(roles.map((r) => [r.slug, r]));
+
+// industryToSlug maps a Title Case industry name (e.g. "Theatre") to a path
+// (e.g. "/theatre"). CareerMap's `industry` prop is the bare slug ("theatre").
+// Build the reverse lookup once: slug -> every industry name that maps to it.
+const SLUG_TO_INDUSTRY_NAMES = new Map<string, string[]>();
+for (const [name, path] of Object.entries(industryToSlug)) {
+  const slug = path.replace(/^\//, "");
+  const list = SLUG_TO_INDUSTRY_NAMES.get(slug) ?? [];
+  list.push(name);
+  SLUG_TO_INDUSTRY_NAMES.set(slug, list);
+}
+
+/**
+ * A role-name match is only trustworthy if the resolved role is actually
+ * tagged to the industry the Career Map is showing. Without this, generic
+ * keyword aliases (e.g. "buyer") false-match unrelated roles from other
+ * industries (e.g. Building's "Land Buyer" incorrectly resolving to the
+ * Fashion/Grocery/etc. "Buyer / Merchandiser" role).
+ */
+function roleAppliesToIndustry(roleSlug: string, industry: string): boolean {
+  const role = SLUG_TO_ROLE.get(roleSlug);
+  if (!role) return false;
+  const industryNames = SLUG_TO_INDUSTRY_NAMES.get(industry) ?? [];
+  return role.industries.some((ind) => industryNames.includes(ind));
+}
 
 /** Manual aliases for role-name families that don't slug-match cleanly. */
 const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
@@ -138,6 +164,18 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
 
   // Charity
   { test: /\b(charity fundraiser|fundraiser|fundraising manager|trusts and foundations)\b/i, slug: "charity-fundraiser" },
+
+  // Theatre - CareerMap uses different display names than the roles.ts
+  // titles/slugs (e.g. "Actor" vs "Performer"), so these need explicit
+  // aliases. Safe to phrase loosely because industry-scoping in
+  // resolveCareerMapRoleSlug is the real guard against cross-industry
+  // false positives (e.g. "Producer" here won't leak into Cinema's
+  // generic "producer" role, and vice versa).
+  { test: /\b(actor|actress|ensemble member|dancer|understudy|swing|singer)\b/i, slug: "performer" },
+  { test: /\b(stage manager|dsm|asm|company manager)\b/i, slug: "theatre-stage-manager" },
+  { test: /\b(lighting technician|lx|sound engineer|sound no\.?\s*1|av \/? video technician|av technician)\b/i, slug: "theatre-technician" },
+  { test: /\b(set \/? scenic designer|scenic designer|costume designer|wardrobe supervisor|wigs,? hair & makeup)\b/i, slug: "theatre-costume-designer" },
+  { test: /\b(producer|general manager|casting director|marketing & press officer|literary manager|dramaturg)\b/i, slug: "theatre-producer" },
 ];
 
 /** Quick slugify of a free-text role name, stripping parentheticals & noise. */
@@ -153,17 +191,31 @@ const slugify = (name: string): string =>
     .trim()
     .replace(/\s+/g, "-");
 
-/** Returns a /roles/:slug match for a career-map role name, or null. */
-export const resolveCareerMapRoleSlug = (roleName: string): string | null => {
+/**
+ * Returns a /roles/:slug match for a career-map role name, or null.
+ *
+ * `industry` should be the Career Map's own industry slug (e.g. "theatre",
+ * matching the CareerMap `industry` prop). When provided, a candidate slug
+ * is only accepted if that role is actually tagged to this industry in
+ * roles.ts - this is what stops generic keyword aliases from resolving to
+ * the wrong industry's role (e.g. Building's "Land Buyer" incorrectly
+ * matching Fashion/Grocery's "Buyer / Merchandiser").
+ *
+ * Omitting `industry` restores the old unscoped behaviour (first text
+ * match wins) - only do this if you don't have an industry to pass.
+ */
+export const resolveCareerMapRoleSlug = (roleName: string, industry?: string): string | null => {
   if (!roleName) return null;
+  const inScope = (slug: string) => !industry || roleAppliesToIndustry(slug, industry);
 
   // 1. Direct slugify match
   const direct = slugify(roleName);
-  if (ROLE_SLUGS.has(direct)) return direct;
+  if (ROLE_SLUGS.has(direct) && inScope(direct)) return direct;
 
-  // 2. Alias overrides
+  // 2. Alias overrides - keep checking candidates until one is actually
+  // tagged to this industry, rather than stopping at the first text match.
   for (const { test, slug } of ALIAS_MAP) {
-    if (test.test(roleName) && ROLE_SLUGS.has(slug)) return slug;
+    if (test.test(roleName) && ROLE_SLUGS.has(slug) && inScope(slug)) return slug;
   }
 
   return null;
