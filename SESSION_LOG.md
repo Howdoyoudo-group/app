@@ -45,7 +45,23 @@ headroom for near-zero background activity.
 - If the site still seems slow/broken when you read this and there's no follow-up entry
   below confirming recovery, treat it as still unresolved — ask Woody before proceeding.
 
-*(Follow-up confirming recovery + resumption plan will be added once verified.)*
+### ✅ RESOLVED 2026-07-22, ~11:15am
+Woody upgraded compute Nano → Micro (free, Pro plan). Verified recovery directly:
+bare REST root, `profiles` table, and the exact music query that was 503ing/timing out
+all now respond in ~0.1s. Confirmed live in the actual Marketplace UI too — Music now
+shows "42 jobs found" with real listings rendering (was "0 jobs found" during the
+incident, since the frontend was silently treating a failed/timed-out fetch as an
+empty result — a separate bug worth fixing, but not the root cause here).
+
+Current cron state: `embed-jobs-continuous` and `extract-job-traits-backfill` still
+**paused** (intentionally — see task list, "Resume embed-jobs/extract-job-traits crons
+at a sustainable pace"). `validate-jobs-nightly` confirmed still active (`*/20 * * * *`)
+— it wasn't part of the problem and was left running throughout.
+
+**Before re-enabling the two paused crons**: bring them back at a lighter pace (smaller
+batch per run and/or less frequent) than before, and watch Settings → Infrastructure
+CPU/memory graphs afterward to confirm Micro has real headroom — don't just flip them
+back on at the old settings.
 
 ---
 
