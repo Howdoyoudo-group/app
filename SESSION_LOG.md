@@ -5,6 +5,50 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## ⚠️ 2026-07-22 (in progress) — Woody (main branch) — Database resource exhaustion, project mid-recovery
+
+**ANDREW — READ THIS BEFORE TOUCHING THE DATABASE OR MAKING SCHEMA/CRON CHANGES.**
+Woody has texted you directly too, this is a backup in case you start a session first.
+
+### What's happening
+Around 10:30am the live site started failing for real visitors — Marketplace queries
+timing out (15s+) or returning `503`, some pages showing "no jobs found" when jobs
+genuinely exist (the frontend silently treats a failed/timed-out fetch as an empty
+result, a separate bug worth fixing later). Root cause confirmed via the Supabase
+dashboard: the project was running on **Nano compute** (shared CPU, 0.5GB RAM) and hit
+resource exhaustion — Database/PostgREST/Auth/Realtime/Storage all showed **Unhealthy**,
+CPU spiked to ~100%, and Postgres logs showed cron jobs timing out on startup, queries
+being cancelled, and connections dropping.
+
+**Why now, specifically:** the previous session (2026-07-21) fixed several background
+jobs that had been silently failing since launch — `embed-jobs-continuous` (401 auth
+error) and `extract-job-traits-backfill` were finally doing real, frequent work for the
+first time, on top of `validate-jobs` now running a genuine full-table pass every 20
+min instead of dying early. Real, sustained load hit a compute tier that only had
+headroom for near-zero background activity.
+
+### Actions taken (in order)
+1. Paused `embed-jobs-continuous` and `extract-job-traits-backfill` crons via
+   `cron.alter_job(..., active := false)` to relieve write pressure.
+2. Attempted to pause `validate-jobs-nightly` too — **this did NOT go through** (DB was
+   already unreachable at that point). Check its `active` status before assuming it's
+   paused.
+3. Woody is upgrading compute **Nano → Micro** (free on the Pro plan, doubles memory) —
+   in progress as of 11:09am, project offline while it restarts.
+
+### ⚠️ DO NOT, until Woody confirms recovery in a follow-up log entry
+- Do NOT re-enable `embed-jobs-continuous` or `extract-job-traits-backfill` — they need
+  to come back at a lighter pace (smaller batch / less frequent), not resumed as-is.
+- Do NOT run heavy DB operations (bulk backfills, full-table scans/updates) — the
+  compute tier just changed and headroom is unverified until we've re-tested.
+- Do NOT assume `validate-jobs-nightly` is paused — check `cron.job` first.
+- If the site still seems slow/broken when you read this and there's no follow-up entry
+  below confirming recovery, treat it as still unresolved — ask Woody before proceeding.
+
+*(Follow-up confirming recovery + resumption plan will be added once verified.)*
+
+---
+
 ## 2026-07-20 — Andrew (main branch) — Added Theatre as a full industry
 
 ### What was done
