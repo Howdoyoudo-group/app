@@ -1,7 +1,7 @@
 import { ExternalLink, GraduationCap, Laptop } from "lucide-react";
 import { coursesByIndustry } from "@/data/courses";
 import { roles } from "@/data/roles";
-import { getResourceTopic } from "@/data/resource-topics";
+import { buildOnlineProviders } from "@/data/online-providers";
 
 interface RoleLearnSectionProps {
   roleName: string;
@@ -16,6 +16,7 @@ const MAX_COURSES = 12;
 
 const RoleLearnSection = ({ roleName, roleSlug }: RoleLearnSectionProps) => {
   const role = roles.find((item) => item.slug === roleSlug);
+  const onlineProviders = buildOnlineProviders(roleName);
 
   const seenUrls = new Set<string>();
   const courses =
@@ -96,13 +97,13 @@ const RoleLearnSection = ({ roleName, roleSlug }: RoleLearnSectionProps) => {
           Online Learning<span className="text-primary">.</span>
         </h3>
         <p className="text-muted-foreground font-body text-sm mb-6 max-w-2xl">
-          Cross-industry online courses, MOOCs and accredited UK providers - most have free options.
+          Search the leading online learning platforms for {roleName}-specific courses - from free taster modules to accredited qualifications.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
-          {(getResourceTopic("online-courses")?.help ?? []).map((course) => (
+          {onlineProviders.map((p) => (
             <a
-              key={course.url}
-              href={course.url}
+              key={p.name}
+              href={p.url}
               target="_blank"
               rel="noopener noreferrer"
               className="group border border-border p-5 hover:border-primary transition-colors flex flex-col gap-2"
@@ -111,23 +112,14 @@ const RoleLearnSection = ({ roleName, roleSlug }: RoleLearnSectionProps) => {
                 <div className="flex items-center gap-2">
                   <Laptop className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                   <h4 className="font-display font-700 text-sm text-foreground group-hover:text-primary transition-colors leading-snug">
-                    {course.name}
+                    {p.name}
                   </h4>
                 </div>
                 <ExternalLink className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-1 opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               <p className="text-muted-foreground font-body text-xs leading-relaxed">
-                {course.description}
+                {p.note}
               </p>
-              {course.tags && course.tags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-2 mt-auto pt-1">
-                  {course.tags.map((tag) => (
-                    <span key={tag} className="text-[10px] font-body px-2 py-0.5 border border-border text-muted-foreground">
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              )}
             </a>
           ))}
         </div>

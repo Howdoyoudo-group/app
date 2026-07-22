@@ -87,6 +87,10 @@ const NCS_MAP: Record<string, string> = {
   "it-technology": "software-developer",
   "data-analyst": "data-analyst",
   "investment-analyst": "investment-analyst",
+  // Theatre
+  "performer": "actor",
+  "theatre-stage-manager": "stage-manager",
+  "theatre-technician": "stagehand",
 };
 
 const NCS_BASE = "https://nationalcareers.service.gov.uk/job-profiles/";

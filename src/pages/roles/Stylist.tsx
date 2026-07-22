@@ -50,7 +50,7 @@ const Stylist = () => {
     { id: "apply", label: "Jobs", content: (<><div className="border border-border p-6 mb-12"><h2 className="font-display text-2xl md:text-3xl font-700 mb-3">Job Marketplace<span className="text-primary">.</span></h2><p className="text-muted-foreground font-body text-sm mb-4">Browse live styling and design roles.</p><Link to="/marketplace?industry=fashion#jobs-list" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">View Fashion Jobs</Link></div><IndustryCVBuilder industry="Fashion" stages={careerStages} /></>) },
   ];
 
-  return <RolePageLayout name="Stylist / Designer" description="Trend forecasting, garment design, and shaping the visual identity of brands." tabs={tabs} category="craft" />;
+  return <RolePageLayout slug="stylist" name="Stylist / Designer" description="Trend forecasting, garment design, and shaping the visual identity of brands." tabs={tabs} category="craft" />;
 };
 
 export default Stylist;

@@ -49,7 +49,7 @@ const WarehouseDelivery = () => {
     { id: "apply", label: "Jobs", content: (<><div className="border border-border p-6 mb-12"><h2 className="font-display text-2xl md:text-3xl font-700 mb-3">Job Marketplace<span className="text-primary">.</span></h2><p className="text-muted-foreground font-body text-sm mb-4">Browse live warehouse, driver and logistics roles across the UK.</p><Link to="/marketplace?role=warehouse-delivery#jobs-list" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">View Warehouse & Delivery Jobs</Link></div><IndustryCVBuilder industry="Grocery" stages={careerStages} /></>) },
   ];
 
-  return <RolePageLayout name="Warehouse & Delivery" description="Picking, packing, driving, and getting product from supplier to doorstep - the engine room of every retailer." tabs={tabs} category="frontline" />;
+  return <RolePageLayout slug="warehouse-delivery" name="Warehouse & Delivery" description="Picking, packing, driving, and getting product from supplier to doorstep - the engine room of every retailer." tabs={tabs} category="frontline" />;
 };
 
 export default WarehouseDelivery;

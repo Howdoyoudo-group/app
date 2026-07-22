@@ -58,7 +58,7 @@ const Buyer = () => {
     { id: "attend", label: "Attend", content: <EventsSection industry="Fashion" searchQuery="Pure London Drapers buying conference UK" /> },
     { id: "apply", label: "Jobs", content: (<><div className="border border-border p-6 mb-12"><h2 className="font-display text-2xl md:text-3xl font-700 mb-3">Job Marketplace<span className="text-primary">.</span></h2><p className="text-muted-foreground font-body text-sm mb-4">Browse live buying and merchandising roles across UK retail.</p><Link to="/marketplace?role=buyer#jobs-list" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">View Buying Jobs</Link></div><IndustryCVBuilder industry="Fashion" stages={careerStages} /></>) },
   ];
-  return <RolePageLayout name="Buyer / Merchandiser" description="Choosing what brands stock and sell - range planning, supplier relationships and the numbers behind every product on the shelf." tabs={tabs} category="business" />;
+  return <RolePageLayout slug="buyer" name="Buyer / Merchandiser" description="Choosing what brands stock and sell - range planning, supplier relationships and the numbers behind every product on the shelf." tabs={tabs} category="business" />;
 };
 
 export default Buyer;

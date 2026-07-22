@@ -471,6 +471,10 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "UDFCbMBGPYA", title: "Day in the life of a Teaching Assistant", channel: "NEAutismSociety" },
     { id: "jVtCMISuivQ", title: "Tips for being a successful teaching assistant / my last day as a TA", channel: "vids by j" },
   ],
+  "theatre-producer": [
+    { id: "2cksCqCUwLo", title: "Careers in Theatre Producing - Insider Panel I TheatreCraft 2021", channel: "OfficialLondonTheatre" },
+    { id: "lDFOQHh6VFs", title: "Becky Barber explains the role of a theatre producer", channel: "Becky Barber Producing Masterclass" },
+  ],
   "travel-consultant": [
     { id: "SE1Kvis0lnA", title: "10 Things I Wish I Knew BEFORE I Became a Travel Agent (Plus, What Others Won't Tell You)", channel: "Travel Agent Haven" },
     { id: "HDuW1-_S1Uk", title: "A day in the life of a Corporate Travel Consultant - UK", channel: "Flight Centre Travel Group Careers" },

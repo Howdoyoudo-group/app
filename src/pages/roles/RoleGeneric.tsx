@@ -150,6 +150,7 @@ const RoleGeneric = () => {
       description={role.description}
       tabs={tabs}
       category={role.category}
+      slug={role.slug}
     />
   );
 };

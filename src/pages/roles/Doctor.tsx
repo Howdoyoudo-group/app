@@ -58,7 +58,7 @@ const Doctor = () => {
     { id: "attend", label: "Attend", content: <EventsSection industry="Health" searchQuery="medical conference UK BMA Royal College" /> },
     { id: "apply", label: "Jobs", content: (<><div className="border border-border p-6 mb-12"><h2 className="font-display text-2xl md:text-3xl font-700 mb-3">Job Marketplace<span className="text-primary">.</span></h2><p className="text-muted-foreground font-body text-sm mb-4">Browse live medical and GP roles across the NHS and private sector.</p><Link to="/marketplace?role=doctor#jobs-list" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">View Doctor Jobs</Link><a href="https://www.jobs.nhs.uk/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 ml-3 border-2 border-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:bg-foreground hover:text-background transition-colors">NHS Jobs ↗</a></div><IndustryCVBuilder industry="Health" stages={careerStages} /></>) },
   ];
-  return <RolePageLayout name="Doctor / GP" description="Diagnosis, treatment and care - from hospital consultants to community general practitioners." tabs={tabs} category="craft" />;
+  return <RolePageLayout slug="doctor" name="Doctor / GP" description="Diagnosis, treatment and care - from hospital consultants to community general practitioners." tabs={tabs} category="craft" />;
 };
 
 export default Doctor;

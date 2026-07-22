@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { GraduationCap, ExternalLink } from "lucide-react";
 import { coursesByIndustry } from "@/data/courses";
+import { buildOnlineProviders } from "@/data/online-providers";
 import DegreesSection from "@/components/DegreesSection";
 
 interface CoursesSectionProps {
@@ -46,23 +47,11 @@ const INDUSTRY_QUERY_ALIASES: Record<string, string> = {
   delivery: "logistics supply chain warehouse",
 };
 
-const ONLINE_PROVIDERS = [
-  { name: "Reed Courses", note: "UK course marketplace, free + paid", build: (q: string) => `https://www.reed.co.uk/courses/search?keywords=${q}` },
-  { name: "Coursera", note: "Top universities & companies", build: (q: string) => `https://www.coursera.org/search?query=${q}` },
-  { name: "FutureLearn", note: "UK-led short online courses", build: (q: string) => `https://www.futurelearn.com/search?q=${q}` },
-  { name: "Open University", note: "Free OpenLearn modules", build: (q: string) => `https://www.open.edu/openlearn/search-results?query=${q}` },
-  { name: "edX", note: "Harvard, MIT & industry partners", build: (q: string) => `https://www.edx.org/search?q=${q}` },
-  { name: "LinkedIn Learning", note: "Professional video courses", build: (q: string) => `https://www.linkedin.com/learning/search?keywords=${q}` },
-  { name: "Udemy", note: "Practical, on-demand courses", build: (q: string) => `https://www.udemy.com/courses/search/?q=${q}` },
-  { name: "learndirect", note: "UK accredited distance learning", build: (q: string) => `https://www.learndirect.com/search?search=${q}` },
-];
-
 const CoursesSection = ({ industry }: CoursesSectionProps) => {
   const key = industry.toLowerCase();
   const courses = coursesByIndustry[key] ?? [];
   const queryTerm = INDUSTRY_QUERY_ALIASES[key] ?? key;
-  const encodedQuery = encodeURIComponent(queryTerm);
-  const providers = ONLINE_PROVIDERS.map((p) => ({ ...p, url: p.build(encodedQuery) }));
+  const providers = buildOnlineProviders(queryTerm);
 
 
 

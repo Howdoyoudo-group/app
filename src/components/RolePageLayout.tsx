@@ -41,6 +41,15 @@ interface RolePageLayoutProps {
   description: string;
   tabs: RoleTab[];
   category?: "business" | "craft" | "frontline";
+  /**
+   * The role's real slug from src/data/roles.ts (e.g. "theatre-stage-manager").
+   * Always pass this when the caller has it - it's what role_metadata,
+   * role_skills etc. are actually keyed by. Without it, we fall back to
+   * guessing a slug from the display name, which silently breaks whenever
+   * the name doesn't slugify to the same thing as the real slug (e.g.
+   * "Buyer / Merchandiser" -> "buyer-merchandiser" vs the real "buyer").
+   */
+  slug?: string;
 }
 
 const slugifyRoleName = (value: string) =>
@@ -51,8 +60,8 @@ const slugifyRoleName = (value: string) =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 
-const RolePageLayout = ({ name, description, tabs, category }: RolePageLayoutProps) => {
-  const roleSlug = useMemo(() => slugifyRoleName(name), [name]);
+const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLayoutProps) => {
+  const roleSlug = useMemo(() => slug ?? slugifyRoleName(name), [name, slug]);
 
   const enhancedTabs = useMemo(() => {
     let result: RoleTab[];

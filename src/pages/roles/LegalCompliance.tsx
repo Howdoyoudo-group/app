@@ -58,7 +58,7 @@ const LegalCompliance = () => {
     { id: "apply", label: "Jobs", content: (<><div className="border border-border p-6 mb-12"><h2 className="font-display text-2xl md:text-3xl font-700 mb-3">Job Marketplace<span className="text-primary">.</span></h2><p className="text-muted-foreground font-body text-sm mb-4">Browse live legal & compliance roles.</p><Link to="/marketplace?role=Legal+%26+Compliance#jobs-list" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">View Legal Jobs</Link></div><IndustryCVBuilder industry="Legal & Compliance" stages={careerStages} /></>) },
   ];
 
-  return <RolePageLayout name="Legal & Compliance" description="Contracts, regulation, and risk - making sure industries operate within the rules." tabs={tabs} category="business" />;
+  return <RolePageLayout slug="legal-compliance" name="Legal & Compliance" description="Contracts, regulation, and risk - making sure industries operate within the rules." tabs={tabs} category="business" />;
 };
 
 export default LegalCompliance;

@@ -58,7 +58,7 @@ const Ecommerce = () => {
     { id: "apply", label: "Jobs", content: (<><div className="border border-border p-6 mb-12"><h2 className="font-display text-2xl md:text-3xl font-700 mb-3">Job Marketplace<span className="text-primary">.</span></h2><p className="text-muted-foreground font-body text-sm mb-4">Browse live e-commerce roles across all industries.</p><Link to="/marketplace?role=E-commerce#jobs-list" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">View E-commerce Jobs</Link></div><IndustryCVBuilder industry="E-commerce" stages={careerStages} /></>) },
   ];
 
-  return <RolePageLayout name="E-commerce" description="Online retail, digital storefronts, and conversion - where technology meets the customer." tabs={tabs} category="business" />;
+  return <RolePageLayout slug="ecommerce" name="E-commerce" description="Online retail, digital storefronts, and conversion - where technology meets the customer." tabs={tabs} category="business" />;
 };
 
 export default Ecommerce;

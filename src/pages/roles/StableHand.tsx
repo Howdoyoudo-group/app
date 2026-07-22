@@ -58,7 +58,7 @@ const StableHand = () => {
     { id: "attend", label: "Attend", content: <EventsSection industry="Horse Racing" searchQuery="Careers in Racing UK racing yard" /> },
     { id: "apply", label: "Jobs", content: (<><div className="border border-border p-6 mb-12"><h2 className="font-display text-2xl md:text-3xl font-700 mb-3">Job Marketplace<span className="text-primary">.</span></h2><p className="text-muted-foreground font-body text-sm mb-4">Browse live stable, groom and yard roles across UK racing.</p><Link to="/marketplace?role=stable-hand#jobs-list" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">View Stable Jobs</Link><a href="https://careersinracing.com/" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 ml-3 border-2 border-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:bg-foreground hover:text-background transition-colors">Careers in Racing ↗</a></div><IndustryCVBuilder industry="Horse Racing" stages={careerStages} /></>) },
   ];
-  return <RolePageLayout name="Stable Hand / Groom" description="Daily horse care - mucking out, feeding, exercising and travelling racehorses to and from meetings." tabs={tabs} category="frontline" />;
+  return <RolePageLayout slug="stable-hand" name="Stable Hand / Groom" description="Daily horse care - mucking out, feeding, exercising and travelling racehorses to and from meetings." tabs={tabs} category="frontline" />;
 };
 
 export default StableHand;

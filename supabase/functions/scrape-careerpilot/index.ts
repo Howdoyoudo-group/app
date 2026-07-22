@@ -55,6 +55,11 @@ const CP_MAP: Record<string, string> = {
   "investment-analyst":    "finance-accounting/job-profile/investment-analyst",
   "conveyancer":           "property-management/job-profile/conveyancer",
   "lettings-negotiator":   "property-management/job-profile/lettings-agent",
+  // Theatre
+  "performer":                "performing-arts/job-profile/actor",
+  "theatre-stage-manager":    "performing-arts/job-profile/stage-manager",
+  "theatre-technician":       "performing-arts/job-profile/stagehand",
+  "theatre-costume-designer": "performing-arts/job-profile/costume-designer",
 };
 
 // ── Firecrawl fetch ───────────────────────────────────────────────────────────

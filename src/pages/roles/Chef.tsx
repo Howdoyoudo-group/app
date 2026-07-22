@@ -54,7 +54,7 @@ const Chef = () => {
     { id: "apply", label: "Jobs", content: (<><div className="border border-border p-6 mb-12"><h2 className="font-display text-2xl md:text-3xl font-700 mb-3">Job Marketplace<span className="text-primary">.</span></h2><p className="text-muted-foreground font-body text-sm mb-4">Browse live chef and baker roles.</p><Link to="/marketplace?industry=hospitality#jobs-list" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">View Hospitality Jobs</Link></div><IndustryCVBuilder industry="Hospitality" stages={careerStages} /></>) },
   ];
 
-  return <RolePageLayout name="Chef / Baker" description="Recipe development, kitchen leadership, and the craft of making food people love." tabs={tabs} category="craft" />;
+  return <RolePageLayout slug="chef" name="Chef / Baker" description="Recipe development, kitchen leadership, and the craft of making food people love." tabs={tabs} category="craft" />;
 };
 
 export default Chef;
