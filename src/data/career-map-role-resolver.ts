@@ -175,7 +175,13 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(stage manager|dsm|asm|company manager)\b/i, slug: "theatre-stage-manager" },
   { test: /\b(lighting technician|lx|sound engineer|sound no\.?\s*1|av \/? video technician|av technician)\b/i, slug: "theatre-technician" },
   { test: /\b(set \/? scenic designer|scenic designer|costume designer|wardrobe supervisor|wigs,? hair & makeup)\b/i, slug: "theatre-costume-designer" },
-  { test: /\b(producer|general manager|casting director|marketing & press officer|literary manager|dramaturg)\b/i, slug: "theatre-producer" },
+  // Only "Producer" and "General Manager" genuinely fit theatre-producer's
+  // description ("runs the business side... general management"). Casting
+  // Director and Literary Manager/Dramaturg are distinct enough specialisms
+  // that forcing them onto the same page would be misleading rather than
+  // helpful - better to leave them unmatched (falls back to "Save to Most
+  // Wanted" only) than link somewhere that doesn't actually describe the job.
+  { test: /\b(producer|general manager)\b/i, slug: "theatre-producer" },
 ];
 
 /** Quick slugify of a free-text role name, stripping parentheticals & noise. */
