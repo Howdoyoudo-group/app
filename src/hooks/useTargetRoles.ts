@@ -46,6 +46,7 @@ export function useTargetRoles(userId: string | null | undefined) {
       .from("user_target_roles")
       .upsert({ user_id: userId, role_slug: slug, set_at: new Date().toISOString() }, { onConflict: "user_id,role_slug" });
     await refetch();
+    window.dispatchEvent(new Event("howdy:target-roles-changed"));
   }, [userId, refetch]);
 
   const removeTargetRole = useCallback(async (slug: string) => {
@@ -56,7 +57,17 @@ export function useTargetRoles(userId: string | null | undefined) {
       .eq("user_id", userId)
       .eq("role_slug", slug);
     await refetch();
+    window.dispatchEvent(new Event("howdy:target-roles-changed"));
   }, [userId, refetch]);
+
+  // Other mounted instances of this hook (e.g. useCoachPlan in an
+  // already-open Howdy widget) won't otherwise know a role was
+  // added/removed elsewhere on the site - refetch when that happens.
+  useEffect(() => {
+    const handler = () => refetch();
+    window.addEventListener("howdy:target-roles-changed", handler);
+    return () => window.removeEventListener("howdy:target-roles-changed", handler);
+  }, [refetch]);
 
   return { targetRoles, loading, addTargetRole, removeTargetRole, refetch };
 }

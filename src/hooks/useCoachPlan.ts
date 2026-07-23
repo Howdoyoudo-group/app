@@ -65,14 +65,15 @@ export function useCoachPlan(userId: string | null | undefined) {
     setTasks((data ?? []) as CoachPlanTask[]);
   }, [userId]);
 
-  // Step 1: load target roles + profile-level signals + task list once.
+  // Step 1: load target roles + profile-level signals + task list.
   useEffect(() => {
     if (!userId) {
       setProfileLoaded(true);
       return;
     }
     let cancelled = false;
-    (async () => {
+
+    const load = async () => {
       const [{ data: targetRows }, { data: profile }] = await Promise.all([
         supabase.from("user_target_roles").select("role_slug").eq("user_id", userId).order("set_at", { ascending: false }),
         supabase.from("profiles").select("job_preferences").eq("id", userId).maybeSingle(),
@@ -87,8 +88,18 @@ export function useCoachPlan(userId: string | null | undefined) {
 
       await refetchTasks();
       if (!cancelled) setProfileLoaded(true);
-    })();
-    return () => { cancelled = true; };
+    };
+    load();
+
+    // A target role can be added/removed from anywhere on the site (a role
+    // page, CareerMap, My Profile) while this hook's own component (e.g. an
+    // already-open Howdy widget) stays mounted - re-load when that happens.
+    const handler = () => load();
+    window.addEventListener("howdy:target-roles-changed", handler);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("howdy:target-roles-changed", handler);
+    };
   }, [userId, refetchTasks]);
 
   // Step 2: once roles are known, fetch each role's skill-gap + course status.
