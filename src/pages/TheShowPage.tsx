@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Clapperboard } from "lucide-react";
 import SiteNav from "@/components/SiteNav";
 import Footer from "@/components/Footer";
 import SEO from "@/components/SEO";
@@ -181,21 +180,27 @@ export default function TheShowPage() {
         {/* ── THE SHOW ── */}
         {tab === "show" && (
           <motion.section key="show" {...fadeUp}>
-            {/* Episode 1 — Coming Soon */}
+            {/* Episode 1 — live */}
             <div className="border-2 border-foreground rounded-2xl overflow-hidden mb-8">
-              <div className="relative aspect-video bg-foreground/5 flex flex-col items-center justify-center gap-3 text-center px-6">
-                <Clapperboard className="w-10 h-10 md:w-14 md:h-14 text-primary" />
-                <p className="font-display font-900 text-2xl md:text-4xl uppercase tracking-tight">
-                  Episode 1
-                </p>
-                <span className="font-display font-900 text-xs uppercase tracking-widest px-3 py-1 rounded-full bg-primary border-2 border-foreground">
-                  Coming Soon
-                </span>
+              <div className="aspect-video bg-black overflow-hidden">
+                <iframe
+                  src="https://www.youtube.com/embed/JQGH2S4xso0?rel=0&modestbranding=1"
+                  title="How Do You Do, Journalism? — Episode 1"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                  style={{ border: 0 }}
+                />
               </div>
               <div className="p-4">
-                <p className="font-display font-900 text-sm uppercase tracking-wide">The first full episode</p>
+                <span className="inline-block font-display font-700 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary border border-foreground mb-2">
+                  Episode 1
+                </span>
+                <p className="font-display font-900 text-sm uppercase tracking-wide">
+                  How Do You Do, Journalism?
+                </p>
                 <p className="font-body text-xs text-muted-foreground leading-relaxed mt-1">
-                  Our first full-length episode is on the way. Watch the teasers below while we finish it off.
+                  Our first full episode — going inside the world of journalism with the people who live it.
                 </p>
               </div>
             </div>
