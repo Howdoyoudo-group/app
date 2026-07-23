@@ -32,7 +32,7 @@ __SITE_MAP__
 7. **Starting a business / founding a startup / incorporating / raising money / SEIS / EIS / Advance Assurance / angel investors / VC / grants / cap tables / fundraising** → ALWAYS link to [/starting-a-business](/starting-a-business) FIRST. It has dedicated SEIS/EIS, HMRC, legal foundations and fundraising sections with curated UK partner resources (SeedLegals, British Business Bank, SFC Capital, Angel Academe, BackerIQ, Legal Foundations). Do NOT route these to the Learning Hub or to role/industry pages — /starting-a-business is the canonical home.
 8. Before recommending internal pages, use the live site-search context/tool results. If the user asks about Side Hustles or side income, the answer MUST start with [/side-hustles](/side-hustles). If they ask about SEIS/EIS/fundraising/startups, the answer MUST start with [/starting-a-business](/starting-a-business).
 9. Always format links as markdown: [link text](/path)
-10. **When "Active target role" data is present in context, act like a real careers coach** - reference their actual readiness % and specific top gaps by name, and give an honest verdict rather than generic encouragement. Don't say "that's great, keep going" if readiness is low. If readiness is low AND they have little or no logged experience, proactively suggest a meantime option (volunteering, work experience, an apprenticeship) rather than only pointing at skill-rating - a real employer usually isn't the right first move for someone with no experience and no rated skills yet.
+10. **When "Active target role" data is present in context, act like a real careers coach** - reference their actual readiness % and specific top gaps by name, and give an honest verdict rather than generic encouragement. Don't say "that's great, keep going" if readiness is low. If readiness is low AND they have little or no logged experience, proactively suggest a meantime option (volunteering, work experience, an apprenticeship) rather than only pointing at skill-rating - a real employer usually isn't the right first move for someone with no experience and no rated skills yet. If they ask "what's on my plan" or "what should I do next", answer using the exact "Open items on their Plan checklist" list in context - that's the same checklist they see on their Your Plan page, so name those items specifically rather than inventing generic steps. Use `add_coach_task` to add something new to that same checklist rather than just suggesting it in chat.
 
 ## Rules
 - Only recommend resources that exist in the site map below
@@ -340,9 +340,10 @@ Deno.serve(async (req) => {
           : { data: [] as any[] };
         const { rated, total, overallReadiness, topGaps } = computeReadiness((skillRows ?? []) as any, (ratingRows ?? []) as any);
 
-        const [{ data: badgeRows }, { data: courseRow }] = await Promise.all([
+        const [{ data: badgeRows }, { data: courseRow }, { data: planTasks }] = await Promise.all([
           svcClient.from("earned_badges").select("industry").eq("user_id", userId),
           svcClient.from("skill_courses").select("status").eq("user_id", userId).eq("role_slug", activeSlug).maybeSingle(),
+          svcClient.from("coach_plan_tasks").select("title, status").eq("user_id", userId).order("created_at", { ascending: true }),
         ]);
 
         const cvUploaded = Boolean(jobPrefs?.understandMe?.cvFileName);
@@ -360,6 +361,15 @@ Deno.serve(async (req) => {
             : "No accreditation course started yet - Howdy can suggest starting one via /skills-passport?tab=gaps."
         );
         if (badgeRows?.length) roleParts.push(`HDYD badges earned: ${badgeRows.map((b: any) => b.industry).join(", ")}`);
+
+        const openTasks = (planTasks ?? []).filter((t: any) => t.status === "open");
+        const doneTasks = (planTasks ?? []).filter((t: any) => t.status === "done");
+        if (openTasks.length) {
+          roleParts.push(`Open items on their Plan checklist: ${openTasks.map((t: any) => t.title).join("; ")}`);
+        }
+        if (doneTasks.length) {
+          roleParts.push(`Already completed on their Plan checklist: ${doneTasks.map((t: any) => t.title).join("; ")}`);
+        }
 
         parts.push(`\n### Active target role: ${roleTitle}\n${roleParts.join("\n")}`);
       }
