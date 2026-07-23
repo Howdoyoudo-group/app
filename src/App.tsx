@@ -103,7 +103,6 @@ const AdminUsers = lazy(() => import("./pages/AdminUsers.tsx"));
 const AdminAiCosts = lazy(() => import("./pages/AdminAiCosts.tsx"));
 const AdminTeam = lazy(() => import("./pages/AdminTeam.tsx"));
 const CompanyMeEm = lazy(() => import("./pages/CompanyMeEm.tsx"));
-const CompanyAmphora = lazy(() => import("./pages/CompanyAmphora.tsx"));
 const CompanyGails = lazy(() => import("./pages/CompanyGails.tsx"));
 const CompanyDrMartens = lazy(() => import("./pages/CompanyDrMartens.tsx"));
 const CompanyNike = lazy(() => import("./pages/CompanyNike.tsx"));
@@ -332,7 +331,6 @@ const App = () => (
           <Route path="/admin/team" element={<AdminTeam />} />
           <Route path="/admin" element={<AdminTeam />} />
           <Route path="/company/me-em" element={<CompanyMeEm />} />
-          <Route path="/company/amphora" element={<CompanyAmphora />} />
           <Route path="/company/gails" element={<CompanyGails />} />
           <Route path="/company/dr-martens" element={<CompanyDrMartens />} />
           <Route path="/company/nike" element={<CompanyNike />} />

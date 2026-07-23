@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import sohoHouseLogo from "@/assets/logos/soho-house.jpeg";
 import mclarenLogo from "@/assets/mclaren-logo.jpeg";
 import caffeNeroLogo from "@/assets/logos/caffe-nero.png";
+import { useEmployerLogoMap } from "@/hooks/useEmployerLogoMap";
 
 /**
  * Local asset overrides - used when a brand's CDN logo is poor quality
@@ -1061,8 +1062,13 @@ interface CompanyLogoProps {
  */
 const CompanyLogo = ({ company, size = 40, className = "", rounded = "md" }: CompanyLogoProps) => {
   const [stage, setStage] = useState<0 | 1 | 2 | 3 | 4>(0);
+  const employerLogoMap = useEmployerLogoMap();
 
   const sources = useMemo(() => {
+    // An employer's own uploaded logo (via their dashboard) wins over
+    // everything else - it's the one thing we know is actually theirs.
+    const uploaded = employerLogoMap[(company ?? "").toLowerCase().trim()];
+
     // Local asset override wins over any CDN result.
     const normalised = (company ?? "").toLowerCase().trim().replace(/\s+/g, " ");
     let assetKey: string | undefined;
@@ -1074,7 +1080,7 @@ const CompanyLogo = ({ company, size = 40, className = "", rounded = "md" }: Com
     const localAsset = assetKey ? CURATED_LOGO_ASSETS[assetKey] : undefined;
 
     const curated = findCuratedDomain(company);
-    if (!localAsset && !curated) return [] as string[];
+    if (!uploaded && !localAsset && !curated) return [] as string[];
 
     // Request 3x the display size for crisp retina rendering, capped at 256px.
     const px = Math.min(256, Math.max(128, size * 3));
@@ -1086,8 +1092,9 @@ const CompanyLogo = ({ company, size = 40, className = "", rounded = "md" }: Com
           `https://www.google.com/s2/favicons?domain=${curated}&sz=${px}`,
         ]
       : [];
-    return localAsset ? [localAsset, ...cdnSources] : cdnSources;
-  }, [company, size]);
+    const base = localAsset ? [localAsset, ...cdnSources] : cdnSources;
+    return uploaded ? [uploaded, ...base] : base;
+  }, [company, size, employerLogoMap]);
 
   const initials = getInitials(company);
   const hue = hashHue(company);
