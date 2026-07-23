@@ -147,6 +147,7 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
   ],
   "electrician": [
     { id: "yhRRRR2Tsx8", title: "Day in the life of an electrician - How much electricians earn in a day.", channel: "OM Electrical" },
+    { id: "lifunadBZ3U", title: "A Day in the Life of an Electrician | Indeed", channel: "Indeed" },
   ],
   "estate-agent": [
     { id: "0tvv74Ek--E", title: "CHAOTIC Day in the life of an Estate Agent | one year later", channel: "Christina Williams" },
@@ -240,11 +241,17 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "PMsNTk_ToLg", title: "A Day in the Life  - Groundman", channel: "Wright Tree Service" },
     { id: "9pU2GKwXiv8", title: "Groundsman Work During A Removal", channel: "All Natural Tree Experts" },
   ],
+  "handyperson": [
+    { id: "dGDzvIA_NrY", title: "Why I Charge £320 per day as a Handyman in 2024", channel: "Tradesman Tech Guy" },
+  ],
   "healthcare-assistant": [
     { id: "HE8L6dr1sXE", title: "Day in the life - Healthcare support worker", channel: "University Hospitals Bristol and Weston NHS FT" },
     { id: "C2CFBva8rMk", title: "A Day in the Life of a Health Care Assistant (HCSW)", channel: "Gloucestershire Hospitals NHS Foundation Trust" },
     { id: "KB37boKaA1Y", title: "The life of a HCA", channel: "UHD NHS" },
     { id: "BsKoG8jabQ4", title: "A career in the NHS as a healthcare assistant", channel: "NHS Health Careers" },
+  ],
+  "heating-engineer": [
+    { id: "mnOwbBDCNMk", title: "Boiler Repairs - Worcester, Vaillant, Glowworm + more | Day In The Life Of A Gas Engineer #13", channel: "Advanced Boiler Training" },
   ],
   "hotel-manager": [
     { id: "drGjMxKzYak", title: "A day in the life of a Travelodge Hotel Manager", channel: "TravelodgeUK" },
@@ -372,8 +379,12 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "RkaCXTnvC7A", title: "Day in The Life as a Physiotherapist", channel: "Shayaan" },
     { id: "XYY3z-VGLYk", title: "A day in the life of a physiotherapist", channel: "LSC Health + Care Partnership" },
   ],
+  "plasterer": [
+    { id: "sB8nEdREk8o", title: "Passing On 25yrs of Plastering Experience in 30min", channel: "On The Trowel" },
+  ],
   "plumber": [
     { id: "P2RpK3Jv4jU", title: "Should You Become A Plumber In 2024 - Apprentice Edition - Day In The Life Apprentice Plumber", channel: "Celsius Heating and Plumbing (Edinburgh)" },
+    { id: "-65RSZSigrk", title: "Day in the life of a plumber! Fixing leaks!", channel: "mmplumber" },
   ],
   "producer": [
     { id: "ENb164Blk7E", title: "A Day In The Life Of A Music Producer REALISTIC", channel: "Elliott In The Studio" },
@@ -423,6 +434,9 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "ZXw0JI8rPF4", title: "A day in the life of a work rider | National Racehorse Week", channel: "Great British Racing" },
     { id: "RGJqmsc0NB0", title: "Day in the Life of a Thoroughbred Trainer with TVGâs Nick Hines: Segment 1 of 5", channel: "FanDuel Racing" },
   ],
+  "repair-technician": [
+    { id: "qhFVD0J_sRA", title: "A day in the life of a Pacifica engineer", channel: "Pacifica Group Ltd" },
+  ],
   "reporter": [
     { id: "XfzGKRIBTuk", title: "BEHIND THE SCENES | A Day In The Life Of A Liverpool Reporter", channel: "David Lynch - Liverpool FC" },
     { id: "5uN9sF-z0z0", title: "I Wanna Be a Journalist Â· A Day In The Life Of A Journalist", channel: "Student Edge" },
@@ -434,6 +448,9 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "vM7rsb28JYY", title: "A Day in the Life of Next Retail", channel: "Life at Next" },
     { id: "HgJPtRzLF_0", title: "A day in the life of a UNIQLO Sales Assistant", channel: "UNIQLO Europe" },
     { id: "QA1CXYasVFc", title: "A day in the life of a Retail Operations Assistant", channel: "Boots Jobs" },
+  ],
+  "roofer": [
+    { id: "rjisMybq-iw", title: "Roofer - Career Insights (Careers in Construction)", channel: "Career Insights" },
   ],
   "sales": [
     { id: "DiJQON4efuA", title: "A Day in the Life | Petr, Clinical Sales Representative", channel: "Boston Scientific EMEA" },
