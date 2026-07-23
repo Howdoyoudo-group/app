@@ -76,7 +76,13 @@ Deno.serve(async (req) => {
         footerNote: "If you didn't request this link, you can safely ignore this email.",
       })
     } else if (type === 'invite') {
-      const inviteUrl = `${SITE_URL}/auth?token_hash=${tokenHash}&type=invite`
+      // Route through /reset-password, NOT /auth. /auth has no handling for a
+      // token_hash at all - an invited user with no password yet would land on
+      // the plain sign-in form with nothing to sign in with (confirmed live,
+      // 2026-07-23: Amphora's invite did exactly this). /reset-password already
+      // has a working verifyOtp + "set new password" flow; it just needs to
+      // accept type=invite alongside type=recovery (see ResetPassword.tsx).
+      const inviteUrl = `${SITE_URL}/reset-password?token_hash=${tokenHash}&type=invite`
       subject = "You've been invited — Howdoyoudo"
       html = brandedEmail({
         title: "You've been invited.",

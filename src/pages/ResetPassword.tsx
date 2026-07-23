@@ -10,6 +10,7 @@ const ResetPassword = () => {
   const [ready, setReady] = useState(false);
   const [checking, setChecking] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [linkType, setLinkType] = useState<"recovery" | "invite">("recovery");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,10 +36,13 @@ const ResetPassword = () => {
       return;
     }
 
-    // Detect any recovery marker (PKCE code, hash token, or recovery type)
+    // Detect any recovery marker (PKCE code, hash token, recovery, or invite -
+    // an invited user has no password yet, so completing their invite is the
+    // same "verify token, then set a password" flow as a recovery link).
     const isRecoveryLink =
       !!code ||
       combined.includes("type=recovery") ||
+      combined.includes("type=invite") ||
       combined.includes("access_token=");
 
     // Listen for PASSWORD_RECOVERY (fires after auto-exchange/hash parse)
@@ -55,11 +59,19 @@ const ResetPassword = () => {
       // token_hash flow (custom email hook)
       const tokenHash = searchParams.get("token_hash");
       const tokenType = searchParams.get("type");
-      if (tokenHash && tokenType === "recovery") {
-        const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" });
+      if (tokenHash && (tokenType === "recovery" || tokenType === "invite")) {
+        // Must pass the REAL type through - Supabase's verifyOtp checks the
+        // token against the specific type it was issued for, so hardcoding
+        // "recovery" here would fail verification on a genuine invite token.
+        const { error } = await supabase.auth.verifyOtp({ token_hash: tokenHash, type: tokenType });
         if (cancelled) return;
+        if (!cancelled) setLinkType(tokenType === "invite" ? "invite" : "recovery");
         if (error) {
-          setErrorMsg("This reset link has already been used or has expired. Please request a new one.");
+          setErrorMsg(
+            tokenType === "invite"
+              ? "This invite link has already been used or has expired. Ask whoever invited you to send a new one."
+              : "This reset link has already been used or has expired. Please request a new one."
+          );
           setChecking(false);
           return;
         }
@@ -134,8 +146,8 @@ const ResetPassword = () => {
     if (error) {
       toast.error(error.message);
     } else {
-      toast.success("Password updated!");
-      navigate("/");
+      toast.success(linkType === "invite" ? "Account set up!" : "Password updated!");
+      navigate(linkType === "invite" ? "/employer-dashboard" : "/");
     }
   };
 
