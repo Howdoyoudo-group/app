@@ -680,23 +680,31 @@ const fadeUp = {
 
 function RecommendedForTargetRole() {
   const { user } = useAuth();
-  const [roleTitle, setRoleTitle] = useState<string | null>(null);
+  const [roleTitles, setRoleTitles] = useState<string[]>([]);
 
   useEffect(() => {
     if (!user) return;
     supabase
-      .from("profiles")
-      .select("active_role_slug")
-      .eq("id", user.id)
-      .maybeSingle()
+      .from("user_target_roles")
+      .select("role_slug")
+      .eq("user_id", user.id)
+      .order("set_at", { ascending: false })
       .then(({ data }) => {
-        const slug = (data as any)?.active_role_slug ?? null;
-        setRoleTitle(slug ? (roles.find((r) => r.slug === slug)?.title ?? null) : null);
+        const titles = (data ?? [])
+          .map((r) => roles.find((role) => role.slug === r.role_slug)?.title)
+          .filter((t): t is string => Boolean(t));
+        setRoleTitles(titles);
       });
   }, [user]);
 
-  if (!roleTitle) return null;
-  const providers = buildOnlineProviders(roleTitle).slice(0, 4);
+  if (roleTitles.length === 0) return null;
+  // Union across all target roles, deduped by provider name, capped at 4.
+  const seen = new Set<string>();
+  const providers = roleTitles
+    .flatMap((title) => buildOnlineProviders(title))
+    .filter((p) => (seen.has(p.name) ? false : (seen.add(p.name), true)))
+    .slice(0, 4);
+  const label = roleTitles.length > 1 ? roleTitles.join(", ") : roleTitles[0];
 
   return (
     <div className="container mx-auto max-w-5xl mt-8">
@@ -704,7 +712,7 @@ function RecommendedForTargetRole() {
         <div className="flex items-center gap-2 mb-3">
           <Sparkles className="w-4 h-4 text-primary" />
           <p className="font-display font-800 text-xs uppercase tracking-widest">
-            Recommended for your target role: {roleTitle}
+            Recommended for your target role{roleTitles.length > 1 ? "s" : ""}: {label}
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">

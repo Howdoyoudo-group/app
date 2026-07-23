@@ -1,4 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { buildTargetRolesContext } from "../_shared/coach-context.ts";
+
+const VOICE_PERSONA = `You are "Howdy", a warm UK careers coach speaking out loud with a young person exploring their career. British English, concise - this is a spoken conversation, not a chat, so keep replies short and natural, no markdown, no links, no headings. Be encouraging but honest: don't say "that's great, keep going" if their readiness is genuinely low. If they ask about their gaps or plan, use the real facts below rather than asking them to repeat information already on their profile. If more than one target role is listed, always say which role you mean before giving a number.`;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -64,6 +67,10 @@ Deno.serve(async (req) => {
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON, {
       global: { headers: { Authorization: authHeader } },
     });
+    const svcClient = createClient(
+      SUPABASE_URL,
+      Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
 
     const { data: { user }, error: userError } = await supabase.auth.getUser();
     if (userError || !user) {
@@ -123,6 +130,26 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Build the same live coaching context the text chat uses, so voice
+    // stops being a disconnected, contextless conversation. Persisted first
+    // name + target-role names give a personalised opener too.
+    const [{ data: profile }, targetRolesContext] = await Promise.all([
+      supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
+      buildTargetRolesContext(svcClient, user.id),
+    ]);
+    const firstName = (profile?.full_name as string | undefined)?.trim().split(/\s+/)[0] || null;
+    const { data: targetRows } = await supabase
+      .from("user_target_roles")
+      .select("role_slug")
+      .eq("user_id", user.id)
+      .order("set_at", { ascending: false });
+    const roleCount = (targetRows ?? []).length;
+
+    const promptOverride = targetRolesContext ? `${VOICE_PERSONA}\n${targetRolesContext}` : null;
+    const firstMessage = roleCount > 0
+      ? `Hey${firstName ? " " + firstName : ""} - I can see where you're at on your target role${roleCount > 1 ? "s" : ""}. Want to talk through that, or something else?`
+      : `Hey${firstName ? " " + firstName : ""}! I'm Howdy. What can I help you figure out today?`;
+
     // Mint a WebRTC conversation token. If the configured agent belongs to an old
     // ElevenLabs account, fall back to the first agent on the connected account.
     let tokRes = await mintConversationToken(ELEVENLABS_API_KEY, ELEVENLABS_AGENT_ID);
@@ -177,6 +204,8 @@ Deno.serve(async (req) => {
         token,
         signed_url: signedUrl,
         remaining_minutes: Math.max(0, DAILY_MINUTE_CAP - usedMinutes),
+        prompt_override: promptOverride,
+        first_message: firstMessage,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );

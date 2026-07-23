@@ -3,6 +3,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { CheckCircle2, ChevronDown, Search, AlertCircle, BookOpen, ArrowRight, Save, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRoleSkills, type RoleSkill } from "@/hooks/useRoleSkills";
+import { useTargetRoles } from "@/hooks/useTargetRoles";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
 import { roles } from "@/data/roles";
@@ -197,34 +198,21 @@ export default function SkillsAssessmentTab() {
   const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedRole, setSelectedRole] = useState(searchParams.get("role") ?? "");
-  const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
+  const { targetRoles: activeRoles, addTargetRole, removeTargetRole } = useTargetRoles(user?.id);
   const { skills, domains, loading, hasData } = useRoleSkills(selectedRole);
 
-  // Default to the user's active target role only when no ?role= was given.
+  // Default to the user's most recently-set target role only when no ?role= was given.
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("active_role_slug")
-      .eq("id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        const slug = data?.active_role_slug ?? null;
-        setActiveRoleSlug(slug);
-        if (!searchParams.get("role") && slug) {
-          setSelectedRole(slug);
-        }
-      });
+    if (searchParams.get("role") || activeRoles.length === 0 || selectedRole) return;
+    setSelectedRole(activeRoles[0].slug);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [activeRoles]);
 
-  const setAsTargetRole = async () => {
+  const isActiveRole = activeRoles.some((r) => r.slug === selectedRole);
+  const toggleTargetRole = async () => {
     if (!user || !selectedRole) return;
-    await supabase
-      .from("profiles")
-      .update({ active_role_slug: selectedRole, active_role_set_at: new Date().toISOString() })
-      .eq("id", user.id);
-    setActiveRoleSlug(selectedRole);
+    if (isActiveRole) await removeTargetRole(selectedRole);
+    else await addTargetRole(selectedRole);
   };
 
   const [ratings, setRatings] = useState<Map<string, number>>(new Map());
@@ -312,18 +300,15 @@ export default function SkillsAssessmentTab() {
         <span className="font-display font-700 text-sm shrink-0">Role:</span>
         <RoleSelector selected={selectedRole} onChange={handleRoleChange} />
         {selectedRole && (
-          activeRoleSlug === selectedRole ? (
-            <span className="inline-flex items-center gap-1.5 font-display font-700 text-xs text-primary">
-              <Star className="w-3.5 h-3.5 fill-current" /> Your target role
-            </span>
-          ) : (
-            <button
-              onClick={setAsTargetRole}
-              className="inline-flex items-center gap-1.5 font-display font-700 text-xs text-muted-foreground hover:text-primary transition-colors"
-            >
-              <Star className="w-3.5 h-3.5" /> Make this my target role
-            </button>
-          )
+          <button
+            onClick={toggleTargetRole}
+            className={`inline-flex items-center gap-1.5 font-display font-700 text-xs transition-colors ${
+              isActiveRole ? "text-primary" : "text-muted-foreground hover:text-primary"
+            }`}
+          >
+            <Star className={`w-3.5 h-3.5 ${isActiveRole ? "fill-current" : ""}`} />
+            {isActiveRole ? "Howdy's coaching you on this - tap to remove" : "Make this a target role"}
+          </button>
         )}
       </div>
 

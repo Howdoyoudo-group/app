@@ -3,6 +3,7 @@ import SEO from "@/components/SEO";
 import SiteNav from "@/components/SiteNav";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useTargetRoles } from "@/hooks/useTargetRoles";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -298,7 +299,7 @@ const MyProfile = () => {
   };
   const [targetCompanies, setTargetCompanies] = useState<string[]>([]);
   const [targetRoles, setTargetRoles] = useState<string[]>([]);
-  const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
+  const { targetRoles: activeRoles, addTargetRole, removeTargetRole } = useTargetRoles(user?.id);
   const [companyInput, setCompanyInput] = useState("");
   const [roleInput, setRoleInput] = useState("");
   const [companySuggestions, setCompanySuggestions] = useState<string[]>([]);
@@ -487,19 +488,26 @@ const MyProfile = () => {
     setTargetRoles([...targetRoles, trimmed]);
     setRoleInput("");
   };
-  const removeRole = (name: string) =>
+  const removeRole = (name: string) => {
     setTargetRoles(targetRoles.filter((r) => r !== name));
+    const match = roles.find((r) => r.title === name);
+    if (match && activeRoles.some((r) => r.slug === match.slug)) {
+      removeTargetRole(match.slug);
+    }
+  };
 
   const setAsTargetRole = async (title: string) => {
     if (!user) return;
     const match = roles.find((r) => r.title === title);
     if (!match) return; // only real roles.ts titles resolve to a real slug
-    await supabase
-      .from("profiles")
-      .update({ active_role_slug: match.slug, active_role_set_at: new Date().toISOString() })
-      .eq("id", user.id);
-    setActiveRoleSlug(match.slug);
-    toast.success(`"${title}" is now your target role`);
+    const isActive = activeRoles.some((r) => r.slug === match.slug);
+    if (isActive) {
+      await removeTargetRole(match.slug);
+      toast.success(`"${title}" removed from your coaching focus`);
+    } else {
+      await addTargetRole(match.slug);
+      toast.success(`"${title}" is now one of your target roles`);
+    }
   };
 
   useEffect(() => {
@@ -557,7 +565,6 @@ const MyProfile = () => {
         if (Array.isArray(jp.funFacts)) setFunFacts(jp.funFacts);
         if (Array.isArray(jp.targetCompanies)) setTargetCompanies(jp.targetCompanies);
         if (Array.isArray(jp.targetRoles)) setTargetRoles(jp.targetRoles);
-        setActiveRoleSlug((data as any).active_role_slug || null);
         const pb = jp.profileBuilder || {};
         // Prefer CV-imported `experience` (richer: company + link), fall back to `things`.
         const fromExp = Array.isArray(pb.experience)
@@ -2332,14 +2339,14 @@ const MyProfile = () => {
                           {targetRoles.map((r) => {
                             const isRealRole = roles.some((role) => role.title === r);
                             const resolvedSlug = roles.find((role) => role.title === r)?.slug;
-                            const isActive = isRealRole && resolvedSlug === activeRoleSlug;
+                            const isActive = isRealRole && activeRoles.some((ar) => ar.slug === resolvedSlug);
                             return (
                               <span key={r} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-full font-display font-600 text-xs">
                                 {isRealRole && (
                                   <button
                                     type="button"
                                     onClick={() => setAsTargetRole(r)}
-                                    title={isActive ? "Your target role" : "Make this my target role"}
+                                    title={isActive ? "Howdy's coaching you on this - click to remove" : "Add to Howdy's coaching focus"}
                                     className="hover:opacity-70"
                                   >
                                     <Star className={`w-3 h-3 ${isActive ? "fill-current" : ""}`} />

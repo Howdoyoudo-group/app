@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { trackInteraction } from "@/hooks/useTrackInteraction";
 import { getStageImage } from "@/data/career-stage-images";
+import { useTargetRoles } from "@/hooks/useTargetRoles";
 
 export interface RoleDetail {
   name: string;
@@ -51,7 +52,7 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
 
   const [jobCount, setJobCount] = useState<number | null>(null);
   const [targetRoles, setTargetRoles] = useState<string[]>([]);
-  const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
+  const { targetRoles: activeRoles, addTargetRole, removeTargetRole } = useTargetRoles(user?.id);
   const [savingRole, setSavingRole] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showSwipeHint, setShowSwipeHint] = useState(true);
@@ -77,14 +78,13 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
     (async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("job_preferences, active_role_slug")
+        .select("job_preferences")
         .eq("id", user.id)
         .maybeSingle();
       const jp = (data?.job_preferences as Record<string, unknown>) || {};
       const saved = Array.isArray(jp.targetRoles) ? (jp.targetRoles as string[]) : [];
       if (!cancelled) {
         setTargetRoles(saved);
-        setActiveRoleSlug((data as any)?.active_role_slug ?? null);
       }
     })();
     return () => {
@@ -93,9 +93,9 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
   }, [user]);
 
   // "Save to Most Wanted" does double duty: it's the wishlist AND, when the
-  // role resolves to a real slug, it becomes Howdy's coaching focus - the
-  // most recently saved resolvable role wins, same "surface it at the top"
-  // mental model the wishlist already has for job-feed ranking.
+  // role resolves to a real slug, one of Howdy's coaching focuses - a user
+  // can have several roles active at once, and un-saving one here also stops
+  // Howdy coaching on it.
   const toggleTargetRole = async (roleName: string, roleSlug?: string | null) => {
     if (!user) {
       toast.error("Please log in to save roles to your Most Wanted", {
@@ -123,11 +123,6 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
       targetRoles: next,
     };
     const updates: Record<string, unknown> = { job_preferences: merged, updated_at: new Date().toISOString() };
-    const becomesActiveRole = !isSaved && roleSlug;
-    if (becomesActiveRole) {
-      updates.active_role_slug = roleSlug;
-      updates.active_role_set_at = new Date().toISOString();
-    }
     const { error } = await supabase
       .from("profiles")
       .update(updates as any)
@@ -138,7 +133,9 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
       return;
     }
     setTargetRoles(next);
-    if (becomesActiveRole) setActiveRoleSlug(roleSlug!);
+    const becomesActiveRole = !isSaved && roleSlug;
+    if (becomesActiveRole) await addTargetRole(roleSlug!);
+    else if (isSaved && roleSlug) await removeTargetRole(roleSlug);
     if (!isSaved) {
       trackInteraction({
         type: "save_role",
@@ -329,7 +326,7 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
                       roleSlug={roleSlug}
                       industry={industry}
                       toggleTargetRole={toggleTargetRole}
-                      isActiveRole={roleSlug !== null && roleSlug === activeRoleSlug}
+                      isActiveRole={roleSlug !== null && activeRoles.some((r) => r.slug === roleSlug)}
                     />
                   );
                 })}

@@ -211,7 +211,7 @@ export default function SkillGapsTab() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [ratedRoles, setRatedRoles] = useState<string[]>([]);
-  const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
+  const [activeRoleSlugs, setActiveRoleSlugs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -223,13 +223,12 @@ export default function SkillGapsTab() {
       .select("skill_id")
       .eq("user_id", user.id)
       .then(async ({ data }) => {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("active_role_slug")
-          .eq("id", user.id)
-          .maybeSingle();
-        const active = (profile as any)?.active_role_slug ?? null;
-        setActiveRoleSlug(active);
+        const { data: targetRows } = await supabase
+          .from("user_target_roles")
+          .select("role_slug")
+          .eq("user_id", user.id);
+        const active = (targetRows ?? []).map((r) => r.role_slug);
+        setActiveRoleSlugs(active);
 
         if (!data || data.length === 0) { setLoading(false); return; }
         const skillIds = (data as any[]).map((r) => r.skill_id);
@@ -237,9 +236,11 @@ export default function SkillGapsTab() {
           .from("role_skills")
           .select("slug")
           .in("id", skillIds);
-        const unique = [...new Set((slugRows ?? []).map((r: any) => r.slug))].sort(
-          (a, b) => (a === active ? -1 : b === active ? 1 : a.localeCompare(b))
-        );
+        const unique = [...new Set((slugRows ?? []).map((r: any) => r.slug))].sort((a, b) => {
+          const aActive = active.includes(a), bActive = active.includes(b);
+          if (aActive !== bActive) return aActive ? -1 : 1;
+          return a.localeCompare(b);
+        });
         setRatedRoles(unique);
         setLoading(false);
       });
@@ -291,7 +292,7 @@ export default function SkillGapsTab() {
 
       <div className="space-y-3">
         {ratedRoles.map((slug) => (
-          <RoleGapCard key={slug} slug={slug} isActiveRole={slug === activeRoleSlug} />
+          <RoleGapCard key={slug} slug={slug} isActiveRole={activeRoleSlugs.includes(slug)} />
         ))}
       </div>
 

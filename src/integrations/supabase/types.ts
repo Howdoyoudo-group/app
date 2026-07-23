@@ -1400,8 +1400,6 @@ export type Database = {
       profiles: {
         Row: {
           accept_messages: boolean
-          active_role_set_at: string | null
-          active_role_slug: string | null
           career_level: string | null
           community_chat_agreed_at: string | null
           community_chat_joined: boolean
@@ -1443,8 +1441,6 @@ export type Database = {
         }
         Insert: {
           accept_messages?: boolean
-          active_role_set_at?: string | null
-          active_role_slug?: string | null
           career_level?: string | null
           community_chat_agreed_at?: string | null
           community_chat_joined?: boolean
@@ -1486,8 +1482,6 @@ export type Database = {
         }
         Update: {
           accept_messages?: boolean
-          active_role_set_at?: string | null
-          active_role_slug?: string | null
           career_level?: string | null
           community_chat_agreed_at?: string | null
           community_chat_joined?: boolean
@@ -2212,6 +2206,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_target_roles: {
+        Row: {
+          id: string
+          role_slug: string
+          set_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role_slug: string
+          set_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role_slug?: string
+          set_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       validate_cursor: {
         Row: {
