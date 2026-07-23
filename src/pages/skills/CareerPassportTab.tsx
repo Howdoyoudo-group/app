@@ -8,6 +8,7 @@ import { BookOpen, ExternalLink, Trophy, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSkillGap, type SkillWithGap } from "@/hooks/useSkillGap";
 import { supabase } from "@/integrations/supabase/client";
+import { buildOnlineProviders } from "@/data/online-providers";
 
 // ── Role-level learning links ─────────────────────────────────────────────────
 // Reed/FutureLearn/YouTube don't have courses for specific Skills England
@@ -24,33 +25,23 @@ function coreTitle(slug: string): string {
   return roleTitle(slug).replace(SENIORITY_PREFIXES, "");
 }
 
+// 8 real, query-scoped providers (Reed, Coursera, FutureLearn, Open
+// University, edX, LinkedIn Learning, Udemy, learndirect) - the same shared
+// module used by industry pages (CoursesSection) and role pages
+// (RoleLearnSection), instead of a hardcoded 3-link list.
 function learningLinks(slug: string) {
-  const display = roleTitle(slug);
+  return buildOnlineProviders(coreTitle(slug));
+}
+
+// NCS is a distinct "explore the career" resource, not a course marketplace -
+// kept as a separate extra rather than folded into the provider list.
+function careerInfoLink(slug: string) {
   const core = coreTitle(slug);
-  const encodedCore = encodeURIComponent(core);
-  return [
-    {
-      label: `${display} courses`,
-      provider: "Reed Online Learning",
-      href: `https://www.reed.co.uk/courses/search?keywords=${encodedCore}`,
-      color: "#CC0000",
-      initial: "R",
-    },
-    {
-      label: `${display} courses`,
-      provider: "FutureLearn",
-      href: `https://www.futurelearn.com/search?q=${encodedCore}`,
-      color: "#D63384",
-      initial: "FL",
-    },
-    {
-      label: `${display} — career info & training`,
-      provider: "National Careers Service",
-      href: `https://nationalcareers.service.gov.uk/explore-careers?searchTerm=${encodedCore}`,
-      color: "#00703C",
-      initial: "NCS",
-    },
-  ];
+  return {
+    label: `${roleTitle(slug)} — career info & training`,
+    provider: "National Careers Service",
+    href: `https://nationalcareers.service.gov.uk/explore-careers?searchTerm=${encodeURIComponent(core)}`,
+  };
 }
 
 // HDYD badge modules — rolePatterns are substrings matched against the role slug
@@ -107,34 +98,43 @@ function GapItem({ gap }: { gap: SkillWithGap }) {
 }
 
 function RoleLearningLinks({ slug }: { slug: string }) {
-  const links = learningLinks(slug);
+  const providers = learningLinks(slug);
+  const careerInfo = careerInfoLink(slug);
   return (
     <div className="mt-4 p-4 border border-border rounded-xl bg-muted/20">
       <p className="font-display font-800 text-xs uppercase tracking-wide text-muted-foreground mb-3">
         Find courses to close these gaps
       </p>
       <div className="space-y-2">
-        {links.map((l) => (
+        {providers.map((p) => (
           <a
-            key={l.href}
-            href={l.href}
+            key={p.name}
+            href={p.url}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-3 p-2.5 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-background transition-colors group"
           >
-            <div
-              className="w-6 h-6 shrink-0 rounded flex items-center justify-center"
-              style={{ backgroundColor: l.color }}
-            >
-              <span className="text-white font-display font-900 text-[8px] leading-none">{l.initial}</span>
-            </div>
+            <BookOpen className="w-4 h-4 text-primary shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">{l.label}</p>
-              <p className="font-body text-[11px] text-muted-foreground">{l.provider}</p>
+              <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">{p.name}</p>
+              <p className="font-body text-[11px] text-muted-foreground">{p.note}</p>
             </div>
             <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
           </a>
         ))}
+        <a
+          href={careerInfo.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 p-2.5 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-background transition-colors group"
+        >
+          <BookOpen className="w-4 h-4 text-primary shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">{careerInfo.label}</p>
+            <p className="font-body text-[11px] text-muted-foreground">{careerInfo.provider}</p>
+          </div>
+          <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+        </a>
       </div>
     </div>
   );
@@ -153,27 +153,38 @@ export default function CareerPassportTab() {
   const [ratedRoles, setRatedRoles] = useState<string[]>([]);
   const gap = useSkillGap(selectedRole, user?.id);
 
-  // Find roles the user has rated
+  // Find roles the user has rated, and default selection priority:
+  // ?role= param -> active target role -> first-rated role.
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("user_skill_ratings")
-      .select("skill_id")
-      .eq("user_id", user.id)
-      .then(async ({ data }) => {
-        if (!data || data.length === 0) return;
+    (async () => {
+      const [{ data }, { data: profile }] = await Promise.all([
+        supabase.from("user_skill_ratings").select("skill_id").eq("user_id", user.id),
+        supabase.from("profiles").select("active_role_slug").eq("id", user.id).maybeSingle(),
+      ]);
+      const activeSlug = (profile as any)?.active_role_slug ?? null;
+
+      let unique: string[] = [];
+      if (data && data.length > 0) {
         const skillIds = (data as any[]).map((r) => r.skill_id);
         const { data: slugRows } = await supabase
           .from("role_skills")
           .select("slug")
           .in("id", skillIds);
-        const unique = [...new Set((slugRows ?? []).map((r: any) => r.slug))].sort();
-        setRatedRoles(unique);
-        if (!selectedRole && unique.length > 0) {
-          setSelectedRole(unique[0]);
-          setSearchParams((p) => { const n = new URLSearchParams(p); n.set("role", unique[0]); return n; });
+        unique = [...new Set((slugRows ?? []).map((r: any) => r.slug))].sort(
+          (a, b) => (a === activeSlug ? -1 : b === activeSlug ? 1 : a.localeCompare(b))
+        );
+      }
+      setRatedRoles(unique);
+
+      if (!selectedRole) {
+        const defaultRole = activeSlug ?? unique[0];
+        if (defaultRole) {
+          setSelectedRole(defaultRole);
+          setSearchParams((p) => { const n = new URLSearchParams(p); n.set("role", defaultRole); return n; });
         }
-      });
+      }
+    })();
   }, [user]);
 
   const availableBadges = badgesForRole(selectedRole);

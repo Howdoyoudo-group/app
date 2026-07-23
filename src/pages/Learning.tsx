@@ -1,8 +1,13 @@
 import SEO from "@/components/SEO";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen, ExternalLink, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
 import Footer from "@/components/Footer";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { roles } from "@/data/roles";
+import { buildOnlineProviders } from "@/data/online-providers";
 import learningStartups from "@/assets/learning-startups.png";
 import learningEmployability from "@/assets/learning-employability.png";
 import learningMoney from "@/assets/learning-money.png";
@@ -673,6 +678,55 @@ const fadeUp = {
   transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
 };
 
+function RecommendedForTargetRole() {
+  const { user } = useAuth();
+  const [roleTitle, setRoleTitle] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("active_role_slug")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const slug = (data as any)?.active_role_slug ?? null;
+        setRoleTitle(slug ? (roles.find((r) => r.slug === slug)?.title ?? null) : null);
+      });
+  }, [user]);
+
+  if (!roleTitle) return null;
+  const providers = buildOnlineProviders(roleTitle).slice(0, 4);
+
+  return (
+    <div className="container mx-auto max-w-5xl mt-8">
+      <div className="border-2 border-foreground rounded-2xl p-5 bg-primary/5">
+        <div className="flex items-center gap-2 mb-3">
+          <Sparkles className="w-4 h-4 text-primary" />
+          <p className="font-display font-800 text-xs uppercase tracking-widest">
+            Recommended for your target role: {roleTitle}
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          {providers.map((p) => (
+            <a
+              key={p.name}
+              href={p.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 p-2.5 border border-border/60 rounded-lg bg-background hover:border-primary/50 transition-colors group"
+            >
+              <BookOpen className="w-3.5 h-3.5 text-primary shrink-0" />
+              <span className="font-display font-700 text-xs flex-1 truncate group-hover:text-primary transition-colors">{p.name}</span>
+              <ExternalLink className="w-3 h-3 text-muted-foreground shrink-0" />
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const Learning = () => {
   return (
     <div className="min-h-screen bg-background">
@@ -741,6 +795,8 @@ const Learning = () => {
           </p>
         </div>
       </section>
+
+      <RecommendedForTargetRole />
 
       {/* Industry-Specific Learning */}
       <section id="industry" className="py-12 md:py-16 px-6 md:px-12 border-t border-border">

@@ -8,6 +8,7 @@ import footballBadgeImg from "@/assets/series-football.jpg";
 import SkillsAssessmentTab from "@/pages/skills/SkillsAssessmentTab";
 import SkillGapsTab from "@/pages/skills/SkillGapsTab";
 import CareerPassportTab from "@/pages/skills/CareerPassportTab";
+import PlanTab from "@/pages/skills/PlanTab";
 
 const MODULES = [
   {
@@ -26,11 +27,11 @@ const MODULES = [
   { slug: "beauty",       title: "Beauty",       description: "Brand, retail, education and media — the many ways to build a career in the beauty industry.", href: null, image: null, available: false },
 ];
 
-type TabKey = "badges" | "assessment" | "gaps" | "passport";
+type TabKey = "plan" | "badges" | "assessment" | "gaps" | "passport";
 
 export default function SkillsPassport() {
   const [searchParams] = useSearchParams();
-  const activeTab = (searchParams.get("tab") ?? "badges") as TabKey;
+  const activeTab = (searchParams.get("tab") ?? "plan") as TabKey;
 
   return (
     <>
@@ -69,6 +70,7 @@ export default function SkillsPassport() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25 }}
           >
+            {activeTab === "plan" && <PlanTab />}
             {activeTab === "badges" && <BadgesTab />}
             {activeTab === "assessment" && <SkillsAssessmentTab />}
             {activeTab === "gaps" && <SkillGapsTab />}

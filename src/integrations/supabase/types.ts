@@ -365,6 +365,48 @@ export type Database = {
         }
         Relationships: []
       }
+      coach_plan_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          detail: string | null
+          id: string
+          link: string | null
+          role_slug: string | null
+          source: string
+          status: string
+          task_type: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          link?: string | null
+          role_slug?: string | null
+          source?: string
+          status?: string
+          task_type: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          detail?: string | null
+          id?: string
+          link?: string | null
+          role_slug?: string | null
+          source?: string
+          status?: string
+          task_type?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       company_profiles: {
         Row: {
           about: string | null
@@ -1051,9 +1093,12 @@ export type Database = {
           ai_confidence: number | null
           ai_role_category: string | null
           ai_role_subcategory: string | null
+          apply_url: string | null
           career_level: string | null
           classified_at: string | null
           company: string
+          company_logo: string | null
+          country: string
           created_at: string
           description: string | null
           embedding: string | null
@@ -1064,6 +1109,7 @@ export type Database = {
           job_traits: Json | null
           location: string | null
           needs_review: boolean | null
+          partner_source: string | null
           posted_by: string | null
           role_category: string | null
           salary: string | null
@@ -1082,9 +1128,12 @@ export type Database = {
           ai_confidence?: number | null
           ai_role_category?: string | null
           ai_role_subcategory?: string | null
+          apply_url?: string | null
           career_level?: string | null
           classified_at?: string | null
           company: string
+          company_logo?: string | null
+          country?: string
           created_at?: string
           description?: string | null
           embedding?: string | null
@@ -1095,6 +1144,7 @@ export type Database = {
           job_traits?: Json | null
           location?: string | null
           needs_review?: boolean | null
+          partner_source?: string | null
           posted_by?: string | null
           role_category?: string | null
           salary?: string | null
@@ -1113,9 +1163,12 @@ export type Database = {
           ai_confidence?: number | null
           ai_role_category?: string | null
           ai_role_subcategory?: string | null
+          apply_url?: string | null
           career_level?: string | null
           classified_at?: string | null
           company?: string
+          company_logo?: string | null
+          country?: string
           created_at?: string
           description?: string | null
           embedding?: string | null
@@ -1126,6 +1179,7 @@ export type Database = {
           job_traits?: Json | null
           location?: string | null
           needs_review?: boolean | null
+          partner_source?: string | null
           posted_by?: string | null
           role_category?: string | null
           salary?: string | null
@@ -1346,6 +1400,8 @@ export type Database = {
       profiles: {
         Row: {
           accept_messages: boolean
+          active_role_set_at: string | null
+          active_role_slug: string | null
           career_level: string | null
           community_chat_agreed_at: string | null
           community_chat_joined: boolean
@@ -1387,6 +1443,8 @@ export type Database = {
         }
         Insert: {
           accept_messages?: boolean
+          active_role_set_at?: string | null
+          active_role_slug?: string | null
           career_level?: string | null
           community_chat_agreed_at?: string | null
           community_chat_joined?: boolean
@@ -1428,6 +1486,8 @@ export type Database = {
         }
         Update: {
           accept_messages?: boolean
+          active_role_set_at?: string | null
+          active_role_slug?: string | null
           career_level?: string | null
           community_chat_agreed_at?: string | null
           community_chat_joined?: boolean
@@ -2152,6 +2212,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      validate_cursor: {
+        Row: {
+          id: boolean
+          last_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          last_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          last_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       whatsapp_send_log: {
         Row: {

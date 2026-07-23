@@ -1,12 +1,14 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, HeartHandshake } from "lucide-react";
+import { ArrowLeft, HeartHandshake, Star } from "lucide-react";
 import RoleLearnSection from "@/components/RoleLearnSection";
 import MentoringPanel from "@/components/MentoringPanel";
 import RoleNCSPanel from "@/components/RoleNCSPanel";
 import SEO, { roleDesc, breadcrumbJsonLd } from "@/components/SEO";
 import ReorderListenSections from "@/components/ReorderListenSections";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 import tabListen from "@/assets/tab-listen.png";
 import tabRead from "@/assets/tab-read.png";
@@ -62,6 +64,27 @@ const slugifyRoleName = (value: string) =>
 
 const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLayoutProps) => {
   const roleSlug = useMemo(() => slug ?? slugifyRoleName(name), [name, slug]);
+  const { user } = useAuth();
+  const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("active_role_slug")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => setActiveRoleSlug(data?.active_role_slug ?? null));
+  }, [user]);
+
+  const setAsTargetRole = async () => {
+    if (!user) return;
+    await supabase
+      .from("profiles")
+      .update({ active_role_slug: roleSlug, active_role_set_at: new Date().toISOString() })
+      .eq("id", user.id);
+    setActiveRoleSlug(roleSlug);
+  };
 
   const enhancedTabs = useMemo(() => {
     let result: RoleTab[];
@@ -162,9 +185,24 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
                   : "This role is specific to this industry"}
             </p>
           )}
-          <p className="text-muted-foreground font-body text-lg max-w-xl mb-6">
+          <p className="text-muted-foreground font-body text-lg max-w-xl mb-4">
             {description}
           </p>
+
+          {user && (
+            activeRoleSlug === roleSlug ? (
+              <p className="inline-flex items-center gap-1.5 font-display font-700 text-xs text-primary mb-6">
+                <Star className="w-3.5 h-3.5 fill-current" /> This is your target role
+              </p>
+            ) : (
+              <button
+                onClick={setAsTargetRole}
+                className="inline-flex items-center gap-1.5 font-display font-700 text-xs text-muted-foreground hover:text-primary transition-colors mb-6"
+              >
+                <Star className="w-3.5 h-3.5" /> Set as my target role
+              </button>
+            )
+          )}
 
           <div className="grid grid-cols-3 md:grid-cols-9 gap-3 mb-12 border-b border-border pb-6">
             {enhancedTabs.map((tab) => {

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, PoundSterling, Briefcase, Target, Check, ArrowUpRight, Loader2 } from "lucide-react";
+import { ChevronRight, PoundSterling, Briefcase, Target, Check, ArrowUpRight, Loader2, Star } from "lucide-react";
 import { resolveCareerMapRoleSlug } from "@/data/career-map-role-resolver";
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
@@ -51,6 +51,7 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
 
   const [jobCount, setJobCount] = useState<number | null>(null);
   const [targetRoles, setTargetRoles] = useState<string[]>([]);
+  const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
   const [savingRole, setSavingRole] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showSwipeHint, setShowSwipeHint] = useState(true);
@@ -76,12 +77,15 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
     (async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("job_preferences")
+        .select("job_preferences, active_role_slug")
         .eq("id", user.id)
         .maybeSingle();
       const jp = (data?.job_preferences as Record<string, unknown>) || {};
       const saved = Array.isArray(jp.targetRoles) ? (jp.targetRoles as string[]) : [];
-      if (!cancelled) setTargetRoles(saved);
+      if (!cancelled) {
+        setTargetRoles(saved);
+        setActiveRoleSlug((data as any)?.active_role_slug ?? null);
+      }
     })();
     return () => {
       cancelled = true;
@@ -132,6 +136,16 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
       });
     }
     toast.success(isSaved ? `Removed "${roleName}" from Most Wanted` : `Saved "${roleName}" to Most Wanted`);
+  };
+
+  const setAsTargetRole = async (slug: string, roleName: string) => {
+    if (!user) return;
+    await supabase
+      .from("profiles")
+      .update({ active_role_slug: slug, active_role_set_at: new Date().toISOString() } as any)
+      .eq("id", user.id);
+    setActiveRoleSlug(slug);
+    toast.success(`"${roleName}" is now your target role`);
   };
 
   const marketplaceHref = `/marketplace?industry=${encodeURIComponent(industry)}#jobs-list`;
@@ -308,6 +322,8 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
                       roleSlug={roleSlug}
                       industry={industry}
                       toggleTargetRole={toggleTargetRole}
+                      isTargetRole={roleSlug !== null && roleSlug === activeRoleSlug}
+                      setAsTargetRole={setAsTargetRole}
                     />
                   );
                 })}
@@ -365,10 +381,12 @@ interface CareerMapRoleCardProps {
   roleSlug: string | null;
   industry: string;
   toggleTargetRole: (name: string) => void;
+  isTargetRole: boolean;
+  setAsTargetRole: (slug: string, roleName: string) => void;
 }
 
 const CareerMapRoleCard = ({
-  role, ri, level, isSaved, savingRole, roleSlug, industry, toggleTargetRole,
+  role, ri, level, isSaved, savingRole, roleSlug, industry, toggleTargetRole, isTargetRole, setAsTargetRole,
 }: CareerMapRoleCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [longDesc, setLongDesc] = useState<string | null>(null);
@@ -451,6 +469,18 @@ const CareerMapRoleCard = ({
                 <ArrowUpRight className="w-3 h-3" />
                 Explore this role
               </Link>
+            )}
+            {roleSlug && (
+              <button
+                onClick={() => setAsTargetRole(roleSlug, role.name)}
+                disabled={isTargetRole}
+                className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-[11px] font-display font-700 uppercase tracking-wider transition-colors ${
+                  isTargetRole ? "text-primary" : "text-muted-foreground hover:text-primary"
+                }`}
+              >
+                <Star className={`w-3 h-3 ${isTargetRole ? "fill-current" : ""}`} />
+                {isTargetRole ? "Your target role" : "Also set as my target role"}
+              </button>
             )}
             <button
               onClick={() => toggleTargetRole(role.name)}

@@ -9,7 +9,7 @@ import {
   ArrowRight, Briefcase, MapPin, Zap, LogOut, Save, User, Loader2, Inbox, Target, Sparkles,
   CheckCircle2, Circle, Upload, LinkIcon, ClipboardPaste, Heart, Building2, X, Mail, MailX,
   ChevronDown, Pencil, Eye, Camera, Quote, GraduationCap, Award, Plus, Trash2, Video, Calendar,
-  Pin, PinOff, Share2, Download, Printer, Phone, Home,
+  Pin, PinOff, Share2, Download, Printer, Phone, Home, Star,
 } from "lucide-react";
 import { INDUSTRIES as CANONICAL_INDUSTRIES } from "@/data/industries";
 import PrintableProfileGenerator from "@/components/profile/PrintableProfileGenerator";
@@ -298,6 +298,7 @@ const MyProfile = () => {
   };
   const [targetCompanies, setTargetCompanies] = useState<string[]>([]);
   const [targetRoles, setTargetRoles] = useState<string[]>([]);
+  const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
   const [companyInput, setCompanyInput] = useState("");
   const [roleInput, setRoleInput] = useState("");
   const [companySuggestions, setCompanySuggestions] = useState<string[]>([]);
@@ -489,6 +490,18 @@ const MyProfile = () => {
   const removeRole = (name: string) =>
     setTargetRoles(targetRoles.filter((r) => r !== name));
 
+  const setAsTargetRole = async (title: string) => {
+    if (!user) return;
+    const match = roles.find((r) => r.title === title);
+    if (!match) return; // only real roles.ts titles resolve to a real slug
+    await supabase
+      .from("profiles")
+      .update({ active_role_slug: match.slug, active_role_set_at: new Date().toISOString() })
+      .eq("id", user.id);
+    setActiveRoleSlug(match.slug);
+    toast.success(`"${title}" is now your target role`);
+  };
+
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -544,6 +557,7 @@ const MyProfile = () => {
         if (Array.isArray(jp.funFacts)) setFunFacts(jp.funFacts);
         if (Array.isArray(jp.targetCompanies)) setTargetCompanies(jp.targetCompanies);
         if (Array.isArray(jp.targetRoles)) setTargetRoles(jp.targetRoles);
+        setActiveRoleSlug((data as any).active_role_slug || null);
         const pb = jp.profileBuilder || {};
         // Prefer CV-imported `experience` (richer: company + link), fall back to `things`.
         const fromExp = Array.isArray(pb.experience)
@@ -2315,14 +2329,29 @@ const MyProfile = () => {
                       </div>
                       {targetRoles.length > 0 && (
                         <div className="flex flex-wrap gap-2 mt-3">
-                          {targetRoles.map((r) => (
-                            <span key={r} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-full font-display font-600 text-xs">
-                              {r}
-                              <button type="button" onClick={() => removeRole(r)} className="hover:opacity-70">
-                                <X className="w-3 h-3" />
-                              </button>
-                            </span>
-                          ))}
+                          {targetRoles.map((r) => {
+                            const isRealRole = roles.some((role) => role.title === r);
+                            const resolvedSlug = roles.find((role) => role.title === r)?.slug;
+                            const isActive = isRealRole && resolvedSlug === activeRoleSlug;
+                            return (
+                              <span key={r} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground rounded-full font-display font-600 text-xs">
+                                {isRealRole && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setAsTargetRole(r)}
+                                    title={isActive ? "Your target role" : "Make this my target role"}
+                                    className="hover:opacity-70"
+                                  >
+                                    <Star className={`w-3 h-3 ${isActive ? "fill-current" : ""}`} />
+                                  </button>
+                                )}
+                                {r}
+                                <button type="button" onClick={() => removeRole(r)} className="hover:opacity-70">
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </span>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
