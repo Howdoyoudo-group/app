@@ -92,7 +92,11 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
     };
   }, [user]);
 
-  const toggleTargetRole = async (roleName: string) => {
+  // "Save to Most Wanted" does double duty: it's the wishlist AND, when the
+  // role resolves to a real slug, it becomes Howdy's coaching focus - the
+  // most recently saved resolvable role wins, same "surface it at the top"
+  // mental model the wishlist already has for job-feed ranking.
+  const toggleTargetRole = async (roleName: string, roleSlug?: string | null) => {
     if (!user) {
       toast.error("Please log in to save roles to your Most Wanted", {
         action: {
@@ -118,9 +122,15 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
       ...((existing?.job_preferences as Record<string, unknown>) || {}),
       targetRoles: next,
     };
+    const updates: Record<string, unknown> = { job_preferences: merged, updated_at: new Date().toISOString() };
+    const becomesActiveRole = !isSaved && roleSlug;
+    if (becomesActiveRole) {
+      updates.active_role_slug = roleSlug;
+      updates.active_role_set_at = new Date().toISOString();
+    }
     const { error } = await supabase
       .from("profiles")
-      .update({ job_preferences: merged, updated_at: new Date().toISOString() } as any)
+      .update(updates as any)
       .eq("id", user.id);
     setSavingRole(null);
     if (error) {
@@ -128,6 +138,7 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
       return;
     }
     setTargetRoles(next);
+    if (becomesActiveRole) setActiveRoleSlug(roleSlug!);
     if (!isSaved) {
       trackInteraction({
         type: "save_role",
@@ -135,17 +146,13 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
         metadata: { role_name: roleName },
       });
     }
-    toast.success(isSaved ? `Removed "${roleName}" from Most Wanted` : `Saved "${roleName}" to Most Wanted`);
-  };
-
-  const setAsTargetRole = async (slug: string, roleName: string) => {
-    if (!user) return;
-    await supabase
-      .from("profiles")
-      .update({ active_role_slug: slug, active_role_set_at: new Date().toISOString() } as any)
-      .eq("id", user.id);
-    setActiveRoleSlug(slug);
-    toast.success(`"${roleName}" is now your target role`);
+    toast.success(
+      isSaved
+        ? `Removed "${roleName}" from Most Wanted`
+        : becomesActiveRole
+          ? `Saved "${roleName}" - Howdy's now coaching you on this`
+          : `Saved "${roleName}" to Most Wanted`
+    );
   };
 
   const marketplaceHref = `/marketplace?industry=${encodeURIComponent(industry)}#jobs-list`;
@@ -322,8 +329,7 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
                       roleSlug={roleSlug}
                       industry={industry}
                       toggleTargetRole={toggleTargetRole}
-                      isTargetRole={roleSlug !== null && roleSlug === activeRoleSlug}
-                      setAsTargetRole={setAsTargetRole}
+                      isActiveRole={roleSlug !== null && roleSlug === activeRoleSlug}
                     />
                   );
                 })}
@@ -380,13 +386,12 @@ interface CareerMapRoleCardProps {
   savingRole: string | null;
   roleSlug: string | null;
   industry: string;
-  toggleTargetRole: (name: string) => void;
-  isTargetRole: boolean;
-  setAsTargetRole: (slug: string, roleName: string) => void;
+  toggleTargetRole: (name: string, roleSlug?: string | null) => void;
+  isActiveRole: boolean;
 }
 
 const CareerMapRoleCard = ({
-  role, ri, level, isSaved, savingRole, roleSlug, industry, toggleTargetRole, isTargetRole, setAsTargetRole,
+  role, ri, level, isSaved, savingRole, roleSlug, industry, toggleTargetRole, isActiveRole,
 }: CareerMapRoleCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [longDesc, setLongDesc] = useState<string | null>(null);
@@ -470,22 +475,8 @@ const CareerMapRoleCard = ({
                 Explore this role
               </Link>
             )}
-            {roleSlug && (
-              <button
-                onClick={() => setAsTargetRole(roleSlug, role.name)}
-                disabled={isTargetRole}
-                className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 border-2 text-xs font-display font-700 uppercase tracking-wider transition-colors ${
-                  isTargetRole
-                    ? "border-primary bg-primary/10 text-primary"
-                    : "border-dashed border-foreground/30 text-foreground hover:border-primary hover:text-primary"
-                }`}
-              >
-                <Star className={`w-3 h-3 ${isTargetRole ? "fill-current" : ""}`} />
-                {isTargetRole ? "Your target role" : "Set as my target role"}
-              </button>
-            )}
             <button
-              onClick={() => toggleTargetRole(role.name)}
+              onClick={() => toggleTargetRole(role.name, roleSlug)}
               disabled={savingRole === role.name}
               className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 border text-xs font-display font-700 uppercase tracking-wider transition-colors cursor-pointer ${
                 isSaved
@@ -493,7 +484,13 @@ const CareerMapRoleCard = ({
                   : "border-border text-foreground hover:border-primary hover:text-primary"
               } disabled:opacity-50`}
             >
-              {isSaved ? (<><Check className="w-3 h-3" />Saved to Most Wanted</>) : (<><Target className="w-3 h-3" />Save to Most Wanted</>)}
+              {isActiveRole ? (
+                <><Star className="w-3 h-3 fill-current" />Your focus role - Howdy's coaching you on this</>
+              ) : isSaved ? (
+                <><Check className="w-3 h-3" />Saved to Most Wanted</>
+              ) : (
+                <><Target className="w-3 h-3" />Save to Most Wanted</>
+              )}
             </button>
           </div>
         </div>

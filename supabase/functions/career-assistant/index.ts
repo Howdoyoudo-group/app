@@ -435,7 +435,7 @@ When the user expresses an intent, USE THE TOOLS to act on their behalf, then co
 - "Add Nike to my list" / "I'd love to work at Burberry" → call add_dream_company
 - "Find me marketing jobs in London" / "any chef roles?" → call search_jobs
 - "Show me coffee jobs at Costa" → call search_jobs(query: "barista", company: "Costa")
-- "I want to become a plumber" / "let's focus on Electrician" → call set_active_role(role: "Plumber") - this is their main current goal, not just an interest
+- "I want to become a plumber" / "let's focus on Electrician" → call add_dream_role(role: "Plumber") - this is their main current goal, not just an interest, and (if it matches a real role page) also becomes what you coach them on
 - Agreeing on a concrete next step mid-conversation that isn't already an automatic checklist item → call add_coach_task(title: "...")
 
 You can call multiple tools in one turn. After acting, briefly confirm in plain English (e.g. "Added **CEO** to your dream roles ✅ - I'll watch for openings.") and offer a relevant next step. Don't ask permission to add things the user clearly asked for - just do it.
@@ -472,7 +472,7 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
         type: "function",
         function: {
           name: "add_dream_role",
-          description: "Add a job title or role to the user's dream roles ('Most Wanted'). Use whenever the user expresses they want, dream of, or aim to be a particular role (e.g. 'I want to be a CEO', 'add producer to my list').",
+          description: "Add a job title or role to the user's dream roles ('Most Wanted'). Use whenever the user expresses they want, dream of, or aim to be a particular role (e.g. 'I want to be a CEO', 'add producer to my list', 'I want to become a plumber'). If the role matches a real role page, this also becomes their active target role - the one Skills Passport and their Coach Plan checklist focus on - same as clicking 'Save to Most Wanted' on the site.",
           parameters: {
             type: "object",
             properties: {
@@ -507,20 +507,6 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
               industry: { type: "string", description: "Industry name, e.g. 'Fashion', 'Music', 'Football'." },
             },
             required: ["industry"],
-          },
-        },
-      },
-      {
-        type: "function",
-        function: {
-          name: "set_active_role",
-          description: "Set the user's active target role - the one Skills Passport, Learning Hub and their Coach Plan checklist will focus on. Use when the user confirms a specific role as their main current goal (not just an interest), e.g. 'I want to become a plumber' or 'let's focus on Electrician'.",
-          parameters: {
-            type: "object",
-            properties: {
-              role: { type: "string", description: "The role name, e.g. 'Plumber', 'Marketing Manager'." },
-            },
-            required: ["role"],
           },
         },
       },
@@ -576,12 +562,28 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
           const { data: prof } = await svcClient.from("profiles").select("job_preferences, role_preferences").eq("id", userId).maybeSingle();
           const jp: any = prof?.job_preferences || {};
           const existing: string[] = Array.isArray(jp.targetRoles) ? jp.targetRoles : [];
-          if (!existing.some((r) => r.toLowerCase() === role.toLowerCase())) existing.push(role);
+          const alreadySaved = existing.some((r) => r.toLowerCase() === role.toLowerCase());
+          if (!alreadySaved) existing.push(role);
           jp.targetRoles = existing.slice(-50);
           const rolePrefs: string[] = Array.isArray(prof?.role_preferences) ? [...prof!.role_preferences] : [];
           if (!rolePrefs.some((r) => r.toLowerCase() === role.toLowerCase())) rolePrefs.push(role);
-          await svcClient.from("profiles").update({ job_preferences: jp, role_preferences: rolePrefs }).eq("id", userId);
-          return JSON.stringify({ ok: true, added: role, totalDreamRoles: existing.length, viewAt: "/my-profile" });
+          // Same "Save to Most Wanted" behaviour as the site: a newly added
+          // role that resolves to a real role page also becomes the active
+          // target role Howdy coaches on - one mechanism, not two.
+          const resolved = !alreadySaved ? resolveRoleTitleToSlug(role) : null;
+          const updates: any = { job_preferences: jp, role_preferences: rolePrefs };
+          if (resolved) {
+            updates.active_role_slug = resolved.slug;
+            updates.active_role_set_at = new Date().toISOString();
+          }
+          await svcClient.from("profiles").update(updates).eq("id", userId);
+          return JSON.stringify({
+            ok: true,
+            added: role,
+            totalDreamRoles: existing.length,
+            becameActiveRole: Boolean(resolved),
+            viewAt: resolved ? "/skills-passport" : "/my-profile",
+          });
         }
         if (name === "add_dream_company") {
           const company = String(args?.company || "").trim();
@@ -602,28 +604,6 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
           if (!existing.some((i) => i.toLowerCase() === industry.toLowerCase())) existing.push(industry);
           await svcClient.from("profiles").update({ industry_interests: existing }).eq("id", userId);
           return JSON.stringify({ ok: true, added: industry, totalIndustries: existing.length });
-        }
-        if (name === "set_active_role") {
-          const roleInput = String(args?.role || "").trim();
-          if (!roleInput) return JSON.stringify({ error: "role required" });
-          const resolved = resolveRoleTitleToSlug(roleInput);
-          if (!resolved) {
-            return JSON.stringify({ error: `"${roleInput}" isn't a recognised role yet - ask the user to pick one from /skills-passport instead.` });
-          }
-          await svcClient.from("profiles").update({
-            active_role_slug: resolved.slug,
-            active_role_set_at: new Date().toISOString(),
-          }).eq("id", userId);
-          // Keep Most Wanted in sync, same dual-write as add_dream_role
-          const { data: prof } = await svcClient.from("profiles").select("job_preferences, role_preferences").eq("id", userId).maybeSingle();
-          const jp: any = prof?.job_preferences || {};
-          const existingRoles: string[] = Array.isArray(jp.targetRoles) ? jp.targetRoles : [];
-          if (!existingRoles.some((r) => r.toLowerCase() === resolved.title.toLowerCase())) existingRoles.push(resolved.title);
-          jp.targetRoles = existingRoles.slice(-50);
-          const rolePrefs: string[] = Array.isArray(prof?.role_preferences) ? [...prof!.role_preferences] : [];
-          if (!rolePrefs.some((r) => r.toLowerCase() === resolved.title.toLowerCase())) rolePrefs.push(resolved.title);
-          await svcClient.from("profiles").update({ job_preferences: jp, role_preferences: rolePrefs }).eq("id", userId);
-          return JSON.stringify({ ok: true, role: resolved.title, slug: resolved.slug, viewAt: "/skills-passport" });
         }
         if (name === "add_coach_task") {
           const title = String(args?.title || "").trim();

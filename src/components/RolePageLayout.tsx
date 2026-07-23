@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { ArrowLeft, HeartHandshake, Star } from "lucide-react";
+import { ArrowLeft, HeartHandshake, Star, Target, Check } from "lucide-react";
 import RoleLearnSection from "@/components/RoleLearnSection";
 import MentoringPanel from "@/components/MentoringPanel";
 import RoleNCSPanel from "@/components/RoleNCSPanel";
@@ -66,24 +66,49 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
   const roleSlug = useMemo(() => slug ?? slugifyRoleName(name), [name, slug]);
   const { user } = useAuth();
   const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
+  const [targetRoles, setTargetRoles] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+  const isSaved = targetRoles.includes(name);
 
   useEffect(() => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("active_role_slug")
+      .select("active_role_slug, job_preferences")
       .eq("id", user.id)
       .maybeSingle()
-      .then(({ data }) => setActiveRoleSlug(data?.active_role_slug ?? null));
+      .then(({ data }) => {
+        setActiveRoleSlug((data as any)?.active_role_slug ?? null);
+        const jp = (data?.job_preferences as Record<string, unknown>) || {};
+        setTargetRoles(Array.isArray(jp.targetRoles) ? (jp.targetRoles as string[]) : []);
+      });
   }, [user]);
 
-  const setAsTargetRole = async () => {
-    if (!user) return;
+  // "Save to Most Wanted" does double duty here: it's the wishlist AND -
+  // since we always have a real slug on a role page - it becomes Howdy's
+  // coaching focus too. Same single action as the industry CareerMap tiles.
+  const saveToMostWanted = async () => {
+    if (!user || isSaved) return;
+    setSaving(true);
+    const { data: existing } = await supabase
+      .from("profiles")
+      .select("job_preferences")
+      .eq("id", user.id)
+      .maybeSingle();
+    const jp = (existing?.job_preferences as Record<string, unknown>) || {};
+    const next = [...targetRoles, name];
     await supabase
       .from("profiles")
-      .update({ active_role_slug: roleSlug, active_role_set_at: new Date().toISOString() })
+      .update({
+        job_preferences: { ...jp, targetRoles: next },
+        active_role_slug: roleSlug,
+        active_role_set_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as any)
       .eq("id", user.id);
+    setTargetRoles(next);
     setActiveRoleSlug(roleSlug);
+    setSaving(false);
   };
 
   const enhancedTabs = useMemo(() => {
@@ -195,18 +220,25 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
                 to="/auth"
                 className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-foreground text-xs font-display font-700 uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
               >
-                <Star className="w-3.5 h-3.5" /> Sign in to set as my target role
+                <Target className="w-3.5 h-3.5" /> Sign in to save to Most Wanted
               </Link>
-            ) : activeRoleSlug === roleSlug ? (
-              <span className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-primary bg-primary/10 text-primary text-xs font-display font-700 uppercase tracking-wider">
-                <Star className="w-3.5 h-3.5 fill-current" /> Your target role - Howdy's coaching you on this
-              </span>
             ) : (
               <button
-                onClick={setAsTargetRole}
-                className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-foreground text-xs font-display font-700 uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
+                onClick={saveToMostWanted}
+                disabled={isSaved || saving}
+                className={`inline-flex items-center gap-2 px-4 py-2.5 border-2 text-xs font-display font-700 uppercase tracking-wider transition-colors ${
+                  isSaved
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-foreground hover:bg-foreground hover:text-background"
+                }`}
               >
-                <Star className="w-3.5 h-3.5" /> Set as my target role
+                {activeRoleSlug === roleSlug ? (
+                  <><Star className="w-3.5 h-3.5 fill-current" /> Your target role - Howdy's coaching you on this</>
+                ) : isSaved ? (
+                  <><Check className="w-3.5 h-3.5" /> Saved to Most Wanted</>
+                ) : (
+                  <><Target className="w-3.5 h-3.5" /> Save to Most Wanted</>
+                )}
               </button>
             )}
           </div>
