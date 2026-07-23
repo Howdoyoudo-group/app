@@ -66,6 +66,12 @@ const CP_MAP: Record<string, string> = {
   "electrician":              "on-site/job-profile/electrician",
   "plumber":                  "on-site/job-profile/plumber",
   "heating-engineer":         "on-site/job-profile/gas-service-technician",
+  // Building (trades)
+  "bricklayer":               "on-site/job-profile/bricklayer",
+  "carpenter":                "on-site/job-profile/carpenter",
+  "plasterer":                "on-site/job-profile/plasterer",
+  "groundworker":             "on-site/job-profile/construction-labourer",
+  "roofer":                   "on-site/job-profile/roofer",
 };
 
 // ── Firecrawl fetch ───────────────────────────────────────────────────────────

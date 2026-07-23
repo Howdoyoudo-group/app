@@ -98,6 +98,12 @@ const NCS_MAP: Record<string, string> = {
   "plumber": "plumber",
   "heating-engineer": "gas-service-technician",
   "repair-technician": "domestic-appliance-service-engineer",
+  // Building (trades)
+  "bricklayer": "bricklayer",
+  "carpenter": "carpenter",
+  "plasterer": "plasterer",
+  "groundworker": "construction-labourer",
+  "roofer": "roofer",
 };
 
 const NCS_BASE = "https://nationalcareers.service.gov.uk/job-profiles/";

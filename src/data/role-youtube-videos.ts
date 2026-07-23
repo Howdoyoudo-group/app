@@ -51,6 +51,9 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "7fU6fU5tvjc", title: "Vlogging my full work day as a successful home Beauty Therapist â¨ï¸", channel: "Huyana Beauty" },
     { id: "px2qGQEtSNI", title: "HOW TO BECOME AN AESTHETICIAN IN UK | AESTHETICIAN SCHOOLS IN UK | BEAUTY THERAPIST", channel: "Oluchi Onuigbo" },
   ],
+  "bricklayer": [
+    { id: "JUFJYLNMKNI", title: "Working with an Apprentice Bricklayer", channel: "Charlie Collison" },
+  ],
   "broadcast-journalist": [
     { id: "XfzGKRIBTuk", title: "BEHIND THE SCENES | A Day In The Life Of A Liverpool Reporter", channel: "David Lynch - Liverpool FC" },
     { id: "jEWq1Y6q8Bg", title: "A day in the life of a Broadcast Journalism student at Nottingham Trent University", channel: "Nottingham Trent University" },
@@ -74,6 +77,9 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "EHGixZ_cEoE", title: "A day in the life of a support worker at Broughton Lodge, Cygnet Health Care", channel: "Life Changing Careers by Cygnet" },
     { id: "HE8L6dr1sXE", title: "Day in the life - Healthcare support worker", channel: "University Hospitals Bristol and Weston NHS FT" },
     { id: "Ag_DNm-jJzM", title: "Day In the Life of A Support Worker", channel: "Rehability UK" },
+  ],
+  "carpenter": [
+    { id: "_thN9c_6mPc", title: "Day in the life of a carpentry apprentice | should you become an apprentice in 2025", channel: "Official_apprentice" },
   ],
   "charity-fundraiser": [
     { id: "F2BAKWihXqA", title: "A day in the life - Vikki our Events and Individual Challenge Fundraiser", channel: "Dove House Hospice" },

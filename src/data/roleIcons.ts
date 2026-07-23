@@ -172,6 +172,13 @@ export const ROLE_ICONS: Record<string, string> = {
   "heating-engineer": roleMechanic,
   "repair-technician": roleVehicleTechnician,
   handyperson: roleMechanic,
+  // Placeholders - reuse Mechanic/Vehicle Technician icons until bespoke
+  // Building-trade icons exist
+  bricklayer: roleMechanic,
+  carpenter: roleVehicleTechnician,
+  plasterer: roleMechanic,
+  groundworker: roleVehicleTechnician,
+  roofer: roleMechanic,
   aerodynamicist: roleAerodynamicist,
   "performance-engineer": rolePerformanceEngineer,
   "composite-technician": roleCompositeTechnician,

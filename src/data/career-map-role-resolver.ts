@@ -186,6 +186,13 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(appliance repair technician|mobile phone repair technician|electronics repair technician)\b/i, slug: "repair-technician" },
   { test: /\b(multi-trade engineer|maintenance technician|handyperson)\b/i, slug: "handyperson" },
 
+  // Building (hands-on trades)
+  { test: /\bbricklayer\b/i, slug: "bricklayer" },
+  { test: /\b(carpenter|joiner)\b/i, slug: "carpenter" },
+  { test: /\bplasterer\b/i, slug: "plasterer" },
+  { test: /\bgroundworker\b/i, slug: "groundworker" },
+  { test: /\broofer\b/i, slug: "roofer" },
+
   // Charity
   { test: /\b(charity fundraiser|fundraiser|fundraising manager|trusts and foundations|partnerships manager)\b/i, slug: "charity-fundraiser" },
 
