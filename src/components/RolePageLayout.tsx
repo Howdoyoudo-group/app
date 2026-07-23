@@ -189,20 +189,27 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
             {description}
           </p>
 
-          {user && (
-            activeRoleSlug === roleSlug ? (
-              <p className="inline-flex items-center gap-1.5 font-display font-700 text-xs text-primary mb-6">
-                <Star className="w-3.5 h-3.5 fill-current" /> This is your target role
-              </p>
+          <div className="mb-6">
+            {!user ? (
+              <Link
+                to="/auth"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-foreground text-xs font-display font-700 uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
+              >
+                <Star className="w-3.5 h-3.5" /> Sign in to set as my target role
+              </Link>
+            ) : activeRoleSlug === roleSlug ? (
+              <span className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-primary bg-primary/10 text-primary text-xs font-display font-700 uppercase tracking-wider">
+                <Star className="w-3.5 h-3.5 fill-current" /> Your target role - Howdy's coaching you on this
+              </span>
             ) : (
               <button
                 onClick={setAsTargetRole}
-                className="inline-flex items-center gap-1.5 font-display font-700 text-xs text-muted-foreground hover:text-primary transition-colors mb-6"
+                className="inline-flex items-center gap-2 px-4 py-2.5 border-2 border-foreground text-xs font-display font-700 uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors"
               >
                 <Star className="w-3.5 h-3.5" /> Set as my target role
               </button>
-            )
-          )}
+            )}
+          </div>
 
           <div className="grid grid-cols-3 md:grid-cols-9 gap-3 mb-12 border-b border-border pb-6">
             {enhancedTabs.map((tab) => {

@@ -474,12 +474,14 @@ const CareerMapRoleCard = ({
               <button
                 onClick={() => setAsTargetRole(roleSlug, role.name)}
                 disabled={isTargetRole}
-                className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 text-[11px] font-display font-700 uppercase tracking-wider transition-colors ${
-                  isTargetRole ? "text-primary" : "text-muted-foreground hover:text-primary"
+                className={`w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 border-2 text-xs font-display font-700 uppercase tracking-wider transition-colors ${
+                  isTargetRole
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-dashed border-foreground/30 text-foreground hover:border-primary hover:text-primary"
                 }`}
               >
                 <Star className={`w-3 h-3 ${isTargetRole ? "fill-current" : ""}`} />
-                {isTargetRole ? "Your target role" : "Also set as my target role"}
+                {isTargetRole ? "Your target role" : "Set as my target role"}
               </button>
             )}
             <button
