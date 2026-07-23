@@ -49,9 +49,9 @@ const NAV_SECTIONS: NavSection[] = [
       {
         label: "Skills",
         items: [
-          { label: "Skills Passport", to: "/skills-passport", description: "Industry modules, badges & more" },
           { label: "Skills Assessment", to: "/skills-passport?tab=assessment", description: "Rate your skills for any role" },
           { label: "Skill Gaps", to: "/skills-passport?tab=gaps", description: "See where you need to develop" },
+          { label: "Skills Passport", to: "/skills-passport", description: "Industry modules, badges & more" },
         ],
       },
       {
