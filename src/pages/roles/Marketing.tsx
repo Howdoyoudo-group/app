@@ -13,6 +13,7 @@ import type { CareerStage } from "@/components/CareerMap";
 import CareerMap from "@/components/CareerMap";
 import RoleOverview from "@/components/RoleOverview";
 import type { RoleOverviewData } from "@/components/RoleOverview";
+import OnlineLearningGrid from "@/components/OnlineLearningGrid";
 
 const marketingInIndustries = [
   { industry: "Fashion", examples: [{ company: "ASOS", role: "Brand & Creative Marketing", profileUrl: "/company/asos" }, { company: "Burberry", role: "Digital Marketing", profileUrl: "/company/burberry" }, { company: "ME+EM", role: "Performance Marketing", profileUrl: "/company/me-em" }], slug: "/fashion" },
@@ -237,6 +238,7 @@ const Marketing = () => {
               </a>
             ))}
           </div>
+          <OnlineLearningGrid roleName="Marketing" />
         </>
       ),
     },

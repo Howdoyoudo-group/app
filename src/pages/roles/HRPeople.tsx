@@ -8,6 +8,7 @@ import EventsSection from "@/components/EventsSection";
 import IndustryCVBuilder from "@/components/IndustryCVBuilder";
 import type { CareerStage } from "@/components/CareerMap";
 import CareerMap from "@/components/CareerMap";
+import OnlineLearningGrid from "@/components/OnlineLearningGrid";
 import RoleOverview from "@/components/RoleOverview";
 
 const industryExamples = [
@@ -63,7 +64,7 @@ const HRPeople = () => {
       { title: "People Analytics (Coursera / Wharton)", description: "Data-driven approach to people management from the University of Pennsylvania.", url: "https://www.coursera.org/learn/wharton-people-analytics", badge: "Free" },
       { title: "HR Fundamentals (FutureLearn / CIPD)", description: "Free introductory course covering the basics of HR practice.", url: "https://www.futurelearn.com/subjects/business-and-management-courses/human-resources", badge: "Free" },
       { title: "Diversity and Inclusion in the Workplace (FutureLearn)", description: "Practical frameworks for building inclusive workplaces.", url: "https://www.futurelearn.com/courses/diversity-inclusion-workplace", badge: "Free" },
-    ].map((c) => (<a key={c.url} href={c.url} target="_blank" rel="noopener noreferrer" className="block border border-border p-4 hover:border-primary transition-colors group"><div className="flex items-center justify-between mb-1"><h3 className="font-display font-700 text-foreground text-sm group-hover:text-primary transition-colors">{c.title}</h3>{c.badge && <span className={`text-[10px] tracking-wider uppercase font-display font-700 px-2 py-0.5 ${c.badge === "Free" ? "bg-green-500/10 text-green-600" : "bg-primary/10 text-primary"}`}>{c.badge}</span>}</div><p className="text-muted-foreground font-body text-xs mt-1">{c.description}</p></a>))}</div></>) },
+    ].map((c) => (<a key={c.url} href={c.url} target="_blank" rel="noopener noreferrer" className="block border border-border p-4 hover:border-primary transition-colors group"><div className="flex items-center justify-between mb-1"><h3 className="font-display font-700 text-foreground text-sm group-hover:text-primary transition-colors">{c.title}</h3>{c.badge && <span className={`text-[10px] tracking-wider uppercase font-display font-700 px-2 py-0.5 ${c.badge === "Free" ? "bg-green-500/10 text-green-600" : "bg-primary/10 text-primary"}`}>{c.badge}</span>}</div><p className="text-muted-foreground font-body text-xs mt-1">{c.description}</p></a>))}</div><OnlineLearningGrid roleName="People & Culture" /></>) },
     { id: "attend", label: "Attend", content: <EventsSection industry="HR" searchQuery="HR people conference UK" /> },
     { id: "apply", label: "Jobs", content: (<><div className="border border-border p-6 mb-12"><h2 className="font-display text-2xl md:text-3xl font-700 mb-3">Job Marketplace<span className="text-primary">.</span></h2><p className="text-muted-foreground font-body text-sm mb-4">Browse live People & Culture roles across all industries.</p><Link to="/marketplace?role=People+%26+Culture#jobs-list" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">View People & Culture Jobs</Link></div><IndustryCVBuilder industry="People & Culture" stages={careerStages} /></>) },
   ];
