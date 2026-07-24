@@ -371,33 +371,10 @@ export default function RoleNCSPanel({ slug }: { slug: string }) {
         </div>
       )}
 
-      {/* ── What you'll actually do — real per-role description ──────────── */}
-      {data.cp_description && (
-        <div className="px-5 pb-4">
-          <p className="font-display font-700 text-xs uppercase tracking-wider text-muted-foreground mb-2">
-            What you'll actually do
-          </p>
-          <p className="font-body text-sm text-foreground/90 leading-relaxed">
-            {data.cp_description.charAt(0).toUpperCase() + data.cp_description.slice(1)}.
-          </p>
-        </div>
-      )}
-
-      {/* ── Real skills for this role ─────────────────────────────────────── */}
-      {data.cp_skills && data.cp_skills.length > 0 && (
-        <div className="px-5 pb-4">
-          <p className="font-display font-700 text-xs uppercase tracking-wider text-muted-foreground mb-2">
-            Skills this role needs
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {data.cp_skills.map((s, i) => (
-              <span key={i} className="font-body text-[11px] px-2.5 py-1 bg-muted/50 border border-border rounded-full">
-                {s.charAt(0).toUpperCase() + s.slice(1)}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Note: cp_description/cp_skills are deliberately NOT rendered here -
+          RoleGeneric.tsx (and hand-rolled role pages) feed them straight into
+          RoleOverview's "Day-to-Day"/"Key Skills" sections instead, so the
+          same real data isn't shown twice on one page. */}
 
       {/* ── Professional / industry bodies ────────────────────────────────── */}
       {data.cp_professional_bodies && data.cp_professional_bodies.length > 0 && (

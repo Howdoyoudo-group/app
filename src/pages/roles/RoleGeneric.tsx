@@ -1,10 +1,21 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import RolePageLayout from "@/components/RolePageLayout";
 import RoleOverview from "@/components/RoleOverview";
 import RoleWatchSection from "@/components/RoleWatchSection";
 import EventsSection from "@/components/EventsSection";
 import { roles, industryToSlug } from "@/data/roles";
+import { supabase } from "@/integrations/supabase/client";
+
+const GENERIC_DAY_TO_DAY = [
+  "Hands-on work that matters to the people you serve",
+  "Building expertise through practice and on-the-job learning",
+  "Working closely with colleagues across the business",
+  "Keeping standards high and customers / clients happy",
+  "Picking up new tools, regulations and ways of working",
+];
+
+const GENERIC_SKILLS = ["Communication", "Attention to Detail", "Reliability", "Problem Solving", "Teamwork"];
 
 /**
  * Generic role page - renders any role defined in src/data/roles.ts
@@ -15,6 +26,25 @@ import { roles, industryToSlug } from "@/data/roles";
 const RoleGeneric = () => {
   const { slug } = useParams<{ slug: string }>();
   const role = useMemo(() => roles.find((r) => r.slug === slug), [slug]);
+  const [cpData, setCpData] = useState<{ description: string | null; skills: string[] | null }>({ description: null, skills: null });
+
+  useEffect(() => {
+    if (!slug) return;
+    let cancelled = false;
+    supabase
+      .from("role_metadata")
+      .select("cp_description, cp_skills")
+      .eq("slug", slug)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (cancelled) return;
+        setCpData({
+          description: (data as any)?.cp_description ?? null,
+          skills: (data as any)?.cp_skills ?? null,
+        });
+      });
+    return () => { cancelled = true; };
+  }, [slug]);
 
   if (!role) {
     return <Navigate to="/roles" replace />;
@@ -24,22 +54,17 @@ const RoleGeneric = () => {
   const primaryIndustry = role.industries[0];
   const industryHref = primaryIndustry ? industryToSlug[primaryIndustry] : undefined;
 
+  // Real CareerPilot data (day-to-day tasks, skills) when we have it for this
+  // role - only falls back to generic boilerplate for the roles CareerPilot
+  // doesn't cover yet, rather than showing stale generic text for everyone.
   const overviewData = {
     summary: role.description,
-    dayToDay: [
-      "Hands-on work that matters to the people you serve",
-      "Building expertise through practice and on-the-job learning",
-      "Working closely with colleagues across the business",
-      "Keeping standards high and customers / clients happy",
-      "Picking up new tools, regulations and ways of working",
-    ],
-    skills: [
-      "Communication",
-      "Attention to Detail",
-      "Reliability",
-      "Problem Solving",
-      "Teamwork",
-    ],
+    dayToDay: cpData.description
+      ? cpData.description.split(/;\s*/).map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+      : GENERIC_DAY_TO_DAY,
+    skills: cpData.skills?.length
+      ? cpData.skills.map((s) => s.charAt(0).toUpperCase() + s.slice(1))
+      : GENERIC_SKILLS,
     traits: [
       "Genuine interest in the work and the industry",
       "Comfortable learning on the job",
