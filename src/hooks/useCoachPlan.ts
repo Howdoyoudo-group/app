@@ -183,6 +183,19 @@ export function useCoachPlan(userId: string | null | undefined) {
           });
         }
 
+        // Readiness is genuinely good and the basics (CV, most skills rated)
+        // are in place - the honest next step is to actually apply, not to
+        // keep rating skills or sit on a "stand out" tip forever.
+        if (gap.overallReadiness >= 65 && cvUploaded && gap.ratedCount >= gap.totalCount * 0.8) {
+          allDeterministic.push({
+            role_slug: slug,
+            task_type: "apply_now",
+            title: `You're ready - start applying for ${roleTitle} roles`,
+            detail: "Your readiness is solid and the basics are covered. Real applications teach you more from here than more prep does.",
+            link: `/marketplace?query=${encodeURIComponent(roleTitle)}`,
+          });
+        }
+
         allDeterministic.push({
           role_slug: slug,
           task_type: "stand_out",

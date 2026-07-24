@@ -13,6 +13,7 @@ const TASK_ICON: Record<string, string> = {
   upload_cv: "📄",
   build_experience: "🤝",
   take_course: "🎓",
+  apply_now: "🚀",
   stand_out: "✨",
   custom: "💬",
 };
@@ -75,7 +76,13 @@ function RolePlanCard({ plan, onComplete, onReopen }: {
     <div className="border-2 border-foreground/10 bg-muted/20 rounded-2xl p-5 mb-4 last:mb-0">
       <div className="flex items-center justify-between gap-3 mb-1 flex-wrap">
         <p className="font-display font-700 text-xs uppercase tracking-widest text-muted-foreground">
-          Your Plan · {plan.role_title}
+          Your Plan ·{" "}
+          <Link
+            to={`/skills-passport?tab=assessment&role=${plan.role_slug}`}
+            className="text-primary hover:underline"
+          >
+            {plan.role_title}
+          </Link>
         </p>
         {plan.totalCount > 0 && (
           <span className={`font-display font-900 text-sm ${plan.readiness >= 70 ? "text-green-600" : plan.readiness >= 40 ? "text-amber-600" : "text-red-500"}`}>

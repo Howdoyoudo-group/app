@@ -39,14 +39,20 @@ export async function buildTargetRolesContext(svcClient: any, userId: string): P
       .select("role_slug")
       .eq("user_id", userId)
       .order("set_at", { ascending: false }),
-    svcClient.from("profiles").select("job_preferences").eq("id", userId).maybeSingle(),
+    svcClient
+      .from("profiles")
+      .select("job_preferences, understand_me_results, riasec_scores, work_values")
+      .eq("id", userId)
+      .maybeSingle(),
   ]);
   const slugs: string[] = (targetRows ?? []).map((r: any) => r.role_slug);
   if (!slugs.length) return "";
 
   const jobPrefs: any = profile?.job_preferences || {};
   const cvUploaded = Boolean(jobPrefs?.understandMe?.cvFileName);
-  const experienceEntries = Array.isArray(jobPrefs?.profileBuilder?.things) ? jobPrefs.profileBuilder.things.length : 0;
+  const workHistory: any[] = Array.isArray(jobPrefs?.profileBuilder?.things) ? jobPrefs.profileBuilder.things : [];
+  const experienceEntries = workHistory.length;
+  const understandMe: any = profile?.understand_me_results || null;
 
   const [{ data: badgeRows }, { data: allPlanTasks }] = await Promise.all([
     svcClient.from("earned_badges").select("industry").eq("user_id", userId),
@@ -88,15 +94,46 @@ export async function buildTargetRolesContext(svcClient: any, userId: string): P
 
   const sharedParts: string[] = [
     `CV uploaded: ${cvUploaded ? "yes" : "no"}`,
-    `Logged experience/projects: ${experienceEntries} entr${experienceEntries === 1 ? "y" : "ies"}`,
   ];
   if (badgeRows?.length) sharedParts.push(`HDYD badges earned: ${badgeRows.map((b: any) => b.industry).join(", ")}`);
   const generalOpen = (allPlanTasks ?? []).filter((t: any) => !t.role_slug && t.status === "open");
   if (generalOpen.length) sharedParts.push(`Other open checklist items (not tied to one role): ${generalOpen.map((t: any) => t.title).join("; ")}`);
 
+  // Real signal from their CV/onboarding (Understand Me, Match Me, logged
+  // work history) - readiness % itself stays purely self-rated (must never
+  // disagree with the Skills Passport screen), but Howdy should reason and
+  // talk about the person using this real evidence, not just a CV yes/no
+  // and a count. This is what lets Howdy say "you mention customer-facing
+  // work at X - that's real evidence for your interpersonal skills" instead
+  // of generic "rate your skills" advice that ignores what it already knows.
+  const evidenceParts: string[] = [];
+  if (workHistory.length) {
+    const entries = workHistory.slice(0, 6).map((w: any) => {
+      const bits = [w.title, w.company ? `at ${w.company}` : null, w.when ? `(${w.when})` : null].filter(Boolean).join(" ");
+      return w.description ? `${bits} - ${w.description}` : bits;
+    }).filter(Boolean);
+    if (entries.length) evidenceParts.push(`Logged work/experience history:\n- ${entries.join("\n- ")}`);
+  }
+  if (understandMe?.transferableSkills?.length) {
+    evidenceParts.push(`Transferable skills identified from their CV (Understand Me): ${understandMe.transferableSkills.join(", ")}`);
+  }
+  if (understandMe?.personalityInsights) {
+    evidenceParts.push(`Working style, from their CV analysis: ${understandMe.personalityInsights}`);
+  }
+  if (understandMe?.careerLevel) {
+    evidenceParts.push(`Inferred career level from CV: ${understandMe.careerLevel}`);
+  }
+  if (jobPrefs?.passions?.length || jobPrefs?.passionsText) {
+    evidenceParts.push(`Passions: ${[...(jobPrefs.passions ?? []), jobPrefs.passionsText].filter(Boolean).join(", ")}`);
+  }
+
   const heading = slugs.length > 1
     ? `## Target roles (coaching focus - ${slugs.length} active)`
     : `## Target role (coaching focus)`;
 
-  return `\n\n${heading}\n${sharedParts.join("\n")}\n\n${roleBlocks.join("\n\n")}`;
+  const evidenceBlock = evidenceParts.length
+    ? `\n\n### Real evidence from their CV, onboarding and Match Me (use this - don't ask them to repeat it, and give credit for it rather than only pointing at unrated skills)\n${evidenceParts.join("\n")}`
+    : "";
+
+  return `\n\n${heading}\n${sharedParts.join("\n")}${evidenceBlock}\n\n${roleBlocks.join("\n\n")}`;
 }
