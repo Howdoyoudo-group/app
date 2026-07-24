@@ -500,6 +500,14 @@ export const coursesByIndustry: Record<string, Course[]> = {
     { title: "Fashion Retail Academy", provider: "Fashion Retail Academy", url: "https://www.fashionretailacademy.ac.uk/", description: "Industry-backed courses in buying, merchandising, marketing, and visual merchandising.", free: false },
     { title: "FashionUnited Career Hub", provider: "FashionUnited", url: "https://fashionunited.uk/fashion-jobs", description: "The UK's leading fashion jobs board - career resources, employer profiles, and industry roles.", free: true },
   ],
+  fixing: [
+    { title: "Level 2/3 NVQ Diploma in Plumbing & Heating", provider: "City & Guilds", url: "https://www.cityandguilds.com/qualifications-and-apprenticeships/building-services/plumbing", description: "The core UK qualification route into plumbing and domestic heating, usually studied alongside an apprenticeship.", free: false },
+    { title: "Level 2/3 Electrical Installation", provider: "City & Guilds", url: "https://www.cityandguilds.com/qualifications-and-apprenticeships/building-services/electrotechnical", description: "Industry-standard electrical installation qualifications - the route to becoming a qualified electrician.", free: false },
+    { title: "Gas Safe Register", provider: "Gas Safe Register", url: "https://www.gassaferegister.co.uk/", description: "The official UK gas safety register - required certification info for anyone installing or servicing gas appliances.", free: true },
+    { title: "ECS / JIB Grading Card", provider: "Joint Industry Board", url: "https://www.jib.org.uk/", description: "The electrical industry's official grading scheme and ECS card - proof of competence most sites require on-site.", free: false },
+    { title: "CITB Construction Training & Apprenticeships", provider: "CITB", url: "https://www.citb.co.uk/", description: "Funding, apprenticeship routes and skills cards (CSCS) for anyone training into a construction trade.", free: true },
+    { title: "Find an Apprenticeship", provider: "gov.uk", url: "https://www.gov.uk/apply-apprenticeship", description: "Search live plumbing, electrical, heating and other trade apprenticeships across the UK.", free: true },
+  ],
   "food & drink": [
     { title: "Food Safety Level 2", provider: "Highfield", url: "https://www.highfieldqualifications.com/", description: "Essential certification for anyone working in food and drink.", free: false },
     { title: "WSET Wine & Spirit Education", provider: "WSET", url: "https://www.wsetglobal.com/qualifications/", description: "World-leading wine, spirits, and sake qualifications.", free: false },
