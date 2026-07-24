@@ -357,6 +357,76 @@ function parseGrowthOutlook(md: string): string | null {
   return null;
 }
 
+// Strip markdown formatting (bold/italic/links) from a chunk of text.
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/[*_]+/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+// Extract a named "## Heading" section's body text (everything up to the next
+// heading), stripped of markdown - used for description/requirements, which
+// CareerPilot writes as a short bullet list or paragraph, not structured data.
+function extractSectionText(md: string, headingPattern: string): string {
+  const section = md.match(new RegExp(`##+ ${headingPattern}[\\s\\S]*?(?=##+ |$)`, "i"))?.[0] ?? "";
+  if (!section) return "";
+  const body = section.replace(/^##+ [^\n]+\n?/, "");
+  const bullets = body.match(/[-*•]\s+([^\n]+)/g);
+  if (bullets && bullets.length > 0) {
+    return bullets.map((b) => stripMarkdown(b.replace(/^[-*•]\s+/, ""))).join("; ");
+  }
+  return stripMarkdown(body).slice(0, 600);
+}
+
+// "Day to day tasks" (the real content under the "What you'll do" anchor
+// heading) - real per-role job description, replacing the generic hardcoded
+// dayToDay text on RoleGeneric.tsx-rendered role pages.
+function parseDescription(md: string): string | null {
+  const text = extractSectionText(md, "Day to day tasks");
+  return text || null;
+}
+
+// "## Requirements and restrictions" - this is the field that actually answers
+// "what qualification/registration do I need to legally work in this role"
+// (e.g. "be on the Gas Safe Register to work with domestic gas heating
+// systems") - CareerPilot's own distinct callout, not folded into entry routes.
+function parseRequirements(md: string): string | null {
+  const text = extractSectionText(md, "Requirements and restrictions");
+  return text || null;
+}
+
+// "What skills are required?" - real per-role skills, distinct from the
+// generic hardcoded skills list used on RoleGeneric.tsx pages.
+function parseSkills(md: string): string[] {
+  const section = md.match(/##+ What skills are required\??[\s\S]*?(?=##+ |$)/i)?.[0] ?? "";
+  if (!section) return [];
+  const body = section.replace(/^##+ [^\n]+\n?/, "");
+  const bullets = body.match(/[-*•]\s+([^\n]+)/g);
+  if (bullets && bullets.length > 0) {
+    return bullets.map((b) => stripMarkdown(b.replace(/^[-*•]\s+/, ""))).filter((s) => s.length > 2 && s.length < 150).slice(0, 8);
+  }
+  // Fall back to splitting a prose sentence on semicolons (as seen in practice)
+  const prose = stripMarkdown(body);
+  if (!prose) return [];
+  return prose.split(/;\s*/).map((s) => s.trim()).filter((s) => s.length > 2 && s.length < 150).slice(0, 8);
+}
+
+// "## Professional and industry bodies" - real named bodies (e.g. "Chartered
+// Institute of Plumbing and Heating Engineering") - low priority but cheap to
+// capture with the same pattern.
+function parseProfessionalBodies(md: string): string[] {
+  const section = md.match(/##+ Professional and industry bodies[\s\S]*?(?=##+ |$)/i)?.[0] ?? "";
+  if (!section) return [];
+  const body = section.replace(/^##+ [^\n]+\n?/, "");
+  // Bodies are usually markdown links: "[Name](url)"
+  const linkMatches = [...body.matchAll(/\[([^\]]+)\]\([^)]+\)/g)].map((m) => m[1].trim());
+  if (linkMatches.length > 0) return [...new Set(linkMatches)].slice(0, 6);
+  const bullets = body.match(/[-*•]\s+([^\n]+)/g) ?? [];
+  return bullets.map((b) => stripMarkdown(b.replace(/^[-*•]\s+/, ""))).filter((s) => s.length > 2 && s.length < 100).slice(0, 6);
+}
+
 // ── Main scrape ───────────────────────────────────────────────────────────────
 interface ScrapeResult {
   slug: string;
@@ -380,6 +450,10 @@ async function scrapeSlug(
   const cpRelatedRoles = parseRelatedRoles(md);
   const cpWorkEnvironment = parseWorkEnvironment(md);
   const cpGrowth = parseGrowthOutlook(md);
+  const cpDescription = parseDescription(md);
+  const cpRequirements = parseRequirements(md);
+  const cpSkills = parseSkills(md);
+  const cpProfessionalBodies = parseProfessionalBodies(md);
 
   const row = {
     slug,
@@ -391,6 +465,10 @@ async function scrapeSlug(
     cp_related_roles: cpRelatedRoles.length > 0 ? cpRelatedRoles : null,
     cp_work_environment: cpWorkEnvironment || null,
     cp_growth: cpGrowth,
+    cp_description: cpDescription,
+    cp_requirements: cpRequirements,
+    cp_skills: cpSkills.length > 0 ? cpSkills : null,
+    cp_professional_bodies: cpProfessionalBodies.length > 0 ? cpProfessionalBodies : null,
     cp_fetched_at: new Date().toISOString(),
   };
 
@@ -403,7 +481,7 @@ async function scrapeSlug(
     return { slug, ok: false, reason: error.message };
   }
 
-  console.log(`✓ ${slug}: salary=${cpSalaryMin}–${cpSalaryMax}, routes=${cpEntryRoutes.length}, progression=${cpCareerProgression.length}`);
+  console.log(`✓ ${slug}: salary=${cpSalaryMin}–${cpSalaryMax}, routes=${cpEntryRoutes.length}, progression=${cpCareerProgression.length}, description=${cpDescription ? "y" : "n"}, requirements=${cpRequirements ? "y" : "n"}, skills=${cpSkills.length}`);
   return { slug, ok: true };
 }
 

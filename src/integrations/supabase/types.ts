@@ -1526,12 +1526,16 @@ export type Database = {
       role_metadata: {
         Row: {
           cp_career_progression: Json | null
+          cp_description: string | null
           cp_entry_routes: Json | null
           cp_fetched_at: string | null
           cp_growth: string | null
+          cp_professional_bodies: Json | null
           cp_related_roles: Json | null
+          cp_requirements: string | null
           cp_salary_max: number | null
           cp_salary_min: number | null
+          cp_skills: Json | null
           cp_url: string | null
           cp_work_environment: string | null
           fetched_at: string | null
@@ -1550,12 +1554,16 @@ export type Database = {
         }
         Insert: {
           cp_career_progression?: Json | null
+          cp_description?: string | null
           cp_entry_routes?: Json | null
           cp_fetched_at?: string | null
           cp_growth?: string | null
+          cp_professional_bodies?: Json | null
           cp_related_roles?: Json | null
+          cp_requirements?: string | null
           cp_salary_max?: number | null
           cp_salary_min?: number | null
+          cp_skills?: Json | null
           cp_url?: string | null
           cp_work_environment?: string | null
           fetched_at?: string | null
@@ -1574,12 +1582,16 @@ export type Database = {
         }
         Update: {
           cp_career_progression?: Json | null
+          cp_description?: string | null
           cp_entry_routes?: Json | null
           cp_fetched_at?: string | null
           cp_growth?: string | null
+          cp_professional_bodies?: Json | null
           cp_related_roles?: Json | null
+          cp_requirements?: string | null
           cp_salary_max?: number | null
           cp_salary_min?: number | null
+          cp_skills?: Json | null
           cp_url?: string | null
           cp_work_environment?: string | null
           fetched_at?: string | null

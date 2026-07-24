@@ -3,11 +3,46 @@
 
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { TrendingUp, ArrowRight, AlertCircle, BookOpen, CheckCircle2, Loader2 } from "lucide-react";
+import { TrendingUp, ArrowRight, AlertCircle, BookOpen, CheckCircle2, Loader2, ExternalLink } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSkillGap, type SkillWithGap } from "@/hooks/useSkillGap";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
+import { buildOnlineProviders } from "@/data/online-providers";
+
+// ── Real online course providers (Reed, Coursera, etc.) ──────────────────────
+function roleTitleFromSlug(slug: string): string {
+  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function OnlineCourseLinks({ slug }: { slug: string }) {
+  const providers = buildOnlineProviders(roleTitleFromSlug(slug)).slice(0, 3);
+  return (
+    <div className="pt-3 border-t border-border/40">
+      <p className="font-display font-800 text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
+        Real online courses
+      </p>
+      <div className="space-y-1.5">
+        {providers.map((p) => (
+          <a
+            key={p.name}
+            href={p.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2.5 p-2 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-background transition-colors group"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-primary shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">{p.name}</p>
+              <p className="font-body text-[10px] text-muted-foreground">{p.note}</p>
+            </div>
+            <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // ── Skills Pathway — AI course generator ─────────────────────────────────────
 type CourseStatus = { id: string; status: string; course_title: string; passed: boolean | null } | null;
@@ -198,6 +233,8 @@ function RoleGapCard({ slug, isActiveRole }: { slug: string; isActiveRole?: bool
               Update ratings <ArrowRight className="w-3 h-3" />
             </Link>
           </div>
+
+          <OnlineCourseLinks slug={slug} />
 
           {user && <SkillsPathway slug={slug} userId={user.id} />}
         </div>
