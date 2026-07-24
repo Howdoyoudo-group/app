@@ -41,7 +41,7 @@ export async function buildTargetRolesContext(svcClient: any, userId: string): P
       .order("set_at", { ascending: false }),
     svcClient
       .from("profiles")
-      .select("job_preferences, understand_me_results, riasec_scores, work_values")
+      .select("job_preferences, understand_me_results, riasec_scores, work_values, career_level")
       .eq("id", userId)
       .maybeSingle(),
   ]);
@@ -53,6 +53,15 @@ export async function buildTargetRolesContext(svcClient: any, userId: string): P
   const workHistory: any[] = Array.isArray(jobPrefs?.profileBuilder?.things) ? jobPrefs.profileBuilder.things : [];
   const experienceEntries = workHistory.length;
   const understandMe: any = profile?.understand_me_results || null;
+  const education: any[] = Array.isArray(jobPrefs?.profileBuilder?.education) ? jobPrefs.profileBuilder.education : [];
+  const qualifications: any[] = Array.isArray(jobPrefs?.profileBuilder?.qualifications) ? jobPrefs.profileBuilder.qualifications : [];
+  const standoutHistory = workHistory.filter((w: any) => ["Internship", "Volunteering", "Award"].includes(w?.kind));
+
+  // Real career level - user-set takes priority, else what Understand Me
+  // inferred from their CV. Used to stop Howdy telling someone senior that
+  // a rock-bottom self-rated % means they lack real capability.
+  const careerLevel: string | null = (profile as any)?.career_level || understandMe?.careerLevel || null;
+  const seniorish = ["senior", "director", "executive"].includes((careerLevel || "").toLowerCase());
 
   const [{ data: badgeRows }, { data: allPlanTasks }] = await Promise.all([
     svcClient.from("earned_badges").select("industry").eq("user_id", userId),
@@ -80,8 +89,19 @@ export async function buildTargetRolesContext(svcClient: any, userId: string): P
     roleParts.push(
       courseRow
         ? `Accreditation course: ${(courseRow as any).status}`
-        : "No accreditation course started yet - Howdy can suggest starting one via /skills-passport?tab=gaps."
+        : "No accreditation course started yet - this is a self-check practice course, not a real qualification. For a real, portable credential, point them at /skills-passport?tab=passport&role=" + slug + " (real external providers - Reed, Coursera, FutureLearn, etc.)."
     );
+
+    // Structured signal, not just narrative: a rock-bottom self-rated %
+    // next to real senior-level/employment evidence is a contradiction
+    // Howdy must reconcile explicitly, not just recite the number.
+    if (overallReadiness < 25 && (seniorish || workHistory.length >= 1)) {
+      roleParts.push(
+        `⚠ Mismatch: this ${overallReadiness}% reflects unrated skills, not real capability - ` +
+        `${seniorish ? `their career level is "${careerLevel}"` : `they have ${workHistory.length} real work/experience entr${workHistory.length === 1 ? "y" : "ies"} logged`} ` +
+        `contradicts a verdict of "not ready". Name this directly, don't just repeat the %. Tell them which specific top-gap skills their real background likely already covers, and suggest rating those and marking them "evidenced".`
+      );
+    }
 
     const roleTasks = (allPlanTasks ?? []).filter((t: any) => t.role_slug === slug);
     const openTasks = roleTasks.filter((t: any) => t.status === "open");
@@ -107,6 +127,7 @@ export async function buildTargetRolesContext(svcClient: any, userId: string): P
   // work at X - that's real evidence for your interpersonal skills" instead
   // of generic "rate your skills" advice that ignores what it already knows.
   const evidenceParts: string[] = [];
+  if (careerLevel) evidenceParts.push(`Career level: ${careerLevel}`);
   if (workHistory.length) {
     const entries = workHistory.slice(0, 6).map((w: any) => {
       const bits = [w.title, w.company ? `at ${w.company}` : null, w.when ? `(${w.when})` : null].filter(Boolean).join(" ");
@@ -114,14 +135,25 @@ export async function buildTargetRolesContext(svcClient: any, userId: string): P
     }).filter(Boolean);
     if (entries.length) evidenceParts.push(`Logged work/experience history:\n- ${entries.join("\n- ")}`);
   }
+  if (standoutHistory.length) {
+    const entries = standoutHistory.map((w: any) => `${w.kind}: ${[w.title, w.company ? `at ${w.company}` : null].filter(Boolean).join(" ")}`);
+    evidenceParts.push(`Standout evidence (volunteering/internships/awards logged):\n- ${entries.join("\n- ")}`);
+  }
+  evidenceParts.push(
+    education.length
+      ? `Qualifications/education logged: ${education.map((e: any) => e.qualification).filter(Boolean).join(", ")}`
+      : "No qualifications/education logged yet on their profile."
+  );
+  evidenceParts.push(
+    qualifications.length
+      ? `Specialist certificates/diplomas/awards logged: ${qualifications.map((q: any) => q.name).filter(Boolean).join(", ")}`
+      : "No specialist certificates or diplomas logged yet."
+  );
   if (understandMe?.transferableSkills?.length) {
     evidenceParts.push(`Transferable skills identified from their CV (Understand Me): ${understandMe.transferableSkills.join(", ")}`);
   }
   if (understandMe?.personalityInsights) {
     evidenceParts.push(`Working style, from their CV analysis: ${understandMe.personalityInsights}`);
-  }
-  if (understandMe?.careerLevel) {
-    evidenceParts.push(`Inferred career level from CV: ${understandMe.careerLevel}`);
   }
   if (jobPrefs?.passions?.length || jobPrefs?.passionsText) {
     evidenceParts.push(`Passions: ${[...(jobPrefs.passions ?? []), jobPrefs.passionsText].filter(Boolean).join(", ")}`);

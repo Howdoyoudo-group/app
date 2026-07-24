@@ -49,6 +49,9 @@ export function useCoachPlan(userId: string | null | undefined) {
   const [roleSlugs, setRoleSlugs] = useState<string[]>([]);
   const [cvUploaded, setCvUploaded] = useState(false);
   const [experienceEntries, setExperienceEntries] = useState(0);
+  const [educationCount, setEducationCount] = useState(0);
+  const [qualificationsCount, setQualificationsCount] = useState(0);
+  const [seniorish, setSeniorish] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [tasks, setTasks] = useState<CoachPlanTask[]>([]);
   const [gapByRole, setGapByRole] = useState<Record<string, Awaited<ReturnType<typeof fetchSkillGap>>>>({});
@@ -76,7 +79,7 @@ export function useCoachPlan(userId: string | null | undefined) {
     const load = async () => {
       const [{ data: targetRows }, { data: profile }] = await Promise.all([
         supabase.from("user_target_roles").select("role_slug").eq("user_id", userId).order("set_at", { ascending: false }),
-        supabase.from("profiles").select("job_preferences").eq("id", userId).maybeSingle(),
+        supabase.from("profiles").select("job_preferences, understand_me_results, career_level").eq("id", userId).maybeSingle(),
       ]);
       if (cancelled) return;
 
@@ -85,6 +88,10 @@ export function useCoachPlan(userId: string | null | undefined) {
       const jp: any = profile?.job_preferences || {};
       setCvUploaded(Boolean(jp?.understandMe?.cvFileName));
       setExperienceEntries(Array.isArray(jp?.profileBuilder?.things) ? jp.profileBuilder.things.length : 0);
+      setEducationCount(Array.isArray(jp?.profileBuilder?.education) ? jp.profileBuilder.education.length : 0);
+      setQualificationsCount(Array.isArray(jp?.profileBuilder?.qualifications) ? jp.profileBuilder.qualifications.length : 0);
+      const careerLevel: string = (profile as any)?.career_level || (profile as any)?.understand_me_results?.careerLevel || "";
+      setSeniorish(["senior", "director", "executive"].includes(careerLevel.toLowerCase()));
 
       await refetchTasks();
       if (!cancelled) setProfileLoaded(true);
@@ -163,7 +170,17 @@ export function useCoachPlan(userId: string | null | undefined) {
           });
         }
 
-        if (gap.overallReadiness < 50 && experienceEntries < 2) {
+        // Readiness is genuinely good and the basics (CV, most skills rated)
+        // are in place - the honest next step is to actually apply, not to
+        // keep rating skills or sit on a "stand out" tip forever.
+        const readyToApply = gap.overallReadiness >= 65 && cvUploaded && gap.ratedCount >= gap.totalCount * 0.8;
+
+        // A senior/executive career level is itself strong real-world
+        // evidence, regardless of how many work-history entries are logged
+        // or how low the self-rated % is - don't tell a CEO to go try
+        // volunteering because they haven't rated their skills yet. And
+        // never fire alongside "you're ready to apply" on the same card.
+        if (experienceEntries < 2 && !seniorish && !readyToApply) {
           allDeterministic.push({
             role_slug: slug,
             task_type: "build_experience",
@@ -173,20 +190,37 @@ export function useCoachPlan(userId: string | null | undefined) {
           });
         }
 
+        if (educationCount === 0) {
+          allDeterministic.push({
+            role_slug: slug,
+            task_type: "log_qualifications",
+            title: "Add your qualifications to your profile",
+            detail: "GCSEs, A-levels, degree - whatever you've got. Howdy can only factor in what's actually logged.",
+            link: "/my-profile",
+          });
+        }
+
         if (gap.overallReadiness < 50 && !hasCourse) {
           allDeterministic.push({
             role_slug: slug,
             task_type: "take_course",
-            title: `Start your ${roleTitle} accreditation course`,
-            detail: "A short AI-guided course targeted at your specific gaps.",
+            title: `Practise with your ${roleTitle} self-check course`,
+            detail: "A short AI-guided practice course targeted at your specific gaps - useful for building confidence, not a substitute for a real qualification.",
             link: `/skills-passport?tab=gaps&role=${slug}`,
           });
         }
 
-        // Readiness is genuinely good and the basics (CV, most skills rated)
-        // are in place - the honest next step is to actually apply, not to
-        // keep rating skills or sit on a "stand out" tip forever.
-        if (gap.overallReadiness >= 65 && cvUploaded && gap.ratedCount >= gap.totalCount * 0.8) {
+        if (gap.overallReadiness < 50 && qualificationsCount === 0) {
+          allDeterministic.push({
+            role_slug: slug,
+            task_type: "external_qualification",
+            title: "Build a real, portable qualification",
+            detail: "Reed, Coursera, FutureLearn and others have accredited courses employers actually recognise.",
+            link: `/skills-passport?tab=passport&role=${slug}`,
+          });
+        }
+
+        if (readyToApply) {
           allDeterministic.push({
             role_slug: slug,
             task_type: "apply_now",
@@ -216,7 +250,7 @@ export function useCoachPlan(userId: string | null | undefined) {
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, gapsLoaded, roleSlugs, gapByRole, hasCourseByRole, cvUploaded, experienceEntries]);
+  }, [userId, gapsLoaded, roleSlugs, gapByRole, hasCourseByRole, cvUploaded, experienceEntries, educationCount, qualificationsCount, seniorish]);
 
   const completeTask = useCallback(async (taskId: string) => {
     setTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, status: "done", completed_at: new Date().toISOString() } : t));

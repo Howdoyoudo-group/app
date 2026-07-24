@@ -13,6 +13,8 @@ const TASK_ICON: Record<string, string> = {
   upload_cv: "📄",
   build_experience: "🤝",
   take_course: "🎓",
+  log_qualifications: "📜",
+  external_qualification: "🌐",
   apply_now: "🚀",
   stand_out: "✨",
   custom: "💬",
