@@ -345,10 +345,19 @@ const DISCOVER: DropdownItem[] = [
   { label: "Roles", to: "/roles", description: "By job, not just by title" },
   { label: "Side Hustles", to: "/side-hustles", description: "Turn what you love into income" },
   { label: "Start a Business", to: "/starting-a-business", description: "Your own thing" },
-  { label: "Match Me", to: "/match-me", description: "See where you could go", badge: "New" },
 ];
 
 const LEVEL_UP_GROUPS: NavGroup[] = [
+  {
+    label: "About You",
+    items: [
+      { label: "Your Matches", to: "/match-me", description: "Your personality, CV and where it could take you" },
+      { label: "What We Know", to: "/match-me/what-we-know", description: "Your traits, values and passions" },
+      { label: "Suggested Roles", to: "/match-me/suggested-roles", description: "Roles matched to who you are" },
+      { label: "Suggested Industries", to: "/match-me/suggested-industries", description: "Industries that fit your profile" },
+      { label: "Worlds Collide", to: "/match-me/worlds-collide", description: "Unexpected combinations worth exploring" },
+    ],
+  },
   {
     label: "Skills",
     items: [
