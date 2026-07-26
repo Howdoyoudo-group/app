@@ -1501,7 +1501,12 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     // 3k chunk made the first 1,000-row response look like the final page,
     // which is why the visible list deduped down to ~930 jobs.
     const isCompanyScoped = !!companyFilter;
-    const shouldPaginate = (industry !== 'All' && !isCategoryTab) || isCompanyScoped;
+    // A specific Type of role (e.g. Apprenticeship, 248 rows) narrows the DB
+    // query just as much as an industry pick does - without paginating past
+    // the default 80-row single page, only the newest/highest-confidence 80
+    // ever got fetched, then deduping trimmed that further (e.g. 248 real
+    // apprenticeships showing as only 71).
+    const shouldPaginate = (industry !== 'All' && !isCategoryTab) || isCompanyScoped || jobType !== 'All';
     const HARD_CAP = shouldPaginate ? 9000 : 1000;
     const CHUNK = shouldPaginate
       ? 1000
