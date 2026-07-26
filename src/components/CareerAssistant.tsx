@@ -196,6 +196,56 @@ const CareerAssistant = () => {
     }
   }, [open, user]);
 
+  // Proactive nudge: when a signed-in candidate with ≥1 target role opens
+  // the chat for the first time this session, volunteer Howdy's real
+  // verdict instead of the generic welcome card - mirrors the tour's
+  // proactive style rather than waiting to be asked.
+  useEffect(() => {
+    if (!open || !user || mode !== "candidate") return;
+    if (sessionStorage.getItem("howdy_proactive_shown")) return;
+    const onlyWelcome = messages.length === 1 && messages[0].content === WELCOME_CANDIDATE;
+    if (!onlyWelcome) return;
+    sessionStorage.setItem("howdy_proactive_shown", "1");
+    let cancelled = false;
+    (async () => {
+      const { count } = await supabase
+        .from("user_target_roles")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id);
+      if (cancelled || !count) return;
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      if (!accessToken) return;
+      try {
+        const resp = await fetch(CHAT_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            mode: "candidate",
+            planNarrative: true,
+            messages: [{ role: "user", content: "What's my plan?" }],
+          }),
+        });
+        if (!resp.ok || cancelled) return;
+        const data = await resp.json();
+        if (data?.narrative) {
+          setMessages((prev) => {
+            const onlyWelcomeNow = prev.length === 1 && prev[0].content === WELCOME_CANDIDATE;
+            if (!onlyWelcomeNow) return prev;
+            return [{ role: "assistant", content: data.narrative }];
+          });
+        }
+      } catch {
+        // Silent fail - the static welcome card stays as-is.
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, user, mode, messages]);
+
   // Check tour completion status
   useEffect(() => {
     let cancelled = false;

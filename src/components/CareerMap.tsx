@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, PoundSterling, Briefcase, Target, Check, ArrowUpRight, Loader2, Star } from "lucide-react";
-import { resolveCareerMapRoleSlug } from "@/data/career-map-role-resolver";
+import { ChevronRight, PoundSterling, Briefcase, Target, Check, ArrowUpRight, ExternalLink, Loader2, Star } from "lucide-react";
+import { resolveCareerMapRoleSlug, resolveNcsCatalogMatch, type NcsCatalogEntry, type NcsMatch } from "@/data/career-map-role-resolver";
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { LucideIcon } from "lucide-react";
@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { trackInteraction } from "@/hooks/useTrackInteraction";
 import { getStageImage } from "@/data/career-stage-images";
+import { useTargetRoles } from "@/hooks/useTargetRoles";
 
 export interface RoleDetail {
   name: string;
@@ -44,6 +45,27 @@ const deriveLevel = (salary: string): string => {
 const LEVEL_FILTERS = ["All", "Entry level", "Mid level", "Senior"] as const;
 type LevelFilter = (typeof LEVEL_FILTERS)[number];
 
+// Lightweight {ncs_slug, title, ncs_sector} index for all ~733 NCS job
+// profiles - cached at module level so navigating between industry pages
+// doesn't refetch it every time. Heavy content columns (tasks, skills etc.)
+// are fetched per-tile, lazily, only on "More" expand.
+let ncsCatalogCache: NcsCatalogEntry[] | null = null;
+let ncsCatalogPromise: Promise<NcsCatalogEntry[]> | null = null;
+const loadNcsCatalogIndex = async (): Promise<NcsCatalogEntry[]> => {
+  if (ncsCatalogCache) return ncsCatalogCache;
+  if (!ncsCatalogPromise) {
+    ncsCatalogPromise = (async () => {
+      const { data } = await supabase
+        .from("ncs_role_catalog")
+        .select("ncs_slug, title, ncs_sector")
+        .eq("scrape_status", "ok");
+      ncsCatalogCache = (data ?? []) as NcsCatalogEntry[];
+      return ncsCatalogCache;
+    })();
+  }
+  return ncsCatalogPromise;
+};
+
 const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
   const { user } = useAuth();
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0);
@@ -51,10 +73,21 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
 
   const [jobCount, setJobCount] = useState<number | null>(null);
   const [targetRoles, setTargetRoles] = useState<string[]>([]);
-  const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
+  const { targetRoles: activeRoles, addTargetRole, removeTargetRole } = useTargetRoles(user?.id);
   const [savingRole, setSavingRole] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showSwipeHint, setShowSwipeHint] = useState(true);
+  const [ncsCatalog, setNcsCatalog] = useState<NcsCatalogEntry[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadNcsCatalogIndex().then((entries) => {
+      if (!cancelled) setNcsCatalog(entries);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,14 +110,13 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
     (async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("job_preferences, active_role_slug")
+        .select("job_preferences")
         .eq("id", user.id)
         .maybeSingle();
       const jp = (data?.job_preferences as Record<string, unknown>) || {};
       const saved = Array.isArray(jp.targetRoles) ? (jp.targetRoles as string[]) : [];
       if (!cancelled) {
         setTargetRoles(saved);
-        setActiveRoleSlug((data as any)?.active_role_slug ?? null);
       }
     })();
     return () => {
@@ -93,9 +125,9 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
   }, [user]);
 
   // "Save to Most Wanted" does double duty: it's the wishlist AND, when the
-  // role resolves to a real slug, it becomes Howdy's coaching focus - the
-  // most recently saved resolvable role wins, same "surface it at the top"
-  // mental model the wishlist already has for job-feed ranking.
+  // role resolves to a real slug, one of Howdy's coaching focuses - a user
+  // can have several roles active at once, and un-saving one here also stops
+  // Howdy coaching on it.
   const toggleTargetRole = async (roleName: string, roleSlug?: string | null) => {
     if (!user) {
       toast.error("Please log in to save roles to your Most Wanted", {
@@ -123,11 +155,6 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
       targetRoles: next,
     };
     const updates: Record<string, unknown> = { job_preferences: merged, updated_at: new Date().toISOString() };
-    const becomesActiveRole = !isSaved && roleSlug;
-    if (becomesActiveRole) {
-      updates.active_role_slug = roleSlug;
-      updates.active_role_set_at = new Date().toISOString();
-    }
     const { error } = await supabase
       .from("profiles")
       .update(updates as any)
@@ -138,7 +165,9 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
       return;
     }
     setTargetRoles(next);
-    if (becomesActiveRole) setActiveRoleSlug(roleSlug!);
+    const becomesActiveRole = !isSaved && roleSlug;
+    if (becomesActiveRole) await addTargetRole(roleSlug!);
+    else if (isSaved && roleSlug) await removeTargetRole(roleSlug);
     if (!isSaved) {
       trackInteraction({
         type: "save_role",
@@ -317,6 +346,7 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
                   const level = deriveLevel(role.salary);
                   const isSaved = targetRoles.includes(role.name);
                   const roleSlug = resolveCareerMapRoleSlug(role.name, industry);
+                  const ncsMatch = roleSlug === null ? resolveNcsCatalogMatch(role.name, ncsCatalog, industry) : null;
 
                   return (
                     <CareerMapRoleCard
@@ -327,9 +357,10 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
                       isSaved={isSaved}
                       savingRole={savingRole}
                       roleSlug={roleSlug}
+                      ncsMatch={ncsMatch}
                       industry={industry}
                       toggleTargetRole={toggleTargetRole}
-                      isActiveRole={roleSlug !== null && roleSlug === activeRoleSlug}
+                      isActiveRole={roleSlug !== null && activeRoles.some((r) => r.slug === roleSlug)}
                     />
                   );
                 })}
@@ -385,22 +416,59 @@ interface CareerMapRoleCardProps {
   isSaved: boolean;
   savingRole: string | null;
   roleSlug: string | null;
+  ncsMatch: NcsMatch | null;
   industry: string;
   toggleTargetRole: (name: string, roleSlug?: string | null) => void;
   isActiveRole: boolean;
 }
 
+interface NcsFacts {
+  tasks: string[] | null;
+  restrictions: string | null;
+}
+
+const stripBullet = (s: string) => s.replace(/^\s*[-*]\s*/, "");
+
 const CareerMapRoleCard = ({
-  role, ri, level, isSaved, savingRole, roleSlug, industry, toggleTargetRole, isActiveRole,
+  role, ri, level, isSaved, savingRole, roleSlug, ncsMatch, industry, toggleTargetRole, isActiveRole,
 }: CareerMapRoleCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [longDesc, setLongDesc] = useState<string | null>(null);
+  const [ncsFacts, setNcsFacts] = useState<NcsFacts | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleMore = async () => {
     if (expanded) { setExpanded(false); return; }
     setExpanded(true);
+
+    // Real NCS facts take priority over the AI-improvised blurb whenever
+    // we have a catalog match - that's the actual fix for tiles that
+    // previously only ever showed an AI guess.
+    if (ncsMatch) {
+      if (ncsFacts || loading) return;
+      setLoading(true);
+      setError(null);
+      try {
+        const { data, error: err } = await supabase
+          .from("ncs_role_catalog")
+          .select("ncs_tasks, ncs_restrictions")
+          .eq("ncs_slug", ncsMatch.ncsSlug)
+          .maybeSingle();
+        if (err) throw err;
+        const tasks = (data?.ncs_tasks as string[] | null) ?? null;
+        setNcsFacts({
+          tasks: tasks && tasks.length > 0 ? tasks : null,
+          restrictions: (data?.ncs_restrictions as string | null) ?? null,
+        });
+      } catch {
+        setError("Couldn't load - try again.");
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+
     if (longDesc || loading) return;
     setLoading(true);
     setError(null);
@@ -418,6 +486,8 @@ const CareerMapRoleCard = ({
     }
   };
 
+  const hasNcsTasks = expanded && ncsMatch && ncsFacts?.tasks && ncsFacts.tasks.length > 0;
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -431,9 +501,25 @@ const CareerMapRoleCard = ({
           <h4 className="font-display font-700 text-base text-foreground mb-2 leading-tight">
             {role.name}
           </h4>
-          <p className={`text-muted-foreground font-body text-sm leading-relaxed mb-2 ${expanded ? "" : "line-clamp-3"}`}>
-            {expanded && longDesc ? longDesc : role.description}
-          </p>
+          {hasNcsTasks ? (
+            <div className="mb-2">
+              {ncsMatch!.confidence === "medium" && (
+                <p className="text-[10px] text-muted-foreground italic mb-1">Closest match: {ncsMatch!.title}</p>
+              )}
+              <ul className="text-muted-foreground font-body text-sm leading-relaxed space-y-1 list-disc list-inside">
+                {ncsFacts!.tasks!.slice(0, 4).map((t, i) => (
+                  <li key={i}>{stripBullet(t)}</li>
+                ))}
+              </ul>
+              {ncsFacts!.restrictions && (
+                <p className="text-[11px] text-amber-700 dark:text-amber-500 mt-2">You'll need to: {ncsFacts!.restrictions}</p>
+              )}
+            </div>
+          ) : (
+            <p className={`text-muted-foreground font-body text-sm leading-relaxed mb-2 ${expanded ? "" : "line-clamp-3"}`}>
+              {expanded && longDesc ? longDesc : role.description}
+            </p>
+          )}
           {expanded && loading && (
             <p className="flex items-center gap-1 text-[11px] text-muted-foreground mb-2">
               <Loader2 className="w-3 h-3 animate-spin" /> Loading more…
@@ -474,6 +560,22 @@ const CareerMapRoleCard = ({
                 <ArrowUpRight className="w-3 h-3" />
                 Explore this role
               </Link>
+            )}
+            {!roleSlug && ncsMatch && ncsMatch.confidence === "high" && (
+              <a
+                href={`https://nationalcareers.service.gov.uk/job-profiles/${ncsMatch.ncsSlug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackInteraction({
+                  type: "career_map_ncs_link",
+                  industry,
+                  metadata: { role_name: role.name, ncs_slug: ncsMatch.ncsSlug },
+                })}
+                className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 border border-border text-muted-foreground text-xs font-display font-700 uppercase tracking-wider hover:border-primary hover:text-primary transition-colors"
+              >
+                <ExternalLink className="w-3 h-3" />
+                View real job facts (GOV.UK)
+              </a>
             )}
             <button
               onClick={() => toggleTargetRole(role.name, roleSlug)}

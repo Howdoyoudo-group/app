@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, HeartHandshake, Star, Target, Check } from "lucide-react";
 import RoleLearnSection from "@/components/RoleLearnSection";
@@ -9,6 +9,7 @@ import SEO, { roleDesc, breadcrumbJsonLd } from "@/components/SEO";
 import ReorderListenSections from "@/components/ReorderListenSections";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useTargetRoles } from "@/hooks/useTargetRoles";
 
 import tabListen from "@/assets/tab-listen.png";
 import tabRead from "@/assets/tab-read.png";
@@ -65,30 +66,30 @@ const slugifyRoleName = (value: string) =>
 const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLayoutProps) => {
   const roleSlug = useMemo(() => slug ?? slugifyRoleName(name), [name, slug]);
   const { user } = useAuth();
-  const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
-  const [targetRoles, setTargetRoles] = useState<string[]>([]);
+  const { targetRoles: activeRoles, addTargetRole, removeTargetRole } = useTargetRoles(user?.id);
+  const [wishlist, setWishlist] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
-  const isSaved = targetRoles.includes(name);
+  const isSaved = wishlist.includes(name);
+  const isActiveRole = activeRoles.some((r) => r.slug === roleSlug);
 
   useEffect(() => {
     if (!user) return;
     supabase
       .from("profiles")
-      .select("active_role_slug, job_preferences")
+      .select("job_preferences")
       .eq("id", user.id)
       .maybeSingle()
       .then(({ data }) => {
-        setActiveRoleSlug((data as any)?.active_role_slug ?? null);
         const jp = (data?.job_preferences as Record<string, unknown>) || {};
-        setTargetRoles(Array.isArray(jp.targetRoles) ? (jp.targetRoles as string[]) : []);
+        setWishlist(Array.isArray(jp.targetRoles) ? (jp.targetRoles as string[]) : []);
       });
   }, [user]);
 
   // "Save to Most Wanted" does double duty here: it's the wishlist AND -
-  // since we always have a real slug on a role page - it becomes Howdy's
-  // coaching focus too. Same single action as the industry CareerMap tiles.
+  // since we always have a real slug on a role page - one of Howdy's
+  // coaching focuses too. Same single toggle as the industry CareerMap tiles.
   const saveToMostWanted = async () => {
-    if (!user || isSaved) return;
+    if (!user) return;
     setSaving(true);
     const { data: existing } = await supabase
       .from("profiles")
@@ -96,18 +97,23 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
       .eq("id", user.id)
       .maybeSingle();
     const jp = (existing?.job_preferences as Record<string, unknown>) || {};
-    const next = [...targetRoles, name];
-    await supabase
-      .from("profiles")
-      .update({
-        job_preferences: { ...jp, targetRoles: next },
-        active_role_slug: roleSlug,
-        active_role_set_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      } as any)
-      .eq("id", user.id);
-    setTargetRoles(next);
-    setActiveRoleSlug(roleSlug);
+    if (isSaved) {
+      const next = wishlist.filter((r) => r !== name);
+      await supabase
+        .from("profiles")
+        .update({ job_preferences: { ...jp, targetRoles: next }, updated_at: new Date().toISOString() } as any)
+        .eq("id", user.id);
+      setWishlist(next);
+      await removeTargetRole(roleSlug);
+    } else {
+      const next = [...wishlist, name];
+      await supabase
+        .from("profiles")
+        .update({ job_preferences: { ...jp, targetRoles: next }, updated_at: new Date().toISOString() } as any)
+        .eq("id", user.id);
+      setWishlist(next);
+      await addTargetRole(roleSlug);
+    }
     setSaving(false);
   };
 
@@ -225,15 +231,15 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
             ) : (
               <button
                 onClick={saveToMostWanted}
-                disabled={isSaved || saving}
+                disabled={saving}
                 className={`inline-flex items-center gap-2 px-4 py-2.5 border-2 text-xs font-display font-700 uppercase tracking-wider transition-colors ${
                   isSaved
                     ? "border-primary bg-primary/10 text-primary"
                     : "border-foreground hover:bg-foreground hover:text-background"
                 }`}
               >
-                {activeRoleSlug === roleSlug ? (
-                  <><Star className="w-3.5 h-3.5 fill-current" /> Your target role - Howdy's coaching you on this</>
+                {isActiveRole ? (
+                  <><Star className="w-3.5 h-3.5 fill-current" /> Howdy's coaching you on this - tap to remove</>
                 ) : isSaved ? (
                   <><Check className="w-3.5 h-3.5" /> Saved to Most Wanted</>
                 ) : (
@@ -297,17 +303,14 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
           </div>
         </motion.div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          >
-            {activeContent}
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {activeContent}
+        </motion.div>
       </div>
     </div>
   );

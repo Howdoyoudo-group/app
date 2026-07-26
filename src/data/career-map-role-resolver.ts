@@ -262,3 +262,159 @@ export const resolveCareerMapRoleSlug = (roleName: string, industry?: string): s
 
   return null;
 };
+
+// ─────────────────────────────────────────────────────────────────────────
+// NCS catalog matching - a SECOND, independent resolution tier for tiles
+// that don't have a roles.ts equivalent. Called only when
+// resolveCareerMapRoleSlug() above returns null. See
+// supabase/functions/scrape-ncs-catalog/index.ts for how the 733-profile
+// catalog itself is built; this only needs the lightweight
+// {ncs_slug, title, ncs_sector} index, fetched once by the caller.
+// ─────────────────────────────────────────────────────────────────────────
+
+export interface NcsCatalogEntry {
+  ncs_slug: string;
+  title: string;
+  ncs_sector: string | null;
+}
+
+export interface NcsMatch {
+  ncsSlug: string;
+  title: string;
+  confidence: "high" | "medium";
+}
+
+// NCS titles broad/generic enough that a fuzzy token-overlap match against
+// them is more likely to be wrong than right - only ever match these via
+// the exact-slugify tier, never via token overlap. Audited from the first
+// full-catalog scrape; extend this list if the full backfill surfaces more.
+const NCS_HARD_EXCLUSIONS = new Set([
+  "manager", "administrator", "assistant", "officer", "consultant",
+  "coordinator", "supervisor", "director", "advisor", "adviser",
+]);
+
+const STOPWORDS = new Set([
+  "a", "an", "the", "of", "and", "or", "for", "in", "to", "your",
+  "junior", "senior", "apprentice", "assistant", "trainee", "graduate",
+  "head", "lead", "chief", "deputy", "associate", "principal",
+]);
+
+const tokenize = (s: string): Set<string> =>
+  new Set(
+    s
+      .toLowerCase()
+      .replace(/\([^)]*\)/g, "")
+      .replace(/[^a-z0-9\s]/g, " ")
+      .split(/\s+/)
+      .filter((t) => t.length > 1 && !STOPWORDS.has(t))
+  );
+
+const jaccard = (a: Set<string>, b: Set<string>): number => {
+  if (a.size === 0 || b.size === 0) return 0;
+  let intersection = 0;
+  for (const t of a) if (b.has(t)) intersection++;
+  const union = a.size + b.size - intersection;
+  return union === 0 ? 0 : intersection / union;
+};
+
+const TOKEN_OVERLAP_THRESHOLD = 0.6;
+
+// Sparse, best-effort map from our industry slugs to NCS's 15 sector names
+// (see scrape-ncs-catalog's NCS_SECTORS). Only used to break ties among
+// otherwise-equal token-overlap candidates - never to accept a match that
+// token overlap alone wouldn't already support, and never populated for
+// industries with no plausible NCS sector (e.g. Football, Formula 1 -
+// NCS has no sport-specific sector, so those industries get no tie-break
+// help and simply fall back to "no match" on any tie, which is fine).
+const INDUSTRY_TO_NCS_SECTOR: Record<string, string[]> = {
+  building: ["construction-and-the-built-environment"],
+  fixing: ["construction-and-the-built-environment", "engineering-and-manufacturing"],
+  health: ["health-and-science", "care-services"],
+  wellness: ["health-and-science", "care-services"],
+  physiotherapy: ["health-and-science"],
+  psychotherapy: ["health-and-science", "care-services"],
+  teaching: ["education-and-early-years"],
+  beauty: ["hair-and-beauty"],
+  farming: ["agriculture-environment-and-animal-care"],
+  pets: ["agriculture-environment-and-animal-care"],
+  "horse-racing": ["agriculture-environment-and-animal-care"],
+  "it-technology": ["digital"],
+  gaming: ["digital", "creative-and-design"],
+  money: ["legal-finance-and-accounting"],
+  "estate-agency": ["legal-finance-and-accounting", "business-and-administration"],
+  charity: ["business-and-administration", "care-services"],
+  politics: ["business-and-administration"],
+  journalism: ["creative-and-design"],
+  cinema: ["creative-and-design"],
+  theatre: ["creative-and-design"],
+  music: ["creative-and-design"],
+  "interior-design": ["creative-and-design"],
+  fashion: ["creative-and-design"],
+  hospitality: ["catering-and-hospitality"],
+  "food-drink": ["catering-and-hospitality"],
+  coffee: ["catering-and-hospitality"],
+  beer: ["catering-and-hospitality"],
+  bakery: ["catering-and-hospitality"],
+  grocery: ["sales-marketing-and-procurement"],
+  travel: ["catering-and-hospitality", "transport-and-logistics"],
+  delivery: ["transport-and-logistics"],
+  cars: ["engineering-and-manufacturing", "transport-and-logistics"],
+  "formula-1": ["engineering-and-manufacturing"],
+};
+
+/**
+ * Resolves a Career Map role name to an NCS catalog entry when there's no
+ * roles.ts equivalent. Deliberately conservative: a wrong "high" or
+ * "medium" match sends someone to the wrong real job, which is worse than
+ * today's status quo (no link at all) - genuine ambiguity returns null
+ * rather than guessing.
+ */
+export const resolveNcsCatalogMatch = (
+  roleName: string,
+  catalog: NcsCatalogEntry[],
+  industry?: string,
+): NcsMatch | null => {
+  if (!roleName || catalog.length === 0) return null;
+
+  // 1. Exact slugify match against NCS's own slugs.
+  const direct = slugify(roleName);
+  const exact = catalog.find((c) => c.ncs_slug === direct);
+  if (exact) return { ncsSlug: exact.ncs_slug, title: exact.title, confidence: "high" };
+
+  // 2. Token-overlap fallback - collect every candidate clearing the bar,
+  // then use the sector map only to break a tie among them.
+  const nameTokens = tokenize(roleName);
+  if (nameTokens.size === 0) return null;
+
+  let bestScore = 0;
+  let winners: NcsCatalogEntry[] = [];
+
+  for (const entry of catalog) {
+    if (NCS_HARD_EXCLUSIONS.has(entry.ncs_slug)) continue;
+    const score = jaccard(nameTokens, tokenize(entry.title));
+    if (score < TOKEN_OVERLAP_THRESHOLD) continue;
+    if (score > bestScore) {
+      bestScore = score;
+      winners = [entry];
+    } else if (score === bestScore) {
+      winners.push(entry);
+    }
+  }
+
+  if (winners.length === 0) return null;
+  if (winners.length === 1) {
+    return { ncsSlug: winners[0].ncs_slug, title: winners[0].title, confidence: "medium" };
+  }
+
+  // Tie: only resolve it if the industry has a known plausible sector AND
+  // exactly one tied candidate is tagged to it - otherwise stay ambiguous.
+  const plausibleSectors = industry ? INDUSTRY_TO_NCS_SECTOR[industry] : undefined;
+  if (plausibleSectors) {
+    const sectorMatches = winners.filter((w) => w.ncs_sector && plausibleSectors.includes(w.ncs_sector));
+    if (sectorMatches.length === 1) {
+      return { ncsSlug: sectorMatches[0].ncs_slug, title: sectorMatches[0].title, confidence: "medium" };
+    }
+  }
+
+  return null;
+};

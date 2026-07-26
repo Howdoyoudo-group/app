@@ -15,6 +15,12 @@ project_id = "wgistckxxbfpsuulbswr"
     verify_jwt = false
   [functions.scrape-jobs]
     verify_jwt = false
+  [functions.scrape-ncs-roles]
+    verify_jwt = false
+  [functions.scrape-careerpilot]
+    verify_jwt = false
+  [functions.scrape-dwp-jobs]
+    verify_jwt = false
   [functions.send-daily-digest]
     verify_jwt = false
   [functions.send-welcome-email]
@@ -42,6 +48,8 @@ project_id = "wgistckxxbfpsuulbswr"
   [functions.scrape-ats-jobs]
     verify_jwt = false
   [functions.scrape-generic-boards]
+    verify_jwt = false
+  [functions.scrape-ncs-catalog]
     verify_jwt = false
   [functions.whatsapp-inbound]
     verify_jwt = false

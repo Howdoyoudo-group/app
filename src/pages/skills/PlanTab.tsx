@@ -1,6 +1,6 @@
 // PlanTab — "The Plan": the new centre of Level Up. Howdy's honest opening
-// take on the user's active target role, followed by their Coach Plan
-// checklist, followed by a CTA to keep going with Howdy directly.
+// take on the user's target role(s), followed by their Coach Plan
+// checklist(s), followed by a CTA to keep going with Howdy directly.
 
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";

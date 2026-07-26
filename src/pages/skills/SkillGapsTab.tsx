@@ -3,11 +3,46 @@
 
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { TrendingUp, ArrowRight, AlertCircle, BookOpen, CheckCircle2, Loader2 } from "lucide-react";
+import { TrendingUp, ArrowRight, AlertCircle, BookOpen, CheckCircle2, Loader2, ExternalLink } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSkillGap, type SkillWithGap } from "@/hooks/useSkillGap";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
+import { buildOnlineProviders } from "@/data/online-providers";
+
+// ── Real online course providers (Reed, Coursera, etc.) ──────────────────────
+function roleTitleFromSlug(slug: string): string {
+  return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+function OnlineCourseLinks({ slug }: { slug: string }) {
+  const providers = buildOnlineProviders(roleTitleFromSlug(slug)).slice(0, 3);
+  return (
+    <div className="pt-3 border-t border-border/40">
+      <p className="font-display font-800 text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
+        Real online courses
+      </p>
+      <div className="space-y-1.5">
+        {providers.map((p) => (
+          <a
+            key={p.name}
+            href={p.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2.5 p-2 border border-border/60 rounded-lg hover:border-primary/50 hover:bg-background transition-colors group"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-primary shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">{p.name}</p>
+              <p className="font-body text-[10px] text-muted-foreground">{p.note}</p>
+            </div>
+            <ExternalLink className="w-3 h-3 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 // ── Skills Pathway — AI course generator ─────────────────────────────────────
 type CourseStatus = { id: string; status: string; course_title: string; passed: boolean | null } | null;
@@ -199,6 +234,8 @@ function RoleGapCard({ slug, isActiveRole }: { slug: string; isActiveRole?: bool
             </Link>
           </div>
 
+          <OnlineCourseLinks slug={slug} />
+
           {user && <SkillsPathway slug={slug} userId={user.id} />}
         </div>
       )}
@@ -211,7 +248,7 @@ export default function SkillGapsTab() {
   const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const [ratedRoles, setRatedRoles] = useState<string[]>([]);
-  const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
+  const [activeRoleSlugs, setActiveRoleSlugs] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -223,13 +260,12 @@ export default function SkillGapsTab() {
       .select("skill_id")
       .eq("user_id", user.id)
       .then(async ({ data }) => {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("active_role_slug")
-          .eq("id", user.id)
-          .maybeSingle();
-        const active = (profile as any)?.active_role_slug ?? null;
-        setActiveRoleSlug(active);
+        const { data: targetRows } = await supabase
+          .from("user_target_roles")
+          .select("role_slug")
+          .eq("user_id", user.id);
+        const active = (targetRows ?? []).map((r) => r.role_slug);
+        setActiveRoleSlugs(active);
 
         if (!data || data.length === 0) { setLoading(false); return; }
         const skillIds = (data as any[]).map((r) => r.skill_id);
@@ -237,9 +273,11 @@ export default function SkillGapsTab() {
           .from("role_skills")
           .select("slug")
           .in("id", skillIds);
-        const unique = [...new Set((slugRows ?? []).map((r: any) => r.slug))].sort(
-          (a, b) => (a === active ? -1 : b === active ? 1 : a.localeCompare(b))
-        );
+        const unique = [...new Set((slugRows ?? []).map((r: any) => r.slug))].sort((a, b) => {
+          const aActive = active.includes(a), bActive = active.includes(b);
+          if (aActive !== bActive) return aActive ? -1 : 1;
+          return a.localeCompare(b);
+        });
         setRatedRoles(unique);
         setLoading(false);
       });
@@ -291,7 +329,7 @@ export default function SkillGapsTab() {
 
       <div className="space-y-3">
         {ratedRoles.map((slug) => (
-          <RoleGapCard key={slug} slug={slug} isActiveRole={slug === activeRoleSlug} />
+          <RoleGapCard key={slug} slug={slug} isActiveRole={activeRoleSlugs.includes(slug)} />
         ))}
       </div>
 

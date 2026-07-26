@@ -25,7 +25,7 @@ export default function MatchMe() {
 
   return (
     <>
-      <SEO title="Match Me | Howdoyoudo?" description="Discover the roles, industries and opportunities that match who you are." />
+      <SEO title="About You | Howdoyoudo?" description="Discover the roles, industries and opportunities that match who you are." />
       <main className="min-h-screen bg-background">
 
         {/* Hero */}

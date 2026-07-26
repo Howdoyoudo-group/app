@@ -14,6 +14,8 @@ import {
   ArrowRight,
   Briefcase,
   TrendingUp,
+  AlertTriangle,
+  Award,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -58,6 +60,10 @@ interface RoleMetadata {
   cp_related_roles: RelatedRole[] | null;
   cp_work_environment: string | null;
   cp_growth: string | null;
+  cp_description: string | null;
+  cp_requirements: string | null;
+  cp_skills: string[] | null;
+  cp_professional_bodies: string[] | null;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -193,6 +199,7 @@ export default function RoleNCSPanel({ slug }: { slug: string }) {
           "cp_url", "cp_salary_min", "cp_salary_max",
           "cp_entry_routes", "cp_career_progression",
           "cp_related_roles", "cp_work_environment", "cp_growth",
+          "cp_description", "cp_requirements", "cp_skills", "cp_professional_bodies",
         ].join(",")
       )
       .eq("slug", slug)
@@ -228,7 +235,7 @@ export default function RoleNCSPanel({ slug }: { slug: string }) {
   const hasProgression = (data.cp_career_progression?.length ?? 0) >= 3;
   const hasRelated = (data.cp_related_roles?.length ?? 0) > 0;
 
-  const hasAnything = showSalaryRange || showNcsSalary || hasHours || hasRoutes || hasProgression;
+  const hasAnything = showSalaryRange || showNcsSalary || hasHours || hasRoutes || hasProgression || data.cp_description || data.cp_requirements;
   if (!hasAnything) return null;
 
   return (
@@ -343,6 +350,46 @@ export default function RoleNCSPanel({ slug }: { slug: string }) {
             <Briefcase className="w-3 h-3 shrink-0" />
             {workEnv}
           </span>
+        </div>
+      )}
+
+      {/* ── Requirements & restrictions — always visible, not buried ──────── */}
+      {/* Mandatory qualification/registration data (e.g. Gas Safe Register,
+          ECS card) - shown prominently by default since this is the "can I
+          legally do this job" question, not a nice-to-have detail. */}
+      {data.cp_requirements && (
+        <div className="px-5 pb-4">
+          <div className="flex items-start gap-2.5 p-3 border border-amber-300 bg-amber-50 rounded-sm">
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-display font-800 text-xs uppercase tracking-wide text-amber-800 mb-0.5">
+                You'll need to
+              </p>
+              <p className="font-body text-xs text-amber-900 leading-relaxed">{data.cp_requirements}</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Note: cp_description/cp_skills are deliberately NOT rendered here -
+          RoleGeneric.tsx (and hand-rolled role pages) feed them straight into
+          RoleOverview's "Day-to-Day"/"Key Skills" sections instead, so the
+          same real data isn't shown twice on one page. */}
+
+      {/* ── Professional / industry bodies ────────────────────────────────── */}
+      {data.cp_professional_bodies && data.cp_professional_bodies.length > 0 && (
+        <div className="px-5 pb-4">
+          <p className="font-display font-700 text-xs uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+            <Award className="w-3.5 h-3.5" />
+            Professional bodies
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {data.cp_professional_bodies.map((b, i) => (
+              <span key={i} className="font-body text-[11px] px-2.5 py-1 bg-muted/50 border border-border rounded-full">
+                {b}
+              </span>
+            ))}
+          </div>
         </div>
       )}
 

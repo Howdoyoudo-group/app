@@ -11,6 +11,13 @@ const FROM_EMAIL = `hello@${SENDER_DOMAIN}`;
 const FROM_NAME = "Howdoyoudo";
 const SITE_URL = "https://www.howdoyoudo.co.uk";
 
+// Same brand assets as the monthly update newsletter (send-june-update) -
+// real logo + Howdy mascot, not the text-only faux-wordmark this email used
+// to draw with CSS borders.
+const OLD_ASSETS = "https://siqwclmzncubkrwabmvb.supabase.co/storage/v1/object/public/email-assets";
+const WORDMARK = `${OLD_ASSETS}/howdoyoudo-wordmark.png`;
+const HOWDY_AVATAR = `${OLD_ASSETS}/howdy-character.png`;
+
 interface ProfileRow {
   id: string;
   full_name: string | null;
@@ -50,7 +57,7 @@ function escape(value: string): string {
 }
 
 function pill(label: string): string {
-  return `<span style="display:inline-block;background:#f5f5f0;border:1.5px solid #1a1a1a;color:#1a1a1a;padding:4px 10px;font-size:12px;font-weight:700;margin:2px 4px 2px 0;letter-spacing:0.5px;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;">${escape(label)}</span>`;
+  return `<span class="chip">${escape(label)}</span>`;
 }
 
 function buildHtml(profile: ProfileRow, suggestedRoles: string[]): string {
@@ -69,105 +76,109 @@ function buildHtml(profile: ProfileRow, suggestedRoles: string[]): string {
   const passionsHtml = passions.length ? passions.map(pill).join("") : "";
 
   return `<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>You're all set, ${escape(firstName)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>You're all set, ${escape(firstName)}</title>
+<style>
+  body { margin:0; padding:0; background:#ffffff; font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color:#0a0a0a; }
+  .wrap { max-width:600px; margin:0 auto; padding:32px 24px 48px; }
+  h1, h2 { font-family: 'Dela Gothic One', Georgia, serif; font-weight:400; line-height:1.1; margin:0 0 10px; letter-spacing:-0.02em; }
+  h1 { font-size:32px; }
+  h2 { font-size:15px; }
+  p { font-size:15px; line-height:1.6; margin:0 0 12px; color:#1a1a1a; }
+  a { color:#0a0a0a; }
+  .accent { color:#00b800; }
+  .label { font-family:'Dela Gothic One',Georgia,serif; font-size:11px; letter-spacing:0.15em; text-transform:uppercase; color:#00b800; margin:0 0 10px; }
+  .cta { display:inline-block; background:#00E600; color:#0a0a0a; font-family:'Dela Gothic One',Georgia,serif; font-size:13px; font-weight:700; padding:12px 22px; text-decoration:none; border:2px solid #0a0a0a; letter-spacing:0.04em; margin:0 8px 8px 0; }
+  .cta-outline { background:#ffffff; }
+  .section { padding:24px 0; border-top:2px solid #0a0a0a; }
+  .section:first-of-type { border-top:none; }
+  .chip { display:inline-block; background:#0a0a0a; color:#ffffff; font-family:'Dela Gothic One',Georgia,serif; font-size:11px; padding:6px 12px; margin:3px 4px 3px 0; letter-spacing:0.05em; }
+  .highlight { background:#0a0a0a; border:2px solid #0a0a0a; padding:22px; }
+  .highlight h2, .highlight .label { color:#00E600; }
+  .highlight p, .highlight a { color:#ffffff; }
+  .meta { font-size:13px; color:#555; line-height:1.5; }
+  .footer { margin-top:32px; padding-top:20px; border-top:1px solid #eee; text-align:center; }
+  .footer a { color:#555; text-decoration:underline; }
+</style>
 </head>
-<body style="margin:0;padding:0;background-color:#f5f5f0;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f5f5f0;"><tr><td align="center" style="padding:32px 16px 40px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border:2px solid #1a1a1a;">
+<body>
+<div class="wrap">
 
-  <!-- Header — speech bubble logo -->
-  <tr><td style="background:#ffffff;padding:28px 32px 8px 32px;">
-    <table role="presentation" cellpadding="0" cellspacing="0" style="border:3px solid #0a0a0a;border-radius:20px;background:#ffffff;display:inline-table;">
-      <tr><td style="padding:18px 28px 16px;">
-        <p style="margin:0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:38px;font-weight:400;color:#0a0a0a;line-height:0.92;letter-spacing:-1px;">How do</p>
-        <p style="margin:0;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;font-size:38px;font-weight:400;color:#0a0a0a;line-height:0.92;letter-spacing:-1px;">you do<span style="color:#00e600;">?</span></p>
-      </td></tr>
-    </table>
-    <table role="presentation" cellpadding="0" cellspacing="0" style="margin-left:140px;">
-      <tr><td width="0" height="0" style="width:0;height:0;border-left:14px solid transparent;border-right:0px solid transparent;border-top:18px solid #0a0a0a;font-size:0;line-height:0;">&nbsp;</td></tr>
-    </table>
-  </td></tr>
+  <div style="text-align:center; margin-bottom:24px;">
+    <img src="${WORDMARK}" alt="Howdoyoudo" width="180" style="max-width:180px;height:auto;" />
+  </div>
 
-  <!-- Intro -->
-  <tr><td style="padding:36px 36px 8px 36px;">
-    <h2 style="margin:0 0 8px 0;font-size:28px;font-weight:800;color:#1a1a1a;line-height:1.1;font-family:'Arial Black',Impact,'Helvetica Neue',Arial,sans-serif;">You're all set, ${escape(firstName)}<span style="color:#00e600;">.</span></h2>
-    <p style="margin:0;font-size:12px;color:#00e600;text-transform:uppercase;letter-spacing:3px;font-family:'Trebuchet MS','Helvetica Neue',Arial,sans-serif;font-weight:700;">A quick snapshot of you</p>
-  </td></tr>
+  <img src="${HOWDY_AVATAR}" alt="Howdy" width="88" height="88" style="display:block;margin:0 auto 16px;max-width:88px;height:auto;border-radius:18px;" />
 
-  <tr><td style="padding:16px 36px 8px 36px;">
-    <p style="margin:0;font-size:15px;color:#333;line-height:1.7;">
-      Thanks for sharing what makes you tick. Here's what we've captured — you can edit any of it from your profile at any time.
-    </p>
-  </td></tr>
+  <div style="text-align:center;">
+    <h1>You're all set, ${escape(firstName)}<span class="accent">.</span></h1>
+    <p class="label" style="margin-bottom:20px;">A quick snapshot of you</p>
+  </div>
 
-  <tr><td style="padding:0 36px 0 36px;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:20px;background:#f5f5f0;border-left:4px solid #00e600;">
-    <h3 style="margin:0 0 10px 0;font-size:11px;color:#00e600;text-transform:uppercase;letter-spacing:2px;font-weight:700;">Industries you're tracking</h3>
-    <div style="line-height:1.8;">${industriesHtml}</div>
-    ${industries.length ? `<p style="margin:12px 0 0 0;font-size:13px;color:#666;">You'll get a daily morning briefing for these. UK weekdays.</p>` : ""}
-  </td></tr></table>
-  </td></tr>
+  <p>Thanks for sharing what makes you tick. Here's what we've captured — you can edit any of it from your profile at any time.</p>
 
-  <tr><td style="padding:24px 36px 0 36px;">
-    <h3 style="margin:0 0 10px 0;font-size:11px;color:#1a1a1a;text-transform:uppercase;letter-spacing:2px;font-weight:700;">Role preferences</h3>
-    <div style="line-height:1.8;">${rolesHtml}</div>
-  </td></tr>
+  <div class="section">
+    <p class="label">Industries you're tracking</p>
+    <div style="line-height:2;">${industriesHtml}</div>
+    ${industries.length ? `<p class="meta" style="margin-top:10px;">You'll get a daily morning briefing for these. UK weekdays.</p>` : ""}
+  </div>
+
+  <div class="section">
+    <p class="label" style="color:#0a0a0a;">Role preferences</p>
+    <div style="line-height:2;">${rolesHtml}</div>
+  </div>
 
   ${passions.length || passionsText ? `
-  <tr><td style="padding:24px 36px 0 36px;">
-    <h3 style="margin:0 0 10px 0;font-size:11px;color:#1a1a1a;text-transform:uppercase;letter-spacing:2px;font-weight:700;">What you love outside work</h3>
-    <div style="line-height:1.8;">${passionsHtml}</div>
-    ${passionsText ? `<p style="margin:12px 0 0 0;font-size:14px;color:#333;line-height:1.6;font-style:italic;">"${escape(passionsText)}"</p>` : ""}
-  </td></tr>
+  <div class="section">
+    <p class="label" style="color:#0a0a0a;">What you love outside work</p>
+    <div style="line-height:2;">${passionsHtml}</div>
+    ${passionsText ? `<p style="margin-top:10px;font-style:italic;color:#333;">"${escape(passionsText)}"</p>` : ""}
+  </div>
   ` : ""}
 
   ${riasec ? `
-  <tr><td style="padding:24px 36px 0 36px;">
-    <h3 style="margin:0 0 10px 0;font-size:11px;color:#1a1a1a;text-transform:uppercase;letter-spacing:2px;font-weight:700;">Your career personality</h3>
-    <p style="margin:0 0 4px 0;font-size:22px;color:#1a1a1a;font-weight:800;font-family:'Arial Black',Impact,Arial,sans-serif;">${escape(riasec.code)}</p>
-    <p style="margin:0;font-size:13px;color:#666;">Top dimension: ${escape(riasec.label)}</p>
-  </td></tr>
+  <div class="section">
+    <p class="label" style="color:#0a0a0a;">Your career personality</p>
+    <h2 style="font-size:26px;margin-bottom:4px;">${escape(riasec.code)}</h2>
+    <p class="meta">Top dimension: ${escape(riasec.label)}</p>
+  </div>
   ` : ""}
 
   ${suggestedRoles.length ? `
-  <tr><td style="padding:24px 36px 0 36px;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="padding:24px;background:#1a1a1a;">
-    <h3 style="margin:0 0 14px 0;font-size:11px;color:#00e600;text-transform:uppercase;letter-spacing:2px;font-weight:700;">Roles that may match you</h3>
-    ${suggestedRoles.map((r) => `<p style="margin:6px 0;font-size:15px;color:#ffffff;font-weight:bold;font-family:'Arial Black',Impact,Arial,sans-serif;">→ ${escape(r)}</p>`).join("")}
-    <p style="margin:18px 0 0 0;"><a href="${SITE_URL}/my-jobs" style="color:#00e600;font-size:13px;text-decoration:underline;text-transform:uppercase;letter-spacing:1.5px;font-weight:600;">See your matched jobs →</a></p>
-  </td></tr></table>
-  </td></tr>
+  <div class="section">
+    <div class="highlight">
+      <p class="label">Roles that may match you</p>
+      ${suggestedRoles.map((r) => `<p style="margin:6px 0;font-weight:700;">→ ${escape(r)}</p>`).join("")}
+      <p style="margin:16px 0 0;"><a href="${SITE_URL}/my-jobs" class="accent" style="text-decoration:underline;font-weight:700;">See your matched jobs →</a></p>
+    </div>
+  </div>
   ` : ""}
 
-  <tr><td style="padding:32px 36px 0 36px;">
-    <h3 style="margin:0 0 14px 0;font-size:11px;color:#00e600;text-transform:uppercase;letter-spacing:2px;font-weight:700;">3 ways to get the most from Howdoyoudo</h3>
-    <p style="margin:8px 0;font-size:14px;color:#333;line-height:1.7;">
-      <strong style="color:#1a1a1a;">1. Watch your inbox.</strong> Daily UK morning briefings for the industries you picked.
-    </p>
-    <p style="margin:8px 0;font-size:14px;color:#333;line-height:1.7;">
-      <strong style="color:#1a1a1a;">2. Check My Jobs.</strong> Personalised job inbox refreshed continually — based on your CV, RIASEC, and preferences.
-    </p>
-    <p style="margin:8px 0;font-size:14px;color:#333;line-height:1.7;">
-      <strong style="color:#1a1a1a;">3. Explore industries.</strong> Each page unpacks who's hiring, what's happening and how to break in.
-    </p>
-  </td></tr>
+  <div class="section">
+    <p class="label">3 ways to get the most from Howdoyoudo</p>
+    <p><strong>1. Watch your inbox.</strong> Daily UK morning briefings for the industries you picked.</p>
+    <p><strong>2. Check My Jobs.</strong> Personalised job inbox refreshed continually — based on your CV, RIASEC, and preferences.</p>
+    <p><strong>3. Explore industries.</strong> Each page unpacks who's hiring, what's happening and how to break in.</p>
+  </div>
 
-  <tr><td style="padding:28px 36px;">
-    <a href="${SITE_URL}/my-jobs" style="display:inline-block;background:#1a1a1a;color:#ffffff;text-decoration:none;padding:14px 28px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-right:8px;">Go to my jobs</a>
-    <a href="${SITE_URL}/my-profile" style="display:inline-block;background:#ffffff;color:#1a1a1a;text-decoration:none;padding:13px 26px;border:2px solid #1a1a1a;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;">Edit profile</a>
-  </td></tr>
+  <div class="section" style="text-align:center;">
+    <a href="${SITE_URL}/my-jobs" class="cta">Go to my jobs</a>
+    <a href="${SITE_URL}/my-profile" class="cta cta-outline">Edit profile</a>
+  </div>
 
-  <!-- Footer -->
-  <tr><td style="padding:24px 36px;background:#1a1a1a;border-top:2px solid #00e600;">
-    <p style="margin:0 0 6px 0;font-size:16px;color:#ffffff;font-family:'Dela Gothic One',Impact,'Arial Black',sans-serif;">howdoyoudo<span style="color:#00e600;">?</span></p>
-    <p style="margin:0;font-size:12px;color:#999;line-height:1.6;">
-      We're really glad you're here. Reply to this email anytime — a real person reads it.<br>
-      <a href="${SITE_URL}" style="color:#00e600;text-decoration:none;">www.howdoyoudo.co.uk</a>
+  <div class="footer">
+    <p style="font-family:'Dela Gothic One',Georgia,serif; font-size:16px; margin-bottom:6px;">howdoyoudo<span class="accent">?</span></p>
+    <p class="meta">
+      We're really glad you're here. Reply to this email anytime — a real person reads it.<br/>
+      <a href="${SITE_URL}">www.howdoyoudo.co.uk</a>
     </p>
-  </td></tr>
-
-</table></td></tr></table></body></html>`;
+  </div>
+</div>
+</body>
+</html>`;
 }
 
 function buildText(profile: ProfileRow, suggestedRoles: string[]): string {

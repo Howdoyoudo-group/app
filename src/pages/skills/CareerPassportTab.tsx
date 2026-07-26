@@ -154,15 +154,16 @@ export default function CareerPassportTab() {
   const gap = useSkillGap(selectedRole, user?.id);
 
   // Find roles the user has rated, and default selection priority:
-  // ?role= param -> active target role -> first-rated role.
+  // ?role= param -> most-recently-set target role -> first-rated role.
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data }, { data: profile }] = await Promise.all([
+      const [{ data }, { data: targetRows }] = await Promise.all([
         supabase.from("user_skill_ratings").select("skill_id").eq("user_id", user.id),
-        supabase.from("profiles").select("active_role_slug").eq("id", user.id).maybeSingle(),
+        supabase.from("user_target_roles").select("role_slug").eq("user_id", user.id).order("set_at", { ascending: false }),
       ]);
-      const activeSlug = (profile as any)?.active_role_slug ?? null;
+      const activeSlugs = (targetRows ?? []).map((r) => r.role_slug);
+      const mostRecentActive = activeSlugs[0] ?? null;
 
       let unique: string[] = [];
       if (data && data.length > 0) {
@@ -171,14 +172,16 @@ export default function CareerPassportTab() {
           .from("role_skills")
           .select("slug")
           .in("id", skillIds);
-        unique = [...new Set((slugRows ?? []).map((r: any) => r.slug))].sort(
-          (a, b) => (a === activeSlug ? -1 : b === activeSlug ? 1 : a.localeCompare(b))
-        );
+        unique = [...new Set((slugRows ?? []).map((r: any) => r.slug))].sort((a, b) => {
+          const aActive = activeSlugs.includes(a), bActive = activeSlugs.includes(b);
+          if (aActive !== bActive) return aActive ? -1 : 1;
+          return a.localeCompare(b);
+        });
       }
       setRatedRoles(unique);
 
       if (!selectedRole) {
-        const defaultRole = activeSlug ?? unique[0];
+        const defaultRole = mostRecentActive ?? unique[0];
         if (defaultRole) {
           setSelectedRole(defaultRole);
           setSearchParams((p) => { const n = new URLSearchParams(p); n.set("role", defaultRole); return n; });

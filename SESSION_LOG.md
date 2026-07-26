@@ -5,6 +5,30 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-23 — Andrew (main branch) — Howdy Career Coach Phase 2: multiple target roles, real voice context, proactive nudge
+
+### What was done
+Continuation of Phase 1 (same day, earlier commit `e0e5cf7`) after live user testing surfaced three real problems: only one target role could be active at a time; Howdy's voice mode had zero context (confirmed root cause: the ElevenLabs agent's own configured system prompt was just the placeholder text `"CAREERS ADVICE, OLDER SIBLING"`, completely disconnected from career-assistant's real context-building — voice and text were two different "Howdys"); and the site never proactively told users what to do, unlike the onboarding tour.
+
+- **Multi-role data model**: new `user_target_roles` table (user_id, role_slug, set_at, unique per user+role), backfilled from `profiles.active_role_slug`/`active_role_set_at` then those two columns dropped in the same migration. New `useTargetRoles` hook centralizes add/remove. "Save to Most Wanted" (role pages, CareerMap tiles, My Profile, Skills Assessment) now adds/removes from this list instead of overwriting a scalar — fixes a latent bug where un-saving a role left it as Howdy's stale coaching focus.
+- **Shared context extraction**: pulled `useSkillGap`'s fetch+calc logic into a plain function (`src/lib/skillGap.ts`) so `useCoachPlan` can compute a readiness/checklist per role via `Promise.all` across all target roles (`rolePlans[]`) without violating React's hook rules. Pulled career-assistant's candidate-context builder into `supabase/functions/_shared/coach-context.ts` (`buildTargetRolesContext`), now shared by both `career-assistant` (text chat) and `howdy-voice-token` (voice) so the two channels can never diverge again.
+- **Voice context fix**: `howdy-voice-token` now builds the same live readiness/gaps/checklist context plus a personalised opening line, and passes both to the ElevenLabs agent via its prompt/first-message override mechanism (`conversation.startSession({ overrides: {...} })` in `HowdyVoiceButton.tsx`). Confirmed via the ElevenLabs Agents API that overrides were disabled for this agent and enabled them via a one-time PATCH (agent config only, not exposed via dashboard access from this session).
+- **Proactive nudge**: opening the Howdy chat widget for a signed-in user with ≥1 target role now leads with a real Howdy verdict (reusing the existing `planNarrative` mode) instead of the static generic welcome card, once per browser session.
+- `CoachPlanPanel`/`PlanTab` updated to render one card per target role (stacked), with a condensed cross-role summary for the small chat-widget strip.
+
+### Current state
+- Live at: www.howdoyoudo.co.uk
+- Typecheck clean, both `career-assistant` and `howdy-voice-token` edge functions deployed
+- Verified in dev server (signed-out paths only — no login credentials available this session): role pages, Skills Passport, Learning Hub all render with no new console/network errors
+- **Not yet verified live/authenticated**: multi-role save/remove round-trip, voice's new opening line and context-aware replies, and the chat widget's proactive nudge — these need a real signed-in pass (ideally by Andrew or Woody) since this session has no test account
+
+### Left for next session / Woody
+- **Please test live, signed in**: set 2+ target roles from different role pages → confirm both show as separate cards on "Your Plan"; un-save one → confirm it disappears and Howdy stops mentioning it; open Howdy chat fresh → should lead with a real verdict, not the generic welcome card; try voice mode → opening line should name your actual target role(s), and follow-up questions about skills/gaps should use real data instead of "I don't have access to your profile."
+- The ElevenLabs agent's own prompt is still just the placeholder `"CAREERS ADVICE, OLDER SIBLING"` — that's fine now since the real context is injected per-conversation via the override, but worth knowing if anyone edits the agent directly in the ElevenLabs dashboard, the override will still take precedence at runtime.
+- Same longer-term items as before: gamification/streaks and reframing HDYD's own badge "accreditation" vs real industry-body accreditation remain explicitly deferred, not started.
+
+---
+
 ## ⚠️ 2026-07-22 (in progress) — Woody (main branch) — Database resource exhaustion, project mid-recovery
 
 **ANDREW — READ THIS BEFORE TOUCHING THE DATABASE OR MAKING SCHEMA/CRON CHANGES.**

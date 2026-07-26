@@ -13,8 +13,9 @@
 
 import adzunaSwirl from "@/assets/adzuna/adzuna-swirl.svg";
 import adzunaLogo from "@/assets/adzuna/adzuna-logo.png";
+import govukCrest from "@/assets/govuk/govuk-crest.svg";
 
-export type JobSource = "adzuna" | "reed" | "linkedin" | "jooble" | "cvlibrary";
+export type JobSource = "adzuna" | "reed" | "linkedin" | "jooble" | "cvlibrary" | "govuk";
 
 type Props = {
   source: JobSource;
@@ -28,6 +29,7 @@ const SOURCE_META: Record<JobSource, { name: string; href: string; color: string
   linkedin:  { name: "LinkedIn",   href: "https://www.linkedin.com/jobs/", color: "#0A66C2" },
   jooble:    { name: "Jooble",     href: "https://uk.jooble.org/",        color: "#2657EB" },
   cvlibrary: { name: "CV-Library", href: "https://www.cv-library.co.uk/", color: "#00A99D" },
+  govuk:     { name: "GOV.UK Work Hub", href: "https://www.jobs.service.gov.uk/", color: "#0B0C0C" },
 };
 
 export function detectJobSource(url: string | null | undefined): JobSource | null {
@@ -37,6 +39,7 @@ export function detectJobSource(url: string | null | undefined): JobSource | nul
   if (/linkedin\./i.test(url)) return "linkedin";
   if (/jooble\./i.test(url)) return "jooble";
   if (/cv-library\.co\.uk/i.test(url)) return "cvlibrary";
+  if (/jobs\.service\.gov\.uk/i.test(url)) return "govuk";
   return null;
 }
 
@@ -58,6 +61,32 @@ function Wordmark({ source, size = "sm" }: { source: JobSource; size?: "sm" | "m
         className={size === "md" ? "h-7 w-auto" : "h-5 w-auto"}
         loading="lazy"
       />
+    );
+  }
+
+  if (source === "govuk") {
+    return (
+      <span className="inline-flex items-center gap-1.5" aria-label="GOV.UK">
+        <img
+          src={govukCrest}
+          alt=""
+          aria-hidden="true"
+          className={size === "md" ? "h-5 w-auto" : "h-4 w-auto"}
+          loading="lazy"
+        />
+        <span
+          style={{
+            color: meta.color,
+            fontSize,
+            fontWeight: 900,
+            letterSpacing: "-0.02em",
+            fontFamily: "Arial, Helvetica, sans-serif",
+            lineHeight: 1,
+          }}
+        >
+          GOV.UK
+        </span>
+      </span>
     );
   }
 
@@ -162,7 +191,7 @@ export function SourceAttributionFooter({
   }
   if (present.size === 0) return null;
 
-  const order: JobSource[] = ["adzuna", "reed", "linkedin", "jooble", "cvlibrary"];
+  const order: JobSource[] = ["adzuna", "reed", "linkedin", "jooble", "cvlibrary", "govuk"];
   return (
     <div className={`flex flex-col items-start gap-1 ${className}`}>
       {order.filter((s) => present.has(s)).map((s) => (

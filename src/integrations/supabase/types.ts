@@ -1319,6 +1319,69 @@ export type Database = {
         }
         Relationships: []
       }
+      ncs_role_catalog: {
+        Row: {
+          fetched_at: string | null
+          ncs_entry_routes: Json | null
+          ncs_hours: string | null
+          ncs_qualifications: string | null
+          ncs_related_roles: Json | null
+          ncs_restrictions: string | null
+          ncs_salary_experienced: number | null
+          ncs_salary_starter: number | null
+          ncs_sector: string | null
+          ncs_skills: Json | null
+          ncs_slug: string
+          ncs_tasks: Json | null
+          ncs_url: string
+          ncs_video_url: string | null
+          ncs_work_pattern: string | null
+          scrape_error: string | null
+          scrape_status: string
+          title: string
+        }
+        Insert: {
+          fetched_at?: string | null
+          ncs_entry_routes?: Json | null
+          ncs_hours?: string | null
+          ncs_qualifications?: string | null
+          ncs_related_roles?: Json | null
+          ncs_restrictions?: string | null
+          ncs_salary_experienced?: number | null
+          ncs_salary_starter?: number | null
+          ncs_sector?: string | null
+          ncs_skills?: Json | null
+          ncs_slug: string
+          ncs_tasks?: Json | null
+          ncs_url: string
+          ncs_video_url?: string | null
+          ncs_work_pattern?: string | null
+          scrape_error?: string | null
+          scrape_status?: string
+          title: string
+        }
+        Update: {
+          fetched_at?: string | null
+          ncs_entry_routes?: Json | null
+          ncs_hours?: string | null
+          ncs_qualifications?: string | null
+          ncs_related_roles?: Json | null
+          ncs_restrictions?: string | null
+          ncs_salary_experienced?: number | null
+          ncs_salary_starter?: number | null
+          ncs_sector?: string | null
+          ncs_skills?: Json | null
+          ncs_slug?: string
+          ncs_tasks?: Json | null
+          ncs_url?: string
+          ncs_video_url?: string | null
+          ncs_work_pattern?: string | null
+          scrape_error?: string | null
+          scrape_status?: string
+          title?: string
+        }
+        Relationships: []
+      }
       pinned_industry_employers: {
         Row: {
           company_name: string
@@ -1400,8 +1463,6 @@ export type Database = {
       profiles: {
         Row: {
           accept_messages: boolean
-          active_role_set_at: string | null
-          active_role_slug: string | null
           career_level: string | null
           community_chat_agreed_at: string | null
           community_chat_joined: boolean
@@ -1443,8 +1504,6 @@ export type Database = {
         }
         Insert: {
           accept_messages?: boolean
-          active_role_set_at?: string | null
-          active_role_slug?: string | null
           career_level?: string | null
           community_chat_agreed_at?: string | null
           community_chat_joined?: boolean
@@ -1486,8 +1545,6 @@ export type Database = {
         }
         Update: {
           accept_messages?: boolean
-          active_role_set_at?: string | null
-          active_role_slug?: string | null
           career_level?: string | null
           community_chat_agreed_at?: string | null
           community_chat_joined?: boolean
@@ -1532,12 +1589,16 @@ export type Database = {
       role_metadata: {
         Row: {
           cp_career_progression: Json | null
+          cp_description: string | null
           cp_entry_routes: Json | null
           cp_fetched_at: string | null
           cp_growth: string | null
+          cp_professional_bodies: Json | null
           cp_related_roles: Json | null
+          cp_requirements: string | null
           cp_salary_max: number | null
           cp_salary_min: number | null
+          cp_skills: Json | null
           cp_url: string | null
           cp_work_environment: string | null
           fetched_at: string | null
@@ -1550,18 +1611,23 @@ export type Database = {
           ncs_skills: Json | null
           ncs_tasks: Json | null
           ncs_url: string | null
+          ncs_video_url: string | null
           ncs_work_pattern: string | null
           se_synced_at: string | null
           slug: string
         }
         Insert: {
           cp_career_progression?: Json | null
+          cp_description?: string | null
           cp_entry_routes?: Json | null
           cp_fetched_at?: string | null
           cp_growth?: string | null
+          cp_professional_bodies?: Json | null
           cp_related_roles?: Json | null
+          cp_requirements?: string | null
           cp_salary_max?: number | null
           cp_salary_min?: number | null
+          cp_skills?: Json | null
           cp_url?: string | null
           cp_work_environment?: string | null
           fetched_at?: string | null
@@ -1574,18 +1640,23 @@ export type Database = {
           ncs_skills?: Json | null
           ncs_tasks?: Json | null
           ncs_url?: string | null
+          ncs_video_url?: string | null
           ncs_work_pattern?: string | null
           se_synced_at?: string | null
           slug: string
         }
         Update: {
           cp_career_progression?: Json | null
+          cp_description?: string | null
           cp_entry_routes?: Json | null
           cp_fetched_at?: string | null
           cp_growth?: string | null
+          cp_professional_bodies?: Json | null
           cp_related_roles?: Json | null
+          cp_requirements?: string | null
           cp_salary_max?: number | null
           cp_salary_min?: number | null
+          cp_skills?: Json | null
           cp_url?: string | null
           cp_work_environment?: string | null
           fetched_at?: string | null
@@ -1598,6 +1669,7 @@ export type Database = {
           ncs_skills?: Json | null
           ncs_tasks?: Json | null
           ncs_url?: string | null
+          ncs_video_url?: string | null
           ncs_work_pattern?: string | null
           se_synced_at?: string | null
           slug?: string
@@ -2212,6 +2284,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_target_roles: {
+        Row: {
+          id: string
+          role_slug: string
+          set_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role_slug: string
+          set_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role_slug?: string
+          set_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       validate_cursor: {
         Row: {

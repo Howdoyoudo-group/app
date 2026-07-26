@@ -91,17 +91,29 @@ export function HowdyVoiceButton({ onTranscript }: Props) {
         toast({ variant: "destructive", title: "Voice unavailable", description: msg });
         return;
       }
+      // Only include overrides when the server actually returned one, so
+      // voice still degrades to the agent's default (contextless but
+      // working) behaviour if anything's missing, rather than failing to
+      // connect.
+      const promptOverride = (data as any)?.prompt_override as string | undefined;
+      const firstMessage = (data as any)?.first_message as string | undefined;
+      const overrides = promptOverride
+        ? { agent: { prompt: { prompt: promptOverride }, ...(firstMessage ? { firstMessage } : {}) } }
+        : undefined;
+
       // WebRTC path (livekit.rtc.elevenlabs.io/rtc/v1/validate) currently 404s
       // for this workspace — use WebSocket signed URL when available.
       if ((data as any)?.signed_url) {
         await conversation.startSession({
           signedUrl: (data as any).signed_url,
           connectionType: "websocket",
+          ...(overrides ? { overrides } : {}),
         });
       } else {
         await conversation.startSession({
           conversationToken: data.token,
           connectionType: "webrtc",
+          ...(overrides ? { overrides } : {}),
         });
       }
     } catch (e: any) {

@@ -8,6 +8,7 @@ import IndustryCVBuilder from "@/components/IndustryCVBuilder";
 import type { CareerStage } from "@/components/CareerMap";
 import CareerMap from "@/components/CareerMap";
 import RoleOverview from "@/components/RoleOverview";
+import OnlineLearningGrid from "@/components/OnlineLearningGrid";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Code, roles: [
@@ -120,6 +121,7 @@ const AI = () => {
             </a>
           ))}
         </div>
+        <OnlineLearningGrid roleName="AI" />
       </>
     ) },
     { id: "attend", label: "Attend", content: <EventsSection industry="AI" searchQuery="AI machine learning conference London UK" /> },

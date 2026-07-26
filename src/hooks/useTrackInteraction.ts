@@ -8,6 +8,7 @@ type InteractionType =
   | "job_click"
   | "help_apply"
   | "career_map_role_link"
+  | "career_map_ncs_link"
   | "save_company"
   | "save_role"
   | "save_industry"

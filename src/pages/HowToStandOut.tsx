@@ -179,7 +179,7 @@ export default function HowToStandOut() {
           >
             <h2 className="font-display font-900 text-2xl uppercase tracking-wide mb-2">Ready to get started?</h2>
             <p className="font-body text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-              Match Me shows you the roles and industries where everything you've built will make the most difference.
+              About You shows you the roles and industries where everything you've built will make the most difference.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-3">
               <Link

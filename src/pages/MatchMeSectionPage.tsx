@@ -167,7 +167,7 @@ export default function MatchMeSectionPage() {
 
           {/* Back link */}
           <Link to="/match-me" className="inline-flex items-center gap-1.5 font-display font-700 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors mb-8">
-            <ArrowLeft className="w-3.5 h-3.5" /> Match Me
+            <ArrowLeft className="w-3.5 h-3.5" /> About You
           </Link>
 
           {meta && (

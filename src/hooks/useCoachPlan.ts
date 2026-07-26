@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useSkillGap } from "@/hooks/useSkillGap";
+import { fetchSkillGap, type SkillWithGap } from "@/lib/skillGap";
 import { roles } from "@/data/roles";
 
 export interface CoachPlanTask {
@@ -16,6 +16,17 @@ export interface CoachPlanTask {
   completed_at: string | null;
 }
 
+export interface RolePlan {
+  role_slug: string;
+  role_title: string;
+  readiness: number;
+  ratedCount: number;
+  totalCount: number;
+  topGaps: SkillWithGap[];
+  openTasks: CoachPlanTask[];
+  doneTasks: CoachPlanTask[];
+}
+
 interface DeterministicTask {
   role_slug: string;
   task_type: string;
@@ -25,24 +36,27 @@ interface DeterministicTask {
 }
 
 /**
- * The Plan: a persisted, deterministic checklist of concrete next steps
- * toward the user's active target role, plus any bespoke tasks Howdy has
- * added mid-conversation. Deterministic tasks are generated from data that
- * already exists (skill ratings, CV presence, badges, courses) - no LLM
- * call needed - and are upserted without touching `status`, so a task the
- * user has already marked done/dismissed stays that way even if the
- * underlying condition still technically applies.
+ * The Plan: a persisted, deterministic checklist per target role, plus any
+ * bespoke tasks Howdy has added mid-conversation. A user can have several
+ * target roles at once - each gets its own readiness/gap calc and checklist.
+ * Deterministic tasks are generated from data that already exists (skill
+ * ratings, CV presence, badges, courses) - no LLM call needed - and are
+ * upserted without touching `status`, so a task the user has already marked
+ * done/dismissed stays that way even if the underlying condition still
+ * technically applies.
  */
 export function useCoachPlan(userId: string | null | undefined) {
-  const [activeRoleSlug, setActiveRoleSlug] = useState<string | null>(null);
-  const [activeRoleTitle, setActiveRoleTitle] = useState<string | null>(null);
+  const [roleSlugs, setRoleSlugs] = useState<string[]>([]);
   const [cvUploaded, setCvUploaded] = useState(false);
   const [experienceEntries, setExperienceEntries] = useState(0);
-  const [hasCourse, setHasCourse] = useState(false);
+  const [educationCount, setEducationCount] = useState(0);
+  const [qualificationsCount, setQualificationsCount] = useState(0);
+  const [seniorish, setSeniorish] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [tasks, setTasks] = useState<CoachPlanTask[]>([]);
-
-  const gap = useSkillGap(activeRoleSlug ?? "", userId);
+  const [gapByRole, setGapByRole] = useState<Record<string, Awaited<ReturnType<typeof fetchSkillGap>>>>({});
+  const [hasCourseByRole, setHasCourseByRole] = useState<Record<string, boolean>>({});
+  const [gapsLoaded, setGapsLoaded] = useState(false);
 
   const refetchTasks = useCallback(async () => {
     if (!userId) return;
@@ -54,117 +68,189 @@ export function useCoachPlan(userId: string | null | undefined) {
     setTasks((data ?? []) as CoachPlanTask[]);
   }, [userId]);
 
-  // Step 1: load the active role + profile signals + task list once.
+  // Step 1: load target roles + profile-level signals + task list.
   useEffect(() => {
     if (!userId) {
       setProfileLoaded(true);
       return;
     }
     let cancelled = false;
-    (async () => {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("active_role_slug, job_preferences")
-        .eq("id", userId)
-        .maybeSingle();
+
+    const load = async () => {
+      const [{ data: targetRows }, { data: profile }] = await Promise.all([
+        supabase.from("user_target_roles").select("role_slug").eq("user_id", userId).order("set_at", { ascending: false }),
+        supabase.from("profiles").select("job_preferences, understand_me_results, career_level").eq("id", userId).maybeSingle(),
+      ]);
       if (cancelled) return;
 
-      const slug = (profile as any)?.active_role_slug ?? null;
-      setActiveRoleSlug(slug);
-      setActiveRoleTitle(slug ? (roles.find((r) => r.slug === slug)?.title ?? slug) : null);
+      setRoleSlugs((targetRows ?? []).map((r) => r.role_slug));
 
       const jp: any = profile?.job_preferences || {};
       setCvUploaded(Boolean(jp?.understandMe?.cvFileName));
       setExperienceEntries(Array.isArray(jp?.profileBuilder?.things) ? jp.profileBuilder.things.length : 0);
-
-      if (slug) {
-        const { data: courseRow } = await supabase
-          .from("skill_courses")
-          .select("id")
-          .eq("user_id", userId)
-          .eq("role_slug", slug)
-          .maybeSingle();
-        if (!cancelled) setHasCourse(Boolean(courseRow));
-      }
+      setEducationCount(Array.isArray(jp?.profileBuilder?.education) ? jp.profileBuilder.education.length : 0);
+      setQualificationsCount(Array.isArray(jp?.profileBuilder?.qualifications) ? jp.profileBuilder.qualifications.length : 0);
+      const careerLevel: string = (profile as any)?.career_level || (profile as any)?.understand_me_results?.careerLevel || "";
+      setSeniorish(["senior", "director", "executive"].includes(careerLevel.toLowerCase()));
 
       await refetchTasks();
       if (!cancelled) setProfileLoaded(true);
-    })();
-    return () => { cancelled = true; };
+    };
+    load();
+
+    // A target role can be added/removed from anywhere on the site (a role
+    // page, CareerMap, My Profile) while this hook's own component (e.g. an
+    // already-open Howdy widget) stays mounted - re-load when that happens.
+    const handler = () => load();
+    window.addEventListener("howdy:target-roles-changed", handler);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("howdy:target-roles-changed", handler);
+    };
   }, [userId, refetchTasks]);
 
-  // Step 2: once the role + skill-gap data are both actually loaded, generate
-  // (and upsert) the deterministic checklist. Runs again whenever the
-  // underlying gap numbers change - each run reads fresh values, no stale
-  // closures, no polling.
+  // Step 2: once roles are known, fetch each role's skill-gap + course status.
   useEffect(() => {
-    if (!userId || !profileLoaded || !activeRoleSlug || gap.loading) return;
+    if (!userId || !profileLoaded) return;
+    if (roleSlugs.length === 0) { setGapsLoaded(true); return; }
     let cancelled = false;
     (async () => {
-      const roleTitle = activeRoleTitle ?? activeRoleSlug;
-      const deterministic: DeterministicTask[] = [];
-
-      if (gap.ratedCount < gap.totalCount) {
-        const remaining = gap.totalCount - gap.ratedCount;
-        deterministic.push({
-          role_slug: activeRoleSlug,
-          task_type: "rate_skills",
-          title: `Rate your remaining ${remaining} ${roleTitle} skill${remaining === 1 ? "" : "s"}`,
-          detail: "Skills England data, rated 1-5 - this is what your readiness score is built from.",
-          link: `/skills-passport?tab=assessment&role=${activeRoleSlug}`,
-        });
-      }
-
-      if (!cvUploaded) {
-        deterministic.push({
-          role_slug: activeRoleSlug,
-          task_type: "upload_cv",
-          title: "Upload your CV",
-          detail: "Employers can't consider you for real without one, however strong your skills are.",
-          link: "/my-profile",
-        });
-      }
-
-      if (gap.overallReadiness < 50 && experienceEntries < 2) {
-        deterministic.push({
-          role_slug: activeRoleSlug,
-          task_type: "build_experience",
-          title: "Build some real experience in the meantime",
-          detail: "A short volunteering placement or work-experience week counts for more than applying cold right now.",
-          link: "/resources/volunteering",
-        });
-      }
-
-      if (gap.overallReadiness < 50 && !hasCourse) {
-        deterministic.push({
-          role_slug: activeRoleSlug,
-          task_type: "take_course",
-          title: `Start your ${roleTitle} accreditation course`,
-          detail: "A short AI-guided course targeted at your specific gaps.",
-          link: `/skills-passport?tab=gaps&role=${activeRoleSlug}`,
-        });
-      }
-
-      deterministic.push({
-        role_slug: activeRoleSlug,
-        task_type: "stand_out",
-        title: "Learn how to stand out",
-        detail: "Once the basics are in place, this is what actually gets you noticed.",
-        link: "/how-to-stand-out",
+      const [gapResults, courseResults] = await Promise.all([
+        Promise.all(roleSlugs.map((slug) => fetchSkillGap(slug, userId))),
+        Promise.all(roleSlugs.map((slug) =>
+          supabase.from("skill_courses").select("id").eq("user_id", userId).eq("role_slug", slug).maybeSingle()
+        )),
+      ]);
+      if (cancelled) return;
+      const gapMap: Record<string, Awaited<ReturnType<typeof fetchSkillGap>>> = {};
+      const courseMap: Record<string, boolean> = {};
+      roleSlugs.forEach((slug, i) => {
+        gapMap[slug] = gapResults[i];
+        courseMap[slug] = Boolean(courseResults[i].data);
       });
+      setGapByRole(gapMap);
+      setHasCourseByRole(courseMap);
+      setGapsLoaded(true);
+    })();
+    return () => { cancelled = true; };
+  }, [userId, profileLoaded, roleSlugs]);
+
+  // Step 3: once every role's gap data is in, generate (and upsert) each
+  // role's deterministic checklist. Re-runs whenever the underlying gap
+  // numbers change - each run reads fresh values, no stale closures.
+  useEffect(() => {
+    if (!userId || !gapsLoaded || roleSlugs.length === 0) return;
+    let cancelled = false;
+    (async () => {
+      const allDeterministic: DeterministicTask[] = [];
+      for (const slug of roleSlugs) {
+        const gap = gapByRole[slug];
+        if (!gap) continue;
+        const roleTitle = roles.find((r) => r.slug === slug)?.title ?? slug;
+        const hasCourse = hasCourseByRole[slug] ?? false;
+
+        if (gap.ratedCount < gap.totalCount) {
+          const remaining = gap.totalCount - gap.ratedCount;
+          allDeterministic.push({
+            role_slug: slug,
+            task_type: "rate_skills",
+            title: `Rate your remaining ${remaining} ${roleTitle} skill${remaining === 1 ? "" : "s"}`,
+            detail: "Skills England data, rated 1-5 - this is what your readiness score is built from.",
+            link: `/skills-passport?tab=assessment&role=${slug}`,
+          });
+        }
+
+        if (!cvUploaded) {
+          allDeterministic.push({
+            role_slug: slug,
+            task_type: "upload_cv",
+            title: "Upload your CV",
+            detail: "Employers can't consider you for real without one, however strong your skills are.",
+            link: "/my-profile",
+          });
+        }
+
+        // Readiness is genuinely good and the basics (CV, most skills rated)
+        // are in place - the honest next step is to actually apply, not to
+        // keep rating skills or sit on a "stand out" tip forever.
+        const readyToApply = gap.overallReadiness >= 65 && cvUploaded && gap.ratedCount >= gap.totalCount * 0.8;
+
+        // A senior/executive career level is itself strong real-world
+        // evidence, regardless of how many work-history entries are logged
+        // or how low the self-rated % is - don't tell a CEO to go try
+        // volunteering because they haven't rated their skills yet. And
+        // never fire alongside "you're ready to apply" on the same card.
+        if (experienceEntries < 2 && !seniorish && !readyToApply) {
+          allDeterministic.push({
+            role_slug: slug,
+            task_type: "build_experience",
+            title: "Build some real experience in the meantime",
+            detail: "A short volunteering placement or work-experience week counts for more than applying cold right now.",
+            link: "/resources/volunteering",
+          });
+        }
+
+        if (educationCount === 0) {
+          allDeterministic.push({
+            role_slug: slug,
+            task_type: "log_qualifications",
+            title: "Add your qualifications to your profile",
+            detail: "GCSEs, A-levels, degree - whatever you've got. Howdy can only factor in what's actually logged.",
+            link: "/my-profile",
+          });
+        }
+
+        if (gap.overallReadiness < 50 && !hasCourse) {
+          allDeterministic.push({
+            role_slug: slug,
+            task_type: "take_course",
+            title: `Practise with your ${roleTitle} self-check course`,
+            detail: "A short AI-guided practice course targeted at your specific gaps - useful for building confidence, not a substitute for a real qualification.",
+            link: `/skills-passport?tab=gaps&role=${slug}`,
+          });
+        }
+
+        if (gap.overallReadiness < 50 && qualificationsCount === 0) {
+          allDeterministic.push({
+            role_slug: slug,
+            task_type: "external_qualification",
+            title: "Build a real, portable qualification",
+            detail: "Reed, Coursera, FutureLearn and others have accredited courses employers actually recognise.",
+            link: `/skills-passport?tab=passport&role=${slug}`,
+          });
+        }
+
+        if (readyToApply) {
+          allDeterministic.push({
+            role_slug: slug,
+            task_type: "apply_now",
+            title: `You're ready - start applying for ${roleTitle} roles`,
+            detail: "Your readiness is solid and the basics are covered. Real applications teach you more from here than more prep does.",
+            link: `/marketplace?query=${encodeURIComponent(roleTitle)}`,
+          });
+        }
+
+        allDeterministic.push({
+          role_slug: slug,
+          task_type: "stand_out",
+          title: "Learn how to stand out",
+          detail: "Once the basics are in place, this is what actually gets you noticed.",
+          link: "/how-to-stand-out",
+        });
+      }
 
       // Deliberately omit `status` from the payload - upserting won't touch
       // it, so a task the user already marked done/dismissed stays that way
       // even if the underlying condition still applies.
       await supabase.from("coach_plan_tasks").upsert(
-        deterministic.map((t) => ({ user_id: userId, ...t })),
+        allDeterministic.map((t) => ({ user_id: userId, ...t })),
         { onConflict: "user_id,role_slug,task_type" },
       );
       if (!cancelled) await refetchTasks();
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId, profileLoaded, activeRoleSlug, activeRoleTitle, gap.loading, gap.ratedCount, gap.totalCount, gap.overallReadiness, cvUploaded, experienceEntries, hasCourse]);
+  }, [userId, gapsLoaded, roleSlugs, gapByRole, hasCourseByRole, cvUploaded, experienceEntries, educationCount, qualificationsCount, seniorish]);
 
   const completeTask = useCallback(async (taskId: string) => {
     setTasks((prev) => prev.map((t) => t.id === taskId ? { ...t, status: "done", completed_at: new Date().toISOString() } : t));
@@ -176,20 +262,29 @@ export function useCoachPlan(userId: string | null | undefined) {
     await supabase.from("coach_plan_tasks").update({ status: "open", completed_at: null }).eq("id", taskId);
   }, []);
 
-  const openTasks = tasks.filter((t) => t.status === "open");
-  const doneTasks = tasks.filter((t) => t.status === "done");
+  const rolePlans: RolePlan[] = roleSlugs
+    .filter((slug) => gapByRole[slug])
+    .map((slug) => {
+      const gap = gapByRole[slug];
+      const roleTasks = tasks.filter((t) => t.role_slug === slug);
+      return {
+        role_slug: slug,
+        role_title: roles.find((r) => r.slug === slug)?.title ?? slug,
+        readiness: gap.overallReadiness,
+        ratedCount: gap.ratedCount,
+        totalCount: gap.totalCount,
+        topGaps: gap.topGaps,
+        openTasks: roleTasks.filter((t) => t.status === "open"),
+        doneTasks: roleTasks.filter((t) => t.status === "done"),
+      };
+    });
+
+  const generalTasks = tasks.filter((t) => !t.role_slug);
 
   return {
-    activeRoleSlug,
-    activeRoleTitle,
-    readiness: gap.overallReadiness,
-    ratedCount: gap.ratedCount,
-    totalCount: gap.totalCount,
-    topGaps: gap.topGaps,
-    tasks,
-    openTasks,
-    doneTasks,
-    loading: !profileLoaded || gap.loading,
+    rolePlans,
+    generalOpenTasks: generalTasks.filter((t) => t.status === "open"),
+    loading: !profileLoaded || (roleSlugs.length > 0 && !gapsLoaded),
     completeTask,
     reopenTask,
     refetchTasks,

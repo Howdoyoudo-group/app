@@ -1,6 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { renderSiteMapForPrompt, renderSiteSearchResults, searchSiteIndex, buildRoutingDirective } from "../_shared/site-map.ts";
-import { resolveRoleTitleToSlug, ROLE_SLUGS } from "../_shared/role-slugs.ts";
+import { resolveRoleTitleToSlug } from "../_shared/role-slugs.ts";
+import { buildTargetRolesContext } from "../_shared/coach-context.ts";
 
 
 const corsHeaders = {
@@ -32,7 +33,9 @@ __SITE_MAP__
 7. **Starting a business / founding a startup / incorporating / raising money / SEIS / EIS / Advance Assurance / angel investors / VC / grants / cap tables / fundraising** → ALWAYS link to [/starting-a-business](/starting-a-business) FIRST. It has dedicated SEIS/EIS, HMRC, legal foundations and fundraising sections with curated UK partner resources (SeedLegals, British Business Bank, SFC Capital, Angel Academe, BackerIQ, Legal Foundations). Do NOT route these to the Learning Hub or to role/industry pages — /starting-a-business is the canonical home.
 8. Before recommending internal pages, use the live site-search context/tool results. If the user asks about Side Hustles or side income, the answer MUST start with [/side-hustles](/side-hustles). If they ask about SEIS/EIS/fundraising/startups, the answer MUST start with [/starting-a-business](/starting-a-business).
 9. Always format links as markdown: [link text](/path)
-10. **When "Active target role" data is present in context, act like a real careers coach** - reference their actual readiness % and specific top gaps by name, and give an honest verdict rather than generic encouragement. Don't say "that's great, keep going" if readiness is low. If readiness is low AND they have little or no logged experience, proactively suggest a meantime option (volunteering, work experience, an apprenticeship) rather than only pointing at skill-rating - a real employer usually isn't the right first move for someone with no experience and no rated skills yet.
+10. **When "Target role(s)" data is present in context, act like a real careers coach** - reference their actual readiness % and specific top gaps by name, and give an honest verdict rather than generic encouragement. Don't say "that's great, keep going" if readiness is low. If readiness is low AND they have little or no logged experience, proactively suggest a meantime option (volunteering, work experience, an apprenticeship) rather than only pointing at skill-rating - a real employer usually isn't the right first move for someone with no experience and no rated skills yet. **If readiness is already good (roughly 65%+) and the basics are covered, the honest next step is to actually apply and interview, not more prep** - point them at real live jobs (use search_jobs) and interview/CV polish, not another generic "keep rating skills" nudge. If they ask "what's on my plan" or "what should I do next", answer using the exact "Open items on their Plan checklist" list in context for the relevant role - that's the same checklist they see on their Your Plan page, so name those items specifically rather than inventing generic steps. Use add_coach_task to add something new to that same checklist rather than just suggesting it in chat. **If more than one target role is active, always name which role you're talking about before giving a readiness %, gap, or verdict - never blend numbers across roles.**
+11. **Always use the "Real evidence from their CV, onboarding and Match Me" context block when it's present** - this is real, specific fact about the person (past jobs, transferable skills, working style, passions), not something to ask them to repeat. Cite it by name (e.g. "you've worked at X, which already shows real customer-facing experience"). Where a self-rated skill overlaps with something their CV/work history already evidences, say so explicitly and suggest they go rate it (and mark it "evidenced") rather than leaving Howdy looking like it ignored their real background. Never say "I don't have access to your profile" or ask them to re-describe their background/skills/experience when this context is present - it's already been given to you.
+12. **If a role's context includes a "⚠ Mismatch" line, never present the raw readiness % as a verdict on their real capability** - a low self-rated % next to a senior career level or real logged experience means the number reflects unrated skills, not lack of ability. Say this plainly (e.g. "your 0% here is just because you haven't rated these skills yet - as [career level/role], you almost certainly have real evidence for several of them"), name which specific top-gap skills their background likely covers, and tell them to go rate those and mark them "evidenced" - don't just repeat the percentage as if it's the whole truth. **Never describe HDYD's own AI-generated accreditation course/quiz as making someone "qualified" or a real credential** - it's self-check practice against their skill gaps. For an actual portable qualification, point them at their Career Passport (/skills-passport?tab=passport&role={slug}), which surfaces real external providers (Reed, Coursera, FutureLearn, edX, etc.).
 
 ## Rules
 - Only recommend resources that exist in the site map below
@@ -140,31 +143,6 @@ ${topicLine}
 It includes curated watch/listen/read resources plus practical UK help around tax, registration and insurance.
 
 Want me to help you choose the best side-hustle route for your skills?`;
-}
-
-// Deno-side port of src/hooks/useSkillGap.ts's readiness calc (can't import
-// that hook across the Vite/Deno boundary). Mirrors it exactly - same
-// effective-rating formula, same <3 gap threshold - so Howdy's numbers never
-// disagree with what the user sees on the Skills Passport screens.
-function computeReadiness(
-  skillRows: { id: string; skill_title: string }[],
-  ratingRows: { skill_id: string; rating: number; evidenced: boolean }[],
-) {
-  const ratingMap = new Map(ratingRows.map((r) => [r.skill_id, r]));
-  const effective = skillRows.map((s) => {
-    const r = ratingMap.get(s.id);
-    const rating = r ? Math.min(5, r.rating + (r.evidenced ? 0.5 : 0)) : null;
-    return { ...s, rating };
-  });
-  const total = effective.length;
-  const rated = effective.filter((s) => s.rating !== null).length;
-  const sum = effective.reduce((a, s) => a + (s.rating ?? 0), 0);
-  const overallReadiness = total > 0 ? Math.round((sum / (total * 5)) * 100) : 0;
-  const topGaps = effective
-    .filter((s) => (s.rating ?? 0) < 3)
-    .sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0))
-    .slice(0, 5);
-  return { overallReadiness, rated, total, topGaps };
 }
 
 function sseText(text: string): Response {
@@ -307,7 +285,7 @@ Deno.serve(async (req) => {
       // Candidate context
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name, career_level, industry_interests, role_preferences, location_preference, howdy_memory, active_role_slug, job_preferences")
+        .select("full_name, career_level, industry_interests, role_preferences, location_preference, howdy_memory")
         .single();
       const parts: string[] = [];
       if (profile) {
@@ -323,46 +301,11 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Active target role: readiness, gaps, CV/experience, badges/course status.
-      // This is what lets Howdy coach instead of just chat - see instruction 10
-      // in CANDIDATE_KNOWLEDGE.
-      const activeSlug: string | null = (profile as any)?.active_role_slug ?? null;
-      const jobPrefs: any = profile?.job_preferences || {};
-      if (activeSlug) {
-        const roleTitle = ROLE_SLUGS.find((r) => r.slug === activeSlug)?.title ?? activeSlug;
-        const { data: skillRows } = await svcClient
-          .from("role_skills")
-          .select("id, skill_title")
-          .eq("slug", activeSlug);
-        const skillIds = (skillRows ?? []).map((s: any) => s.id);
-        const { data: ratingRows } = skillIds.length
-          ? await svcClient.from("user_skill_ratings").select("skill_id, rating, evidenced").eq("user_id", userId).in("skill_id", skillIds)
-          : { data: [] as any[] };
-        const { rated, total, overallReadiness, topGaps } = computeReadiness((skillRows ?? []) as any, (ratingRows ?? []) as any);
-
-        const [{ data: badgeRows }, { data: courseRow }] = await Promise.all([
-          svcClient.from("earned_badges").select("industry").eq("user_id", userId),
-          svcClient.from("skill_courses").select("status").eq("user_id", userId).eq("role_slug", activeSlug).maybeSingle(),
-        ]);
-
-        const cvUploaded = Boolean(jobPrefs?.understandMe?.cvFileName);
-        const experienceEntries = Array.isArray(jobPrefs?.profileBuilder?.things) ? jobPrefs.profileBuilder.things.length : 0;
-
-        const roleParts: string[] = [
-          `Readiness: ${overallReadiness}% (${rated}/${total} skills self-rated)`,
-        ];
-        if (topGaps.length) roleParts.push(`Top gaps: ${topGaps.map((s: any) => s.skill_title).join(", ")}`);
-        roleParts.push(`CV uploaded: ${cvUploaded ? "yes" : "no"}`);
-        roleParts.push(`Logged experience/projects: ${experienceEntries} entr${experienceEntries === 1 ? "y" : "ies"}`);
-        roleParts.push(
-          courseRow
-            ? `Accreditation course: ${(courseRow as any).status}`
-            : "No accreditation course started yet - Howdy can suggest starting one via /skills-passport?tab=gaps."
-        );
-        if (badgeRows?.length) roleParts.push(`HDYD badges earned: ${badgeRows.map((b: any) => b.industry).join(", ")}`);
-
-        parts.push(`\n### Active target role: ${roleTitle}\n${roleParts.join("\n")}`);
-      }
+      // Target roles: readiness, gaps, CV/experience, badges/course status,
+      // per role - this is what lets Howdy coach instead of just chat, see
+      // instruction 10 in CANDIDATE_KNOWLEDGE.
+      const targetRolesContext = await buildTargetRolesContext(svcClient, userId);
+      if (targetRolesContext) parts.push(targetRolesContext);
 
       // Pull a handful of live jobs that look relevant to the latest user message + memory
       const memoryBlob = (profile?.howdy_memory ?? []).join(" ");
@@ -401,10 +344,10 @@ Deno.serve(async (req) => {
     if (mode === "candidate" && planNarrative) {
       const GEMINI_API_KEY_NARR = Deno.env.get("GEMINI_API_KEY");
       if (!GEMINI_API_KEY_NARR) throw new Error("GEMINI_API_KEY not configured");
-      const hasActiveRole = userContext.includes("### Active target role");
+      const hasActiveRole = userContext.includes("Target role");
       const narrativePrompt = hasActiveRole
-        ? `You are Howdy, a warm but honest UK careers coach. Based only on the context below, write a 2-4 sentence verdict on where this person genuinely stands for their active target role. Name their real readiness % and top gap(s) by name. If readiness is low and they have little logged experience, suggest a meantime option (volunteering/work experience) rather than only "rate more skills". Do not use markdown links or headings. Do not invent facts not in the context.\n${userContext}`
-        : `You are Howdy, a warm UK careers coach. This person hasn't set an active target role yet. Write 1-2 encouraging sentences inviting them to pick one from a role page or tell you what they're aiming for, so you can build them a real plan.`;
+        ? `You are Howdy, a warm but honest UK careers coach. Based only on the context below, write a 2-4 sentence verdict on where this person genuinely stands, followed by ONE concrete next step. If they have more than one target role, compare across them - name the strongest and weakest - rather than blending the numbers together. Name real readiness %s and top gap(s) by name. If readiness is low and they have little logged experience, suggest a meantime option (volunteering/work experience) rather than only "rate more skills". If readiness is already good (roughly 65%+), don't just say "keep going" - the next step is to actually apply/interview, so say that plainly. If a "Real evidence from their CV, onboarding and Match Me" section is present, use it - cite a specific real fact (a past role, a transferable skill) rather than generic praise. Do not use markdown links or headings. Do not invent facts not in the context.\n${userContext}`
+        : `You are Howdy, a warm UK careers coach. This person hasn't set a target role yet. Write 1-2 encouraging sentences inviting them to pick one from a role page or tell you what they're aiming for, so you can build them a real plan.`;
       const narrResp = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
         method: "POST",
         headers: { Authorization: `Bearer ${GEMINI_API_KEY_NARR}`, "Content-Type": "application/json" },
@@ -472,7 +415,7 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
         type: "function",
         function: {
           name: "add_dream_role",
-          description: "Add a job title or role to the user's dream roles ('Most Wanted'). Use whenever the user expresses they want, dream of, or aim to be a particular role (e.g. 'I want to be a CEO', 'add producer to my list', 'I want to become a plumber'). If the role matches a real role page, this also becomes their active target role - the one Skills Passport and their Coach Plan checklist focus on - same as clicking 'Save to Most Wanted' on the site.",
+          description: "Add a job title or role to the user's dream roles ('Most Wanted'). Use whenever the user expresses they want, dream of, or aim to be a particular role (e.g. 'I want to be a CEO', 'add producer to my list', 'I want to become a plumber'). If the role matches a real role page, it's also added to their target roles - the ones Skills Passport and their Coach Plan checklist coach them on, alongside any others already active - same as clicking 'Save to Most Wanted' on the site. A user can have several target roles at once.",
           parameters: {
             type: "object",
             properties: {
@@ -521,6 +464,7 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
               title: { type: "string", description: "Short task title, e.g. 'Practise your interview answers out loud'." },
               detail: { type: "string", description: "Optional one-sentence detail." },
               link: { type: "string", description: "Optional in-app path this task relates to, e.g. '/cv-builder'." },
+              role: { type: "string", description: "Optional - which of the user's current target roles this task is for, if they have more than one active (e.g. 'Marketing Assistant'). Leave blank for a general task not tied to one role." },
             },
             required: ["title"],
           },
@@ -568,20 +512,21 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
           const rolePrefs: string[] = Array.isArray(prof?.role_preferences) ? [...prof!.role_preferences] : [];
           if (!rolePrefs.some((r) => r.toLowerCase() === role.toLowerCase())) rolePrefs.push(role);
           // Same "Save to Most Wanted" behaviour as the site: a newly added
-          // role that resolves to a real role page also becomes the active
-          // target role Howdy coaches on - one mechanism, not two.
+          // role that resolves to a real role page is also added to the
+          // user's target roles - they can have several active at once.
           const resolved = !alreadySaved ? resolveRoleTitleToSlug(role) : null;
-          const updates: any = { job_preferences: jp, role_preferences: rolePrefs };
+          await svcClient.from("profiles").update({ job_preferences: jp, role_preferences: rolePrefs }).eq("id", userId);
           if (resolved) {
-            updates.active_role_slug = resolved.slug;
-            updates.active_role_set_at = new Date().toISOString();
+            await svcClient.from("user_target_roles").upsert(
+              { user_id: userId, role_slug: resolved.slug, set_at: new Date().toISOString() },
+              { onConflict: "user_id,role_slug" },
+            );
           }
-          await svcClient.from("profiles").update(updates).eq("id", userId);
           return JSON.stringify({
             ok: true,
             added: role,
             totalDreamRoles: existing.length,
-            becameActiveRole: Boolean(resolved),
+            addedAsTargetRole: Boolean(resolved),
             viewAt: resolved ? "/skills-passport" : "/my-profile",
           });
         }
@@ -610,10 +555,19 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
           if (!title) return JSON.stringify({ error: "title required" });
           const detail = args?.detail ? String(args.detail).trim() : null;
           const link = args?.link ? String(args.link).trim() : null;
-          const { data: prof } = await svcClient.from("profiles").select("active_role_slug").eq("id", userId).maybeSingle();
+          const roleArg = args?.role ? String(args.role).trim() : "";
+          let roleSlug: string | null = null;
+          if (roleArg) {
+            const { data: targetRows } = await svcClient.from("user_target_roles").select("role_slug").eq("user_id", userId);
+            const activeSlugs: string[] = (targetRows ?? []).map((r: any) => r.role_slug);
+            const resolved = resolveRoleTitleToSlug(roleArg);
+            // Only attach to a role the user is actually coaching on right now -
+            // never guess a role they haven't set as a target.
+            if (resolved && activeSlugs.includes(resolved.slug)) roleSlug = resolved.slug;
+          }
           const { error } = await svcClient.from("coach_plan_tasks").insert({
             user_id: userId,
-            role_slug: (prof as any)?.active_role_slug ?? null,
+            role_slug: roleSlug,
             task_type: "custom",
             title,
             detail,

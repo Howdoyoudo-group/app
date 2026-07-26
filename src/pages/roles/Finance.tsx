@@ -9,6 +9,7 @@ import IndustryCVBuilder from "@/components/IndustryCVBuilder";
 import CareerMap from "@/components/CareerMap";
 import type { CareerStage } from "@/components/CareerMap";
 import RoleOverview from "@/components/RoleOverview";
+import OnlineLearningGrid from "@/components/OnlineLearningGrid";
 
 const financeInIndustries = [
   { industry: "Fashion", examples: [{ company: "Burberry", role: "Group Finance", profileUrl: "/company/burberry" }, { company: "ASOS", role: "Commercial Finance", profileUrl: "/company/asos" }, { company: "ME+EM", role: "Finance Manager", profileUrl: "/company/me-em" }], slug: "/fashion" },
@@ -220,6 +221,7 @@ const Finance = () => {
               </a>
             ))}
           </div>
+          <OnlineLearningGrid roleName="Finance" />
         </>
       ),
     },
