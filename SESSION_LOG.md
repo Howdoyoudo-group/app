@@ -5,6 +5,63 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-26 — Woody (main branch) — audit-job-links: fixed silent no-op + Greenhouse blind spot; verify tomorrow AM
+
+### What happened
+Woody clicked 8 AI-industry jobs, 4 were dead. Investigated `audit-job-links`
+(the only thing that actually visits job URLs and deletes dead ones — nightly
+2am cron) and found two real bugs, both fixed and deployed (commit `b6273ba`):
+
+1. **Greenhouse closed listings were invisible to the checker.** Verified live
+   against a real DB row (Anthropic "Data Engineer, Safeguards"): a closed
+   Greenhouse job returns 200 and redirects `/anthropic/jobs/<id>` →
+   `/anthropic?error=true`. The landing-page check only recognised generic
+   paths (`/careers`, `/jobs`), not a company's own board slug, and the "no
+   longer available" text is rendered client-side in JS — never in the raw
+   HTML this checker fetches. Added `isAtsClosedRedirect()` to catch it.
+2. **The cron's timeout was 5000ms; a real batch takes 50-100s+.** Confirmed
+   via a manual dry run (200 jobs @ 8x concurrency = 10.2s, so 1000-2000 jobs
+   is far past 5s) and via `net._http_response`/staleness data (oldest
+   checkable job hadn't been touched in 37 days despite the cron reporting
+   "succeeded" every night — that status only means `net.http_post` enqueued
+   the call, not that the function finished). The connection was almost
+   certainly being cut before the end-of-run deletes/`scraped_at` touches
+   ever persisted, most nights. Fixed by time-boxing the run itself (20s real
+   budget / 120s dryRun, only actually-checked jobs counted as survivors —
+   unchecked ones keep their stale `scraped_at` so they stay at the front of
+   the queue next run) and raising concurrency 8→16. Cron's
+   `timeout_milliseconds` bumped 5000→30000 via `cron.alter_job` to match.
+
+**Deliberately did NOT increase the cron's frequency** (was considering
+6x/day to clear the backlog faster) — Woody flagged the 2026-07-22 Nano→Micro
+compute incident first (see below). Left `audit-job-links-nightly` on its
+existing `0 2 * * *` schedule; only the timeout changed. A frequency bump is
+a separate future decision, only after watching Micro compute headroom for
+a few nights of the fixed (heavier per-run) job.
+
+### To verify tomorrow morning (Woody will ask for this report)
+1. Pull the actual response body for the 2am run from `net._http_response`
+   (only ~6hr retention, so check in the morning UK time, not later) —
+   look for `fetched`/`checked`/`timedOut`/`flagged`/`deleted`. Before the
+   fix, `checked` was ~0 most nights.
+2. Re-run the staleness check: `select count(*) from jobs where
+   (source_url is null or source_url not ilike '%adzuna%') and scraped_at <
+   now() - interval '3 days'` — was 34,332 (of ~42,550 eligible) on 07-26,
+   before the fix. Should trend down over the following nights if the fix
+   is holding. Full backlog clear will take a couple of weeks at the current
+   (unchanged) nightly frequency — don't expect it to jump immediately.
+3. Also worth an eyeball spot-check of a few AI-industry job links directly
+   once a couple of nightly runs have gone by.
+
+### Notes
+- Merged Andrew's concurrent push (`e319f50..e4fb775`, Level Up nav/
+  CareerPilot/coach-plan work) before pushing this fix — no file overlap,
+  clean merge.
+- Task #13 ("Speed up audit-job-links rotation") left `in_progress`, not
+  `completed` — pending the verification above.
+
+---
+
 ## 2026-07-23 — Andrew (main branch) — Howdy Career Coach Phase 2: multiple target roles, real voice context, proactive nudge
 
 ### What was done
