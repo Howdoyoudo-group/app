@@ -2066,13 +2066,31 @@ async function scrapeCompanyJobs(company: string, source: CareerSource, apiKey: 
             : ['markdown', { type: 'json', prompt: STRUCTURED_JOB_EXTRACTION_PROMPT }],
         onlyMainContent: true,
         waitFor: isOcadoLogistics ? 6000 : isOcadoRetail ? 4000 : (isAsda || isTesco) ? 8000 : 3000,
+        // Asda/Tesco only render the first page of results on initial load -
+        // both widgets lazy-load more as you scroll, so without scrolling we
+        // only ever captured ~10-30 jobs instead of the real 300+. Scroll in
+        // several steps with waits between so lazy-loaded batches render.
+        ...((isAsda || isTesco) ? {
+          actions: [
+            { type: 'scroll', direction: 'down' },
+            { type: 'wait', milliseconds: 1500 },
+            { type: 'scroll', direction: 'down' },
+            { type: 'wait', milliseconds: 1500 },
+            { type: 'scroll', direction: 'down' },
+            { type: 'wait', milliseconds: 1500 },
+            { type: 'scroll', direction: 'down' },
+            { type: 'wait', milliseconds: 1500 },
+            { type: 'scroll', direction: 'down' },
+            { type: 'wait', milliseconds: 2000 },
+          ],
+        } : {}),
       }),
     });
 
     if (!scrapeResponse.ok) {
       const errorText = await scrapeResponse.text().catch(() => 'Unknown Firecrawl scrape error');
       console.error(`[scrape-jobs] Firecrawl scrape failed for ${company}: ${scrapeResponse.status} ${errorText}`);
-      return { success: false, jobs: [] };
+      return { success: false, jobs: [], _debug: `status=${scrapeResponse.status} body=${errorText.slice(0, 500)}` } as any;
     }
 
     const scrapeData = await scrapeResponse.json();
@@ -2332,14 +2350,24 @@ Deno.serve(async (req) => {
     let totalInserted = 0;
     let companiesProcessed = 0;
     let totalJobsFound = 0;
+    const debugTrace: string[] = [];
 
-    // Process in small batches and don't let one slow source block the rest
+    // Process in small batches and don't let one slow source block the rest.
+    // Asda/Tesco's scroll-to-load-more actions (waitFor + 5 scroll/wait cycles)
+    // routinely take longer than the default 45s budget and were being killed
+    // by the timeout before Firecrawl finished rendering - silently producing
+    // 0 jobs with no error surfaced.
+    const SLOW_SCROLL_COMPANIES = new Set(['Asda', 'Tesco']);
     for (let i = 0; i < targets.length; i += 2) {
       const batch = targets.slice(i, i + 2);
       const batchResults = await Promise.allSettled(
         batch.map(async (source) => ({
           source,
-          ...(await withTimeout(scrapeCompanyJobs(source.company, source, apiKey), 45000, source.company)),
+          ...(await withTimeout(
+            scrapeCompanyJobs(source.company, source, apiKey),
+            SLOW_SCROLL_COMPANIES.has(source.company) ? 90000 : 45000,
+            source.company
+          )),
         }))
       );
 
@@ -2350,6 +2378,7 @@ Deno.serve(async (req) => {
         }
 
         const result = settledResult.value;
+        if ((result as any)._debug) debugTrace.push(`${result.source.company}: ${(result as any)._debug}`);
         if (!result.success || result.jobs.length === 0) continue;
 
         const rawJobs = dedupeJobs(result.jobs);
@@ -2396,6 +2425,7 @@ Deno.serve(async (req) => {
         companies_processed: companiesProcessed,
         jobs_found: totalJobsFound,
         inserted: totalInserted,
+        debug: debugTrace,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
