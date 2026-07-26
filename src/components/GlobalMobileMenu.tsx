@@ -75,7 +75,6 @@ const NAV_SECTIONS: NavSection[] = [
           { label: "Employability", to: "/resources/employability", description: "Confidence & communication" },
           { label: "Financial Skills", to: "/resources/money", description: "Money, budgeting & tax" },
           { label: "Resilience & Confidence", to: "/resources/resilience-confidence", description: "Bounce back and back yourself" },
-          { label: "Work Curiosity Checklist", to: "/resources/work-curiosity-checklist", description: "Free printable one-pager" },
         ],
       },
       {
@@ -95,6 +94,12 @@ const NAV_SECTIONS: NavSection[] = [
           { label: "Social Mobility", to: "/resources/social-mobility", description: "Programmes and support" },
           { label: "Careers Advice", to: "/resources/careers", description: "Guidance and next steps" },
           { label: "Neurodiversity & Disability", to: "/resources/neurodiversity-disability", description: "Jobs, support and inclusive employers" },
+        ],
+      },
+      {
+        label: "Work Curiosity Checklist",
+        items: [
+          { label: "Download the Checklist", to: "/resources/work-curiosity-checklist", description: "Free printable one-pager" },
         ],
       },
     ],
