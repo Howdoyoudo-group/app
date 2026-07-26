@@ -108,6 +108,20 @@ const NCS_MAP: Record<string, string> = {
 
 const NCS_BASE = "https://nationalcareers.service.gov.uk/job-profiles/";
 
+// NCS profile pages embed a real "meet a professional" video via a video
+// widget div (e.g. `<div id="widget2" ... src="https://www.youtube-nocookie.com/embed/{id}">`
+// that a client-side script turns into a real iframe - not an actual
+// <iframe> tag in the raw HTML, and not a plain link, so it only shows up
+// in Firecrawl's rawHtml format, never in markdown or the cleaned html
+// format (verified against the live plumber/electrician NCS pages). Extract
+// the video ID and normalise to a plain youtube.com watch URL.
+function parseVideoUrl(html: string): string | null {
+  const match = html.match(/src="([^"]*youtube(?:-nocookie)?\.com\/embed\/[^"]*)"/i);
+  if (!match) return null;
+  const idMatch = match[1].match(/embed\/([a-zA-Z0-9_-]+)/);
+  return idMatch ? `https://www.youtube.com/watch?v=${idMatch[1]}` : null;
+}
+
 // Parse the Firecrawl markdown output of an NCS profile page.
 // NCS page format (verified from actual page source):
 //   Salary: "£22,000 Starter\n\n_to_\n\n£40,000 Experienced"
@@ -239,7 +253,7 @@ Deno.serve(async (req) => {
         const fcRes = await fetch("https://api.firecrawl.dev/v1/scrape", {
           method: "POST",
           headers: { Authorization: `Bearer ${FIRECRAWL}`, "Content-Type": "application/json" },
-          body: JSON.stringify({ url: ncsUrl, formats: ["markdown"], waitFor: 2000 }),
+          body: JSON.stringify({ url: ncsUrl, formats: ["markdown", "rawHtml"], waitFor: 2000 }),
           signal: AbortSignal.timeout(20000),
         });
 
@@ -250,6 +264,7 @@ Deno.serve(async (req) => {
 
         const fcData = await fcRes.json();
         const md: string = fcData?.data?.markdown || "";
+        const html: string = fcData?.data?.rawHtml || "";
 
         if (!md || md.length < 200) {
           summary[ourSlug] = "empty markdown";
@@ -257,10 +272,11 @@ Deno.serve(async (req) => {
         }
 
         const parsed = parseNcsMarkdown(md, ncsSlug);
+        const videoUrl = html ? parseVideoUrl(html) : null;
 
         const { error } = await supabase
           .from("role_metadata")
-          .upsert({ slug: ourSlug, ...parsed, fetched_at: new Date().toISOString() });
+          .upsert({ slug: ourSlug, ...parsed, ncs_video_url: videoUrl, fetched_at: new Date().toISOString() });
 
         summary[ourSlug] = error ? `db error: ${error.message}` : "ok";
       } catch (e) {

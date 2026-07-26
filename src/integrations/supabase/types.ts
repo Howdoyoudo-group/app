@@ -1548,6 +1548,7 @@ export type Database = {
           ncs_skills: Json | null
           ncs_tasks: Json | null
           ncs_url: string | null
+          ncs_video_url: string | null
           ncs_work_pattern: string | null
           se_synced_at: string | null
           slug: string
@@ -1576,6 +1577,7 @@ export type Database = {
           ncs_skills?: Json | null
           ncs_tasks?: Json | null
           ncs_url?: string | null
+          ncs_video_url?: string | null
           ncs_work_pattern?: string | null
           se_synced_at?: string | null
           slug: string
@@ -1604,6 +1606,7 @@ export type Database = {
           ncs_skills?: Json | null
           ncs_tasks?: Json | null
           ncs_url?: string | null
+          ncs_video_url?: string | null
           ncs_work_pattern?: string | null
           se_synced_at?: string | null
           slug?: string
