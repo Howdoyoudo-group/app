@@ -574,7 +574,7 @@ const CareerMapRoleCard = ({
                 className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2.5 border border-border text-muted-foreground text-xs font-display font-700 uppercase tracking-wider hover:border-primary hover:text-primary transition-colors"
               >
                 <ExternalLink className="w-3 h-3" />
-                View real job facts (GOV.UK)
+                Job facts (GOV.UK)
               </a>
             )}
             <button
