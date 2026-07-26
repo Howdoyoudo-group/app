@@ -222,9 +222,12 @@ const CAREER_SOURCES: CareerSource[] = [
   { company: "Southampton", url: "https://www.southamptonfc.com/en/club/careers", industry: "football" },
 
   // Grocery
+  { company: "Asda", url: "https://www.asda.jobs/jobs", industry: "grocery" },
   { company: "Ocado Logistics", url: "https://www.ocado-logistics.com/job-listing", industry: "grocery" },
   { company: "Ocado Retail", url: "https://careers.ocadoretail.com/open-roles/", industry: "grocery" },
-  { company: "Tesco", url: "https://www.tesco-careers.com", industry: "grocery" },
+  // Old tesco-careers.com now redirects to tesco.com/careers and 403s -
+  // Tesco's real live board is this Avature-hosted "Careers Marketplace" search page.
+  { company: "Tesco", url: "https://careers.tesco.com/en_GB/careersmarketplace/SearchJobs/", industry: "grocery" },
   { company: "Sainsbury's", url: "https://sainsburys.jobs", industry: "grocery" },
   { company: "M&S Food", url: "https://jobs.marksandspencer.com/our-teams/food", industry: "grocery" },
   { company: "Waitrose", url: "https://www.waitrosejobs.com", industry: "grocery" },
@@ -2040,6 +2043,14 @@ async function scrapeCompanyJobs(company: string, source: CareerSource, apiKey: 
     // Ocado Retail's open-roles page is a single pipe-table - request markdown only
     // (json extraction would just summarise the table; we parse rows ourselves below).
     const isOcadoRetail = company === 'Ocado Retail';
+    // Asda's board is a Workday-hosted SPA (asda.jobs) - the job feed widget
+    // loads and calls Workday's search API client-side after initial paint,
+    // slower than most boards, so it needs a longer render wait.
+    const isAsda = company === 'Asda';
+    // Tesco's board is Avature (an ATS) - same client-side-rendered-results
+    // pattern as Asda, confirmed by the raw HTML showing a placeholder
+    // "No job title" row until the search API call resolves.
+    const isTesco = company === 'Tesco';
     const scrapeResponse = await fetch('https://api.firecrawl.dev/v2/scrape', {
       method: 'POST',
       headers: {
@@ -2054,7 +2065,7 @@ async function scrapeCompanyJobs(company: string, source: CareerSource, apiKey: 
             ? ['markdown']
             : ['markdown', { type: 'json', prompt: STRUCTURED_JOB_EXTRACTION_PROMPT }],
         onlyMainContent: true,
-        waitFor: isOcadoLogistics ? 6000 : isOcadoRetail ? 4000 : 3000,
+        waitFor: isOcadoLogistics ? 6000 : isOcadoRetail ? 4000 : (isAsda || isTesco) ? 8000 : 3000,
       }),
     });
 
