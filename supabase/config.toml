@@ -49,5 +49,7 @@ project_id = "wgistckxxbfpsuulbswr"
     verify_jwt = false
   [functions.scrape-generic-boards]
     verify_jwt = false
+  [functions.scrape-ncs-catalog]
+    verify_jwt = false
   [functions.whatsapp-inbound]
     verify_jwt = false

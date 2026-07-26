@@ -1319,6 +1319,69 @@ export type Database = {
         }
         Relationships: []
       }
+      ncs_role_catalog: {
+        Row: {
+          fetched_at: string | null
+          ncs_entry_routes: Json | null
+          ncs_hours: string | null
+          ncs_qualifications: string | null
+          ncs_related_roles: Json | null
+          ncs_restrictions: string | null
+          ncs_salary_experienced: number | null
+          ncs_salary_starter: number | null
+          ncs_sector: string | null
+          ncs_skills: Json | null
+          ncs_slug: string
+          ncs_tasks: Json | null
+          ncs_url: string
+          ncs_video_url: string | null
+          ncs_work_pattern: string | null
+          scrape_error: string | null
+          scrape_status: string
+          title: string
+        }
+        Insert: {
+          fetched_at?: string | null
+          ncs_entry_routes?: Json | null
+          ncs_hours?: string | null
+          ncs_qualifications?: string | null
+          ncs_related_roles?: Json | null
+          ncs_restrictions?: string | null
+          ncs_salary_experienced?: number | null
+          ncs_salary_starter?: number | null
+          ncs_sector?: string | null
+          ncs_skills?: Json | null
+          ncs_slug: string
+          ncs_tasks?: Json | null
+          ncs_url: string
+          ncs_video_url?: string | null
+          ncs_work_pattern?: string | null
+          scrape_error?: string | null
+          scrape_status?: string
+          title: string
+        }
+        Update: {
+          fetched_at?: string | null
+          ncs_entry_routes?: Json | null
+          ncs_hours?: string | null
+          ncs_qualifications?: string | null
+          ncs_related_roles?: Json | null
+          ncs_restrictions?: string | null
+          ncs_salary_experienced?: number | null
+          ncs_salary_starter?: number | null
+          ncs_sector?: string | null
+          ncs_skills?: Json | null
+          ncs_slug?: string
+          ncs_tasks?: Json | null
+          ncs_url?: string
+          ncs_video_url?: string | null
+          ncs_work_pattern?: string | null
+          scrape_error?: string | null
+          scrape_status?: string
+          title?: string
+        }
+        Relationships: []
+      }
       pinned_industry_employers: {
         Row: {
           company_name: string
