@@ -2158,7 +2158,13 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
       // Craft/Business segment. Category tabs (Remote / Internships / etc.) are
       // explicit user intent and must not be collapsed by the senior-business
       // profile heuristic, otherwise 121 remote jobs can shrink to a single role.
-      const hasExplicitIntent = isCategoryTab || !!roleFilter || industry !== "All" || search.trim() !== "" || !!aiSearchResults || workFamily !== 'all';
+      // Any dropdown filter pick (type, location, onsite/remote, salary, career
+      // level, temp toggle, company chip) is just as explicit as those - without
+      // these, picking "Full-time" or "London" alone still let the heuristic
+      // silently crush results down to ~1 job for logged-in senior/business
+      // profiles, which looked exactly like "the filter doesn't work".
+      const hasExplicitIntent = isCategoryTab || !!roleFilter || industry !== "All" || search.trim() !== "" || !!aiSearchResults || workFamily !== 'all'
+        || jobType !== "All" || location !== "All" || workMode !== "All" || salary !== "All" || careerLevel !== "All" || tempOnly || !!companyFilter;
       if (!hasExplicitIntent && hasBusinessProfileSignals && isCraftServiceJob(job.title, [job.roleCategory])) return false;
       if (!hasExplicitIntent && isSeniorBusiness && !isBusinessCat(job)) return false;
       // AI search filter
