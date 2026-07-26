@@ -402,6 +402,17 @@ const BOARDS: BoardSource[] = [
   { key: 'ismash-careers', url: 'https://www.ismash.co.uk/careers', industry: 'fixing', fallbackCompany: 'iSmash', jobUrlPattern: /ismash\.co\.uk\/.*(job|career|vacanc)/i, tags: ['Fixing', 'Tech Repair'], ukOnly: true },
   { key: 'pimlico-plumbers-careers', url: 'https://www.pimlicoplumbers.com/careers', industry: 'fixing', fallbackCompany: 'Pimlico Plumbers', jobUrlPattern: /pimlicoplumbers\.com\/.*(job|career|vacanc)/i, tags: ['Fixing', 'Plumbing'], ukOnly: true },
 
+  // ===== Music =====
+  // Music Week, Sony Music UK and Warner Music UK were all checked and
+  // excluded - Music Week/Future Plc has an explicit "no web scraping, any
+  // purpose" clause, and Sony Music UK's own T&Cs separately prohibit
+  // "robot, spider... scrape or index" access. AEG Presents' careers
+  // platform (earcu.com) has no stable per-job URLs (JS-only "#" links),
+  // so it can't be reliably deduped/matched - skipped rather than risk
+  // broken data. Live Nation's Workday board has clean, stable job URLs
+  // and covers Academy Music Group's O2 Academy venues UK-wide.
+  { key: 'live-nation-uk-careers', url: 'https://livenation.wd503.myworkdayjobs.com/LNExternalSite?q=United+Kingdom', industry: 'music', fallbackCompany: 'Live Nation', jobUrlPattern: /myworkdayjobs\.com\/.*\/job\//i, tags: ['Music', 'Live Events'], ukOnly: true },
+
   // ===== Delivery / Logistics =====
   { key: 'dpd-careers', url: 'https://jobs.dpd.co.uk', industry: 'delivery', fallbackCompany: 'DPD', jobUrlPattern: /jobs\.dpd\.co\.uk\/.*(job|vacanc|role)/i, tags: ['Delivery', 'Logistics'], ukOnly: true },
   { key: 'evri-careers', url: 'https://www.evri.com/about/careers', industry: 'delivery', fallbackCompany: 'Evri', jobUrlPattern: /evri\.com\/.*(job|career|vacanc)/i, tags: ['Delivery', 'Courier'], ukOnly: true },
