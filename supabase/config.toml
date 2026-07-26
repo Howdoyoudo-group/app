@@ -17,6 +17,8 @@ project_id = "wgistckxxbfpsuulbswr"
     verify_jwt = false
   [functions.scrape-ncs-roles]
     verify_jwt = false
+  [functions.scrape-careerpilot]
+    verify_jwt = false
   [functions.send-daily-digest]
     verify_jwt = false
   [functions.send-welcome-email]

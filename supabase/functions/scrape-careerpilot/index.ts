@@ -72,6 +72,31 @@ const CP_MAP: Record<string, string> = {
   "plasterer":                "on-site/job-profile/plasterer",
   "groundworker":             "on-site/job-profile/construction-labourer",
   "roofer":                   "on-site/job-profile/roofer",
+  // Expansion batch (2026-07-26) - every URL individually verified (HTTP 200 +
+  // page content confirmed to match the role) before adding, after an earlier
+  // batch of guessed City & Guilds URLs turned out to 404.
+  "garment-technologist":     "fashion-textiles/job-profile/garment-technologist",
+  "veterinary-nurse":         "animal/job-profile/veterinary-nurse",
+  "buyer":                    "retail/job-profile/retail-buyer",
+  "customer-service":         "customer-services/job-profile/customer-service-assistant",
+  "retail-assistant":         "retail/job-profile/sales-assistant",
+  "vehicle-technician":       "maintenance/job-profile/heavy-vehicle-technician",
+  "agronomist":                 "agriculture/job-profile/agronomist",
+  "farm-worker":              "agriculture/job-profile/farm-worker",
+  "jockey":                   "animal/job-profile/jockey",
+  "racehorse-trainer":        "animal/job-profile/racehorse-trainer",
+  "stable-hand":              "animal/job-profile/horse-groom",
+  "mortgage-broker":          "customer-services/job-profile/mortgage-adviser",
+  "mechanic":                 "maintenance/job-profile/motor-mechanic",
+  "sports-scientist":         "sports/job-profile/sports-scientist",
+  "groundsperson":            "property-management/job-profile/groundsperson",
+  "reporter":                 "social-media/job-profile/newspaper-journalist",
+  "editor":                   "social-media/job-profile/newspaper-or-magazine-editor",
+  "sound-engineer":           "performing-arts/job-profile/studio-sound-engineer",
+  "travel-consultant":        "tourism/job-profile/travel-agent",
+  "grocery-store-manager":    "customer-services/job-profile/retail-manager",
+  "warehouse-delivery":       "online-distribution/job-profile/warehouse-worker",
+  "council-officer":          "government/job-profile/local-government-officer",
 };
 
 // ── Firecrawl fetch ───────────────────────────────────────────────────────────
