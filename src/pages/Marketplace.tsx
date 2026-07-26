@@ -715,7 +715,7 @@ const featuredEmployers = [
 // to drift. "All" is prepended as the default no-filter option.
 const industries = ["All", ...CANONICAL_INDUSTRIES.map((i) => i.name)];
 const locations = ["All", "London", "Manchester", "Remote", "Leicester", "Hatfield", "Loughborough"];
-const jobTypes = ["All", "Full-time", "Part-time", "Temporary", "Internship / Graduate", "Freelance"];
+const jobTypes = ["All", "Full-time", "Part-time", "Temporary", "Internship / Graduate", "Apprenticeship", "Freelance"];
 const workModes = ["All", "Remote", "Hybrid", "On-site"];
 const salaryRanges = ["All", "Under £30k", "£30k–£50k", "£50k–£70k", "£70k+"];
 const careerLevels = ["All", "Entry", "Mid", "Senior", "Executive"];
