@@ -145,6 +145,7 @@ const Unsubscribe = lazy(() => import("./pages/Unsubscribe.tsx"));
 const Learning = lazy(() => import("./pages/Learning.tsx"));
 const Mentoring = lazy(() => import("./pages/Mentoring.tsx"));
 const ResourceTopic = lazy(() => import("./pages/ResourceTopic.tsx"));
+const WorkCuriosityChecklist = lazy(() => import("./pages/WorkCuriosityChecklist.tsx"));
 const SideHustles = lazy(() => import("./pages/SideHustles.tsx"));
 const SideHustleTopic = lazy(() => import("./pages/SideHustleTopic.tsx"));
 const StartingABusiness = lazy(() => import("./pages/StartingABusiness.tsx"));
@@ -439,6 +440,7 @@ const App = () => (
           <Route path="/unsubscribe" element={<Unsubscribe />} />
           <Route path="/learning" element={<Learning />} />
           <Route path="/mentoring" element={<Mentoring />} />
+          <Route path="/resources/work-curiosity-checklist" element={<WorkCuriosityChecklist />} />
           <Route path="/resources/:slug" element={<ResourceTopic />} />
           <Route path="/side-hustles" element={<SideHustles />} />
           <Route path="/side-hustles/:slug" element={<SideHustleTopic />} />

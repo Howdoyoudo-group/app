@@ -378,6 +378,7 @@ const LEVEL_UP_GROUPS: NavGroup[] = [
       { label: "Employability", to: "/resources/employability", description: "Confidence & communication" },
       { label: "Financial Skills", to: "/resources/money", description: "Money, budgeting & tax" },
       { label: "Resilience & Confidence", to: "/resources/resilience-confidence", description: "Bounce back and back yourself" },
+      { label: "Work Curiosity Checklist", to: "/resources/work-curiosity-checklist", description: "Free printable one-pager" },
     ],
   },
   {
