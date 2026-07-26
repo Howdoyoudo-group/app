@@ -37,6 +37,35 @@ function isLandingUrl(rawUrl: string): boolean {
   }
 }
 
+// ATS boards (Greenhouse confirmed; written generically enough to catch
+// similar platforms) redirect a closed/removed posting back to the company's
+// board root with a 200, instead of 404ing. Verified live against
+// job-boards.greenhouse.io: a closed Anthropic listing (still in our DB)
+// redirects /anthropic/jobs/<id> -> /anthropic?error=true, status 200. Two
+// things make this invisible otherwise: isLandingUrl() only recognises
+// generic paths like /careers or /jobs, not a company's own board slug; and
+// Greenhouse renders the "no longer accepting applications" message
+// client-side in JS, so it never appears in the raw HTML this checker
+// fetches. Only trust this for known ATS hosts - collapsing to a shorter
+// path is meaningful there, but would false-positive on ordinary sites.
+const ATS_REDIRECT_HOSTS = /(?:^|\.)greenhouse\.io$/i;
+function isAtsClosedRedirect(originalUrl: string, finalUrl: string): boolean {
+  if (originalUrl === finalUrl) return false;
+  try {
+    const orig = new URL(originalUrl);
+    const final = new URL(finalUrl);
+    if (orig.host !== final.host || !ATS_REDIRECT_HOSTS.test(final.host)) return false;
+    if (/[?&]error=true\b/i.test(final.search)) return true;
+    const origSegs = orig.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+    const finalSegs = final.pathname.replace(/\/+$/, "").split("/").filter(Boolean);
+    // A specific posting path (company/jobs/id) collapsing down to just the
+    // company's board root means the posting itself is gone.
+    return origSegs.length >= 2 && finalSegs.length <= 1;
+  } catch {
+    return false;
+  }
+}
+
 type CheckResult = {
   ok: boolean;
   reason: string;
@@ -79,6 +108,9 @@ async function checkUrl(url: string, signal: AbortSignal): Promise<CheckResult> 
     // Redirected to a landing page
     if (finalUrl !== url && isLandingUrl(finalUrl)) {
       return { ok: false, reason: "redirected_to_landing", finalUrl };
+    }
+    if (isAtsClosedRedirect(url, finalUrl)) {
+      return { ok: false, reason: "ats_closed_redirect", finalUrl };
     }
 
     // Sample body for "job not found" markers
@@ -180,14 +212,29 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Wall-clock cap so a run always finishes and persists its writes well
+  // inside the cron's HTTP timeout, instead of getting cut off mid-flight.
+  // The previous cron called this with only a 5s timeout while a full
+  // 1000-2000 job batch at 8x concurrency realistically takes 50-100+
+  // seconds — meaning most nights the connection was killed before the
+  // delete/touch writes below ever ran, so nothing actually rotated. Budget
+  // is checked against wall-clock time, not job count, so a run degrades
+  // gracefully (fewer jobs checked) instead of failing outright if sites are
+  // slow to respond. dryRun gets a much bigger budget since it's a manual
+  // diagnostic call, not something a cron is waiting on.
+  const RUN_BUDGET_MS = dryRun ? 120_000 : 20_000;
+  const runStart = Date.now();
+
   const toDelete: { id: string; url: string; reason: string }[] = [];
-  const checked: number = jobs?.length ?? 0;
-  const concurrency = 8;
+  const processedIds = new Set<string>();
+  const concurrency = 16;
   let idx = 0;
 
   async function worker() {
     while (idx < (jobs?.length ?? 0)) {
+      if (Date.now() - runStart > RUN_BUDGET_MS) break;
       const job = jobs![idx++];
+      processedIds.add(job.id);
       // Pre-filter: obvious landing pages get deleted without HTTP call
       if (isLandingUrl(job.url)) {
         toDelete.push({ id: job.id, url: job.url, reason: "landing_url" });
@@ -201,6 +248,7 @@ Deno.serve(async (req) => {
   }
 
   await Promise.all(Array.from({ length: concurrency }, () => worker()));
+  const checked = processedIds.size;
 
   let deleted = 0;
   if (!dryRun && toDelete.length > 0) {
@@ -212,11 +260,13 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Touch scraped_at on the survivors so they rotate to the back of the queue
-  if (!dryRun && jobs && jobs.length > 0) {
-    const survivorIds = jobs
-      .filter((j) => !toDelete.some((d) => d.id === j.id))
-      .map((j) => j.id);
+  // Touch scraped_at on the survivors so they rotate to the back of the
+  // queue. Only jobs actually checked this run count as survivors — a job
+  // the time budget never reached must keep its old (stale) scraped_at so
+  // it stays at the front of the "oldest first" queue and gets picked up
+  // next run, instead of being falsely marked as reviewed.
+  if (!dryRun && processedIds.size > 0) {
+    const survivorIds = [...processedIds].filter((id) => !toDelete.some((d) => d.id === id));
     if (survivorIds.length > 0) {
       // chunked touch
       for (let i = 0; i < survivorIds.length; i += 200) {
@@ -234,7 +284,9 @@ Deno.serve(async (req) => {
 
   return new Response(
     JSON.stringify({
+      fetched: jobs?.length ?? 0,
       checked,
+      timedOut: checked < (jobs?.length ?? 0),
       flagged: toDelete.length,
       deleted: dryRun ? 0 : deleted,
       staleReedDeleted,
