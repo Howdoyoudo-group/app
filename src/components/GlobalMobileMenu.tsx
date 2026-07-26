@@ -97,9 +97,9 @@ const NAV_SECTIONS: NavSection[] = [
         ],
       },
       {
-        label: "Work Curiosity Checklist",
+        label: "Checklist",
         items: [
-          { label: "Download the Checklist", to: "/resources/work-curiosity-checklist", description: "Free printable one-pager" },
+          { label: "Work Curiosity Checklist", to: "/resources/work-curiosity-checklist", description: "Free printable one-pager" },
         ],
       },
     ],
