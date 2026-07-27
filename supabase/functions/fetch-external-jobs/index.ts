@@ -1943,21 +1943,43 @@ const EMPLOYER_INDUSTRY_OVERRIDES: Array<{ rx: RegExp; industry: string }> = [
   { rx: /\b(british horseracing authority|\bBHA\b|jockey club|weatherbys|godolphin|coolmore|juddmonte)\b/i, industry: "horse-racing" },
 ];
 
-// Returns the industry to assign the job to. If the job doesn't match the
-// searched industry's signal filter, it goes to "other" rather than being
-// dropped — keeps the job on the platform for role-based searches without
-// polluting the industry-specific pages.
+// Returns the industry to assign the job to.
+//
+// A job only ever gets fetched because it matched ONE industry's search
+// keywords - but Reed/Jooble/JSearch results are fuzzy, so it can easily be
+// off-topic for the industry it was searched under while being an obvious
+// match for a completely different one (e.g. a "Year 5 Primary Teacher"
+// surfacing during a non-teaching sweep). Previously, failing the search
+// industry's own filter sent a job straight to "other" with no second
+// chance - it was never tested against the other industries at all, even
+// when they were an exact match. Cross-checking costs nothing extra (same
+// data already fetched, just run through more regexes), so: check the
+// search industry first (fast path, correct the vast majority of the
+// time), then fall through to every other defined industry signal before
+// finally giving up to "other" - which still exists so a genuinely
+// unclassifiable job is kept on the platform for role-based search rather
+// than dropped.
 function resolveIndustry(industry: string, title: string, company: string, description?: string): string {
   // Company-name override takes priority — "Marketing Manager @ LTA" is tennis.
   for (const { rx, industry: overrideIndustry } of EMPLOYER_INDUSTRY_OVERRIDES) {
     if (rx.test(company)) return overrideIndustry;
   }
+  const matches = (sig: { rx: RegExp; scope: "tc" | "tcd" }): boolean => {
+    const haystack = sig.scope === "tcd"
+      ? `${title}\n${company}\n${description || ""}`
+      : `${title}\n${company}`;
+    return sig.rx.test(haystack);
+  };
+
   const sig = INDUSTRY_SIGNALS[industry];
   if (!sig) return industry; // no filter defined → keep original industry
-  const haystack = sig.scope === "tcd"
-    ? `${title}\n${company}\n${description || ""}`
-    : `${title}\n${company}`;
-  return sig.rx.test(haystack) ? industry : "other";
+  if (matches(sig)) return industry;
+
+  for (const [otherIndustry, otherSig] of Object.entries(INDUSTRY_SIGNALS)) {
+    if (otherIndustry === industry) continue;
+    if (matches(otherSig)) return otherIndustry;
+  }
+  return "other";
 }
 
 async function fetchReedJobs(industry: string, keywords: string[], apiKey: string, opts?: { grad?: boolean }) {
