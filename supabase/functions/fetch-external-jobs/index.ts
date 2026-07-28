@@ -6734,6 +6734,19 @@ Deno.serve(async (req) => {
     _adzunaTelemetry.sweeps = new Map();
     _adzunaTelemetry.errors = [];
     _adzunaTelemetry.currentSweep = "other:unknown";
+    // Reset the quota circuit-breaker too - it's module-level state, and Deno
+    // reuses warm isolates across invocations, so without this a breaker
+    // tripped during one cron run stayed silently tripped for every later
+    // invocation that happened to land on the same isolate (telemetry above
+    // looked "fresh" each time even though the actual breaker never was).
+    // Confirmed live: Adzuna sitewide-stalled for 6 days (2026-07-20 to
+    // 2026-07-26) and only recovered the moment this file was next
+    // redeployed for an unrelated fix, which forced a cold start and
+    // incidentally reset these - i.e. purely by chance, not by design.
+    _adzunaQuota429s = 0;
+    _adzunaExhausted = false;
+    _adzunaTotalRequests = 0;
+    _adzunaWindow.length = 0;
     const triggerSource = req.headers.get("x-trigger-source") || "manual";
 
     // Adzuna free-tier quota guard:
