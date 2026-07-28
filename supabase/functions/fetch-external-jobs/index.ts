@@ -3212,9 +3212,11 @@ const WORKDAY_TENANTS: Array<{
     ],
   },
   { company: "Signet Jewelers",    industry: "fashion",   tenant: "signetjewelers",   wd: "wd1", site: "Signet_Jewelers" },
-  { company: "Universal Music",    industry: "music",     tenant: "umusic",           wd: "wd1", site: "UMG_Careers" },
-  { company: "Warner Music Group", industry: "music",     tenant: "warnermusic",      wd: "wd1", site: "Warner_Music" },
-  { company: "Sony Music",         industry: "music",     tenant: "sonymusic",        wd: "wd5", site: "Sony_Music" },
+  // Workday tenant/wd/site verified live 2026-07-28 - all three previously
+  // 422'd on every run (wrong tenant slug and/or wd number and/or site name).
+  { company: "Universal Music",    industry: "music",     tenant: "umusic",           wd: "wd5", site: "UMGUK" },
+  { company: "Warner Music Group", industry: "music",     tenant: "wmg",              wd: "wd1", site: "WMGGLOBAL" },
+  { company: "Sony Music",         industry: "music",     tenant: "sonyglobal",       wd: "wd1", site: "SonyGlobalCareers" },
   { company: "Live Nation",        industry: "music",     tenant: "livenation",       wd: "wd5", site: "Live_Nation" },
   { company: "Medivet",            industry: "pets",      tenant: "medivet",          wd: "wd3", site: "MedivetCareers" },
   { company: "Ramsay Health Care",  industry: "health",    tenant: "ramsayhealthcare", wd: "wd3", site: "Ramsay_Careers" },
@@ -3247,7 +3249,8 @@ const WORKDAY_TENANTS: Array<{
       { match: /\b(sport|premier league|football|f1|formula)\b/i,              industry: "football" },
     ],
   },
-  { company: "Netflix",        industry: "cinema",   tenant: "netflix",      wd: "wd1", site: "Netflix_External_Site" },
+  // Verified live 2026-07-28 - was 422ing, wrong wd number and site name.
+  { company: "Netflix",        industry: "cinema",   tenant: "netflix",      wd: "wd108", site: "Netflix" },
   { company: "Warner Bros. Discovery", industry: "cinema", tenant: "wbd",    wd: "wd5", site: "careers",
     routes: [
       { match: /\b(hbo|max|streaming|series|drama|comedy|scripted)\b/i, industry: "cinema" },
@@ -3271,7 +3274,8 @@ const WORKDAY_TENANTS: Array<{
   // ===== Footwear =====
   { company: "Adidas",         industry: "footwear", tenant: "adidas",       wd: "wd3", site: "adidas-jobs" },
   { company: "Foot Locker",    industry: "footwear", tenant: "footlocker",   wd: "wd5", site: "FootLockerCareers" },
-  { company: "New Balance",    industry: "footwear", tenant: "newbalance",   wd: "wd3", site: "External" },
+  // Verified live 2026-07-28 - was 422ing, wrong wd number and site name.
+  { company: "New Balance",    industry: "footwear", tenant: "newbalance",   wd: "wd1", site: "Careers-UK" },
 
   // ===== Jewellery =====
   { company: "Pandora",        industry: "jewellery", tenant: "pandora",     wd: "wd3", site: "Pandora_Careers" },
@@ -3286,7 +3290,8 @@ const WORKDAY_TENANTS: Array<{
 
   // ===== Beer / Drinks =====
   { company: "Heineken",       industry: "beer",     tenant: "heineken",     wd: "wd3", site: "HNZ" },
-  { company: "AB InBev",       industry: "beer",     tenant: "abinbev",      wd: "wd3", site: "AB-InBev" },
+  // Verified live 2026-07-28 - was 422ing, wrong wd number and site name.
+  { company: "AB InBev",       industry: "beer",     tenant: "abinbev",      wd: "wd1", site: "GHQ" },
   { company: "Carlsberg Group", industry: "beer",    tenant: "carlsberg",    wd: "wd3", site: "External" },
   { company: "Molson Coors",    industry: "beer",    tenant: "molsoncoors",  wd: "wd5", site: "MolsonCoors" },
 
@@ -3302,6 +3307,16 @@ function isUkLocation(s: string): boolean {
   if (/\b(london|manchester|birmingham|leeds|liverpool|bristol|glasgow|edinburgh|cardiff|belfast|nottingham|sheffield|newcastle|cambridge|oxford|brighton|reading|coventry|leicester|southampton|portsmouth|york|hull|derby|stoke|aberdeen|dundee|swansea|milton keynes|watford|st albans|guildford|crawley|woking|slough|reigate|basingstoke|maidenhead|chelmsford|colchester|norwich|ipswich|preston|bolton|wigan|warrington|bradford|wakefield|huddersfield|sunderland|middlesbrough)\b/.test(t)) return true;
   return false;
 }
+
+// Tracks which Workday tenants actually work vs silently return 404/422 on
+// every run. Reset per-invocation (see reset alongside the Adzuna breaker
+// reset) - this is exactly the same "module-level state persisting across
+// warm isolates" class of bug, just for visibility bookkeeping instead of
+// a circuit breaker, so it must not leak between runs either.
+// Found live: 36 of 49 configured Workday tenants (73%) return 404/422 on
+// every single call - console.error alone made this permanently invisible,
+// since nobody reads function logs for a cron that "succeeds" every run.
+let _workdayTenantResults: { tenant: string; company: string; status: number | string; ok: boolean }[] = [];
 
 async function fetchWorkdayJobs(tenant: typeof WORKDAY_TENANTS[number]) {
   const allJobs: any[] = [];
@@ -3331,7 +3346,13 @@ async function fetchWorkdayJobs(tenant: typeof WORKDAY_TENANTS[number]) {
 
       if (!res.ok) {
         console.error(`Workday error for "${tenant.company}" offset=${offset}: ${res.status}`);
+        if (page === 0) {
+          _workdayTenantResults.push({ tenant: tenant.tenant, company: tenant.company, status: res.status, ok: false });
+        }
         break;
+      }
+      if (page === 0) {
+        _workdayTenantResults.push({ tenant: tenant.tenant, company: tenant.company, status: res.status, ok: true });
       }
 
       const data = await res.json();
@@ -6747,6 +6768,7 @@ Deno.serve(async (req) => {
     _adzunaExhausted = false;
     _adzunaTotalRequests = 0;
     _adzunaWindow.length = 0;
+    _workdayTenantResults = [];
     const triggerSource = req.headers.get("x-trigger-source") || "manual";
 
     // Adzuna free-tier quota guard:
@@ -7554,6 +7576,33 @@ Deno.serve(async (req) => {
       });
     } catch (logErr) {
       console.error("Failed to write adzuna_run_log:", logErr);
+    }
+
+    // ── Write Workday tenant health ─────────────────────────────────
+    // Dedup by tenant (a multi-route tenant like Unilever can get pushed
+    // more than once per run, once per matching industry).
+    try {
+      const seen = new Set<string>();
+      const deduped = _workdayTenantResults.filter((r) => {
+        if (seen.has(r.tenant)) return false;
+        seen.add(r.tenant);
+        return true;
+      });
+      if (deduped.length > 0) {
+        const broken = deduped.filter((r) => !r.ok);
+        const working = deduped.filter((r) => r.ok);
+        await supabase.from("source_health_log").insert({
+          source_type: "workday",
+          working_count: working.length,
+          broken_count: broken.length,
+          broken: broken.map(({ tenant, company, status }) => ({ tenant, company, status })),
+        });
+        if (broken.length > 0) {
+          console.error(`[workday health] ${broken.length}/${deduped.length} tenants broken this run: ${broken.map((b) => `${b.company}(${b.status})`).join(", ")}`);
+        }
+      }
+    } catch (logErr) {
+      console.error("Failed to write source_health_log:", logErr);
     }
 
     console.log(`fetch-external-jobs background work done: inserted=${totalInserted}, skipped=${totalSkipped}, expired=${totalExpired}`);
