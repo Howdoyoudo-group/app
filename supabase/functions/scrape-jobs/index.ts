@@ -1240,8 +1240,13 @@ function extractPaulUkJobsFromMarkdown(markdown: string, company: string, source
   return dedupeJobs(jobs);
 }
 
-// Ocado Logistics careers site (Webflow CMS) renders cards in a strict 7-block sequence:
-//   <category>\n<title>\n<location>\nFULL TIME|PART TIME|CASUAL\nPermanent|Temporary|...\nPosted N {days|months|years} ago\n[Apply now](https://iahbme.fa.ocs.oraclecloud.com/...)
+// Ocado Logistics careers site (Webflow CMS) renders cards in a 7-block sequence.
+// The site was redesigned at some point - the category label used to come FIRST
+// (before the title) but now trails the card, AFTER the apply link:
+//   <title>\n<location>\nFULL TIME|PART TIME|CASUAL\nPermanent|Temporary|...\nPosted N {days|months|years} ago\n[Apply now](https://iahbme.fa.ocs.oraclecloud.com/...)\n<category>
+// Anchoring on the category line (as the original parser did) broke silently
+// when the order flipped - anchoring on the employment-type line instead
+// (FULL TIME/PART TIME/CASUAL) is unambiguous regardless of where category sits.
 //
 // When Firecrawl's `onlyMainContent` strips the inline apply link, we fall back to
 // the ordered list of Oracle HCM apply URLs (collected from the `links` format) and
@@ -1302,19 +1307,21 @@ function extractOcadoLogisticsJobsFromMarkdown(
   let applyCursor = 0;
 
   for (let i = 0; i < lines.length; i++) {
-    const cat = norm(lines[i].replace(/^#+\s*/, ''));
-    if (!cat || !KNOWN_CATEGORIES.has(cat.toLowerCase())) continue;
+    const employmentLine = lines[i] || '';
+    if (!isEmploymentLine(employmentLine)) continue;
 
-    // Strict 7-block lookahead: title, location, employment, contract, posted, [apply]
-    const title = cleanupTitle(norm((lines[i + 1] || '').replace(/^#+\s*/, '')));
-    const location = norm(lines[i + 2] || '') || null;
-    const employmentLine = lines[i + 3] || '';
-    const contractLine = lines[i + 4] || '';
-    const postedLine = lines[i + 5] || '';
-    const applyLine = lines[i + 6] || '';
+    // Anchored on the employment-type line: title and location precede it,
+    // contract/posted/apply/category follow. Category is best-effort only -
+    // an unrecognised or missing category must not disqualify the card.
+    const title = cleanupTitle(norm((lines[i - 2] || '').replace(/^#+\s*/, '')));
+    const location = norm(lines[i - 1] || '') || null;
+    const contractLine = lines[i + 1] || '';
+    const postedLine = lines[i + 2] || '';
+    const applyLine = lines[i + 3] || '';
+    const catLine = norm((lines[i + 4] || '').replace(/^#+\s*/, ''));
+    const cat = KNOWN_CATEGORIES.has(catLine.toLowerCase()) ? catLine : null;
 
     if (!isValidJobTitle(title)) continue;
-    if (!isEmploymentLine(employmentLine)) continue;
     if (!isContractLine(contractLine)) continue;
     if (!isPostedLine(postedLine)) continue;
 
@@ -1331,23 +1338,38 @@ function extractOcadoLogisticsJobsFromMarkdown(
       }
     }
 
-    const seeded = createJobRecord(
-      company,
-      source,
-      {
-        title,
-        url: applyUrl || source.url,
+    // Built directly rather than via createJobRecord: that helper's
+    // isSameHostOrSubdomain check rejects any apply URL whose domain
+    // differs from the source site, but Ocado Logistics' real apply
+    // links always point to Oracle Cloud (iahbme.fa.ocs.oraclecloud.com)
+    // - a different domain entirely. We've already validated the URL via
+    // the strict Oracle-pattern regex above, so the generic same-host
+    // check is both wrong and redundant here.
+    if (isValidJobTitle(title) && applyUrl) {
+      const description = [cat, location, postedLine].filter(Boolean).join(' · ') || null;
+      const { stage, roleCategory } = classifyJob(title, description || '', source.industry);
+      const workMode = extractWorkMode(`${title} ${description || ''}`);
+      jobs.push({
+        title: title.slice(0, 255),
+        company,
         location,
-        employment_type: [employmentLine, contractLine].filter(Boolean).join(' · ') || null,
-        description: [cat, location, postedLine].filter(Boolean).join(' · '),
-      },
-      [cat, location, employmentLine, contractLine, postedLine].filter(Boolean).join(' '),
-      source.url,
-    );
+        salary: null,
+        description,
+        url: applyUrl,
+        tags: [source.industry, stage, cat, workMode !== 'On-site' ? workMode : null].filter(Boolean) as string[],
+        industry: source.industry,
+        type: [employmentLine, contractLine].filter(Boolean).join(' · ') || 'Full-time',
+        work_mode: workMode,
+        featured: false,
+        source_url: source.url,
+        value_chain_stage: stage,
+        role_category: roleCategory,
+      });
+    }
 
-    if (seeded) jobs.push(seeded);
-
-    // Skip past this card so we don't re-match its own employment/contract lines
+    // Skip past this card (title, location already consumed behind us;
+    // contract/posted/apply/category ahead - 7 lines total per card) so we
+    // land on the next card's employment line, not re-match this one.
     i += 6;
   }
 
@@ -2106,6 +2128,7 @@ async function scrapeCompanyJobs(company: string, source: CareerSource, apiKey: 
       return { success: retailJobs.length > 0, jobs: retailJobs };
     }
 
+    const ocadoLogisticsJobs = isOcadoLogistics ? extractOcadoLogisticsJobsFromMarkdown(markdown, company, source, scrapedLinks) : [];
     let jobs = dedupeJobs([
       ...extractJobsFromStructuredPayload(structuredPayload, company, source, markdown, source.url),
       ...extractJobsFromMarkdown(markdown, company, source, source.url),
@@ -2113,8 +2136,16 @@ async function scrapeCompanyJobs(company: string, source: CareerSource, apiKey: 
       ...(company === 'ASOS' ? extractAsosJobsFromMarkdown(markdown, company, source) : []),
       ...(company === 'Greggs' ? extractGreggsJobsFromMarkdown(markdown, company, source) : []),
       ...(company === 'Paul UK' ? extractPaulUkJobsFromMarkdown(markdown, company, source) : []),
-      ...(isOcadoLogistics ? extractOcadoLogisticsJobsFromMarkdown(markdown, company, source, scrapedLinks) : []),
+      ...ocadoLogisticsJobs,
     ]);
+
+    if (isOcadoLogistics && jobs.length === 0) {
+      const nonEmptyLines = markdown.replace(/\r/g, '').split('\n').map((l) => l.trim()).filter(Boolean);
+      return {
+        success: false, jobs: [],
+        _debug: `markdown_len=${markdown.length} links=${scrapedLinks.length} ocadoParsed=${ocadoLogisticsJobs.length} line_count=${nonEmptyLines.length} lines_60_100=${JSON.stringify(nonEmptyLines.slice(60, 100))}`,
+      } as any;
+    }
 
     if (['ASOS', 'Greggs', 'Paul UK', 'Ocado Logistics'].includes(company) && jobs.length > 0) {
       console.log(`[scrape-jobs] ${company}: extracted ${jobs.length} jobs from ${source.url}`);
