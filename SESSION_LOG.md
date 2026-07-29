@@ -5,6 +5,33 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-29 — Andrew (main branch) — Fixed missing roles in Marketplace role dropdown
+
+### What was done
+**Discovered and fixed missing roles** — Marketplace role dropdown was missing all industry-specific roles for Building, Fixing, Politics, and Theatre industries. Root cause: new roles (defined in `src/data/roles.ts`) were never added to the `ROLE_CHIPS` array in `Marketplace.tsx`.
+
+**Added 20 missing roles across 4 industries:**
+- **Building (5 roles):** Bricklayer, Carpenter/Joiner, Plasterer, Groundworker, Roofer
+- **Fixing (5 roles):** Electrician, Plumber, Heating & Gas Engineer, Repair Technician, Handyperson
+- **Politics (5 roles):** Policy Advisor, Parliamentary Researcher, Council Officer, Think Tank Researcher, Public Affairs Manager
+- **Theatre (5 roles):** Performer, Stage Manager, Theatre Technician, Costume & Design, Theatre Producer
+
+**Also added keyword mappings** — Added comprehensive keyword arrays for all 20 new roles in `ROLE_KEYWORDS` to support fallback job title matching (when jobs don't yet have structured role_category data).
+
+**Verified the fix** — Tested in dev server: Building industry role dropdown now shows all 5 building trades + cross-cutting roles. Dropdown properly filters by industry using the roles.ts industry mappings.
+
+### Current state
+- Live at: www.howdoyoudo.co.uk
+- Building role dropdown: Bricklayer, Carpenter, Plasterer, Groundworker now visible ✅
+- All 20 new roles wired into Marketplace (commit 1bcb807, pushed to both remotes)
+- Typecheck clean
+
+### Left for next session
+- Verify the other 3 industries (Fixing, Politics, Theatre) role dropdowns in same way
+- Verify the Roofer role appears in Building list (wasn't visible in scrolled view but is in code)
+
+---
+
 ## 2026-07-26 — Woody (main branch) — audit-job-links: fixed silent no-op + Greenhouse blind spot; verify tomorrow AM
 
 ### What happened
