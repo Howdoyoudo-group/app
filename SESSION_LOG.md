@@ -5,7 +5,12 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
-## 2026-07-29 — Andrew (main branch) — Fixed missing roles in Marketplace role dropdown
+## 2026-07-29 — Andrew (main branch) — Role dropdown fix, culinary schools, articles, and horse racing event
+
+### Summary of fixes & additions
+Comprehensive content and functionality updates addressing multiple user feedback items and content gaps.
+
+### 1. Fixed Marketplace role dropdown (20 missing roles added)
 
 ### What was done
 **Discovered and fixed missing roles** — Marketplace role dropdown was missing all industry-specific roles for Building, Fixing, Politics, and Theatre industries. Root cause: new roles (defined in `src/data/roles.ts`) were never added to the `ROLE_CHIPS` array in `Marketplace.tsx`.
@@ -34,10 +39,32 @@ Discovered that plumber role filter only found 2 jobs when AI search found 250. 
 
 **Result:** Plumber filter now shows **278 jobs** (was 2) — nearly matches AI search result of ~250. The slight difference is normal due to different filtering logic.
 
+### 2. Expanded role keyword matching
+Plumber filter showed only 2 jobs (AI search: 250). Root cause: keyword list too narrow. Fixed by expanding all role keywords to include common job title variations (e.g., "plumbing technician", "service plumber", "domestic plumber", etc.). **Result: Plumber filter now 278 jobs** ✅
+
+### 3. Added culinary schools to Food & Drink Learning tab
+Added three prestigious culinary institutions:
+- **Ballymaloe Cookery School** (Ireland) - hands-on culinary education
+- **Leiths School of Food and Wine** (London) - professional chef diplomas
+- **Le Cordon Bleu Paris** - world-renowned French culinary training
+Now appears at top of Food & Drink "Learn" tab ✅
+
+### 4. Added articles to Inspire section
+Added two new curated articles to `/articles` page:
+- **"A Job to Love"** from The School of Life - guide to finding meaningful work
+- **Howdoyoudo? Substack Newsletter** - weekly career insights and inspiration
+Both now appear alongside existing resources ✅
+
+### 5. Horse Racing Week event (pending)
+National Horse Racing Week (August 3-9, 2026) - SQL provided for manual insertion into `industry_events` table ⏳
+
 ### Current state
-- Live at: www.howdoyoudo.co.uk (commits 1bcb807, 6c3ea7d, 8d71da7)
-- Plumber role filter: 278 jobs found ✅
-- Building trades all working
+- Live at: www.howdoyoudo.co.uk
+- **Commits:** 1bcb807 (role chips), 8d71da7 (keyword expansion), 429bee0 (culinary schools), 360432b (articles)
+- Plumber filter: **278 jobs** ✅
+- All 20 new Building/Fixing/Politics/Theatre roles visible ✅
+- Culinary schools: Ballymaloe, Leiths, Le Cordon Bleu live ✅
+- Articles section: School of Life + Substack links live ✅
 - Typecheck clean
 
 ---
