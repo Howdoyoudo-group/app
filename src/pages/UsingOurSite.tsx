@@ -37,13 +37,13 @@ const UsingOurSite = () => {
           >
             <h2 className="font-display font-700 text-xl md:text-2xl mb-4">Start with a blank sheet of paper</h2>
             <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
-              Most of us find it easier to decide what we want for lunch than what we want from our lives — even though work is where we'll spend most of our waking hours. Family, friends, expectations, past experiences and our own insecurities quietly narrow the options before we've even started looking.
+              Most of us find it easier to decide what we want for lunch than what we want from our lives - even though work is where we'll spend most of our waking hours. Family, friends, expectations, past experiences and our own insecurities quietly narrow the options before we've even started looking.
             </p>
             <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
-              <strong>How Do You Do? exists to widen them again.</strong> This is a place for work curiosity — because curiosity creates ideas, conversations and possibilities, and possibilities improve probabilities. The more you explore, the more chances you give yourself to succeed.
+              <strong>How Do You Do? exists to widen them again.</strong> This is a place for work curiosity - because curiosity creates ideas, conversations and possibilities, and possibilities improve probabilities. The more you explore, the more chances you give yourself to succeed.
             </p>
             <p className="font-body text-base text-muted-foreground leading-relaxed">
-              So forget what you're "supposed" to do. Start blank — or better, start with what you love, and see where it takes you. This is about discovering your energy and your purpose, and finding work that actually means something to you.
+              So forget what you're "supposed" to do. Start blank - or better, start with what you love, and see where it takes you. This is about discovering your energy and your purpose, and finding work that actually means something to you.
             </p>
           </motion.div>
 
@@ -76,7 +76,7 @@ const UsingOurSite = () => {
                 <h2 className="font-display font-700 text-2xl md:text-3xl">Get inspired</h2>
               </div>
               <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
-                Watch <Link to="/the-show" className="text-primary font-600 hover:underline">The HDYD Show</Link> — episodes, pitches, street interviews and shorts from people doing jobs you may never have heard of. Prefer to read? Head to <Link to="/articles" className="text-primary font-600 hover:underline">Articles</Link>. Watch, listen, read — whatever works for you. The goal is simple: stumble onto something you didn't know existed.
+                Watch <Link to="/the-show" className="text-primary font-600 hover:underline">The HDYD Show</Link> - episodes, pitches, street interviews and shorts from people doing jobs you may never have heard of. Prefer to read? Head to <Link to="/articles" className="text-primary font-600 hover:underline">Articles</Link>. Watch, listen, read - whatever works for you. The goal is simple: stumble onto something you didn't know existed.
               </p>
             </div>
 
@@ -89,7 +89,7 @@ const UsingOurSite = () => {
                 <h2 className="font-display font-700 text-2xl md:text-3xl">Discover what's out there</h2>
               </div>
               <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
-                Explore <strong>30+ Industries</strong> — from fashion and football to farming and Formula 1 — and hundreds of Roles within them.
+                Explore <strong>30+ Industries</strong> - from fashion and football to farming and Formula 1 - and hundreds of Roles within them.
               </p>
               <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
                 <strong>Here's the thing most careers advice misses: roles are inputs, industries are outputs.</strong> They live together. Music needs lawyers, accountants and marketeers just as much as it needs musicians. So if you love an industry, there's almost certainly a role for your skills inside it — and if you love a role, you can take it almost anywhere.
