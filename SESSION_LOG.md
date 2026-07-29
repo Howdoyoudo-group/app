@@ -5,20 +5,30 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
-## 2026-07-29 — Andrew (main branch, later) — Removed em dashes from Using our Site page
+## 2026-07-29 — Andrew (main branch, latest) — Fixed tour stopping on My Jobs, removed em dashes
 
 ### What was done
-- **Removed all em dashes** from `src/pages/UsingOurSite.tsx` copy, replacing with regular hyphens:
+
+**1. Fixed Howdy Tour stopping abruptly on My Jobs/Community pages**
+- **Root cause:** `ConditionalHowdy` component in `App.tsx` was hiding the tour (returning null) on `/my-jobs` and `/community` routes
+- **Fix:** Removed the path exclusions from `ConditionalHowdy` so the tour now displays and navigates through all 18 stops including:
+  - Stop 15: "/my-jobs" (Your Inbox)
+  - Stop 17: "/community" (Join the community)
+  - Stop 18: "/" (Me - your Howdy, back to home)
+- **Result:** Tour now completes end-to-end ✅
+
+**2. Removed all em dashes** from `src/pages/UsingOurSite.tsx` copy:
   - Line 40: "from our lives — even" → "from our lives - even"
   - Line 43: "work curiosity — because" → "work curiosity - because"
   - Line 46: "Start blank — or better" → "Start blank - or better"
-  - Line 79: "The HDYD Show — episodes" → "The HDYD Show - episodes" + "read — whatever" → "read - whatever"
-  - Line 92: "30+ Industries — from" → "30+ Industries - from" + "Formula 1 — and" → "Formula 1 - and"
+  - Line 79: "The HDYD Show — episodes" → "The HDYD Show - episodes"
+  - Line 92: "30+ Industries — from" → "30+ Industries - from"
 
 ### Current state
 - Live at: www.howdoyoudo.co.uk
-- All em dashes removed from Using our Site page copy ✅
-- Commit: 161f2b6, pushed to both remotes
+- Tour now completes all 18 stops end-to-end ✅
+- All em dashes removed from Using our Site page ✅
+- Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix) — all pushed to both remotes
 - Typecheck clean
 
 ---
