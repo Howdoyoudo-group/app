@@ -9,17 +9,24 @@ import { supabase } from "@/integrations/supabase/client";
 type Stop = { route: string; title: string; line: string };
 
 const STOPS: Stop[] = [
-  { route: "/", title: "Home", line: "This is the home page. Navigate to Industries, Roles, Job Search, anywhere - or jump to My Inbox or My Profile." },
-  { route: "/#series", title: "The industries", line: "Scroll down and choose an industry to unpack - each tile opens a full breakdown." },
-  { route: "/fashion", title: "An example industry page", line: "Eight tabs from Plan to Jobs. Same shape every time so you always know where you are." },
-  { route: "/fashion#watch", title: "Plan / Watch / Read / Listen", line: "Briefings, videos, articles and podcasts - all curated, all UK-focused." },
-  { route: "/fashion#apply", title: "Jobs tab (the green one)", line: "Live roles in this industry. The green tab is where the actual jobs hide." },
-  { route: "/marketplace?industry=fashion", title: "Jobs Marketplace", line: "We've scoured the web and our contacts to find jobs by industry - here's Fashion as an example. Filter by role or hit Search & Filter to narrow down further, or use our AI search and I'll do it for you." },
-  { route: "/my-jobs", title: "MyInbox", line: "This is where the action happens - choose your industries and get daily news feeds and analysis. Overnight I’ll magically place matching jobs in your Inbox. I’ll also introduce you to employers and they can email you directly." },
-  { route: "/learning", title: "Learning Hub", line: "A whole learning hub for anyone interested in the world of work - interviews, CVs, skills and courses." },
-  { route: "/my-profile", title: "Understand Me", line: "If you haven't set up your profile with me yet, do it here - or edit anytime. We'll also create an amazing magazine for you that you can download or print whenever you like." },
-  { route: "/briefings", title: "Daily briefing", line: "Magazine-style morning round-up for the industries you've subscribed to. Here are real examples - subscribe from any industry page to get yours by email." },
-  { route: "/", title: "Me - the floating Howdy", line: "I live here. Ask me anything. The more we talk, the better I get at finding the right roles for you." },
+  { route: "/", title: "Welcome home", line: "Welcome to Howdoyoudo? This is where you discover work you love. You’ll find everything you need to explore industries, find roles, and land jobs that matter." },
+  { route: "/using-our-site", title: "Your guide", line: "New here? Start with our guide ‘Using our Site’ - it walks you through the entire journey from inspiration to your first job." },
+  { route: "/the-show", title: "Get inspired", line: "Watch The HDYD Show - episodes, pitches, and street interviews with people doing jobs you may never have heard of. Watch, listen, or read - whatever works for you." },
+  { route: "/articles", title: "Read and learn", line: "Explore curated articles from The School of Life, our Substack newsletter, and industry insights. The goal is simple: stumble onto something you didn’t know existed." },
+  { route: "/#series", title: "Discover 30+ industries", line: "Scroll down and choose an industry to explore - from fashion and football to farming and Formula 1. Each tile opens a full breakdown with careers, companies, and jobs." },
+  { route: "/fashion", title: "Inside an industry", line: "This is the industry page template - Watch/Read/Listen to content, explore the Career Map, see who’s hiring, and find your role. Every industry follows the same shape." },
+  { route: "/fashion#plan", title: "Career Map - Plan your role", line: "See how careers progress in this industry. Explore different paths, understand what skills matter, and find roles that match your interests." },
+  { route: "/fashion#watch", title: "Watch / Read / Listen", line: "Curated videos, articles, and podcasts - all UK-focused and handpicked. Get inspired by real people in the industry." },
+  { route: "/fashion#work", title: "Meet the companies", line: "Explore companies hiring in this industry. See their values, what employees say about them, and whether they match your goals - before you apply." },
+  { route: "/fashion#apply", title: "Find jobs", line: "Live roles in this industry are right here. Scroll, filter by role or salary, or use our AI search and I’ll find matches for you." },
+  { route: "/marketplace", title: "Jobs Marketplace", line: "Our curated jobs board, organized by industry. Filter, search, get AI suggestions, or build your CV to stand out. Every job is vetted and real." },
+  { route: "/match-me", title: "Your Matches", line: "Curious what’s right for you? See your personality, values, and how they match with different industries and roles - including surprising combinations." },
+  { route: "/skills-passport", title: "Your Plan & Skills", line: "Honest checklist for your target role. Rate your skills, find your gaps, earn industry badges as you close them, and download your progress anytime." },
+  { route: "/resources/online-courses", title: "Level Up", line: "Full learning hub - CV tips, further education, online courses, mentoring, interview skills, internships, apprenticeships, and how to stand out." },
+  { route: "/my-jobs", title: "Your Inbox", line: "This is where it happens - set your industries, get daily news feeds and job suggestions. I’ll place matching roles in your Inbox overnight. I can also connect you directly with employers." },
+  { route: "/community", title: "Join the community", line: "Real people exploring real careers. Ask questions, share what you’re exploring, get support, and attend events to see industries up close." },
+  { route: "/my-profile", title: "Your profile", line: "Tell me about yourself - your interests, skills, and dreams. The more you share, the better I get at finding roles that match who you are." },
+  { route: "/", title: "Me - your Howdy", line: "I’m right here in the corner. Chat with me about anything - an industry you’re curious about, a role you don’t understand, or what comes next. I’ve read the whole site and I’m here to help." },
 ];
 
 const STORAGE_KEY = "howdy_tour_state_v1";
