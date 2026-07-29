@@ -1820,6 +1820,30 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     { slug: 'interior-designer', label: 'Interior Designer', group: 'craft' },
     // Grocery
     { slug: 'grocery-store-manager', label: 'Store Manager (Grocery)', group: 'craft' },
+    // Building trades
+    { slug: 'bricklayer', label: 'Bricklayer', group: 'craft' },
+    { slug: 'carpenter', label: 'Carpenter / Joiner', group: 'craft' },
+    { slug: 'plasterer', label: 'Plasterer', group: 'craft' },
+    { slug: 'groundworker', label: 'Groundworker', group: 'craft' },
+    { slug: 'roofer', label: 'Roofer', group: 'craft' },
+    // Fixing trades
+    { slug: 'electrician', label: 'Electrician', group: 'craft' },
+    { slug: 'plumber', label: 'Plumber', group: 'craft' },
+    { slug: 'heating-engineer', label: 'Heating & Gas Engineer', group: 'craft' },
+    { slug: 'repair-technician', label: 'Repair Technician', group: 'craft' },
+    { slug: 'handyperson', label: 'Handyperson / Multi-Trade', group: 'frontline' },
+    // Politics
+    { slug: 'policy-advisor', label: 'Policy Advisor', group: 'craft' },
+    { slug: 'parliamentary-researcher', label: 'Parliamentary Researcher', group: 'craft' },
+    { slug: 'council-officer', label: 'Council Officer', group: 'craft' },
+    { slug: 'think-tank-researcher', label: 'Think Tank Researcher', group: 'craft' },
+    { slug: 'public-affairs-manager', label: 'Public Affairs Manager', group: 'craft' },
+    // Theatre
+    { slug: 'performer', label: 'Performer', group: 'craft' },
+    { slug: 'theatre-stage-manager', label: 'Stage Manager', group: 'craft' },
+    { slug: 'theatre-technician', label: 'Theatre Technician', group: 'craft' },
+    { slug: 'theatre-costume-designer', label: 'Costume & Design', group: 'craft' },
+    { slug: 'theatre-producer', label: 'Theatre Producer', group: 'craft' },
   ];
 
   // Fallback keyword matching for jobs that don't have role_category set yet (slug-keyed)
@@ -1946,6 +1970,30 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     'interior-designer': ['interior designer', 'interior stylist', 'space planner', 'interior architect', 'kitchen designer', 'bathroom designer', 'showroom designer', 'design consultant'],
     // Grocery
     'grocery-store-manager': ['store manager', 'branch manager', 'supermarket manager', 'deputy manager', 'department manager', 'section manager', 'duty manager', 'night manager', 'shift manager'],
+    // Building trades
+    bricklayer: ['bricklayer', 'bricklaying', 'mason', 'brickwork', 'blocklaying', 'block layer'],
+    carpenter: ['carpenter', 'joiner', 'joinery', 'timber frame', 'carpentry', 'cabinet maker', 'fitted furniture'],
+    plasterer: ['plasterer', 'rendering', 'skimming', 'dry lining', 'drywall installer', 'renderer'],
+    groundworker: ['groundworker', 'groundworks', 'excavation', 'foundations', 'construction labourer', 'construction laborer', 'site labourer', 'site laborer'],
+    roofer: ['roofer', 'roofing', 'tiler', 'slater', 'felt roofer', 'roof technician', 'roofing technician', 'slate roof'],
+    // Fixing trades
+    electrician: ['electrician', 'electrical engineer', 'electrical fitter', 'electrical technician', 'installation electrician', 'solar panel installer', 'ev charger installer', 'sparky', 'part p', '18th edition'],
+    plumber: ['plumber', 'plumbing', 'pipefitter', 'bathroom fitter', 'water systems', 'pipe fitter'],
+    'heating-engineer': ['gas engineer', 'gas safe', 'heat pump engineer', 'hvac engineer', 'heating and ventilation', 'boiler engineer', 'boiler technician', 'heating engineer'],
+    'repair-technician': ['repair technician', 'appliance repair', 'mobile phone repair', 'electronics repair', 'white goods engineer', 'service engineer', 'technician repairs', 'fix appliances'],
+    handyperson: ['handyperson', 'handyman', 'multi-trade engineer', 'maintenance technician', 'odd jobs', 'general maintenance', 'handy person'],
+    // Politics
+    'policy-advisor': ['policy advisor', 'policy officer', 'policy manager', 'civil servant', 'government advisor', 'fast stream', 'government economist'],
+    'parliamentary-researcher': ['parliamentary researcher', 'parliamentary assistant', 'caseworker', 'chief of staff office', 'special adviser', 'spad'],
+    'council-officer': ['council officer', 'planning officer', 'environmental health officer', 'electoral services', 'democratic services', 'housing officer', 'local government'],
+    'think-tank-researcher': ['think tank', 'research fellow', 'research assistant', 'policy institute', 'programme manager', 'policy research'],
+    'public-affairs-manager': ['public affairs', 'government relations', 'public affairs consultant', 'lobbyist', 'political consultant', 'government relations manager'],
+    // Theatre
+    performer: ['actor', 'actress', 'performer', 'dancer', 'singer', 'musical theatre', 'ensemble', 'understudy', 'swing', 'stage performer'],
+    'theatre-stage-manager': ['stage manager', 'assistant stage manager', 'asm', 'deputy stage manager', 'dsm', 'company manager theatre', 'production manager theatre', 'stage management'],
+    'theatre-technician': ['theatre technician', 'lighting technician', 'lx tech', 'sound engineer theatre', 'av technician', 'rigger', 'stage crew', 'technical crew theatre'],
+    'theatre-costume-designer': ['costume designer', 'wardrobe supervisor', 'set designer', 'scenic designer', 'wigs hair makeup', 'theatre designer', 'props master'],
+    'theatre-producer': ['theatre producer', 'general manager theatre', 'casting director', 'literary manager', 'dramaturg', 'theatre administrator'],
   };
 
   const VALID_ROLE_SLUGS = new Set(ROLE_CHIPS.map(r => r.slug));
