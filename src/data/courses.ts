@@ -509,6 +509,9 @@ export const coursesByIndustry: Record<string, Course[]> = {
     { title: "Find an Apprenticeship", provider: "gov.uk", url: "https://www.gov.uk/apply-apprenticeship", description: "Search live plumbing, electrical, heating and other trade apprenticeships across the UK.", free: true },
   ],
   "food & drink": [
+    { title: "Ballymaloe Cookery School", provider: "Ballymaloe", url: "https://www.ballymaloecookeryschool.ie/", description: "Ireland's flagship culinary school - hands-on cookery classes, career courses, and artisan food education for aspiring chefs.", free: false },
+    { title: "Leiths School of Food and Wine", provider: "Leiths", url: "https://leiths.com/", description: "London's prestigious culinary school - diplomas and certificate courses in practical cookery, pastry, and food business for professional chefs.", free: false },
+    { title: "Le Cordon Bleu Paris", provider: "Le Cordon Bleu", url: "https://www.lecordonbleu.edu/", description: "The world's most famous culinary school - comprehensive French cuisine and hospitality education trusted by chefs globally.", free: false },
     { title: "Food Safety Level 2", provider: "Highfield", url: "https://www.highfieldqualifications.com/", description: "Essential certification for anyone working in food and drink.", free: false },
     { title: "WSET Wine & Spirit Education", provider: "WSET", url: "https://www.wsetglobal.com/qualifications/", description: "World-leading wine, spirits, and sake qualifications.", free: false },
     { title: "The Science of Gastronomy", provider: "Coursera / HKU", url: "https://www.coursera.org/learn/gastronomy", description: "Explore the science and culture behind what we eat and drink.", free: true },
