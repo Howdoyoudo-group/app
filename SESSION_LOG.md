@@ -33,13 +33,18 @@ This file is updated by Claude at the start and end of every session.
 - Added "Watch the Howdy intro" video link in Meet Howdy section pointing to YouTube intro video
 - Imported launchHowdyTour function to trigger tour from the page
 
+**5. Updated onboarding roles question**
+- Changed question from "What kind of work do you do?" to "Any roles you already fancy?"
+- More casual, conversational tone aligned with Howdoyoudo brand voice
+
 ### Current state
 - Live at: www.howdoyoudo.co.uk
 - Tour now completes all 18 stops end-to-end ✅
 - All em dashes removed from Using our Site page ✅
 - Howdy Jobs tour stop updated to reflect swipe interface ✅
 - Tour trigger and Howdy video link added to Using our Site page ✅
-- Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix), 003b092 (log), 6b3947a (jobs tour), 3b94329 (log), 8c3f3b8 (tour + video) — all pushed to both remotes
+- Onboarding roles question updated to casual tone ✅
+- Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix), 003b092 (log), 6b3947a (jobs tour), 3b94329 (log), e0e8adb (log), 8c3f3b8 (tour + video), 324c9ec (roles question) — all pushed to both remotes
 - Typecheck clean
 
 ---
