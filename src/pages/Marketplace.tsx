@@ -1508,9 +1508,15 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     // deduping trimmed that further. Confirmed on real data: Apprenticeship
     // (248 rows) showed 71, London (1,728 rows) showed 74, and Senior career
     // level (23,287 rows) would have shown ~80 - all silently truncated.
+    // Free-text search has the identical problem and was missed here: it's
+    // applied client-side (below, against job.title/company/industry/tags)
+    // to whatever this query happens to fetch, so with no other filter set
+    // it only ever searched the top 80 broadest/highest-confidence jobs.
+    // Confirmed on real data: searching "plumbing" with no filters found 0
+    // of 397 real matching jobs, because none of them were in that top 80.
     const shouldPaginate = (industry !== 'All' && !isCategoryTab) || isCompanyScoped
       || jobType !== 'All' || location !== 'All' || workMode !== 'All' || careerLevel !== 'All'
-      || salary !== 'All' || tempOnly;
+      || salary !== 'All' || tempOnly || search.trim() !== '';
     const HARD_CAP = shouldPaginate ? 9000 : 1000;
     const CHUNK = shouldPaginate
       ? 1000
