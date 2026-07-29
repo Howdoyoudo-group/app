@@ -16,12 +16,26 @@ type Article = {
 
 const FEATURED_ARTICLES: Article[] = [
   {
+    title: "A Job to Love",
+    source: "The School of Life",
+    description: "An insightful guide to finding meaningful work and building a career aligned with your values and passions. Explore what makes a job fulfilling and how to pursue it.",
+    url: "https://www.theschooloflife.com/shop/a-job-to-love/",
+    tag: "Career Philosophy",
+  },
+  {
     title: "Feel like you can't get a job? You're not alone — but here's how to work around it",
     source: "The Conversation",
     description: "Automation now does the screening before a human ever looks at your application. Jason Walker breaks down five evidence-based strategies to navigate the modern job market — from optimising for AI to building a visible portfolio.",
     url: "https://theconversation.com/feel-like-you-cant-get-a-job-youre-not-alone-but-heres-how-to-work-around-it-268355",
     tag: "Careers",
     date: "Nov 2025",
+  },
+  {
+    title: "Howdoyoudo? Newsletter",
+    source: "Howdoyoudo? on Substack",
+    description: "Stay updated with career insights, industry trends, and stories from the Howdoyoudo? team. Subscribe to our weekly newsletter for actionable advice and inspiration.",
+    url: "https://substack.com/@hdydofficial",
+    tag: "Newsletter",
   },
   {
     title: "BBC News",
