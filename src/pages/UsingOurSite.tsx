@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { Compass, ExternalLink, CheckCircle } from "lucide-react";
+import { Compass, ExternalLink, CheckCircle, Play } from "lucide-react";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
+import { launchHowdyTour } from "@/components/HowdyTour";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -55,9 +56,13 @@ const UsingOurSite = () => {
             className="mb-12 border-2 border-primary rounded-2xl p-6 md:p-8 bg-primary/5"
           >
             <h2 className="font-display font-700 text-2xl md:text-3xl mb-4">Meet Howdy, your AI sidekick</h2>
-            <p className="font-body text-base text-muted-foreground leading-relaxed">
+            <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
               Howdy has read the whole site — every industry, role, company and job — and gets to know you too. Fill in your profile and take the quiz, and the more you tell Howdy upfront, the better the matches, plans and suggestions get. Chat to Howdy about anything to do with finding your thing: an industry you're curious about, a role you don't understand, or where to start. Howdy's with you on every page.
             </p>
+            <a href="https://www.youtube.com/embed/o0YUzxz4eSs" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-primary font-600 hover:underline">
+              <Play className="w-4 h-4" />
+              Watch the Howdy intro
+            </a>
           </motion.div>
 
           {/* The 5 Steps */}
@@ -183,9 +188,15 @@ const UsingOurSite = () => {
             <p className="font-body text-base text-muted-foreground mb-6 max-w-xl mx-auto leading-relaxed">
               You don't need to know the answer yet. You just need to be curious enough to look. Pick something you love — an industry, a role you've never heard of, a company you admire — and see where it takes you.
             </p>
-            <p className="font-display font-900 text-2xl md:text-3xl text-foreground">
+            <p className="font-display font-900 text-2xl md:text-3xl text-foreground mb-8">
               How do you do?<span className="text-primary"> Let's find out.</span>
             </p>
+            <button
+              onClick={() => launchHowdyTour()}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-display font-700 hover:opacity-90 transition-opacity"
+            >
+              Take the tour
+            </button>
           </motion.div>
 
         </section>
