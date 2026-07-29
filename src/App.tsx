@@ -13,8 +13,6 @@ const ConditionalHowdy = () => {
   const { pathname } = useLocation();
   if (pathname.startsWith("/admin")) return null;
   if (pathname.startsWith("/howdy")) return null;
-  if (pathname.startsWith("/my-jobs")) return null;
-  if (pathname.startsWith("/community")) return null;
   return (
     <>
       <CareerAssistant />
