@@ -28,12 +28,18 @@ This file is updated by Claude at the start and end of every session.
 - Changed stop 15 title from "Your Inbox" to "Howdy Jobs"
 - Updated description to reflect the swipe left/right feature rather than outdated inbox/briefings copy
 
+**4. Added tour trigger and Howdy video link to Using our Site page**
+- Added "Take the tour" button at end of CTA section to launch the 18-stop guided tour
+- Added "Watch the Howdy intro" video link in Meet Howdy section pointing to YouTube intro video
+- Imported launchHowdyTour function to trigger tour from the page
+
 ### Current state
 - Live at: www.howdoyoudo.co.uk
 - Tour now completes all 18 stops end-to-end ✅
 - All em dashes removed from Using our Site page ✅
 - Howdy Jobs tour stop updated to reflect swipe interface ✅
-- Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix), 003b092 (log), 6b3947a (jobs tour) — all pushed to both remotes
+- Tour trigger and Howdy video link added to Using our Site page ✅
+- Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix), 003b092 (log), 6b3947a (jobs tour), 3b94329 (log), 8c3f3b8 (tour + video) — all pushed to both remotes
 - Typecheck clean
 
 ---
