@@ -22,10 +22,10 @@ const STOPS: Stop[] = [
   { route: "/marketplace", title: "Jobs Marketplace", line: "Our curated jobs board, organized by industry. Filter, search, get AI suggestions, or build your CV to stand out. Every job is vetted and real." },
   { route: "/match-me", title: "Your Matches", line: "Curious what’s right for you? See your personality, values, and how they match with different industries and roles - including surprising combinations." },
   { route: "/skills-passport", title: "Your Plan & Skills", line: "Honest checklist for your target role. Rate your skills, find your gaps, earn industry badges as you close them, and download your progress anytime." },
-  { route: "/resources/online-courses", title: "Level Up", line: "Full learning hub - CV tips, further education, online courses, mentoring, interview skills, internships, apprenticeships, and how to stand out." },
+  { route: "/learning", title: "Level Up", line: "Full learning hub - CV tips, further education, online courses, mentoring, interview skills, internships, apprenticeships, and how to stand out." },
   { route: "/my-jobs", title: "Your Inbox", line: "This is where it happens - set your industries, get daily news feeds and job suggestions. I’ll place matching roles in your Inbox overnight. I can also connect you directly with employers." },
-  { route: "/community", title: "Join the community", line: "Real people exploring real careers. Ask questions, share what you’re exploring, get support, and attend events to see industries up close." },
   { route: "/my-profile", title: "Your profile", line: "Tell me about yourself - your interests, skills, and dreams. The more you share, the better I get at finding roles that match who you are." },
+  { route: "/community", title: "Join the community", line: "Real people exploring real careers. Ask questions, share what you’re exploring, get support, and attend events to see industries up close." },
   { route: "/", title: "Me - your Howdy", line: "I’m right here in the corner. Chat with me about anything - an industry you’re curious about, a role you don’t understand, or what comes next. I’ve read the whole site and I’m here to help." },
 ];
 
