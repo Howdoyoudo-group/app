@@ -5,6 +5,24 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-29 — Andrew (main branch, later) — Removed em dashes from Using our Site page
+
+### What was done
+- **Removed all em dashes** from `src/pages/UsingOurSite.tsx` copy, replacing with regular hyphens:
+  - Line 40: "from our lives — even" → "from our lives - even"
+  - Line 43: "work curiosity — because" → "work curiosity - because"
+  - Line 46: "Start blank — or better" → "Start blank - or better"
+  - Line 79: "The HDYD Show — episodes" → "The HDYD Show - episodes" + "read — whatever" → "read - whatever"
+  - Line 92: "30+ Industries — from" → "30+ Industries - from" + "Formula 1 — and" → "Formula 1 - and"
+
+### Current state
+- Live at: www.howdoyoudo.co.uk
+- All em dashes removed from Using our Site page copy ✅
+- Commit: 161f2b6, pushed to both remotes
+- Typecheck clean
+
+---
+
 ## 2026-07-29 — Andrew (main branch) — Role dropdown fix, culinary schools, articles, and horse racing event
 
 ### Summary of fixes & additions
