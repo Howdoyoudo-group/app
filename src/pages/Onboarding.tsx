@@ -872,7 +872,7 @@ const Onboarding = () => {
                 <StepShell
                   icon={Briefcase}
                   eyebrow="03 - Role preferences"
-                  title="What kind of work do you do?"
+                  title="Any roles you already fancy?"
                   subtitle="Pick the role types you'd consider. This sharpens your job matches."
                 >
                   <div className="flex flex-wrap gap-2">
