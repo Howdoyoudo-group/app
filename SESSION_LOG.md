@@ -24,11 +24,16 @@ This file is updated by Claude at the start and end of every session.
   - Line 79: "The HDYD Show — episodes" → "The HDYD Show - episodes"
   - Line 92: "30+ Industries — from" → "30+ Industries - from"
 
+**3. Updated Howdy Jobs tour stop description**
+- Changed stop 15 title from "Your Inbox" to "Howdy Jobs"
+- Updated description to reflect the swipe left/right feature rather than outdated inbox/briefings copy
+
 ### Current state
 - Live at: www.howdoyoudo.co.uk
 - Tour now completes all 18 stops end-to-end ✅
 - All em dashes removed from Using our Site page ✅
-- Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix) — all pushed to both remotes
+- Howdy Jobs tour stop updated to reflect swipe interface ✅
+- Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix), 003b092 (log), 6b3947a (jobs tour) — all pushed to both remotes
 - Typecheck clean
 
 ---
