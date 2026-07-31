@@ -54,6 +54,12 @@ This file is updated by Claude at the start and end of every session.
 - Added to Level Up > Support navigation in both desktop and mobile menus (SiteHeader, GlobalMobileMenu)
 - Added to resource-topics.ts with full watch/listen/read/help resource links so `/resources/support-into-work` route works
 
+**7. Added Most Wanted Roles and Saved Companies to Level Up > About You menu**
+- Added "Most Wanted Roles" link pointing to `/my-profile?edit=most-wanted` 
+- Added "Saved Companies" link pointing to `/my-profile?tab=companies`
+- Added to both desktop (SiteHeader) and mobile (GlobalMobileMenu) navigation
+- Allows users to quickly access their saved roles and companies from Level Up menu
+
 ### Current state
 - Live at: www.howdoyoudo.co.uk
 - Tour now completes all 18 stops end-to-end ✅
@@ -61,8 +67,11 @@ This file is updated by Claude at the start and end of every session.
 - Howdy Jobs tour stop updated to reflect swipe interface ✅
 - Tour trigger and Howdy video link added to Using our Site page ✅
 - Onboarding roles question updated to casual tone ✅
-- "Support into Work" category added to Learning Hub with 12 employment support services ✅
-- Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix), 003b092 (log), 6b3947a (jobs tour), 3b94329 (log), e0e8adb (log), 8c3f3b8 (tour + video), 324c9ec (roles question), 87ed70a (log), 78acdf8 (support into work) — all pushed to both remotes
+- "Support into Work" category added to Learning Hub with employment support services ✅
+- "Support into Work" added to Level Up > Support navigation menu ✅
+- "Support into Work" added to resource-topics data so `/resources/support-into-work` works ✅
+- Most Wanted Roles and Saved Companies added to Level Up > About You menu ✅
+- Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix), 003b092 (log), 6b3947a (jobs tour), 3b94329 (log), e0e8adb (log), 8c3f3b8 (tour + video), 324c9ec (roles question), 87ed70a (log), 78acdf8 (support into work), 52e1729 (log), 05e6d7d (nav), ffb034b (log), 52641c2 (resource-topics), 036dd98 (log), e603b05 (saved/wanted links) — all pushed to both remotes
 - Typecheck clean
 
 ---
