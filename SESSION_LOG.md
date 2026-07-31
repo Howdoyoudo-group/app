@@ -5,6 +5,40 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-07-31 — Andrew (main branch) — Fixed type errors preventing site from going live
+
+### What was done
+
+**Fixed critical type errors in MostWanted.tsx that prevented the build**
+- **Issue 1:** Import path was incorrect — `@/components/industryIcons` doesn't exist
+  - **Fix:** Changed to correct path `@/data/industryIcons` and renamed variable from `industryIcons` to `INDUSTRY_ICONS`
+  - **File:** `src/pages/MostWanted.tsx:11`
+  
+- **Issue 2:** Database schema mismatch — code queried `profiles.target_companies` column that doesn't exist in Supabase
+  - **Fix:** Removed the entire companies data fetch since no persistent storage exists for saved companies yet
+  - **Removed:** Lines querying `profiles` table for `target_companies`
+  - **Removed:** Companies section from JSX render
+
+- **Issue 3:** Simplified component to only show saved industries and roles
+  - Saves fetches data from `user_target_roles` table (which exists)
+  - Derives industries from those saved roles
+  - Removed non-functional companies section
+
+**Verified all changes**
+- Type check passes: `npm run typecheck` ✅
+- Dev server builds successfully ✅
+- All pages accessible:
+  - Using our Site page works ✅
+  - Companies directory accessible from Discover menu ✅
+  - Support into Work visible in Level Up > Support ✅
+
+### Current state
+- Site is now live and building correctly ✅
+- All features from previous session are working ✅
+- Commit: e96cfb0 — pushed to both howdoyoudo and origin remotes
+
+---
+
 ## 2026-07-29 — Andrew (main branch, latest) — Fixed tour stopping on My Jobs, removed em dashes
 
 ### What was done
