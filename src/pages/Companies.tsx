@@ -5,6 +5,8 @@ import { Building2, Search, X } from "lucide-react";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { ALL_COMPANIES_BY_INDUSTRY } from "@/data/all-companies";
+import { getCompanyLogo } from "@/data/companyLogos";
+import { getCompanySlug } from "@/lib/company-profiles";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -81,28 +83,60 @@ export default function Companies() {
                     <h2 className="font-display font-700 text-2xl mb-6">
                       {industry} <span className="text-primary">({companiesInIndustry.length})</span>
                     </h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                      {companiesInIndustry.map((company) => (
-                        <div key={`${industry}-${company.name}`}>
-                          {company.profileUrl ? (
-                            <Link
-                              to={company.profileUrl}
-                              className="group flex items-center justify-between p-4 border-2 border-border hover:border-primary hover:bg-primary/5 rounded-lg transition-all"
-                            >
-                              <span className="font-display font-700 text-foreground group-hover:text-primary transition-colors text-sm md:text-base">
-                                {company.name}
-                              </span>
-                              <Building2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 ml-2" />
-                            </Link>
-                          ) : (
-                            <div className="p-4 border-2 border-border rounded-lg bg-muted/30">
-                              <span className="font-display font-700 text-foreground text-sm md:text-base">
-                                {company.name}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      ))}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                      {companiesInIndustry.map((company) => {
+                        const slug = getCompanySlug(company.name);
+                        const logo = slug ? getCompanyLogo(slug) : undefined;
+
+                        return (
+                          <div key={`${industry}-${company.name}`}>
+                            {company.profileUrl ? (
+                              <Link
+                                to={company.profileUrl}
+                                className="group flex flex-col items-center gap-3 p-3 border-2 border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all h-full"
+                              >
+                                {logo ? (
+                                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border border-border group-hover:border-primary transition-colors flex items-center justify-center bg-muted">
+                                    <img
+                                      src={logo}
+                                      alt={company.name}
+                                      className="w-full h-full object-cover"
+                                      loading="lazy"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg border-2 border-border flex items-center justify-center bg-muted group-hover:bg-primary/10 transition-colors">
+                                    <Building2 className="w-8 h-8 text-muted-foreground" />
+                                  </div>
+                                )}
+                                <span className="font-display font-700 text-foreground group-hover:text-primary transition-colors text-xs md:text-sm text-center line-clamp-2">
+                                  {company.name}
+                                </span>
+                              </Link>
+                            ) : (
+                              <div className="flex flex-col items-center gap-3 p-3 border-2 border-border rounded-lg bg-muted/30 h-full">
+                                {logo ? (
+                                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg overflow-hidden border border-border flex items-center justify-center bg-background">
+                                    <img
+                                      src={logo}
+                                      alt={company.name}
+                                      className="w-full h-full object-cover"
+                                      loading="lazy"
+                                    />
+                                  </div>
+                                ) : (
+                                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-lg border-2 border-border flex items-center justify-center bg-muted">
+                                    <Building2 className="w-8 h-8 text-muted-foreground" />
+                                  </div>
+                                )}
+                                <span className="font-display font-700 text-foreground text-xs md:text-sm text-center line-clamp-2">
+                                  {company.name}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </motion.section>
                 );
