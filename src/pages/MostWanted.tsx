@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { INDUSTRIES } from "@/data/industries";
 import { roles } from "@/data/roles";
-import { industryIcons } from "@/components/industryIcons";
+import { INDUSTRY_ICONS } from "@/data/industryIcons";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -16,7 +16,6 @@ export default function MostWanted() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [savedRoles, setSavedRoles] = useState<string[]>([]);
-  const [savedCompanies, setSavedCompanies] = useState<string[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -33,16 +32,6 @@ export default function MostWanted() {
 
         if (data) {
           setSavedRoles(data.map(r => r.role_slug));
-        }
-
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("target_companies")
-          .eq("id", user.id)
-          .single();
-
-        if (profile?.target_companies) {
-          setSavedCompanies(Array.isArray(profile.target_companies) ? profile.target_companies : []);
         }
       } catch (err) {
         console.error("Error fetching saved data:", err);
@@ -86,7 +75,7 @@ export default function MostWanted() {
             {savedIndustries.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
                 {savedIndustries.map((industry) => {
-                  const icon = industryIcons[industry.slug as keyof typeof industryIcons];
+                  const icon = INDUSTRY_ICONS[industry.slug as keyof typeof INDUSTRY_ICONS];
                   return (
                     <Link
                       key={industry.slug}
@@ -134,26 +123,6 @@ export default function MostWanted() {
             )}
           </motion.section>
 
-          {/* Companies */}
-          <motion.section {...fadeUp} className="mb-16">
-            <h2 className="font-display font-700 text-2xl md:text-3xl mb-8">Companies</h2>
-            {savedCompanies.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {savedCompanies.map((company) => (
-                  <div
-                    key={company}
-                    className="border-2 border-border hover:border-primary rounded-lg p-4 transition-all hover:bg-primary/5"
-                  >
-                    <p className="font-display font-700 text-foreground text-sm md:text-base line-clamp-2">
-                      {company}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted-foreground">No saved companies yet</p>
-            )}
-          </motion.section>
         </section>
       </main>
       <Footer />
