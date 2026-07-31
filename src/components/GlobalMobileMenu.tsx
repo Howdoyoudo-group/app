@@ -54,8 +54,7 @@ const NAV_SECTIONS: NavSection[] = [
           { label: "Suggested Roles", to: "/match-me/suggested-roles", description: "Roles matched to who you are" },
           { label: "Suggested Industries", to: "/match-me/suggested-industries", description: "Industries that fit your profile" },
           { label: "Worlds Collide", to: "/match-me/worlds-collide", description: "Unexpected combinations worth exploring" },
-          { label: "Most Wanted Roles", to: "/my-profile?edit=most-wanted", description: "Roles you've saved" },
-          { label: "Saved Companies", to: "/my-profile?tab=companies", description: "Companies you're interested in" },
+          { label: "Most Wanted", to: "/most-wanted", description: "Your saved roles and companies" },
         ],
       },
       {
