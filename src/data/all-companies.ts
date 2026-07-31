@@ -7,25 +7,32 @@ import { INDUSTRIES } from "./industries";
 export interface CompanyData {
   name: string;
   industry: string;
+  url?: string;
+  founded?: string;
+  hq?: string;
+  overview?: string;
+  glassdoor?: number;
+  trustpilot?: number;
   profileUrl?: string;
+  valueChainStage?: string;
 }
 
 export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
   Bakery: [
-    { name: "Allied Bakeries", industry: "Bakery" },
-    { name: "Bidfood", industry: "Bakery" },
-    { name: "Brakes (Sysco)", industry: "Bakery" },
-    { name: "Bread Ahead", industry: "Bakery" },
-    { name: "Carr's Flour", industry: "Bakery" },
-    { name: "Gail's", industry: "Bakery", profileUrl: "/company/gails" },
-    { name: "Greggs", industry: "Bakery", profileUrl: "/company/greggs" },
-    { name: "Hobbs House Bakery", industry: "Bakery" },
-    { name: "Hovis", industry: "Bakery" },
-    { name: "Marriage's Flour", industry: "Bakery" },
-    { name: "Ole & Steen", industry: "Bakery" },
-    { name: "Paul UK", industry: "Bakery" },
-    { name: "Shipton Mill", industry: "Bakery" },
-    { name: "Warburtons", industry: "Bakery" },
+    { name: "Allied Bakeries", industry: "Bakery", url: "https://www.alliedbakeries.co.uk" },
+    { name: "Bidfood", industry: "Bakery", url: "https://www.bidfood.co.uk/careers/" },
+    { name: "Brakes (Sysco)", industry: "Bakery", url: "https://syscogbjobs.co.uk" },
+    { name: "Bread Ahead", industry: "Bakery", url: "https://www.breadahead.com" },
+    { name: "Carr's Flour", industry: "Bakery", url: "https://www.carrsflour.co.uk" },
+    { name: "Gail's", industry: "Bakery", url: "https://jobs.gailsbread.co.uk", profileUrl: "/company/gails" },
+    { name: "Greggs", industry: "Bakery", url: "https://careerssearch.greggs.co.uk/", profileUrl: "/company/greggs" },
+    { name: "Hobbs House Bakery", industry: "Bakery", url: "https://www.hobbshousebakery.co.uk" },
+    { name: "Hovis", industry: "Bakery", url: "https://www.hovis.co.uk/join-the-team" },
+    { name: "Marriage's Flour", industry: "Bakery", url: "https://flour.co.uk/recruitment/" },
+    { name: "Ole & Steen", industry: "Bakery", url: "https://www.oleandsteen.co.uk/careers" },
+    { name: "Paul UK", industry: "Bakery", url: "https://careers.paul-uk.com/jobs.aspx" },
+    { name: "Shipton Mill", industry: "Bakery", url: "https://www.shipton-mill.com" },
+    { name: "Warburtons", industry: "Bakery", url: "https://careers.warburtons.co.uk/" },
   ],
   Beauty: [
     { name: "Charlotte Tilbury", industry: "Beauty" },
@@ -40,21 +47,21 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Townhouse", industry: "Beauty" },
   ],
   Beer: [
-    { name: "Fever-Tree", industry: "Beer", profileUrl: "/company/fever-tree" },
-    { name: "Hawkstone", industry: "Beer", profileUrl: "/company/hawkstone" },
-    { name: "Northern Monk", industry: "Beer" },
-    { name: "BrewDog", industry: "Beer" },
-    { name: "Beavertown Brewery", industry: "Beer" },
-    { name: "Camden Town Brewery", industry: "Beer" },
-    { name: "Cloudwater Brew Co", industry: "Beer" },
-    { name: "Heineken UK", industry: "Beer" },
-    { name: "Molson Coors UK", industry: "Beer" },
-    { name: "AB InBev UK", industry: "Beer" },
-    { name: "Fuller's", industry: "Beer" },
-    { name: "Marston's", industry: "Beer" },
-    { name: "JD Wetherspoon", industry: "Beer" },
-    { name: "Diageo (Guinness)", industry: "Beer" },
-    { name: "Toast Ale", industry: "Beer" },
+    { name: "Fever-Tree", industry: "Beer", url: "https://fever-tree.com/en-gb/careers", profileUrl: "/company/fever-tree" },
+    { name: "Hawkstone", industry: "Beer", url: "https://hawkstone.com", profileUrl: "/company/hawkstone" },
+    { name: "Northern Monk", industry: "Beer", url: "https://www.northernmonk.com" },
+    { name: "BrewDog", industry: "Beer", url: "https://jobs.brewdog.com/" },
+    { name: "Beavertown Brewery", industry: "Beer", url: "https://www.beavertownbrewery.co.uk" },
+    { name: "Camden Town Brewery", industry: "Beer", url: "https://www.camdentownbrewery.com" },
+    { name: "Cloudwater Brew Co", industry: "Beer", url: "https://cloudwaterbrew.co" },
+    { name: "Heineken UK", industry: "Beer", url: "https://www.theheinekencompany.com/our-company/uk" },
+    { name: "Molson Coors UK", industry: "Beer", url: "https://www.molsoncoors.com/careers" },
+    { name: "AB InBev UK", industry: "Beer", url: "https://www.ab-inbev.com/" },
+    { name: "Fuller's", industry: "Beer", url: "https://careers.fullers.co.uk" },
+    { name: "Marston's", industry: "Beer", url: "https://www.marstons.co.uk" },
+    { name: "JD Wetherspoon", industry: "Beer", url: "https://www.jdwetherspoon.com/en-gb" },
+    { name: "Diageo (Guinness)", industry: "Beer", url: "https://www.diageo.com/careers" },
+    { name: "Toast Ale", industry: "Beer", url: "https://www.toastale.com" },
   ],
   Building: [
     { name: "Balfour Beatty", industry: "Building" },
