@@ -84,6 +84,7 @@ const CVBuilderPage = lazy(() => import("./pages/CVBuilderPage.tsx"));
 const MatchMe = lazy(() => import("./pages/MatchMe.tsx"));
 const MatchMeSectionPage = lazy(() => import("./pages/MatchMeSectionPage.tsx"));
 const MostWanted = lazy(() => import("./pages/MostWanted.tsx"));
+const Companies = lazy(() => import("./pages/Companies.tsx"));
 const HelpMeApply = lazy(() => import("./pages/HelpMeApply.tsx"));
 const HowToStandOut = lazy(() => import("./pages/HowToStandOut.tsx"));
 const SkillsPassport = lazy(() => import("./pages/SkillsPassport.tsx"));
@@ -313,6 +314,7 @@ const App = () => (
           <Route path="/match-me" element={<MatchMe />} />
           <Route path="/match-me/:section" element={<MatchMeSectionPage />} />
           <Route path="/most-wanted" element={<MostWanted />} />
+          <Route path="/companies" element={<Companies />} />
           <Route path="/help-me-apply" element={<HelpMeApply />} />
           <Route path="/how-to-stand-out" element={<HowToStandOut />} />
           <Route path="/videos" element={<Navigate to="/the-show" replace />} />

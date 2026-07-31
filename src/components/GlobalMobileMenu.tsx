@@ -38,6 +38,7 @@ const NAV_SECTIONS: NavSection[] = [
     label: "Discover",
     items: [
       { label: "Industries", to: "/#series", description: "Explore 30+ sectors" },
+      { label: "Companies", to: "/companies", description: "Browse hiring companies" },
       { label: "Roles", to: "/roles", description: "By job, not just by title" },
       { label: "Side Hustles", to: "/side-hustles", description: "Turn what you love into income" },
       { label: "Start a Business", to: "/starting-a-business", description: "Your own thing" },
