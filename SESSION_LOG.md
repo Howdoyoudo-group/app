@@ -67,6 +67,18 @@ This file is updated by Claude at the start and end of every session.
 - Fetches saved companies from `profiles.target_companies`
 - Derives industries from saved roles and displays with industry doodles
 
+**8. Created Companies directory page in Discover menu**
+- New Companies.tsx page aggregates all companies across all industries
+- Features:
+  - Searchable directory filtered by company name or industry
+  - Companies organized by industry sections
+  - Links to individual company profile pages
+  - Shows company count per industry
+  - Empty state for no search results
+- Added route `/companies` in App.tsx
+- Added "Companies" link to Discover menu in both desktop and mobile navigation
+- Positioned after Industries for easy browsing
+
 ### Current state
 - Live at: www.howdoyoudo.co.uk
 - Tour now completes all 18 stops end-to-end ✅
@@ -77,7 +89,8 @@ This file is updated by Claude at the start and end of every session.
 - "Support into Work" category added to Learning Hub with employment support services ✅
 - "Support into Work" added to Level Up > Support navigation menu ✅
 - "Support into Work" added to resource-topics data so `/resources/support-into-work` works ✅
-- Most Wanted Roles and Saved Companies added to Level Up > About You menu ✅
+- Most Wanted page created with industries, roles, and companies ✅
+- Companies directory page added to Discover menu ✅
 - Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix), 003b092 (log), 6b3947a (jobs tour), 3b94329 (log), e0e8adb (log), 8c3f3b8 (tour + video), 324c9ec (roles question), 87ed70a (log), 78acdf8 (support into work), 52e1729 (log), 05e6d7d (nav), ffb034b (log), 52641c2 (resource-topics), 036dd98 (log), e603b05 (saved/wanted links) — all pushed to both remotes
 - Typecheck clean
 
