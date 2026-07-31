@@ -37,6 +37,21 @@ This file is updated by Claude at the start and end of every session.
 - Changed question from "What kind of work do you do?" to "Any roles you already fancy?"
 - More casual, conversational tone aligned with Howdoyoudo brand voice
 
+**6. Added "Support into Work" category to Learning Hub**
+- New comprehensive category covering employment support services for vulnerable populations
+- 12 curated UK services including:
+  - Individual Placement Support (IPS) for mental health
+  - Remploy disability employment support
+  - Access to Work Scheme (government funding)
+  - Supported Employment UK
+  - The Spear Programme (youth intensive support)
+  - Work and Health programmes
+  - ACAS disability rights
+  - Working Families support
+  - Kickstart and Traineeships (youth schemes)
+  - Prince's Trust Get Into Work
+  - Benefits into Work transition support
+
 ### Current state
 - Live at: www.howdoyoudo.co.uk
 - Tour now completes all 18 stops end-to-end ✅
@@ -44,7 +59,8 @@ This file is updated by Claude at the start and end of every session.
 - Howdy Jobs tour stop updated to reflect swipe interface ✅
 - Tour trigger and Howdy video link added to Using our Site page ✅
 - Onboarding roles question updated to casual tone ✅
-- Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix), 003b092 (log), 6b3947a (jobs tour), 3b94329 (log), e0e8adb (log), 8c3f3b8 (tour + video), 324c9ec (roles question) — all pushed to both remotes
+- "Support into Work" category added to Learning Hub with 12 employment support services ✅
+- Commits: 161f2b6 (em dashes), 10f2f74 (log), 1cc5799 (tour fix), 003b092 (log), 6b3947a (jobs tour), 3b94329 (log), e0e8adb (log), 8c3f3b8 (tour + video), 324c9ec (roles question), 87ed70a (log), 78acdf8 (support into work) — all pushed to both remotes
 - Typecheck clean
 
 ---
