@@ -37,7 +37,7 @@ This file is updated by Claude at the start and end of every session.
 - Changed question from "What kind of work do you do?" to "Any roles you already fancy?"
 - More casual, conversational tone aligned with Howdoyoudo brand voice
 
-**6. Added "Support into Work" category to Learning Hub**
+**6. Added "Support into Work" category to Learning Hub and navigation**
 - New comprehensive category covering employment support services for vulnerable populations
 - 12 curated UK services including:
   - Individual Placement Support (IPS) for mental health
@@ -51,6 +51,7 @@ This file is updated by Claude at the start and end of every session.
   - Kickstart and Traineeships (youth schemes)
   - Prince's Trust Get Into Work
   - Benefits into Work transition support
+- Added to Level Up > Support navigation in both desktop and mobile menus
 
 ### Current state
 - Live at: www.howdoyoudo.co.uk
