@@ -34,18 +34,26 @@ This file is updated by Claude at the start and end of every session.
 - Added "Browse All Companies" button linking to `/companies`
 - Simplified from failed saved companies approach to discovery-focused
 
+**5. Added company logos and redesigned grid layout**
+- Created `src/data/companyLogos.ts` mapping 20+ company cover images
+- Redesigned Companies page with image grid (2-5 columns, responsive)
+- Companies with logos: Greggs, Tesco, Starbucks, Costa, Netflix, ASOS, Burberry, Nike, Adidas, and 12+ others
+- Fallback: Building icon for companies without logos yet
+- Grid layout matches Roles/Industries design pattern with rounded images + names below
+
 **Verified all changes**
 - Type check passes: `npm run typecheck` ✅
 - Dev server builds successfully ✅
-- Companies page displays all industries with company counts ✅
+- Companies page displays all industries with logos ✅
 - All pages accessible and functional ✅
 
 ### Current state
-- Site building correctly with 300+ companies in directory ✅
+- Site building correctly with 300+ companies in visual directory ✅
+- Companies display with logos in professional grid layout ✅
 - All previous features still working (Using our Site, Support into Work, etc.) ✅
 - Most Wanted page now links to companies directory ✅
 - Companies page accessible from Discover menu ✅
-- Commits: c2ae2a0 — pushed to both howdoyoudo and origin remotes
+- Commits: c2ae2a0, 4dd9905, 5c87913 — all pushed to both remotes
 
 ---
 
