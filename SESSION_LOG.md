@@ -5,37 +5,47 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
-## 2026-07-31 — Andrew (main branch) — Fixed type errors preventing site from going live
+## 2026-07-31 — Andrew (main branch) — Comprehensive companies directory with 300+ companies
 
 ### What was done
 
-**Fixed critical type errors in MostWanted.tsx that prevented the build**
-- **Issue 1:** Import path was incorrect — `@/components/industryIcons` doesn't exist
-  - **Fix:** Changed to correct path `@/data/industryIcons` and renamed variable from `industryIcons` to `INDUSTRY_ICONS`
-  - **File:** `src/pages/MostWanted.tsx:11`
-  
-- **Issue 2:** Database schema mismatch — code queried `profiles.target_companies` column that doesn't exist in Supabase
-  - **Fix:** Removed the entire companies data fetch since no persistent storage exists for saved companies yet
-  - **Removed:** Lines querying `profiles` table for `target_companies`
-  - **Removed:** Companies section from JSX render
+**1. Fixed critical type errors in MostWanted.tsx**
+- Changed import path from `@/components/industryIcons` to `@/data/industryIcons`
+- Fixed variable from `industryIcons` to `INDUSTRY_ICONS`
+- Removed query for non-existent `profiles.target_companies` column
+- Simplified to only show saved industries and roles
 
-- **Issue 3:** Simplified component to only show saved industries and roles
-  - Saves fetches data from `user_target_roles` table (which exists)
-  - Derives industries from those saved roles
-  - Removed non-functional companies section
+**2. Created comprehensive companies data file** (`src/data/all-companies.ts`)
+- Master list of 300+ companies organized by 20+ industries
+- Includes company names, industry mappings, and profile URLs
+- Data extracted from all 36 industry pages ("Who" sections)
+- Industries included: Bakery (12), Beauty (10), Beer (15), Building (12), Cars (12), Charity (14), Cinema (20), Coffee (8), Delivery (3), Estate Agency (8), Farming (4), Footwear (15), Fashion (29), Fixing (5), Gaming (14), Football (15), Horse Racing (3), Grocery (9), Formula 1 (11), Health (14), Home & Design (6), Hospitality (15), Influencing (3), Journalism (20), Jewellery (16), Money (3), Music (9), Pets (9), Physiotherapy (3), Politics (3), Psychotherapy (6), Teaching (6), Theatre (5), Travel (15), Wellness (8)
+
+**3. Updated Companies.tsx to display comprehensive directory**
+- Now pulls from `all-companies.ts` instead of hardcoded list
+- Displays all 300+ companies organized by industry
+- Each industry shows count of companies
+- Includes search filtering by company name and industry
+- Links to individual company profile pages where available
+- Responsive grid layout (1-3 columns depending on screen size)
+
+**4. Updated MostWanted.tsx for companies section**
+- Added "Companies" section with CTA to browse all companies
+- Added "Browse All Companies" button linking to `/companies`
+- Simplified from failed saved companies approach to discovery-focused
 
 **Verified all changes**
 - Type check passes: `npm run typecheck` ✅
 - Dev server builds successfully ✅
-- All pages accessible:
-  - Using our Site page works ✅
-  - Companies directory accessible from Discover menu ✅
-  - Support into Work visible in Level Up > Support ✅
+- Companies page displays all industries with company counts ✅
+- All pages accessible and functional ✅
 
 ### Current state
-- Site is now live and building correctly ✅
-- All features from previous session are working ✅
-- Commit: e96cfb0 — pushed to both howdoyoudo and origin remotes
+- Site building correctly with 300+ companies in directory ✅
+- All previous features still working (Using our Site, Support into Work, etc.) ✅
+- Most Wanted page now links to companies directory ✅
+- Companies page accessible from Discover menu ✅
+- Commits: c2ae2a0 — pushed to both howdoyoudo and origin remotes
 
 ---
 
