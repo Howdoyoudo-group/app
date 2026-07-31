@@ -54,11 +54,18 @@ This file is updated by Claude at the start and end of every session.
 - Added to Level Up > Support navigation in both desktop and mobile menus (SiteHeader, GlobalMobileMenu)
 - Added to resource-topics.ts with full watch/listen/read/help resource links so `/resources/support-into-work` route works
 
-**7. Added Most Wanted Roles and Saved Companies to Level Up > About You menu**
-- Added "Most Wanted Roles" link pointing to `/my-profile?edit=most-wanted` 
-- Added "Saved Companies" link pointing to `/my-profile?tab=companies`
-- Added to both desktop (SiteHeader) and mobile (GlobalMobileMenu) navigation
-- Allows users to quickly access their saved roles and companies from Level Up menu
+**7. Created dedicated Most Wanted page with industries, roles, and companies**
+- New MostWanted.tsx page displays:
+  - Saved industries with doodles in a responsive grid
+  - Saved roles as a clickable list with descriptions
+  - Saved companies with names
+  - Empty state with CTA to explore industries
+- Added route `/most-wanted` in App.tsx
+- Updated Level Up > About You navigation to single "Most Wanted" item linking to `/most-wanted`
+- Updated both desktop (SiteHeader) and mobile (GlobalMobileMenu) menus
+- Fetches user's saved roles from `user_target_roles` table
+- Fetches saved companies from `profiles.target_companies`
+- Derives industries from saved roles and displays with industry doodles
 
 ### Current state
 - Live at: www.howdoyoudo.co.uk
