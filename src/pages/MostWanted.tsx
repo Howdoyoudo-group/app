@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, Heart } from "lucide-react";
+import { Heart, ArrowRight } from "lucide-react";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,7 +17,6 @@ export default function MostWanted() {
   const navigate = useNavigate();
   const [savedRoles, setSavedRoles] = useState<string[]>([]);
   const [savedCompanies, setSavedCompanies] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) {
@@ -25,7 +24,6 @@ export default function MostWanted() {
       return;
     }
 
-    // Fetch user's saved roles and companies
     const fetchSaved = async () => {
       try {
         const { data } = await supabase
@@ -48,8 +46,6 @@ export default function MostWanted() {
         }
       } catch (err) {
         console.error("Error fetching saved data:", err);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -76,29 +72,18 @@ export default function MostWanted() {
         description="Your saved roles and companies all in one place."
       />
       <main className="min-h-screen bg-background">
-        {/* Hero */}
         <section className="px-4 sm:px-6 lg:px-10 pt-8 pb-16 max-w-5xl mx-auto">
-          <motion.div {...fadeUp} className="mb-12">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border-2 border-primary bg-primary/10 mb-4">
-              <Heart className="w-3.5 h-3.5 text-primary fill-primary" />
-              <span className="font-display font-700 text-xs uppercase tracking-widest">Your collection</span>
-            </div>
-            <h1 className="font-display font-900 text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-foreground mb-4">
+          {/* Header */}
+          <motion.div {...fadeUp} className="mb-16">
+            <h1 className="font-display font-900 text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-foreground">
               Most Wanted.
             </h1>
-            <p className="font-body text-base md:text-lg text-muted-foreground max-w-2xl">
-              {savedRoles.length === 0 && savedCompanies.length === 0
-                ? "No saved roles or companies yet. Explore industries and companies to add them here."
-                : "All your saved roles and companies in one place. Keep track of what you're interested in."}
-            </p>
           </motion.div>
 
-          {/* Industries Section */}
-          {savedIndustries.length > 0 && (
-            <motion.section {...fadeUp} className="mb-16">
-              <h2 className="font-display font-700 text-2xl md:text-3xl mb-8">
-                Industries <span className="text-primary">({savedIndustries.length})</span>
-              </h2>
+          {/* Industries */}
+          <motion.section {...fadeUp} className="mb-16">
+            <h2 className="font-display font-700 text-2xl md:text-3xl mb-8">Industries</h2>
+            {savedIndustries.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
                 {savedIndustries.map((industry) => {
                   const icon = industryIcons[industry.slug as keyof typeof industryIcons];
@@ -118,15 +103,15 @@ export default function MostWanted() {
                   );
                 })}
               </div>
-            </motion.section>
-          )}
+            ) : (
+              <p className="text-muted-foreground">No saved industries yet</p>
+            )}
+          </motion.section>
 
-          {/* Roles Section */}
-          {savedRoles.length > 0 && (
-            <motion.section {...fadeUp} className="mb-16">
-              <h2 className="font-display font-700 text-2xl md:text-3xl mb-8">
-                Roles <span className="text-primary">({savedRoles.length})</span>
-              </h2>
+          {/* Roles */}
+          <motion.section {...fadeUp} className="mb-16">
+            <h2 className="font-display font-700 text-2xl md:text-3xl mb-8">Roles</h2>
+            {savedRoles.length > 0 ? (
               <div className="space-y-3">
                 {savedRoles.map((roleSlug) => {
                   const role = roles.find(r => r.slug === roleSlug);
@@ -144,15 +129,15 @@ export default function MostWanted() {
                   ) : null;
                 })}
               </div>
-            </motion.section>
-          )}
+            ) : (
+              <p className="text-muted-foreground">No saved roles yet</p>
+            )}
+          </motion.section>
 
-          {/* Companies Section */}
-          {savedCompanies.length > 0 && (
-            <motion.section {...fadeUp} className="mb-16">
-              <h2 className="font-display font-700 text-2xl md:text-3xl mb-8">
-                Companies <span className="text-primary">({savedCompanies.length})</span>
-              </h2>
+          {/* Companies */}
+          <motion.section {...fadeUp} className="mb-16">
+            <h2 className="font-display font-700 text-2xl md:text-3xl mb-8">Companies</h2>
+            {savedCompanies.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {savedCompanies.map((company) => (
                   <div
@@ -162,32 +147,13 @@ export default function MostWanted() {
                     <p className="font-display font-700 text-foreground text-sm md:text-base line-clamp-2">
                       {company}
                     </p>
-                    <p className="text-muted-foreground text-xs mt-2">Saved to explore</p>
                   </div>
                 ))}
               </div>
-            </motion.section>
-          )}
-
-          {/* Empty State */}
-          {loading === false && savedRoles.length === 0 && savedCompanies.length === 0 && (
-            <motion.div {...fadeUp} className="text-center py-12">
-              <div className="inline-block mb-6 p-4 rounded-full bg-primary/10 border-2 border-primary/20">
-                <Heart className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="font-display font-700 text-xl mb-2">Start exploring</h3>
-              <p className="text-muted-foreground mb-6 max-w-md">
-                Save roles and companies as you explore industries to see them all collected here.
-              </p>
-              <Link
-                to="/discover"
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-lg bg-primary text-primary-foreground font-display font-700 hover:opacity-90 transition-opacity"
-              >
-                Explore Industries
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </motion.div>
-          )}
+            ) : (
+              <p className="text-muted-foreground">No saved companies yet</p>
+            )}
+          </motion.section>
         </section>
       </main>
       <Footer />
