@@ -4,92 +4,14 @@ import { motion } from "framer-motion";
 import { Building2, Search, X } from "lucide-react";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
-import { INDUSTRIES } from "@/data/industries";
+import { ALL_COMPANIES_BY_INDUSTRY } from "@/data/all-companies";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
-// Import all company data from industry pages
-// Note: This is a simplified version - we're pulling from industry pages dynamically
-// In production, you might want a central companies database
-
-interface Company {
-  name: string;
-  industry: string;
-  profileUrl?: string;
-}
-
-// Aggregated companies from all industries
-// This could be expanded to dynamically import from each industry module
-const ALL_COMPANIES: Company[] = [
-  // Fashion
-  { name: "ASOS", industry: "Fashion", profileUrl: "/company/asos" },
-  { name: "Burberry", industry: "Fashion", profileUrl: "/company/burberry" },
-  { name: "Nike", industry: "Fashion", profileUrl: "/company/nike" },
-  { name: "Adidas", industry: "Fashion", profileUrl: "/company/adidas" },
-
-  // Footwear
-  { name: "Dr Martens", industry: "Footwear", profileUrl: "/company/dr-martens" },
-  { name: "Birkenstock", industry: "Footwear", profileUrl: "/company/birkenstock" },
-  { name: "UGG", industry: "Footwear", profileUrl: "/company/ugg" },
-  { name: "Timberland", industry: "Footwear", profileUrl: "/company/timberland" },
-  { name: "Gails", industry: "Footwear", profileUrl: "/company/gails" },
-  { name: "Me+Em", industry: "Footwear", profileUrl: "/company/me-em" },
-
-  // Grocery
-  { name: "Ocado", industry: "Grocery", profileUrl: "/company/ocado" },
-  { name: "Tesco", industry: "Grocery", profileUrl: "/company/tesco" },
-  { name: "Greggs", industry: "Grocery", profileUrl: "/company/greggs" },
-
-  // Coffee
-  { name: "Costa", industry: "Coffee", profileUrl: "/company/costa" },
-  { name: "Starbucks", industry: "Coffee", profileUrl: "/company/starbucks" },
-  { name: "Caffe Nero", industry: "Coffee", profileUrl: "/company/caffe-nero" },
-  { name: "Blank Street", industry: "Coffee", profileUrl: "/company/blank-street" },
-
-  // Hospitality
-  { name: "Grind", industry: "Hospitality", profileUrl: "/company/grind" },
-  { name: "Soho House", industry: "Hospitality", profileUrl: "/company/soho-house" },
-
-  // Football
-  { name: "Premier League", industry: "Football", profileUrl: "/company/premier-league" },
-  { name: "Sky Sports", industry: "Football", profileUrl: "/company/sky-sports" },
-
-  // Estate Agency
-  { name: "Savills", industry: "Estate Agency", profileUrl: "/company/savills" },
-  { name: "Rightmove", industry: "Estate Agency", profileUrl: "/company/rightmove" },
-  { name: "Purplebricks", industry: "Estate Agency", profileUrl: "/company/purplebricks" },
-
-  // Charity
-  { name: "Save the Children UK", industry: "Charity", profileUrl: "/company/save-the-children" },
-
-  // Cinema
-  { name: "Netflix", industry: "Cinema", profileUrl: "/company/netflix" },
-  { name: "Everyman", industry: "Cinema", profileUrl: "/company/everyman" },
-
-  // Gaming
-  { name: "Dice", industry: "Gaming", profileUrl: "/company/dice" },
-
-  // Money
-  { name: "Hawkstone", industry: "Money", profileUrl: "/company/hawkstone" },
-
-  // Beer
-  { name: "Fever-Tree", industry: "Beer", profileUrl: "/company/fever-tree" },
-
-  // Food & Drink
-  { name: "Five Guys", industry: "Food & Drink", profileUrl: "/company/five-guys" },
-
-  // Jewellery
-  { name: "Pragnell", industry: "Jewellery", profileUrl: "/company/pragnell" },
-
-  // Journalism
-  { name: "News UK", industry: "Journalism", profileUrl: "/company/news-uk" },
-
-  // Teaching
-  { name: "Teach First", industry: "Teaching", profileUrl: "/company/teach-first" },
-
-  // Home & Design
-  { name: "Tom Dixon", industry: "Home & Design", profileUrl: "/company/tom-dixon" },
-];
+// Flatten all companies from the comprehensive data
+const ALL_COMPANIES = Object.entries(ALL_COMPANIES_BY_INDUSTRY).flatMap(([industry, companies]) =>
+  companies.map(company => ({ ...company, industry }))
+);
 
 export default function Companies() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -104,7 +26,7 @@ export default function Companies() {
     );
   }, [searchQuery]);
 
-  const uniqueIndustries = [...new Set(ALL_COMPANIES.map(c => c.industry))].sort();
+  const industryList = Object.keys(ALL_COMPANIES_BY_INDUSTRY).sort();
 
   return (
     <>
@@ -150,7 +72,7 @@ export default function Companies() {
           {/* Results by Industry */}
           {filteredCompanies.length > 0 ? (
             <div className="space-y-12">
-              {uniqueIndustries.map((industry) => {
+              {industryList.map((industry) => {
                 const companiesInIndustry = filteredCompanies.filter(c => c.industry === industry);
                 if (companiesInIndustry.length === 0) return null;
 
@@ -161,20 +83,20 @@ export default function Companies() {
                     </h2>
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       {companiesInIndustry.map((company) => (
-                        <div key={company.name}>
+                        <div key={`${industry}-${company.name}`}>
                           {company.profileUrl ? (
                             <Link
                               to={company.profileUrl}
                               className="group flex items-center justify-between p-4 border-2 border-border hover:border-primary hover:bg-primary/5 rounded-lg transition-all"
                             >
-                              <span className="font-display font-700 text-foreground group-hover:text-primary transition-colors">
+                              <span className="font-display font-700 text-foreground group-hover:text-primary transition-colors text-sm md:text-base">
                                 {company.name}
                               </span>
-                              <Building2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                              <Building2 className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 ml-2" />
                             </Link>
                           ) : (
                             <div className="p-4 border-2 border-border rounded-lg bg-muted/30">
-                              <span className="font-display font-700 text-foreground">
+                              <span className="font-display font-700 text-foreground text-sm md:text-base">
                                 {company.name}
                               </span>
                             </div>

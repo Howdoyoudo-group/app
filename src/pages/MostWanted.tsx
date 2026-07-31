@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Building2 } from "lucide-react";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { INDUSTRIES } from "@/data/industries";
 import { roles } from "@/data/roles";
 import { INDUSTRY_ICONS } from "@/data/industryIcons";
+import { ALL_COMPANIES_BY_INDUSTRY } from "@/data/all-companies";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -121,6 +122,19 @@ export default function MostWanted() {
             ) : (
               <p className="text-muted-foreground">No saved roles yet</p>
             )}
+          </motion.section>
+
+          {/* Companies */}
+          <motion.section {...fadeUp} className="mb-16">
+            <h2 className="font-display font-700 text-2xl md:text-3xl mb-8">Companies</h2>
+            <p className="text-muted-foreground mb-8">Explore companies across all industries and find where you'd like to work.</p>
+            <Link
+              to="/companies"
+              className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity rounded-lg"
+            >
+              <Building2 className="w-4 h-4" />
+              Browse All Companies
+            </Link>
           </motion.section>
 
         </section>
