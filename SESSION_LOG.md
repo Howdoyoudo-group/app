@@ -37,21 +37,22 @@ This file is updated by Claude at the start and end of every session.
 - Changed question from "What kind of work do you do?" to "Any roles you already fancy?"
 - More casual, conversational tone aligned with Howdoyoudo brand voice
 
-**6. Added "Support into Work" category to Learning Hub and navigation**
+**6. Added "Support into Work" category to Learning Hub, navigation, and resource data**
 - New comprehensive category covering employment support services for vulnerable populations
-- 12 curated UK services including:
+- 10 curated UK services with watch/listen/read/help sections:
   - Individual Placement Support (IPS) for mental health
   - Remploy disability employment support
   - Access to Work Scheme (government funding)
   - Supported Employment UK
   - The Spear Programme (youth intensive support)
-  - Work and Health programmes
-  - ACAS disability rights
-  - Working Families support
-  - Kickstart and Traineeships (youth schemes)
   - Prince's Trust Get Into Work
-  - Benefits into Work transition support
-- Added to Level Up > Support navigation in both desktop and mobile menus
+  - Working Families support
+  - Kickstart Scheme (youth jobs)
+  - Traineeships (youth training)
+  - Momentum Skills (benefits into work)
+- Added to Learning Hub categories array (Learning.tsx)
+- Added to Level Up > Support navigation in both desktop and mobile menus (SiteHeader, GlobalMobileMenu)
+- Added to resource-topics.ts with full watch/listen/read/help resource links so `/resources/support-into-work` route works
 
 ### Current state
 - Live at: www.howdoyoudo.co.uk
