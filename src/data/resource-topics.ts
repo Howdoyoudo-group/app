@@ -346,6 +346,36 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
     ],
   },
   {
+    slug: "support-into-work",
+    title: "Support into Work",
+    description: "Intensive employment support services for vulnerable populations - from Individual Placement Support for mental health to disability employment services and youth programmes.",
+    icon: learningEmployability,
+    watch: [
+      { name: "The Spear Programme (YouTube)", description: "One of the UK's most effective youth employment schemes - intensive coaching and support for 16–24 year-olds.", url: "https://www.youtube.com/@spearinfo" },
+      { name: "Remploy - Disability Employment Support", description: "Videos on workplace support, job coaching and what's available for disabled people.", url: "https://www.remploy.co.uk" },
+    ],
+    listen: [
+      { name: "Mental Health & Work Podcast", description: "Conversations on employment, recovery and work for people with mental health conditions.", url: "https://open.spotify.com/search/mental%20health%20work" },
+    ],
+    read: [
+      { name: "Individual Placement Support - Rethink", description: "Guide to IPS - evidence-based employment support for people with mental health conditions.", url: "https://www.rethink.org/information-and-support/living-with-mental-illness/employment/individual-placement-support/" },
+      { name: "Access to Work Guide", description: "Full guide to the government grant scheme funding practical support for disabled people in work.", url: "https://www.gov.uk/access-to-work" },
+      { name: "ACAS - Disability at Work", description: "Workplace rights, reasonable adjustments and what you're entitled to as a disabled employee.", url: "https://www.acas.org.uk/disability-discrimination" },
+    ],
+    help: [
+      { name: "Individual Placement Support (IPS)", description: "Evidence-based employment support for people with mental health conditions - personalized job search, placement and ongoing support.", url: "https://www.rethink.org/information-and-support/living-with-mental-illness/employment/individual-placement-support/", tags: ["Mental Health", "Funded"] },
+      { name: "Remploy", description: "UK's largest disability employment support provider - job coaching, workplace assessments, and ongoing support to help disabled people find and keep work.", url: "https://www.remploy.co.uk", tags: ["Disability", "Job Coaching"] },
+      { name: "Access to Work Scheme", description: "Government grants for disabled people - funding for equipment, transport, support workers and interpreters.", url: "https://www.gov.uk/access-to-work", tags: ["Disability", "Funding"] },
+      { name: "Supported Employment UK", description: "Network of supported employment providers helping people with disabilities and complex barriers find and sustain employment.", url: "https://www.supportedemploymentuk.org", tags: ["Employment Support"] },
+      { name: "The Spear Programme", description: "Intensive employment support for 16–24 year-olds - job coaching, mentoring, benefits advice and in-work support.", url: "https://www.spear.org.uk/spear-programme/", tags: ["Youth", "Mentoring"] },
+      { name: "Prince's Trust Get Into Work", description: "Free support for young people 16-30 struggling to find work - training, mentoring and job placement.", url: "https://www.princes-trust.org.uk/help-for-young-people/get-into-work", tags: ["Youth", "Free"] },
+      { name: "Working Families", description: "Employment support for parents and carers - career advice, flexible working information and workplace rights.", url: "https://www.workingfamilies.org.uk", tags: ["Parents", "Carers"] },
+      { name: "DWP Kickstart Scheme", description: "Funded job creation for young people aged 16-24 not in education, employment or training - six-month placements.", url: "https://www.gov.uk/government/collections/kickstart-scheme", tags: ["Youth"] },
+      { name: "Traineeships", description: "Government-funded work experience combined with training for young people 16-24 - six-month programmes with real employers.", url: "https://www.gov.uk/find-traineeship", tags: ["Youth", "Training"] },
+      { name: "Momentum Skills - Benefits into Work", description: "Specialized employment support helping people on benefits transition into sustainable work with ongoing coaching.", url: "https://momentumskills.com", tags: ["Benefits Support"] },
+    ],
+  },
+  {
     slug: "social-mobility",
     title: "Social Mobility",
     description: "Programmes that open doors for talented young people from less-advantaged backgrounds - coaching, mentoring and direct routes into top employers.",
