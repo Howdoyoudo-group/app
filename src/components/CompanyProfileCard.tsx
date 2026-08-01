@@ -299,13 +299,17 @@ export const CompanyProfileGrid = ({
 
   return (
     <>
-      <p className="text-primary text-xs tracking-[0.3em] uppercase font-body mb-3">
-        {subtitle}
-      </p>
-      <h2 className="font-display text-3xl md:text-5xl font-800 leading-none mb-6">
-        {title}
-        <span className="text-primary">.</span>
-      </h2>
+      {subtitle && (
+        <p className="text-primary text-xs tracking-[0.3em] uppercase font-body mb-3">
+          {subtitle}
+        </p>
+      )}
+      {title && (
+        <h2 className="font-display text-3xl md:text-5xl font-800 leading-none mb-6">
+          {title}
+          <span className="text-primary">.</span>
+        </h2>
+      )}
 
       {hasStages && (
         <div className="flex flex-wrap gap-2 mb-8">

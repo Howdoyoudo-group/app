@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Building2, Search, X } from "lucide-react";
+import { Building2, Search, X, ChevronDown } from "lucide-react";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { CompanyProfileGrid } from "@/components/CompanyProfileCard";
@@ -10,6 +10,19 @@ const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, 
 
 export default function Companies() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [expandedIndustries, setExpandedIndustries] = useState<Set<string>>(new Set());
+  const [isMobile, setIsMobile] = useState(() => {
+    if (typeof window !== "undefined") {
+      return window.innerWidth < 768;
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const filteredByIndustry = useMemo(() => {
     const result: Record<string, typeof ALL_COMPANIES_BY_INDUSTRY[keyof typeof ALL_COMPANIES_BY_INDUSTRY]> = {};
@@ -76,17 +89,49 @@ export default function Companies() {
 
           {/* Results by Industry */}
           {industryList.length > 0 ? (
-            <div className="space-y-12">
+            <div className="space-y-4 md:space-y-12">
               {industryList.map((industry) => {
                 const companiesInIndustry = filteredByIndustry[industry];
                 if (!companiesInIndustry || companiesInIndustry.length === 0) return null;
 
+                const isExpanded = expandedIndustries.has(industry);
+
+                const toggleIndustry = () => {
+                  const newExpanded = new Set(expandedIndustries);
+                  if (newExpanded.has(industry)) {
+                    newExpanded.delete(industry);
+                  } else {
+                    newExpanded.add(industry);
+                  }
+                  setExpandedIndustries(newExpanded);
+                };
+
                 return (
-                  <motion.section key={industry} {...fadeUp}>
-                    <h2 className="font-display font-700 text-2xl mb-6">
-                      {industry}
-                    </h2>
-                    <CompanyProfileGrid companies={companiesInIndustry as any} title="" subtitle="" />
+                  <motion.section key={industry} {...fadeUp} className="md:space-y-6">
+                    {/* Mobile: Collapsible header */}
+                    <button
+                      onClick={toggleIndustry}
+                      className="w-full md:hidden flex items-center justify-between py-3 px-4 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-colors"
+                    >
+                      <h2 className="font-display font-700 text-lg text-left">
+                        {industry}
+                      </h2>
+                      <ChevronDown
+                        className={`w-5 h-5 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                      />
+                    </button>
+
+                    {/* Desktop: Always visible, Mobile: Conditionally visible */}
+                    {isExpanded || !isMobile ? (
+                      <>
+                        <div className="hidden md:block">
+                          <h2 className="font-display font-700 text-2xl mb-6">
+                            {industry}
+                          </h2>
+                        </div>
+                        <CompanyProfileGrid companies={companiesInIndustry as any} title="" subtitle="" />
+                      </>
+                    ) : null}
                   </motion.section>
                 );
               })}
