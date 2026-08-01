@@ -78,6 +78,9 @@ const CURATED_DOMAINS: Record<string, string> = {
   "reformation": "thereformation.com",
   "coats group": "coats.com",
   "brand machine group": "brandmachinegroup.com",
+  "flannels": "flannels.com",
+  "end.": "endclothing.com",
+  "end": "endclothing.com",
 
   // ── Footwear ─────────────────────────────────────────────
   "birkenstock": "birkenstock.com",
@@ -636,6 +639,9 @@ const CURATED_DOMAINS: Record<string, string> = {
   "ocado logistics": "ocado-logistics.com",
   "wincanton": "wincanton.co.uk",
   "xpo logistics": "xpo.com",
+  "dpd": "dpd.co.uk",
+  "dhl": "dhl.co.uk",
+  "dhl supply chain": "dhl.co.uk",
 
   // ── Cinema / film ────────────────────────────────────────
   "working title films": "workingtitlefilms.com",
@@ -652,6 +658,8 @@ const CURATED_DOMAINS: Record<string, string> = {
   "lionsgate": "lionsgate.com",
   "framestore": "framestore.com",
   "vue international": "myvue.com",
+  "sister": "sister.co.uk",
+  "big talk productions": "bigtalkproductions.com",
 
   // ── Music ────────────────────────────────────────────────
   "secretly group": "secretlygroup.com",
