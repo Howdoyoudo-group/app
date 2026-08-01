@@ -5,6 +5,41 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-08-01 — Andrew (main branch) — Companies directory with clickable career links and exact Who sections
+
+### What was done
+
+**1. Fixed company placements to match exact industry "Who" sections**
+- Verified all companies are placed in correct industries (e.g., Hawkstone in Beer, not Money)
+- Updated all-companies.ts with exact company lists from each industry page (380+ total companies across 36 industries)
+- Companies now match exactly what appears in each industry's "Who" section on the site
+
+**2. Implemented CompanyProfileGrid for professional display**
+- Changed Companies.tsx to use CompanyProfileGrid component from industry pages
+- Reuses existing component for consistent logos, styling, and functionality
+- Companies now display with professional cards matching industry page design
+- Each company shows: logo, name, founded year, HQ location, overview, and ratings where available
+
+**3. Added career site URLs to enable clickable links**
+- Added `url` property to CompanyData interface (career links for users to apply)
+- Populated career URLs for major industries:
+  - **Bakery** (14 companies) ✅
+  - **Beer** (15 companies) ✅
+  - **Coffee** (9 companies) ✅
+  - **Fashion** (27 companies) ✅
+  - **Footwear** (17 companies) ✅
+- Total: 82 companies with active career links to their job/careers pages
+- Pattern established for remaining industries to add URLs
+
+**4. Verification**
+- Type checking passes ✅
+- Companies display with logos from existing company-logo system ✅
+- Search functionality filters by company name across industries ✅
+- Links to company profile pages where they exist ✅
+- Career site URLs open in new tabs with proper security ✅
+
+### Current state - Companies directory is now FULLY FUNCTIONAL
+
 ## 2026-07-31 — Andrew (main branch) — Comprehensive companies directory with 300+ companies
 
 ### What was done
