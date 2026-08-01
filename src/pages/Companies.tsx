@@ -86,7 +86,7 @@ export default function Companies() {
                     <h2 className="font-display font-700 text-2xl mb-6">
                       {industry}
                     </h2>
-                    <CompanyProfileGrid companies={companiesInIndustry as any} />
+                    <CompanyProfileGrid companies={companiesInIndustry as any} title="" subtitle="" />
                   </motion.section>
                 );
               })}
