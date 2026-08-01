@@ -351,11 +351,13 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
     description: "Intensive employment support services for vulnerable populations - from Individual Placement Support for mental health to disability employment services and youth programmes.",
     icon: learningEmployability,
     watch: [
+      { name: "Careers Pilot (YouTube)", description: "Career videos and routes for young people exploring employment paths and opportunities.", url: "https://www.youtube.com/@careerpilot" },
       { name: "The Spear Programme (YouTube)", description: "One of the UK's most effective youth employment schemes - intensive coaching and support for 16–24 year-olds.", url: "https://www.youtube.com/@spearinfo" },
       { name: "Remploy - Disability Employment Support", description: "Videos on workplace support, job coaching and what's available for disabled people.", url: "https://www.remploy.co.uk" },
     ],
     listen: [
-      { name: "Mental Health & Work Podcast", description: "Conversations on employment, recovery and work for people with mental health conditions.", url: "https://open.spotify.com/search/mental%20health%20work" },
+      { name: "Squiggly Careers - Work & Mental Health", description: "Episodes on managing mental health at work, recovery and building confidence in employment.", url: "https://open.spotify.com/show/2JCRlgjewZqdgpovS3e8GA" },
+      { name: "WorkLife with Adam Grant", description: "Organisational psychologist exploring what makes work feel good and sustainable for mental wellbeing.", url: "https://open.spotify.com/show/4eylg9GZJOVvUhTynt4jjA" },
     ],
     read: [
       { name: "Individual Placement Support - Rethink", description: "Guide to IPS - evidence-based employment support for people with mental health conditions.", url: "https://www.rethink.org/information-and-support/living-with-mental-illness/employment/individual-placement-support/" },
