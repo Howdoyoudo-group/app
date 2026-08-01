@@ -84,7 +84,7 @@ export default function Companies() {
                 return (
                   <motion.section key={industry} {...fadeUp}>
                     <h2 className="font-display font-700 text-2xl mb-6">
-                      {industry} <span className="text-primary">({companiesInIndustry.length})</span>
+                      {industry}
                     </h2>
                     <CompanyProfileGrid companies={companiesInIndustry as any} />
                   </motion.section>
