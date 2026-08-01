@@ -352,7 +352,7 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
     icon: learningEmployability,
     watch: [
       { name: "Careers Pilot (YouTube)", description: "Career videos and routes for young people exploring employment paths and opportunities.", url: "https://www.youtube.com/@careerpilot" },
-      { name: "The Spear Programme (YouTube)", description: "One of the UK's most effective youth employment schemes - intensive coaching and support for 16–24 year-olds.", url: "https://www.youtube.com/@spearinfo" },
+      { name: "The Spear Programme", description: "One of the UK's most effective youth employment schemes - intensive coaching and support for 16–24 year-olds.", url: "https://www.spear.org.uk/spear-programme/" },
       { name: "Remploy - Disability Employment Support", description: "Videos on workplace support, job coaching and what's available for disabled people.", url: "https://www.remploy.co.uk" },
     ],
     listen: [
