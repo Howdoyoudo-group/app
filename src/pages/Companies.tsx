@@ -10,7 +10,7 @@ const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, 
 
 export default function Companies() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedIndustries, setExpandedIndustries] = useState<Set<string>>(new Set());
+  const [expandedIndustries, setExpandedIndustries] = useState<Record<string, boolean>>({});
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window !== "undefined") {
       return window.innerWidth < 768;
@@ -94,16 +94,13 @@ export default function Companies() {
                 const companiesInIndustry = filteredByIndustry[industry];
                 if (!companiesInIndustry || companiesInIndustry.length === 0) return null;
 
-                const isExpanded = expandedIndustries.has(industry);
+                const isExpanded = expandedIndustries[industry] ?? false;
 
                 const toggleIndustry = () => {
-                  const newExpanded = new Set(expandedIndustries);
-                  if (newExpanded.has(industry)) {
-                    newExpanded.delete(industry);
-                  } else {
-                    newExpanded.add(industry);
-                  }
-                  setExpandedIndustries(newExpanded);
+                  setExpandedIndustries((prev) => ({
+                    ...prev,
+                    [industry]: !prev[industry],
+                  }));
                 };
 
                 return (
