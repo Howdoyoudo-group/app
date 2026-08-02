@@ -665,6 +665,14 @@ const CURATED_DOMAINS: Record<string, string> = {
   "secretly group": "secretlygroup.com",
   "wme (william morris)": "wmeagency.com",
   "wme": "wmeagency.com",
+  "ginkgo music": "ginkomusic.com",
+  "peer music": "peermusic.com",
+  "chasing the sun talent": "chasingthesuntalent.com",
+  "wise music": "wisemusicclassical.com",
+  "ticketmaster": "ticketmaster.com",
+  "see tickets": "seetickets.com",
+  "eventbrite": "eventbrite.com",
+  "skiddle": "skiddle.com",
 
   // ── Football / sport extra ───────────────────────────────
   "the football association": "thefa.com",

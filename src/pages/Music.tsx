@@ -115,7 +115,12 @@ const musicCompanies = [
   { name: "Peer Music", url: "https://www.peermusic.com", founded: "1928", hq: "New York (UK: London)", overview: "Global music publisher and rights administrator - publishing, licensing, and representation for songwriters and composers.", valueChainStage: "Distribution" },
   { name: "Chasing the Sun Talent", url: "https://chasingthesuntalent.com", founded: "2015", hq: "London", overview: "Independent talent management and artist representation - managing emerging and established artists across all genres.", valueChainStage: "Marketing" },
   { name: "Wise Music", url: "https://www.wisemusicclassical.com", founded: "1883", hq: "London", overview: "Music publishing, representation and artist management - particularly strong in classical, film and games music.", valueChainStage: "Distribution" },
+  { name: "Ticketmaster", url: "https://www.ticketmaster.com/careers", founded: "1976", hq: "Los Angeles (UK: London)", glassdoor: 3.7, overview: "The world's largest ticketing platform - operates globally for concerts, festivals, theatre, and live events.", valueChainStage: "Live & Exhibition" },
+  { name: "See Tickets", url: "https://careers.seetickets.com", founded: "2004", hq: "Nottingham (UK offices)", glassdoor: 3.4, overview: "UK's leading independent ticketing company - serves venues, promoters, and festivals across live music and events.", valueChainStage: "Live & Exhibition" },
+  { name: "Eventbrite", url: "https://www.eventbrite.com/careers", founded: "2006", hq: "San Francisco (UK: London)", overview: "Event management and ticketing platform - used by promoters, festivals, and independent venues for ticket sales and promotion.", valueChainStage: "Live & Exhibition" },
+  { name: "Skiddle", url: "https://www.skiddle.com", founded: "2003", hq: "Manchester", overview: "UK's largest independent events and ticketing platform - tickets for clubs, venues, festivals, comedy, and live music.", valueChainStage: "Live & Exhibition" },
 ];
+
 
 const Music = () => {
   const tabs = [

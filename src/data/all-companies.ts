@@ -511,6 +511,10 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Peer Music", url: "https://www.peermusic.com", industry: "Music" },
     { name: "Chasing the Sun Talent", url: "https://chasingthesuntalent.com", industry: "Music" },
     { name: "Wise Music", url: "https://www.wisemusicclassical.com", industry: "Music" },
+    { name: "Ticketmaster", url: "https://www.ticketmaster.com/careers", industry: "Music" },
+    { name: "See Tickets", url: "https://careers.seetickets.com", industry: "Music" },
+    { name: "Eventbrite", url: "https://www.eventbrite.com/careers", industry: "Music" },
+    { name: "Skiddle", url: "https://www.skiddle.com", industry: "Music" },
   ],
   Pets: [
     { name: "Pets at Home", url: "https://www.petsathomejobs.com", industry: "Pets" },
