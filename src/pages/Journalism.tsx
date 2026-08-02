@@ -141,18 +141,9 @@ const Journalism = () => {
       <>
         <div className="mb-12">
           <h2 className="font-display text-2xl md:text-3xl font-700 mb-6">The HDYD Show<span className="text-primary">.</span></h2>
-          <p className="text-muted-foreground font-body text-sm mb-6">Interviews with people doing interesting things across industries — journalists, storytellers, and those uncovering what matters.</p>
-          <div className="aspect-video rounded-lg overflow-hidden bg-black mb-6">
-            <iframe
-              width="100%"
-              height="100%"
-              src="https://www.youtube.com/embed/NrYsqaJRqFo"
-              title="The HDYD Show Teaser"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              style={{ border: "none" }}
-            />
-          </div>
+          <p className="text-muted-foreground font-body text-sm mb-4">Episode 1: How Do You Do, Journalism?</p>
+          <p className="text-muted-foreground font-body text-sm mb-6">Real stories from journalists, storytellers, and those uncovering what matters.</p>
+          <Link to="/the-show" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">Watch Episode</Link>
         </div>
         <VideoShowcase heading="Unpacking on Screen" clips={industryVideos["journalism"] || []} />
         <div className="mt-12"><YouTubeChannels industry="journalism" /><TikTokCreators industry="journalism" /></div>
