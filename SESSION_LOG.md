@@ -5,6 +5,63 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-08-02 — Andrew (main branch) — Music industry expansion: companies, job boards, videos, and learning resources
+
+### What was done THIS SESSION
+
+**1. Expanded Music industry with 12 new companies**
+- Added to Music.tsx local array and synced to all-companies.ts
+- Festival organizers: **Glastonbury Festival**, **Reading & Leeds Festivals**, **Latitude Festival**
+- Music platforms/distribution: **SoundCloud**, **DistroKid**, **TuneCore**, **Bandcamp**
+- Media & promoters: **MTV**, **AEG Live**
+- **Business services**: **Ginkgo Music** (accounting), **Peer Music** (publishing), **Chasing the Sun Talent** (artist management), **Wise Music** (publishing)
+- **Total Music companies: 25** (was 12) — now covers creation, recording, production, distribution, live, and business support across full value chain
+
+**2. Integrated music industry job boards into Jobs tab**
+- Added ExploreFurther component with 5 specialist music job boards:
+  - **Doors Open** — UK's main music industry job board
+  - **Music Careers** — specialist music roles platform
+  - **Music Jobs UK** — UK-focused music jobs coverage
+  - **Rostr Jobs** — music industry platform
+  - **IQ Magazine Jobs** — live music and festival jobs
+- Follows Theatre.tsx pattern with "More places to look" subtitle
+
+**3. Added 6 new day-in-the-life career videos** (addressing user request for non-musician roles)
+- **A Day in the Life of a Music Producer** (user's provided BAFTA link — XnSJwdIoR4k)
+- **A Day in the Life of a Sound Engineer** — live sound at festivals/venues
+- **Tour Manager - Day in the Life** — UK touring logistics
+- **Venue Manager - Day in the Life** — running live music venues
+- **A&R Scout** — finding and signing new talent
+- **Music Journalist** — covering the industry
+- All tagged as "Careers" videos with durations and real channels
+
+**4. Created comprehensive Music Industry learning topic** in resource-topics.ts
+- Full watch/listen/read/help sections covering:
+  - **Watch**: Music business explainers, production guides, day-in-life content
+  - **Listen**: Podcasts (Ari Herstand, Music Business Worldwide, Tape Notes, Music Entrepreneur Code)
+  - **Read**: Industry publications (Music Week, Musico career guides, UK Music Skills Academy)
+  - **Help**: Job boards, courses (Berklee Music Business, production schools), publishing/rights guides (PRS, IMRO), artist support (Access All)
+- Now accessible at `/resources/music-industry`
+
+### Verification
+- ✅ Music page WHO? tab displays all 25 companies with correct value chain stages
+- ✅ Music page WATCH tab shows all 9 videos (3 original + 6 new day-in-life)
+- ✅ Music page JOBS tab displays 5 job boards with descriptions
+- ✅ Music page LEARN tab (via TheDownload/CoursesSection) pulls from resource-topics
+- ✅ Dev server builds and renders without errors
+- ✅ TypeCheck clean
+
+### Commits
+- **1 commit:** `fb51fe0` — "Expand Music industry with companies, job boards, videos and learning resources"
+- Pushed to both remotes: `howdoyoudo` + `origin` ✅
+
+### Current state
+- Live at: www.howdoyoudo.co.uk (as of commit `fb51fe0`)
+- Music industry now fully expanded with 25 companies, 5 job boards, 9 videos, and comprehensive learning resources
+- All changes verified and working in dev server
+
+---
+
 ## 2026-08-01 — Andrew (main branch) — 81% Company URL coverage complete (444/547 companies)
 
 ### What was done THIS TURN
