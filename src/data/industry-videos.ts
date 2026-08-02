@@ -145,7 +145,6 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "bXDU5E2_VDc", title: "How I Earn Money in the Music Business", description: "A breakdown of royalties, advances, publishing, and how artists actually get paid.", tag: "Explainer", duration: "17:16", channel: "KARRA" },
     { youtubeId: "A6n3GkB5-kU", title: "How to Make It in the New Music Business", description: "Ari Herstand on the modern music industry and building a sustainable career.", tag: "Interview", duration: "1:25:37", channel: "One More Time Podcast" },
     { youtubeId: "nyHMgxzKa6Y", title: "Are Artist Managers More Important Than Record Labels Now?", description: "The shifting power dynamics in the modern music industry.", tag: "Explainer", channel: "YouTube" },
-    { youtubeId: "XnSJwdIoR4k", title: "A Day in the Life of a Music Producer", description: "Behind the scenes at a UK recording studio - mixing, mastering, and working with artists.", tag: "Careers", duration: "13:42", channel: "BAFTA Careers" },
   ],
   pets: [
     { youtubeId: "04WhT1D4bS8", title: "A Day in the Life of a Vet - Working at Cats Protection", description: "Senior vet Emily walks through her rounds at a UK cat centre.", tag: "Careers", duration: "5:50", channel: "Cats Protection" },
