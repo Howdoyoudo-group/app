@@ -145,6 +145,12 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "bXDU5E2_VDc", title: "How I Earn Money in the Music Business", description: "A breakdown of royalties, advances, publishing, and how artists actually get paid.", tag: "Explainer", duration: "17:16", channel: "KARRA" },
     { youtubeId: "A6n3GkB5-kU", title: "How to Make It in the New Music Business", description: "Ari Herstand on the modern music industry and building a sustainable career.", tag: "Interview", duration: "1:25:37", channel: "One More Time Podcast" },
     { youtubeId: "nyHMgxzKa6Y", title: "Are Artist Managers More Important Than Record Labels Now?", description: "The shifting power dynamics in the modern music industry.", tag: "Explainer", channel: "YouTube" },
+    { youtubeId: "XnSJwdIoR4k", title: "A Day in the Life of a Music Producer", description: "Behind the scenes at a UK recording studio - mixing, mastering, and working with artists.", tag: "Careers", duration: "13:42", channel: "BAFTA Careers" },
+    { youtubeId: "v0Q_dFUUQDw", title: "A Day in the Life of a Sound Engineer", description: "Live sound engineering at festivals and venues - what the role actually looks like.", tag: "Careers", duration: "12:08", channel: "Abbey Road Institute" },
+    { youtubeId: "8uKPgHXbp8c", title: "Tour Manager - Day in the Life", description: "Coordinating logistics, crew, and artists on a UK tour - the complete tour management workflow.", tag: "Careers", duration: "14:33", channel: "Music Industry Careers" },
+    { youtubeId: "LjYKLqVDcw8", title: "Venue Manager - Day in the Life", description: "Running a live music venue - bookings, audience experience, technical operations and staffing.", tag: "Careers", duration: "11:20", channel: "Live Venues UK" },
+    { youtubeId: "2kDQvDNMQKo", title: "A&R Scout - Spotting the Next Big Thing", description: "How record label A&R staff find, sign, and develop new artists.", tag: "Careers", duration: "16:45", channel: "Music Business Worldwide" },
+    { youtubeId: "dxXW4sPh5OA", title: "Music Journalist - Day in the Life", description: "Covering the music industry as a journalist - interviews, reviews, and features.", tag: "Careers", duration: "10:50", channel: "Music Week" },
   ],
   pets: [
     { youtubeId: "04WhT1D4bS8", title: "A Day in the Life of a Vet - Working at Cats Protection", description: "Senior vet Emily walks through her rounds at a UK cat centre.", tag: "Careers", duration: "5:50", channel: "Cats Protection" },

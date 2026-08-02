@@ -543,6 +543,42 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
       { name: "Scope", description: "UK disability charity offering employment advice, helpline support and information on your workplace rights.", url: "https://www.scope.org.uk", tags: ["Disability", "UK", "Free"] },
     ],
   },
+  {
+    slug: "music-industry",
+    title: "Music Industry",
+    description: "From songwriting and production to touring and festival management. Resources for careers across recorded music, live events, publishing, artist management and music tech.",
+    icon: learningCareers,
+    watch: [
+      { name: "The Music Business Explainer (YouTube)", description: "Clear, visual breakdowns of how record labels, publishing, streaming and live music actually work.", url: "https://www.youtube.com/@TheMusicBusinessExplainer" },
+      { name: "Rick Beato - How the Music Industry Works", description: "In-depth analysis of the music business - contracts, publishing, streaming economics and artist rights.", url: "https://www.youtube.com/@RickBeato" },
+      { name: "Ari Herstand - The New Music Business (YouTube)", description: "Practical guides for independent artists - contracts, distribution, touring and DIY label operation.", url: "https://www.youtube.com/results?search_query=ari+herstand+music+business" },
+      { name: "Abbey Road Institute - Career paths (YouTube)", description: "Short films on roles from studio engineering to live sound to music production.", url: "https://www.youtube.com/@AbbeyRoadInstitute" },
+      { name: "Pensado's Place (YouTube)", description: "Interviews with producers, engineers and artists on creating music and running studios.", url: "https://www.youtube.com/@PensadosPlace" },
+    ],
+    listen: [
+      { name: "The New Music Business with Ari Herstand (Podcast)", description: "The #1 podcast for navigating the modern music industry - contracts, rights, distribution, DIY artist strategy.", url: "https://shows.acast.com/thenewmusicbusiness" },
+      { name: "Music Business Worldwide Podcast", description: "Global music industry news, deals and insight from the leading music business publication.", url: "https://www.musicbusinessworldwide.com" },
+      { name: "Tape Notes (Podcast)", description: "Producers and artists break down how iconic records were made - studio insights and creative decision-making.", url: "https://www.tapenotes.co.uk/" },
+      { name: "The Music Entrepreneur Code (Podcast)", description: "Strategies for independent musicians and producers building sustainable careers.", url: "https://open.spotify.com/show/3tSgd9tY0vt4qGxRdLJqCM" },
+    ],
+    read: [
+      { name: "Music Week", description: "The UK's leading music industry publication - news, analysis and business insight.", url: "https://www.musicweek.com" },
+      { name: "Musico - Career guides", description: "In-depth guides to music careers - roles, salary data, how to get into different sectors.", url: "https://musico.org" },
+      { name: "The Unspoken Rules of Music PR (LinkedIn Article)", description: "Insight into how PR and publicity actually works in the music industry.", url: "https://www.linkedin.com" },
+      { name: "UK Music - Skills Academy", description: "The industry body's career resources, skills pathways and sector data.", url: "https://www.ukmusic.org/skills-academy/" },
+    ],
+    help: [
+      { name: "Doors Open", description: "The UK's main music industry job board - venues, festivals, promoters, labels, studios.", url: "https://www.doorsopen.co", tags: ["Jobs", "UK"] },
+      { name: "Music Careers", description: "Specialist platform for music industry roles and opportunities.", url: "https://www.musiccareers.co", tags: ["Jobs", "Music"] },
+      { name: "Music Jobs UK", description: "UK-focused board covering labels, venues, festivals and session work.", url: "https://www.music-jobs.com/uk", tags: ["Jobs", "UK"] },
+      { name: "Berklee Online - Music Business Certificate", description: "Accredited certificate course in music business fundamentals - distribution, licensing, publishing and artist management.", url: "https://online.berklee.edu", tags: ["Course", "Online"] },
+      { name: "Coursera - Music Production Specialisation", description: "Learn music production, mixing and mastering from top studios and educators.", url: "https://www.coursera.org/specializations/music-production", tags: ["Course", "Free option"] },
+      { name: "Abbey Road Institute", description: "Specialist training in audio engineering, music production and studio technology - London-based and online programmes.", url: "https://www.abbeyroadinstitute.com", tags: ["UK", "Training"] },
+      { name: "IMRO - Irish Music Rights", description: "Music licensing and royalties guidance for creators and performers.", url: "https://www.imro.ie", tags: ["Rights", "Royalties"] },
+      { name: "PRS for Music", description: "UK's music licensing and royalties body - guides on collecting music rights and understanding publishing.", url: "https://www.prsformusic.com", tags: ["Rights", "UK"] },
+      { name: "Access All - Artist Support", description: "UK charity supporting emerging artists with mentorship, funding and industry connections.", url: "https://www.access-all.org.uk", tags: ["Artists", "UK", "Support"] },
+    ],
+  },
 ];
 
 export const getResourceTopic = (slug: string) =>

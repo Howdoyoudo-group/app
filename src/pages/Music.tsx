@@ -102,6 +102,19 @@ const musicCompanies = [
   { name: "Sony Music", url: "https://careers.sonymusic.com/jobs/", founded: "1929", hq: "New York (UK: London)", glassdoor: 4.0, overview: "Major label group - RCA, Columbia, Ministry of Sound Recordings.", valueChainStage: "Distribution" },
   { name: "Warner Music Group", url: "https://www.wmg.com/careers", founded: "1958", hq: "New York (UK: London)", glassdoor: 3.8, overview: "Major label group - Atlantic, Parlophone, Warner Records.", valueChainStage: "Distribution" },
   { name: "BMG", url: "https://www.bmg.com/careers", founded: "2008", hq: "Berlin (UK: London)", glassdoor: 3.7, overview: "Modern rights management and label - a fair-trade alternative to the Big 3.", valueChainStage: "Distribution" },
+  { name: "MTV", url: "https://www.paramountgroupcareers.com", founded: "1981", hq: "New York (UK: London)", overview: "Global music and pop culture media brand - production, commissioning and on-air content.", valueChainStage: "Marketing" },
+  { name: "Glastonbury Festival", url: "https://www.glastonburyfestivals.co.uk/about-us/work-with-us/", founded: "1970", hq: "Somerset", overview: "The UK's most iconic music festival - world-class organisational infrastructure and event production.", valueChainStage: "Live & Exhibition" },
+  { name: "Reading & Leeds Festivals", url: "https://www.liveunlimited.co.uk", founded: "1961", hq: "Berkshire & Leeds", overview: "Major British rock festivals with 60+ years of event production experience and touring logistics.", valueChainStage: "Live & Exhibition" },
+  { name: "Latitude Festival", url: "https://www.latitudefestival.com", founded: "2006", hq: "Suffolk", overview: "Multi-genre festival known for curation and artist development - smaller, artist-friendly alternative to mega-festivals.", valueChainStage: "Live & Exhibition" },
+  { name: "SoundCloud", url: "https://soundcloud.com/careers", founded: "2007", hq: "Berlin (UK: London)", overview: "Music distribution and streaming platform for independent artists - creator-focused alternative to majors.", valueChainStage: "Distribution" },
+  { name: "DistroKid", url: "https://www.distrokid.com", founded: "2012", hq: "Los Angeles (UK operations)", overview: "Digital music distribution platform for independent artists to release to Spotify, Apple Music and more.", valueChainStage: "Distribution" },
+  { name: "TuneCore", url: "https://www.tunecore.com", founded: "2006", hq: "New York (UK operations)", overview: "Music distribution and licensing platform empowering independent artists and labels.", valueChainStage: "Distribution" },
+  { name: "Bandcamp", url: "https://bandcamp.com", founded: "2008", hq: "Oakland, California", overview: "Artist-friendly digital music platform and store - royalty-focused, used by indie and experimental artists globally.", valueChainStage: "Distribution" },
+  { name: "AEG Live", url: "https://www.aeglive.com", founded: "2003", hq: "Los Angeles (UK: London)", overview: "Major live entertainment promoter and venue operator - O2 Arena, SSE Arenas, and festival promotions.", valueChainStage: "Live & Exhibition" },
+  { name: "Ginkgo Music", url: "https://www.ginkomusic.com", founded: "2000", hq: "London", overview: "Artist accounting, business management and consultancy - helping independent artists understand and manage their finances and rights.", valueChainStage: "Marketing" },
+  { name: "Peer Music", url: "https://www.peermusic.com", founded: "1928", hq: "New York (UK: London)", overview: "Global music publisher and rights administrator - publishing, licensing, and representation for songwriters and composers.", valueChainStage: "Distribution" },
+  { name: "Chasing the Sun Talent", url: "https://chasingthesuntalent.com", founded: "2015", hq: "London", overview: "Independent talent management and artist representation - managing emerging and established artists across all genres.", valueChainStage: "Marketing" },
+  { name: "Wise Music", url: "https://www.wisemusicclassical.com", founded: "1883", hq: "London", overview: "Music publishing, representation and artist management - particularly strong in classical, film and games music.", valueChainStage: "Distribution" },
 ];
 
 const Music = () => {
@@ -171,6 +184,17 @@ const Music = () => {
           <p className="text-muted-foreground font-body text-sm mb-4">Browse live roles across the music industry.</p>
           <Link to="/marketplace?industry=Music#jobs-list" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">View Jobs</Link>
         </div>
+        <ExploreFurther
+          title="More places to look"
+          subtitle="Music industry job boards and specialist platforms where you can find roles directly."
+          links={[
+            { title: "Doors Open", description: "The UK's main music industry job board - roles across venues, festivals, promoters, labels and studios.", url: "https://www.doorsopen.co" },
+            { title: "Music Careers", description: "Specialist platform for music industry roles - performing, production, promotion and technical positions.", url: "https://www.musiccareers.co" },
+            { title: "Music Jobs UK", description: "UK-focused music jobs board covering all sectors - labels, venues, festivals, session work and artist management.", url: "https://www.music-jobs.com/uk" },
+            { title: "Rostr Jobs", description: "Platform for music industry roles and artist opportunities on the Rostr network.", url: "https://jobs.rostr.cc" },
+            { title: "IQ Magazine Jobs", description: "Events and entertainment industry job board with live music, festivals and venue operations roles.", url: "https://www.iqmagazine.com/jobs" },
+          ]}
+        />
         <IndustryRolesShowcase stages={musicStages} industry="Music" companies={musicCompanies} />
         <IndustryCVBuilder industry="Music" stages={musicStages} />
       </>
