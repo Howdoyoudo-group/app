@@ -141,9 +141,32 @@ const Journalism = () => {
       <>
         <div className="mb-12">
           <h2 className="font-display text-2xl md:text-3xl font-700 mb-6">The HDYD Show<span className="text-primary">.</span></h2>
-          <p className="text-muted-foreground font-body text-sm mb-4">Episode 1: How Do You Do, Journalism?</p>
-          <p className="text-muted-foreground font-body text-sm mb-6">Real stories from journalists, storytellers, and those uncovering what matters.</p>
-          <Link to="/the-show" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity">Watch Episode</Link>
+          <div className="grid md:grid-cols-2 gap-8 mb-8">
+            <div>
+              <Link to="/the-show" className="block group">
+                <div className="relative overflow-hidden rounded-lg mb-4 bg-black">
+                  <img
+                    src="https://img.youtube.com/vi/JQGH2S4xso0/hqdefault.jpg"
+                    alt="How Do You Do, Journalism? Episode 1"
+                    className="w-full h-auto group-hover:opacity-90 transition-opacity"
+                  />
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/50 transition-colors">
+                    <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center">
+                      <svg className="w-6 h-6 fill-primary-foreground ml-1" viewBox="0 0 24 24">
+                        <path d="M8 5v14l11-7z" />
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+            <div className="flex flex-col justify-center">
+              <p className="text-muted-foreground font-body text-sm mb-2">Episode 1</p>
+              <p className="font-display text-xl md:text-2xl font-700 mb-4">How Do You Do, Journalism?</p>
+              <p className="text-muted-foreground font-body text-sm mb-6">Real stories from journalists, storytellers, and those uncovering what matters.</p>
+              <Link to="/the-show" className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-6 py-3 font-display font-600 text-sm tracking-wide uppercase hover:opacity-90 transition-opacity w-fit">Watch Episode</Link>
+            </div>
+          </div>
         </div>
         <VideoShowcase heading="Unpacking on Screen" clips={industryVideos["journalism"] || []} />
         <div className="mt-12"><YouTubeChannels industry="journalism" /><TikTokCreators industry="journalism" /></div>

@@ -3316,7 +3316,7 @@ function isUkLocation(s: string): boolean {
 // Found live: 36 of 49 configured Workday tenants (73%) return 404/422 on
 // every single call - console.error alone made this permanently invisible,
 // since nobody reads function logs for a cron that "succeeds" every run.
-let _workdayTenantResults: { tenant: string; company: string; status: number | string; ok: boolean }[] = [];
+let _workdayTenantResults: { tenant: string; company: string; status: number | string; ok: boolean; jobCount?: number }[] = [];
 
 async function fetchWorkdayJobs(tenant: typeof WORKDAY_TENANTS[number]) {
   const allJobs: any[] = [];
@@ -3326,6 +3326,7 @@ async function fetchWorkdayJobs(tenant: typeof WORKDAY_TENANTS[number]) {
   const baseHost = `${tenant.tenant}.${tenant.wd}.myworkdayjobs.com`;
   const apiUrl = `https://${baseHost}/wday/cxs/${tenant.tenant}/${tenant.site}/jobs`;
   const siteUrl = `https://${baseHost}/${tenant.site}`;
+  let tenantResult: { tenant: string; company: string; status: number | string; ok: boolean; jobCount?: number } | null = null;
 
   try {
     for (let page = 0; page < MAX_PAGES; page++) {
@@ -3347,12 +3348,14 @@ async function fetchWorkdayJobs(tenant: typeof WORKDAY_TENANTS[number]) {
       if (!res.ok) {
         console.error(`Workday error for "${tenant.company}" offset=${offset}: ${res.status}`);
         if (page === 0) {
-          _workdayTenantResults.push({ tenant: tenant.tenant, company: tenant.company, status: res.status, ok: false });
+          tenantResult = { tenant: tenant.tenant, company: tenant.company, status: res.status, ok: false };
+          _workdayTenantResults.push(tenantResult);
         }
         break;
       }
       if (page === 0) {
-        _workdayTenantResults.push({ tenant: tenant.tenant, company: tenant.company, status: res.status, ok: true });
+        tenantResult = { tenant: tenant.tenant, company: tenant.company, status: res.status, ok: true };
+        _workdayTenantResults.push(tenantResult);
       }
 
       const data = await res.json();
@@ -3410,10 +3413,18 @@ async function fetchWorkdayJobs(tenant: typeof WORKDAY_TENANTS[number]) {
       if (offset >= total) break;
     }
 
+    // Update tenant result with final job count
+    if (tenantResult && tenantResult.ok) {
+      tenantResult.jobCount = allJobs.length;
+    }
+
     console.log(`Workday[${tenant.company}]: ${allJobs.length} UK jobs ingested`);
     return allJobs;
   } catch (err) {
     console.error(`Workday fetch error for "${tenant.company}":`, err);
+    if (tenantResult) {
+      tenantResult.jobCount = allJobs.length;
+    }
     return allJobs;
   }
 }
@@ -7591,15 +7602,28 @@ Deno.serve(async (req) => {
       if (deduped.length > 0) {
         const broken = deduped.filter((r) => !r.ok);
         const working = deduped.filter((r) => r.ok);
+
+        // Log detailed status for all tenants
+        console.log(`[workday status] Total tenants scraped this run: ${deduped.length}`);
+        console.log(`[workday status] Working: ${working.length}/${deduped.length}`);
+        working.forEach((w) => {
+          const jobInfo = w.jobCount !== undefined ? ` (${w.jobCount} UK jobs)` : "";
+          console.log(`  ✓ ${w.company} (${w.tenant})${jobInfo}`);
+        });
+        if (broken.length > 0) {
+          console.log(`[workday status] Broken: ${broken.length}/${deduped.length}`);
+          broken.forEach((b) => {
+            console.error(`  ✗ ${b.company} (${b.tenant}): ${b.status}`);
+          });
+        }
+
         await supabase.from("source_health_log").insert({
           source_type: "workday",
           working_count: working.length,
           broken_count: broken.length,
           broken: broken.map(({ tenant, company, status }) => ({ tenant, company, status })),
+          working: working.map(({ tenant, company, status }) => ({ tenant, company, status })),
         });
-        if (broken.length > 0) {
-          console.error(`[workday health] ${broken.length}/${deduped.length} tenants broken this run: ${broken.map((b) => `${b.company}(${b.status})`).join(", ")}`);
-        }
       }
     } catch (logErr) {
       console.error("Failed to write source_health_log:", logErr);
