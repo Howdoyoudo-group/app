@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/table";
 import { Loader2, RefreshCw, AlertTriangle, CheckCircle2, Play } from "lucide-react";
 import { toast } from "sonner";
-import IndustryHealthDashboard from "@/components/IndustryHealthDashboard";
 
 interface CheckRow {
   industry: string;
@@ -151,15 +150,7 @@ export default function AdminIndustryHealth() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-        {/* New Health Dashboard */}
-        <IndustryHealthDashboard />
-
-        {/* Divider */}
-        <div className="border-t-2 border-slate-200 my-4"></div>
-
-        {/* Original monitoring section */}
-        <div className="space-y-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
         <header className="flex items-center justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold">Industry health</h1>
@@ -316,7 +307,6 @@ export default function AdminIndustryHealth() {
             </Card>
           </>
         )}
-        </div>
       </div>
     </div>
   );

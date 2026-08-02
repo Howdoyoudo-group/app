@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { AlertCircle, TrendingUp, Zap, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface IndustryHealth {
   industry: string;
@@ -25,25 +27,37 @@ interface AuditData {
 }
 
 export default function IndustryHealthDashboard() {
+  const { session } = useAuth();
   const [audit, setAudit] = useState<AuditData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [revalidating, setRevalidating] = useState(false);
 
   const fetchAudit = async () => {
     setLoading(true);
+    setError(null);
     try {
-      const res = await fetch(
-        "https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/industry-audit",
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("sb-access-token") || ""}`,
-          },
-        }
-      );
-      const data = await res.json();
+      if (!session?.access_token) {
+        setError("Not authenticated");
+        setLoading(false);
+        return;
+      }
+
+      const { data, error: fnError } = await supabase.functions.invoke("industry-audit", {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (fnError) {
+        throw fnError;
+      }
+
       setAudit(data);
-    } catch (error) {
-      console.error("Audit fetch error:", error);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Failed to fetch audit data";
+      console.error("Audit fetch error:", err);
+      setError(message);
     } finally {
       setLoading(false);
     }
@@ -52,20 +66,32 @@ export default function IndustryHealthDashboard() {
   const triggerRevalidation = async (threshold = 100) => {
     setRevalidating(true);
     try {
-      const res = await fetch(
-        `https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/revalidate-low-count-industries?threshold=${threshold}`,
+      if (!session?.access_token) {
+        setError("Not authenticated");
+        return;
+      }
+
+      const { data, error: fnError } = await supabase.functions.invoke(
+        "revalidate-low-count-industries",
         {
           method: "POST",
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("sb-access-token") || ""}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
+          body: { threshold },
         }
       );
-      const data = await res.json();
+
+      if (fnError) {
+        throw fnError;
+      }
+
       console.log("Revalidation response:", data);
       setTimeout(fetchAudit, 2000); // Refresh after 2s
-    } catch (error) {
-      console.error("Revalidation error:", error);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Revalidation failed";
+      console.error("Revalidation error:", err);
+      setError(message);
     } finally {
       setRevalidating(false);
     }
@@ -78,11 +104,22 @@ export default function IndustryHealthDashboard() {
   }, []);
 
   if (loading) {
-    return <div className="p-6 text-center">Loading audit data...</div>;
+    return <div className="p-6 text-center text-slate-600">Loading audit data...</div>;
   }
 
-  if (!audit) {
-    return <div className="p-6 text-center text-red-600">Failed to load audit data</div>;
+  if (error || !audit) {
+    return (
+      <div className="p-6 bg-red-50 border border-red-200 rounded-lg">
+        <p className="text-red-700 font-bold mb-2">Error Loading Dashboard</p>
+        <p className="text-red-600 text-sm mb-4">{error || "No audit data available"}</p>
+        <button
+          onClick={() => fetchAudit()}
+          className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+        >
+          Try Again
+        </button>
+      </div>
+    );
   }
 
   const getSeverityColor = (severity: string) => {
