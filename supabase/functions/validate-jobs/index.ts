@@ -464,7 +464,7 @@ const FAKE_DESCRIPTION_REGEX = /\b(gentrify|taiyaki|banh mi|chambray|artisan kal
 // Jobs from these sources skip the keyword-relevance purge (their titles are
 // often generic — "Development Manager", "Client Executive" — even though the
 // role is genuinely political / sector-specific).
-const TRUSTED_SPECIALIST_SOURCES = /\b(w4mpjobs\.org|lgjobs\.com|jobsinfootball\.com|jobs\.nhs\.uk|mandy\.com)\b/i;
+const TRUSTED_SPECIALIST_SOURCES = /\b(w4mpjobs\.org|lgjobs\.com|jobsinfootball\.com|jobs\.nhs\.uk|mandy\.com|doorsopen\.co|musiccareers\.co|music-jobs\.com|rostr\.cc|iqmagazine\.com)\b/i;
 
 // ── Banned companies: regardless of industry, these should never appear ──
 // (Generic recruiters/staffing agencies pollute industry feeds with hundreds of unrelated roles)
