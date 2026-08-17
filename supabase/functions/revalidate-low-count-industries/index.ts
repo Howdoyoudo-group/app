@@ -62,28 +62,37 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Trigger validate-jobs function via HTTP
-    console.log(`\n📋 Triggering validate-jobs for ${lowCountIndustries.length} industries...`);
-    try {
-      const validateRes = await fetch(
-        `${Deno.env.get("SUPABASE_URL")}/functions/v1/validate-jobs`,
-        {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            industries: lowCountIndustries.map((i) => i.industry),
-            forceRevalidate: true,
-          }),
-        }
-      );
-
-      const validateData = await validateRes.json();
-      console.log("validate-jobs response:", validateData);
-    } catch (validateError) {
-      console.error("Error calling validate-jobs:", validateError);
+    // Trigger validate-jobs once PER industry. validate-jobs only ever reads
+    // a singular body.industry - it has no concept of body.industries or
+    // body.forceRevalidate, so the previous single call with
+    // { industries: [...], forceRevalidate: true } was silently ignored on
+    // every field, meaning targetIndustry fell through to null and every
+    // trigger of this function ran a full, UNSCOPED sweep of the entire
+    // jobs table instead of just these low-count industries. Confirmed live
+    // 2026-08-17: this had been running for ~2 weeks and was very likely
+    // the dominant cause of an unexpected ~20k-job drop across that period -
+    // each unscoped run walks (and can delete/reassign from) a real chunk
+    // of the whole table via validate-jobs' persisted cursor, not just the
+    // handful of industries this function is meant to touch.
+    console.log(`\n📋 Triggering validate-jobs for ${lowCountIndustries.length} industries (one call per industry)...`);
+    for (const { industry } of lowCountIndustries) {
+      try {
+        const validateRes = await fetch(
+          `${Deno.env.get("SUPABASE_URL")}/functions/v1/validate-jobs`,
+          {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ industry }),
+          }
+        );
+        const validateData = await validateRes.json();
+        console.log(`  validate-jobs(${industry}):`, validateData);
+      } catch (validateError) {
+        console.error(`  Error calling validate-jobs(${industry}):`, validateError);
+      }
     }
 
     return new Response(
