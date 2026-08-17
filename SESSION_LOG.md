@@ -5,6 +5,26 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-08-17 — Andrew (main branch) — Added Small Green Shoots to music courses
+
+### What was done THIS SESSION
+
+**1. Added Small Green Shoots to music courses**
+- Added new course entry to `src/data/courses.ts` in music section
+- URL: https://www.smallgreenshoots.co.uk
+- Description: "Online music courses and learning for aspiring musicians - production, performance, and music industry skills."
+- Music courses section now has 6 entries (was 5)
+
+### Commits
+- **1 commit:** `9c8e878` — "Add Small Green Shoots to music courses"
+- Pushed to both remotes: `howdoyoudo` + `origin` ✅
+
+### Current state
+- Small Green Shoots course added to music learning resources
+- Music section now complete with 6 courses covering business foundations, production, sound engineering, songwriting, careers, and hands-on learning
+
+---
+
 ## 2026-08-02 — Andrew (main branch) — Music industry expansion: companies, job boards, videos, and learning resources
 
 ### What was done THIS SESSION
