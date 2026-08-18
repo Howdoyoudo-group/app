@@ -5,7 +5,7 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
-## 2026-08-17 — Andrew (main branch) — Added Small Green Shoots to music courses
+## 2026-08-17 — Andrew (main branch) — Added Small Green Shoots to music courses + School of Life attribution
 
 ### What was done THIS SESSION
 
@@ -15,13 +15,22 @@ This file is updated by Claude at the start and end of every session.
 - Description: "Online music courses and learning for aspiring musicians - production, performance, and music industry skills."
 - Music courses section now has 6 entries (was 5)
 
+**2. Added attribution to The School of Life "A Job to Love" in Using Our Site page**
+- Added clickable attribution under the "roles are inputs, industries are outputs" section
+- Links to: https://www.theschooloflife.com/products/a-job-to-love-book
+- Styled as subtle footnote credit (small text, muted color) that links directly to the book
+- Positioned in Step 2: "Discover what's out there" section
+
 ### Commits
-- **1 commit:** `9c8e878` — "Add Small Green Shoots to music courses"
+- **2 commits:** 
+  - `9c8e878` — "Add Small Green Shoots to music courses"
+  - `ab8e45e` — "Add attribution to The School of Life 'A Job to Love' in Using Our Site page"
 - Pushed to both remotes: `howdoyoudo` + `origin` ✅
 
 ### Current state
 - Small Green Shoots course added to music learning resources
-- Music section now complete with 6 courses covering business foundations, production, sound engineering, songwriting, careers, and hands-on learning
+- Music section now complete with 6 courses
+- Using Our Site page now properly credits The School of Life as inspiration for the core career philosophy
 
 ---
 
