@@ -670,7 +670,6 @@ const CURATED_DOMAINS: Record<string, string> = {
   "chasing the sun talent": "chasingthesuntalent.com",
   "wise music": "wisemusicclassical.com",
   "ticketmaster": "ticketmaster.com",
-  "see tickets": "seetickets.com",
   "eventbrite": "eventbrite.com",
   "skiddle": "skiddle.com",
 

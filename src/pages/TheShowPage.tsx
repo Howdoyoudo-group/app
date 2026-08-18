@@ -27,6 +27,26 @@ const SHOW_TEASERS = [
   },
 ];
 
+// ─── FULL EPISODES: the "How Do You Do, [industry]?" podcast series ──────────
+const SHOW_EPISODES = [
+  {
+    id: "music",
+    industry: "Music",
+    episode: "Episode 2",
+    title: "How Do You Do, Music?",
+    description: "Going inside the music industry with the people who live it — the paths in, the graft, and how it really works.",
+    embedUrl: "https://www.youtube.com/embed/INTUf7KpYgY?rel=0&modestbranding=1",
+  },
+  {
+    id: "journalism",
+    industry: "Journalism",
+    episode: "Episode 1",
+    title: "How Do You Do, Journalism?",
+    description: "Our first full episode — going inside the world of journalism with the people who live it.",
+    embedUrl: "https://www.youtube.com/embed/JQGH2S4xso0?rel=0&modestbranding=1",
+  },
+];
+
 // ─── PITCH OVER A PINT ───────────────────────────────────────────────────────
 const PITCH_VIDEOS = [
   {
@@ -180,29 +200,33 @@ export default function TheShowPage() {
         {/* ── THE SHOW ── */}
         {tab === "show" && (
           <motion.section key="show" {...fadeUp}>
-            {/* Episode 1 — live */}
-            <div className="border-2 border-foreground rounded-2xl overflow-hidden mb-8">
-              <div className="aspect-video bg-black overflow-hidden">
-                <iframe
-                  src="https://www.youtube.com/embed/JQGH2S4xso0?rel=0&modestbranding=1"
-                  title="How Do You Do, Journalism? — Episode 1"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                  style={{ border: 0 }}
-                />
-              </div>
-              <div className="p-4">
-                <span className="inline-block font-display font-700 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary border border-foreground mb-2">
-                  Episode 1
-                </span>
-                <p className="font-display font-900 text-sm uppercase tracking-wide">
-                  How Do You Do, Journalism?
-                </p>
-                <p className="font-body text-xs text-muted-foreground leading-relaxed mt-1">
-                  Our first full episode — going inside the world of journalism with the people who live it.
-                </p>
-              </div>
+            {/* Full episodes — the "How Do You Do, [industry]?" podcast */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+              {SHOW_EPISODES.map((ep) => (
+                <div key={ep.id} className="border-2 border-foreground rounded-2xl overflow-hidden">
+                  <div className="aspect-video bg-black overflow-hidden">
+                    <iframe
+                      src={ep.embedUrl}
+                      title={`${ep.title} — ${ep.episode}`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                      style={{ border: 0 }}
+                    />
+                  </div>
+                  <div className="p-4">
+                    <span className="inline-block font-display font-700 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary border border-foreground mb-2">
+                      {ep.episode}
+                    </span>
+                    <p className="font-display font-900 text-sm uppercase tracking-wide">
+                      {ep.title}
+                    </p>
+                    <p className="font-body text-xs text-muted-foreground leading-relaxed mt-1">
+                      {ep.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
 
             <h2 className="font-display font-900 text-xl md:text-2xl uppercase tracking-wide mb-5">
