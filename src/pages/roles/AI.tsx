@@ -48,6 +48,9 @@ const articles = [
 ];
 
 const courses = [
+  { title: "Claude: Build with AI", provider: "Anthropic", description: "Free courses on building with Claude - prompt engineering, API usage, and best practices from the Claude team.", url: "https://claude.com/resources/courses", level: "LLMs" },
+  { title: "OpenAI Academy", provider: "OpenAI", description: "Free courses on prompt engineering, using GPT-4, and building AI applications at scale.", url: "https://academy.openai.com/pages/courses", level: "LLMs" },
+  { title: "Grow with Google: AI Essentials", provider: "Google", description: "Free intro to AI fundamentals, prompt engineering, and practical applications of AI tools.", url: "https://grow.google/ai", level: "Foundations" },
   { title: "Deep Learning Specialization", provider: "DeepLearning.AI / Coursera", description: "Andrew Ng's foundational five-course series on neural networks, CNNs, sequence models and structuring ML projects.", url: "https://www.coursera.org/specializations/deep-learning", level: "Foundations" },
   { title: "Machine Learning Specialization", provider: "Stanford / Coursera", description: "The classic ML starting point - supervised and unsupervised learning, recommender systems, reinforcement learning.", url: "https://www.coursera.org/specializations/machine-learning-introduction", level: "Foundations" },
   { title: "Practical Deep Learning for Coders", provider: "fast.ai", description: "Top-down, code-first deep learning course - free, world-class, used inside many frontier labs.", url: "https://course.fast.ai/", level: "Practical" },
