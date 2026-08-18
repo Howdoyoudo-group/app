@@ -32,10 +32,25 @@ This file is updated by Claude at the start and end of every session.
   - `40e4b2e` — "Add Claude, OpenAI, and Google free AI courses to AI role Learn section"
 - Pushed to both remotes: `howdoyoudo` + `origin` ✅
 
+**4. Added Future Frontiers to social mobility support resources**
+- Added to resource-topics.ts in the Social Mobility "help" section
+- Link: https://www.futurefrontiers.org.uk
+- Tagged as youth mentoring and free support
+- Now displayed in Level Up > Support > Social Mobility section
+
+### Commits
+- **4 commits total:**
+  - `9c8e878` — "Add Small Green Shoots to music courses"
+  - `ab8e45e` — "Add attribution to The School of Life 'A Job to Love' in Using Our Site page"
+  - `40e4b2e` — "Add Claude, OpenAI, and Google free AI courses to AI role Learn section"
+  - `9ffd5e6` — "Add Future Frontiers to social mobility support resources"
+- Pushed to both remotes: `howdoyoudo` + `origin` ✅
+
 ### Current state
 - Music: 6 courses total, includes new Small Green Shoots
 - Using Our Site: Now credits The School of Life as inspiration
 - AI role: 13 courses covering free beginner paths (Claude, OpenAI, Google) through advanced postgraduate and research routes
+- Level Up/Support/Social Mobility: Now includes Future Frontiers alongside upReach, Making The Leap, Career Ready, Sutton Trust, and SMF
 
 ---
 
