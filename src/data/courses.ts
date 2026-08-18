@@ -556,6 +556,7 @@ export const coursesByIndustry: Record<string, Course[]> = {
     { title: "Sound Engineering", provider: "Point Blank Music School", url: "https://www.pointblankmusicschool.com/", description: "Online courses from a top London music school - mixing, mastering, and sound design.", free: false },
     { title: "Songwriting", provider: "BBC Maestro", url: "https://www.bbcmaestro.com/", description: "Learn songwriting from top artists and industry professionals.", free: false },
     { title: "UK Music Careers", provider: "UK Music", url: "https://www.ukmusic.org/education-skills/careers-in-the-music-industry/", description: "The UK's music industry body - career guides, job profiles, and information packs for every role.", free: true },
+    { title: "Small Green Shoots", provider: "Small Green Shoots", url: "https://www.smallgreenshoots.co.uk", description: "Online music courses and learning for aspiring musicians - production, performance, and music industry skills.", free: false },
   ],
   teaching: [
     { title: "Get Into Teaching", provider: "DfE", url: "https://getintoteaching.education.gov.uk/", description: "Official UK route into teaching - training options, funding, and support.", free: true },
