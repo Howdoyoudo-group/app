@@ -22,6 +22,7 @@ export const COMPANY_LOGOS: Record<string, string> = {
   "tesco": new URL("../assets/company-tesco-cover.jpg", import.meta.url).href,
   "timberland": new URL("../assets/company-timberland-cover.jpg", import.meta.url).href,
   "tom-dixon": new URL("../assets/company-tomdixon-cover.jpg", import.meta.url).href,
+  "fever-tree": new URL("../assets/company-fevortree-cover.png", import.meta.url).href,
 };
 
 export function getCompanyLogo(slug: string | undefined): string | undefined {

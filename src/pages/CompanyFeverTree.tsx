@@ -1,5 +1,6 @@
 import CompanyCultureProfile from "@/components/CompanyCultureProfile";
 import type { CompanyCultureData } from "@/components/CompanyCultureProfile";
+import { getCompanyLogo } from "@/data/companyLogos";
 
 const feverTreeData: CompanyCultureData = {
   slug: "fever-tree",
@@ -7,7 +8,7 @@ const feverTreeData: CompanyCultureData = {
   tagline: "If three-quarters of your drink is the mixer, make it count.",
   industry: "Beer & Drinks",
   industrySlug: "beer",
-  coverImage: undefined,
+  coverImage: getCompanyLogo("fever-tree"),
   videoUrl: "https://www.youtube.com/embed/ggiZsE0a97Y",
   website: "https://fever-tree.com",
   careersUrl: "https://fever-tree.com/en-gb/careers",
