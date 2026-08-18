@@ -1,6 +1,6 @@
 import CompanyCultureProfile from "@/components/CompanyCultureProfile";
 import type { CompanyCultureData } from "@/components/CompanyCultureProfile";
-import coverImage from "@/assets/company-fevortree-cover.png";
+import coverImage from "@/assets/company-fevortree-header.png";
 
 const feverTreeData: CompanyCultureData = {
   slug: "fever-tree",
