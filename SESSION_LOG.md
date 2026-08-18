@@ -45,9 +45,9 @@ This file is updated by Claude at the start and end of every session.
 
 **6. Added Fever Tree logo to assets and culture profile**
 - Copied FeverTree.png from Desktop to `/src/assets/company-fevortree-cover.png`
-- Added to companyLogos.ts mapping with slug "fever-tree"
-- Updated CompanyFeverTree.tsx to display coverImage at top of culture profile
-- Logo now displays in Companies directory and company profile page
+- Updated CompanyFeverTree.tsx to import logo directly (matching Gails pattern) for proper rendering
+- Added Fever Tree to CompanyLogo.tsx CURATED_LOGO_ASSETS and CURATED_DOMAINS
+- Logo now displays properly in both culture profile header and companies directory grid
 
 ### Commits
 - **6 commits total:**
