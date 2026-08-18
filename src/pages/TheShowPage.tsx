@@ -48,7 +48,21 @@ const SHOW_EPISODES = [
 ];
 
 // ─── PITCH OVER A PINT ───────────────────────────────────────────────────────
-const PITCH_VIDEOS = [
+// Entries are either self-hosted (src + poster) or a YouTube embed (embedUrl).
+const PITCH_VIDEOS: {
+  id: string;
+  title: string;
+  description: string;
+  src?: string;
+  poster?: string;
+  embedUrl?: string;
+}[] = [
+  {
+    id: "harrison",
+    title: "Pitch Over a Pint — Episode 2",
+    description: "Harrison takes the mic over a pint — another real pitch, no boardroom.",
+    embedUrl: "https://www.youtube.com/embed/tvgk_1epB0s?rel=0&modestbranding=1",
+  },
   {
     id: "elma",
     title: "Pitch Over a Pint — Episode 1",
@@ -266,15 +280,26 @@ export default function TheShowPage() {
               {PITCH_VIDEOS.map((v) => (
                 <div key={v.id} className="border-2 border-foreground rounded-2xl overflow-hidden">
                   <div className="relative w-full bg-black" style={{ paddingTop: "56.25%" }}>
-                    <video
-                      src={v.src}
-                      poster={v.poster}
-                      controls
-                      playsInline
-                      preload="metadata"
-                      controlsList="nodownload noplaybackrate"
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
+                    {v.embedUrl ? (
+                      <iframe
+                        src={v.embedUrl}
+                        title={v.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="absolute inset-0 w-full h-full"
+                        style={{ border: 0 }}
+                      />
+                    ) : (
+                      <video
+                        src={v.src}
+                        poster={v.poster}
+                        controls
+                        playsInline
+                        preload="metadata"
+                        controlsList="nodownload noplaybackrate"
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                    )}
                   </div>
                   <div className="p-4">
                     <span className="inline-block font-display font-700 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary border border-foreground mb-2">
