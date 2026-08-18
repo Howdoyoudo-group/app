@@ -43,13 +43,20 @@ This file is updated by Claude at the start and end of every session.
 - Old: https://www.youtube.com/embed/QZkl5-8fRJo
 - New: https://www.youtube.com/embed/ggiZsE0a97Y
 
+**6. Added Fever Tree logo to assets and culture profile**
+- Copied FeverTree.png from Desktop to `/src/assets/company-fevortree-cover.png`
+- Added to companyLogos.ts mapping with slug "fever-tree"
+- Updated CompanyFeverTree.tsx to display coverImage at top of culture profile
+- Logo now displays in Companies directory and company profile page
+
 ### Commits
-- **5 commits total:**
+- **6 commits total:**
   - `9c8e878` — "Add Small Green Shoots to music courses"
   - `ab8e45e` — "Add attribution to The School of Life 'A Job to Love' in Using Our Site page"
   - `40e4b2e` — "Add Claude, OpenAI, and Google free AI courses to AI role Learn section"
   - `9ffd5e6` — "Add Future Frontiers to social mobility support resources"
   - `96045a7` — "Replace Fever Tree culture profile video"
+  - `0bef70c` — "Add Fever Tree logo to assets and culture profile"
 - Pushed to both remotes: `howdoyoudo` + `origin` ✅
 
 ### Current state
@@ -57,7 +64,7 @@ This file is updated by Claude at the start and end of every session.
 - Using Our Site: Now credits The School of Life as inspiration
 - AI role: 13 courses covering free beginner paths (Claude, OpenAI, Google) through advanced postgraduate and research routes
 - Level Up/Support/Social Mobility: Now includes Future Frontiers alongside upReach, Making The Leap, Career Ready, Sutton Trust, and SMF
-- Fever Tree culture profile: Updated with new company video
+- Fever Tree culture profile: Updated with new company video + logo now displays at top
 
 ---
 
