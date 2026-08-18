@@ -5,32 +5,37 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
-## 2026-08-17 — Andrew (main branch) — Added Small Green Shoots to music courses + School of Life attribution
+## 2026-08-17 — Andrew (main branch) — Added free AI courses + music attribution + School of Life credit
 
 ### What was done THIS SESSION
 
 **1. Added Small Green Shoots to music courses**
 - Added new course entry to `src/data/courses.ts` in music section
 - URL: https://www.smallgreenshoots.co.uk
-- Description: "Online music courses and learning for aspiring musicians - production, performance, and music industry skills."
 - Music courses section now has 6 entries (was 5)
 
 **2. Added attribution to The School of Life "A Job to Love" in Using Our Site page**
 - Added clickable attribution under the "roles are inputs, industries are outputs" section
 - Links to: https://www.theschooloflife.com/products/a-job-to-love-book
-- Styled as subtle footnote credit (small text, muted color) that links directly to the book
-- Positioned in Step 2: "Discover what's out there" section
+- Styled as subtle footnote credit
+
+**3. Added three major free AI courses to AI role Learn section**
+- **Claude: Build with AI** (Anthropic) — Free courses on prompt engineering and building with Claude
+- **OpenAI Academy** — Free courses on prompt engineering and GPT-4 applications
+- **Grow with Google: AI Essentials** — Free intro to AI fundamentals and practical AI tool usage
+- Positioned at top of 13-course learning path, bringing total to 13 courses (was 10)
 
 ### Commits
-- **2 commits:** 
+- **3 commits:** 
   - `9c8e878` — "Add Small Green Shoots to music courses"
   - `ab8e45e` — "Add attribution to The School of Life 'A Job to Love' in Using Our Site page"
+  - `40e4b2e` — "Add Claude, OpenAI, and Google free AI courses to AI role Learn section"
 - Pushed to both remotes: `howdoyoudo` + `origin` ✅
 
 ### Current state
-- Small Green Shoots course added to music learning resources
-- Music section now complete with 6 courses
-- Using Our Site page now properly credits The School of Life as inspiration for the core career philosophy
+- Music: 6 courses total, includes new Small Green Shoots
+- Using Our Site: Now credits The School of Life as inspiration
+- AI role: 13 courses covering free beginner paths (Claude, OpenAI, Google) through advanced postgraduate and research routes
 
 ---
 
