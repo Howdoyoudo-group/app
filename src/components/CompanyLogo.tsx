@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import sohoHouseLogo from "@/assets/logos/soho-house.jpeg";
 import mclarenLogo from "@/assets/mclaren-logo.jpeg";
 import caffeNeroLogo from "@/assets/logos/caffe-nero.png";
+import feverTreeLogo from "@/assets/company-fevortree-cover.png";
 import { useEmployerLogoMap } from "@/hooks/useEmployerLogoMap";
 
 /**
@@ -18,6 +19,8 @@ const CURATED_LOGO_ASSETS: Record<string, string> = {
   "mclaren": mclarenLogo,
   "caffè nero": caffeNeroLogo,
   "caffe nero": caffeNeroLogo,
+  "fever-tree": feverTreeLogo,
+  "fever tree": feverTreeLogo,
 };
 
 /**
@@ -148,6 +151,8 @@ const CURATED_DOMAINS: Record<string, string> = {
   "allpress espresso": "allpressespresso.com",
 
   // ── Beer / drinks ────────────────────────────────────────
+  "fever-tree": "fever-tree.com",
+  "fever tree": "fever-tree.com",
   "hawkstone": "hawkstone.com",
   "hawkstone lager": "hawkstone.com",
   "hawkstone brewing": "hawkstone.com",
