@@ -2361,6 +2361,11 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseKey);
     const { company, industry } = await req.json().catch(() => ({}));
 
+    // A scoped request (specific company or industry) is explicit intent -
+    // process exactly those, bypassing the cursor entirely. The cursor only
+    // applies to the general sweep (no filter given), which is what the
+    // cron calls.
+    const isScoped = !!company || !!industry;
     let targets = CAREER_SOURCES;
 
     if (industry) {
@@ -2378,9 +2383,35 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Previously this tried all 441 CAREER_SOURCES in one synchronous
+    // request and was silently hitting Supabase's 150s idle timeout after
+    // only ~5 companies, every single run - this function has no
+    // background-task pattern (unlike fetch-external-jobs), so it genuinely
+    // cannot do all 441 in one go. Instead: read a persisted cursor, take a
+    // bounded window from where we left off, and stop comfortably before
+    // the platform timeout so the cursor write always lands. Next
+    // invocation picks up right after, wrapping to the start once the full
+    // list has been swept.
+    let startIndex = 0;
+    if (!isScoped) {
+      const { data: cursorRow } = await supabase
+        .from('scrape_jobs_cursor')
+        .select('last_index')
+        .eq('id', true)
+        .maybeSingle();
+      startIndex = cursorRow?.last_index ?? 0;
+      if (startIndex >= targets.length) startIndex = 0;
+      // Generous outer window - the wall-clock budget below is the real
+      // limiter, this just bounds how far a fast run could theoretically get.
+      const WINDOW = 60;
+      const wrapped = targets.slice(startIndex).concat(targets.slice(0, startIndex));
+      targets = wrapped.slice(0, Math.min(WINDOW, targets.length));
+    }
+
     let totalInserted = 0;
     let companiesProcessed = 0;
     let totalJobsFound = 0;
+    let sourcesAttempted = 0;
     const debugTrace: string[] = [];
 
     // Process in small batches and don't let one slow source block the rest.
@@ -2389,8 +2420,14 @@ Deno.serve(async (req) => {
     // by the timeout before Firecrawl finished rendering - silently producing
     // 0 jobs with no error surfaced.
     const SLOW_SCROLL_COMPANIES = new Set(['Asda', 'Tesco']);
+    // 100s, not the full 150s Supabase allows - leaves headroom for the
+    // final batch's DB writes and the cursor save to land before idle-kill.
+    const RUN_BUDGET_MS = 100_000;
+    const runStart = Date.now();
     for (let i = 0; i < targets.length; i += 2) {
+      if (!isScoped && Date.now() - runStart > RUN_BUDGET_MS) break;
       const batch = targets.slice(i, i + 2);
+      sourcesAttempted += batch.length;
       const batchResults = await Promise.allSettled(
         batch.map(async (source) => ({
           source,
@@ -2449,13 +2486,23 @@ Deno.serve(async (req) => {
       }
     }
 
+    let nextCursor: number | null = null;
+    if (!isScoped) {
+      nextCursor = (startIndex + sourcesAttempted) % CAREER_SOURCES.length;
+      await supabase
+        .from('scrape_jobs_cursor')
+        .update({ last_index: nextCursor, updated_at: new Date().toISOString() })
+        .eq('id', true);
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
-        sources_attempted: targets.length,
+        sources_attempted: sourcesAttempted,
         companies_processed: companiesProcessed,
         jobs_found: totalJobsFound,
         inserted: totalInserted,
+        cursor: isScoped ? 'scoped request, cursor untouched' : { started_at: startIndex, next_at: nextCursor, full_list_length: CAREER_SOURCES.length },
         debug: debugTrace,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
