@@ -396,6 +396,7 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
       { name: "Career Ready", description: "Two-year programme of mentoring, masterclasses and paid internships for 16–18 year-olds in state schools and colleges.", url: "https://careerready.org.uk/", tags: ["Schools", "Mentoring"] },
       { name: "The Sutton Trust", description: "Programmes including UK Summer Schools and Pathways for top universities and professions.", url: "https://www.suttontrust.com/our-programmes/", tags: ["University", "Free"] },
       { name: "Social Mobility Foundation", description: "Aspiring Professionals Programme - mentoring, internships and skills sessions for high-achieving Year 12s from low-income homes.", url: "https://www.socialmobility.org.uk", tags: ["Sixth Form", "Internships"] },
+      { name: "Future Frontiers", description: "Award-winning social mobility programme providing mentoring, skills development and career support for young people from disadvantaged backgrounds.", url: "https://www.futurefrontiers.org.uk", tags: ["Youth", "Mentoring", "Free"] },
     ],
   },
   {
