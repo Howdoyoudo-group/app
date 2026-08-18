@@ -38,12 +38,18 @@ This file is updated by Claude at the start and end of every session.
 - Tagged as youth mentoring and free support
 - Now displayed in Level Up > Support > Social Mobility section
 
+**5. Replaced Fever Tree culture profile video**
+- Updated CompanyFeverTree.tsx with new video
+- Old: https://www.youtube.com/embed/QZkl5-8fRJo
+- New: https://www.youtube.com/embed/ggiZsE0a97Y
+
 ### Commits
-- **4 commits total:**
+- **5 commits total:**
   - `9c8e878` — "Add Small Green Shoots to music courses"
   - `ab8e45e` — "Add attribution to The School of Life 'A Job to Love' in Using Our Site page"
   - `40e4b2e` — "Add Claude, OpenAI, and Google free AI courses to AI role Learn section"
   - `9ffd5e6` — "Add Future Frontiers to social mobility support resources"
+  - `96045a7` — "Replace Fever Tree culture profile video"
 - Pushed to both remotes: `howdoyoudo` + `origin` ✅
 
 ### Current state
@@ -51,6 +57,7 @@ This file is updated by Claude at the start and end of every session.
 - Using Our Site: Now credits The School of Life as inspiration
 - AI role: 13 courses covering free beginner paths (Claude, OpenAI, Google) through advanced postgraduate and research routes
 - Level Up/Support/Social Mobility: Now includes Future Frontiers alongside upReach, Making The Leap, Career Ready, Sutton Trust, and SMF
+- Fever Tree culture profile: Updated with new company video
 
 ---
 
