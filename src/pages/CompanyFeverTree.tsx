@@ -8,7 +8,7 @@ const feverTreeData: CompanyCultureData = {
   industry: "Beer & Drinks",
   industrySlug: "beer",
   coverImage: undefined,
-  videoUrl: "https://www.youtube.com/embed/QZkl5-8fRJo",
+  videoUrl: "https://www.youtube.com/embed/ggiZsE0a97Y",
   website: "https://fever-tree.com",
   careersUrl: "https://fever-tree.com/en-gb/careers",
   founded: "2004",
