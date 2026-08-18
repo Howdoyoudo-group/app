@@ -99,6 +99,9 @@ const UsingOurSite = () => {
               <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
                 <strong>Here's the thing most careers advice misses: roles are inputs, industries are outputs.</strong> They live together. Music needs lawyers, accountants and marketeers just as much as it needs musicians. So if you love an industry, there's almost certainly a role for your skills inside it — and if you love a role, you can take it almost anywhere.
               </p>
+              <p className="font-body text-xs text-muted-foreground/70 mb-4">
+                Inspired by <a href="https://www.theschooloflife.com/products/a-job-to-love-book" target="_blank" rel="noopener noreferrer" className="text-primary/70 hover:text-primary hover:underline">The School of Life's "A Job to Love"</a>
+              </p>
               <p className="font-body text-base text-muted-foreground leading-relaxed">
                 Not sure a traditional job is the whole answer? Check out <Link to="/side-hustles" className="text-primary font-600 hover:underline">Side Hustles</Link> (turn what you love into income) and <Link to="/starting-a-business" className="text-primary font-600 hover:underline">Start a Business</Link> (do your own thing).
               </p>
