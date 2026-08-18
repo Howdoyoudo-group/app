@@ -32,7 +32,7 @@ const SHOW_EPISODES = [
   {
     id: "music",
     industry: "Music",
-    episode: "Episode 2",
+    episode: "Episode 1",
     title: "How Do You Do, Music?",
     description: "Going inside the music industry with the people who live it — the paths in, the graft, and how it really works.",
     embedUrl: "https://www.youtube.com/embed/INTUf7KpYgY?rel=0&modestbranding=1",
@@ -40,9 +40,9 @@ const SHOW_EPISODES = [
   {
     id: "journalism",
     industry: "Journalism",
-    episode: "Episode 1",
+    episode: "Episode 2",
     title: "How Do You Do, Journalism?",
-    description: "Our first full episode — going inside the world of journalism with the people who live it.",
+    description: "Going inside the world of journalism with the people who live it.",
     embedUrl: "https://www.youtube.com/embed/JQGH2S4xso0?rel=0&modestbranding=1",
   },
 ];
