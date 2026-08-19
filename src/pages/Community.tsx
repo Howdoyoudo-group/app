@@ -25,7 +25,7 @@ import IndustryDoodle from "@/components/feed/IndustryDoodle";
 
 const LIME = "hsl(120, 100%, 45%)";
 
-// ---------- Dummy seed (clearly labelled) ----------
+// ---------- Placeholder seed data (coming soon with real community) ----------
 const FIRST_NAMES = ["James","Lucy","Ben","Maya","Alex","Sophie","Tom","Olivia","Sarah","Noah","Ava","Liam","Mia","Ethan","Zara","Jake","Ruby","Ollie","Grace","Finn"];
 const LOCATIONS = ["London","Manchester","Bristol","Edinburgh","Leeds","Birmingham","Brighton","Glasgow","Liverpool"];
 const ACTIONS = [
@@ -63,7 +63,7 @@ const activityFor = (slug: string, label: string) => {
   });
 };
 
-// ---------- Dummy member talks ----------
+// ---------- Coming soon: member talks ----------
 const MEMBER_TALKS = [
   {
     id: "talk-1",
@@ -139,7 +139,7 @@ const MEMBER_TALKS = [
   },
 ];
 
-// ---------- Coaching marketplace packages (dummy until real bookings live) ----------
+// ---------- Coaching marketplace packages (coming soon — real bookings launching) ----------
 const COACH_PACKAGES = [
   { title: "60-min Career Clarity Session", price: "£45", tag: "Popular", desc: "Identify where you want to go and map a realistic path to get there." },
   { title: "CV & Portfolio Power-Up", price: "£35", tag: "Quick win", desc: "A working review of your CV or portfolio with actionable rewrites." },
@@ -181,9 +181,9 @@ interface EventRow {
 const DummyTag = ({ className = "" }: { className?: string }) => (
   <span
     className={`inline-flex items-center rounded-full bg-foreground/10 px-2 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-foreground/60 ${className}`}
-    title="Placeholder content — real activity coming soon"
+    title="Coming soon — real activity and community features launching"
   >
-    Dummy
+    Coming Soon
   </span>
 );
 
@@ -893,7 +893,7 @@ const Community = () => {
               const roles = ["Producer","Brand Manager","Founder","Mentor","Industry Expert","Recruiter"];
               const tag = roles[i % roles.length];
               return (
-                <Card key={`dummy-meet-${i}`} className="p-4 border-2 border-foreground/10 flex items-center gap-3 opacity-80">
+                <Card key={`coming-soon-meet-${i}`} className="p-4 border-2 border-foreground/10 flex items-center gap-3 opacity-80">
                   <Avatar name={name} size={48} />
                   <div className="flex-1 min-w-0">
                     <div className="font-semibold text-sm truncate flex items-center gap-1.5">
