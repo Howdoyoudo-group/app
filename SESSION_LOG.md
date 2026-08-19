@@ -5,6 +5,41 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-08-19 — Andrew (main branch) — Job share feature + fixed Music jobs pipeline (109 → 1,456 jobs)
+
+### What was done THIS SESSION
+
+**1. Added job sharing feature to Marketplace job cards**
+- New `ShareJobDialog` component: copy link, share via email (Resend), share with a community member
+- New edge functions: `share-job-email`, `search-community-members`, `share-job-with-member`
+- New `job_shares` table (migration `20260820120000_job_shares.sql`) with RLS
+- Fixed missing CORS headers on all three new edge functions (was silently blocking every browser request even though curl tests worked)
+- Switched `SUPABASE_SERVICE_ROLE_KEY` → `HDYD_SERVICE_JWT` in the new functions per project convention
+- Share emails now show the HDYD wordmark logo (`public/logo-howdoyoudo-flat.png`)
+- Share links go to `/marketplace?jobId=<id>` so the specific job opens focused, not just the generic marketplace page
+
+**2. Diagnosed and fixed why Music had far fewer jobs than every other industry**
+Music sat at 109 jobs vs. 966 (beauty) / 1,756 (football). Root causes, found by tracing the actual pipeline rather than guessing:
+- `scrape-ats-jobs` (direct Spotify/UMG/Warner Music/Live Nation ATS scraper) existed in code but was **never scheduled on any cron** — last run was a one-off manual test on 26 July. Scheduled it as a new daily cron (`scrape-ats-jobs-daily`, 4:30am UTC, jobid 33). A single manual run added 1,252 new jobs across all 62 configured companies.
+- Of Music's 7 RSS feed sources, 5 were dead or wrong: MusicTechJobs (TLS handshake failure), Music Week (URL returns their homepage HTML, not RSS — 0 items every run), MusicJobs.com (invalid TLS cert), Arts Jobs ×2 (DNS no longer resolves). Removed all 5.
+- Creative Access's feed URL pointed at their general press/news feed, not a jobs feed — had been silently inserting **non-job press-release articles** ("Weston Mercury reports on...", "BookBrunch report on...") mislabeled as Music jobs since 12 June. Removed the feed and deleted the 10 junk rows it had produced.
+- musically.com (Music Ally Jobs) was the only genuinely working feed — kept it, verified end-to-end that real UK music-industry jobs (Warp Records, The Orchard, PACE Rights Management) now land correctly with HTML entities properly decoded.
+- Result: Music jobs went from **109 → 1,456** during this session (via the scrape-ats-jobs backfill + a natural cron cycle + Reed/employer-keyword sweep once the pipeline was actually healthy).
+- This is the same "crons fail silently" root cause Woody's new `ops-health-alert` watchdog was built to catch (commit `87655e6`, same session) — his monitor catches hard HTTP failures and total job-count drops; it doesn't yet catch a cron that was simply never scheduled or a feed returning HTTP 200 with silently-wrong content, which is what both of these were. Worth extending his watchdog for that later.
+
+### Commits
+- `144996f` `174245f` `1596573` `a0bf674` `9492d70` `bb87c1d` — job share feature (see above)
+- `2fc2216` — Music RSS feed fixes + scrape-ats-jobs cron
+- Pushed to both remotes: `howdoyoudo` + `origin` ✅
+- Edge functions deployed: `share-job-email`, `search-community-members`, `share-job-with-member`, `scrape-ats-jobs`, `fetch-external-jobs`
+
+### Current state
+- Job cards on Marketplace have a working share button (link/email/community)
+- Music industry jobs pipeline is healthy: 1,456 live jobs, clean RSS source, daily ATS scrape now scheduled
+- `scrape-ats-jobs-daily` cron benefits every industry it covers (62 companies), not just Music
+
+---
+
 ## 2026-08-17 — Andrew (main branch) — Added free AI courses + music attribution + School of Life credit
 
 ### What was done THIS SESSION
