@@ -381,19 +381,13 @@ const RSS_JOB_FEEDS: Record<string, { url: string; source: string; tags?: string
     { url: "https://careers.bbc.co.uk/rss/jobs.xml", source: "BBC Careers" },
   ],
   music: [
-    { url: "https://www.musictechjobs.com/feed/", source: "MusicTechJobs" },
-    { url: "https://www.musicweek.com/jobs/rss", source: "Music Week" },
-    { url: "https://www.musicjobs.com/rss/latest-jobs.xml", source: "MusicJobs.com" },
-    // Arts Jobs (Arts Council England) — covers performers, session musicians,
-    // orchestral/ensemble roles, music educators, venue & production staff.
-    // Filtered to Music discipline; also catches entry-level arts admin.
-    { url: "https://artsjobs.artscouncil.org.uk/vacancies/rss/?discipline=Music", source: "Arts Jobs" },
-    { url: "https://artsjobs.artscouncil.org.uk/vacancies/rss/?discipline=Music+%26+Sound", source: "Arts Jobs" },
-    // Creative Access — diversity-focused, strong on entry-level music &
-    // entertainment roles (label, agency, publishing assistants).
-    { url: "https://creativeaccess.org.uk/feed/", source: "Creative Access" },
-    // Music Ally (music industry digital/streaming news & jobs)
-    { url: "https://musically.com/category/jobs/feed/", source: "Music Ally Jobs" },
+    // Music Ally (music industry digital/streaming news & jobs) — only
+    // verified-working feed here as of 2026-08-19. The others (MusicTechJobs,
+    // Music Week, MusicJobs.com, Arts Jobs x2, Creative Access) were removed:
+    // dead TLS/DNS, a feed URL that just returns the HTML homepage, or (Creative
+    // Access) a general press/news feed with no job postings in it at all.
+    // Re-add any of them if a working replacement URL is found.
+    { url: "https://musically.com/category/jobs/feed/", source: "Music Ally Jobs", maxItems: 15 },
   ],
   charity: [
     { url: "https://www.charityjob.co.uk/jobs/rss", source: "CharityJob" },
