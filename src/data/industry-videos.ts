@@ -142,6 +142,7 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "GNXyX1pvfy4", title: "What Does an Insurance Broker Do? Breaking Into the Industry", description: "Tips and insights on how to start a career in insurance broking.", tag: "Careers", channel: "YouTube" },
   ],
   music: [
+    { youtubeId: "Nb8idwwX4Yo", title: "How Do You Do, Music?", description: "Our own podcast — going inside the music industry with the people who live it: the paths in, the graft, and how it really works.", tag: "Podcast", channel: "How Do You Do?" },
     { youtubeId: "bXDU5E2_VDc", title: "How I Earn Money in the Music Business", description: "A breakdown of royalties, advances, publishing, and how artists actually get paid.", tag: "Explainer", duration: "17:16", channel: "KARRA" },
     { youtubeId: "A6n3GkB5-kU", title: "How to Make It in the New Music Business", description: "Ari Herstand on the modern music industry and building a sustainable career.", tag: "Interview", duration: "1:25:37", channel: "One More Time Podcast" },
     { youtubeId: "nyHMgxzKa6Y", title: "Are Artist Managers More Important Than Record Labels Now?", description: "The shifting power dynamics in the modern music industry.", tag: "Explainer", channel: "YouTube" },
