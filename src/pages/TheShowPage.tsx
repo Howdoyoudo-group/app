@@ -35,7 +35,7 @@ const SHOW_EPISODES = [
     episode: "Episode 1",
     title: "How Do You Do, Music?",
     description: "Going inside the music industry with the people who live it — the paths in, the graft, and how it really works.",
-    embedUrl: "https://www.youtube.com/embed/INTUf7KpYgY?rel=0&modestbranding=1",
+    embedUrl: "https://www.youtube.com/embed/Nb8idwwX4Yo?rel=0&modestbranding=1",
   },
   {
     id: "journalism",
