@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Mail, Users, Check } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import type { Job } from "@/hooks/useJobs";
 
 interface ShareJobDialogProps {
@@ -14,6 +16,7 @@ interface ShareJobDialogProps {
 }
 
 export function ShareJobDialog({ open, onOpenChange, job }: ShareJobDialogProps) {
+  const { user } = useAuth();
   const [email, setEmail] = useState("");
   const [userSearch, setUserSearch] = useState("");
   const [copied, setCopied] = useState(false);
@@ -33,12 +36,25 @@ export function ShareJobDialog({ open, onOpenChange, job }: ShareJobDialogProps)
       toast.error("Please enter an email address");
       return;
     }
+    if (!email.includes("@")) {
+      toast.error("Please enter a valid email address");
+      return;
+    }
     setSharing(true);
     try {
-      // TODO: Call edge function to send email with job link
-      // const { error } = await supabase.functions.invoke("send-job-share", {
-      //   body: { jobId: job.dbId, email, jobTitle: job.title, shareLink }
-      // });
+      const { data, error } = await supabase.functions.invoke("share-job-email", {
+        body: {
+          jobId: job.dbId,
+          jobTitle: job.title,
+          company: job.company,
+          email,
+          shareLink,
+          senderName: user?.user_metadata?.full_name || "A How Do You Do user",
+        },
+      });
+
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
 
       toast.success(`Job shared with ${email}`);
       setEmail("");
