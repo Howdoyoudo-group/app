@@ -32,7 +32,9 @@ import {
   Sparkles,
   ArrowUpDown,
   ChevronDown,
+  Share2,
 } from "lucide-react";
+import { ShareJobDialog } from "@/components/ShareJobDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -2429,6 +2431,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     const [expanded, setExpanded] = useState(isFocused);
     const [fullDesc, setFullDesc] = useState<string | null>(null);
     const [enriching, setEnriching] = useState(false);
+    const [shareOpen, setShareOpen] = useState(false);
     const cardRef = useRef<HTMLDivElement | null>(null);
     const displayDesc = fullDesc || job.description || "";
     const isShort = displayDesc.length < 900;
@@ -2503,17 +2506,26 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
             </div>
           </div>
         </div>
-        <button
-          onClick={(e) => { e.stopPropagation(); toggleSave(job); }}
-          className="shrink-0 p-1.5 text-muted-foreground hover:text-primary transition-colors"
-          aria-label={isJobSaved(job.dbId) ? "Unsave job" : "Save job"}
-        >
-          {isJobSaved(job.dbId) ? (
-            <BookmarkCheck className="w-5 h-5 text-primary" />
-          ) : (
-            <Bookmark className="w-5 h-5" />
-          )}
-        </button>
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={(e) => { e.stopPropagation(); toggleSave(job); }}
+            className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
+            aria-label={isJobSaved(job.dbId) ? "Unsave job" : "Save job"}
+          >
+            {isJobSaved(job.dbId) ? (
+              <BookmarkCheck className="w-5 h-5 text-primary" />
+            ) : (
+              <Bookmark className="w-5 h-5" />
+            )}
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); setShareOpen(true); }}
+            className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
+            aria-label="Share job"
+          >
+            <Share2 className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       <p className={`text-muted-foreground font-body text-sm leading-relaxed whitespace-pre-line ${expanded ? "" : "line-clamp-2"}`}>
@@ -2641,6 +2653,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
           return src ? <SourceAttribution source={src} variant="badge" className="ml-auto" /> : null;
         })()}
       </div>
+      <ShareJobDialog open={shareOpen} onOpenChange={setShareOpen} job={job} />
     </motion.div>
     );
   };
