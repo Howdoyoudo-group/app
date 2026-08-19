@@ -31,7 +31,7 @@ export function ShareJobDialog({ open, onOpenChange, job }: ShareJobDialogProps)
   const [copied, setCopied] = useState(false);
   const [sharing, setSharing] = useState(false);
 
-  const shareLink = `${window.location.origin}/marketplace?job=${job.dbId}`;
+  const shareLink = `${window.location.origin}/marketplace?jobId=${job.dbId}`;
 
   const handleSearchMembers = async (query: string) => {
     setUserSearch(query);
