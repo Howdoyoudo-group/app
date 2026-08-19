@@ -198,6 +198,7 @@ const Music = () => {
             { title: "Music Jobs UK", description: "UK-focused music jobs board covering all sectors - labels, venues, festivals, session work and artist management.", url: "https://www.music-jobs.com/uk" },
             { title: "Rostr Jobs", description: "Platform for music industry roles and artist opportunities on the Rostr network.", url: "https://jobs.rostr.cc" },
             { title: "IQ Magazine Jobs", description: "Events and entertainment industry job board with live music, festivals and venue operations roles.", url: "https://www.iqmagazine.com/jobs" },
+            { title: "Run The Check", description: "Curated UK creative and arts opportunities - music, orchestras, labels and entry-level roles at the likes of Sony Music and Youth Music.", url: "https://www.runthecheck.com" },
           ]}
         />
         <IndustryRolesShowcase stages={musicStages} industry="Music" companies={musicCompanies} />
