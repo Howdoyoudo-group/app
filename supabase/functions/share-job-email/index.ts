@@ -39,7 +39,7 @@ serve(async (req) => {
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #00ff00 0%, #ccff00 100%); padding: 32px; text-align: center;">
-          <h1 style="color: #000; margin: 0; font-size: 24px; font-weight: 900;">How Do You Do?</h1>
+          <img src="https://www.howdoyoudo.co.uk/logo-howdoyoudo.png" alt="How Do You Do?" width="160" style="display: block; margin: 0 auto; width: 160px; max-width: 60%; height: auto;" />
         </div>
 
         <div style="padding: 32px; border: 1px solid #e5e5e5;">
@@ -96,7 +96,7 @@ serve(async (req) => {
     console.error("Function error:", err);
     return new Response(
       JSON.stringify({ error: String(err) }),
-      { status: 500, headers: { "Content-Type": "application/json" } }
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
 });
