@@ -39,7 +39,7 @@ serve(async (req) => {
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #00ff00 0%, #ccff00 100%); padding: 32px; text-align: center;">
-          <img src="https://www.howdoyoudo.co.uk/logo-howdoyoudo.png" alt="How Do You Do?" width="160" style="display: block; margin: 0 auto; width: 160px; max-width: 60%; height: auto;" />
+          <img src="https://www.howdoyoudo.co.uk/logo-howdoyoudo-flat.png" alt="How Do You Do?" width="280" style="display: block; margin: 0 auto; width: 280px; max-width: 80%; height: auto;" />
         </div>
 
         <div style="padding: 32px; border: 1px solid #e5e5e5;">
