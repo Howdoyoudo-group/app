@@ -549,4 +549,10 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "lyZcN40C_jk", title: "How I Passed the FIFA Agent Exam: Insights and Tips to Reach 81% Pass Rate", channel: "Samuele Mura" },
     { id: "wtWGA0hChiY", title: "Being a Football Agent: Getting into the Business (7 real tips)", channel: "Samuele Mura" },
   ],
+  "isrc-manager": [
+    { id: "ZeorINQB2RA", title: "DO THIS Before Your Next Release! (ISRC CODES)", channel: "Spinlight Studio" },
+    { id: "214RpprAltU", title: "What is ISRC code? (ISRC Number)", channel: "The Modern Musician" },
+    { id: "NP974uzvRGw", title: "ISRC Codes - What Are They? | Do You Need One?", channel: "Charles Cleyn" },
+    { id: "n-AupJuMlCU", title: "What is an ISRC code and why do you need one?", channel: "Abbey Road" },
+  ],
 };

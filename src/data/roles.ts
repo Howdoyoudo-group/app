@@ -182,6 +182,14 @@ export const roles: RoleDefinition[] = [
     keywords: ["intermediary", "player agent", "sports agent", "transfer", "FIFA agent", "player representation"],
   },
   {
+    title: "ISRC Manager",
+    slug: "isrc-manager",
+    description: "Assigning the codes that make sure every artist gets paid for every stream.",
+    industries: ["Music"],
+    category: "business",
+    keywords: ["metadata specialist", "music metadata", "catalogue data", "rights administration", "DDEX", "royalties data"],
+  },
+  {
     title: "Fitness Instructor",
     slug: "fitness-instructor",
     description: "Group classes, gym floor coaching, and getting people moving - the front line of the fitness industry.",

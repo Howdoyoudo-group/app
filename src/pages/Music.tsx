@@ -62,6 +62,7 @@ const musicStages: CareerStage[] = [
     { name: "Copyright Administrator", description: "Registers works with collection societies like PRS and ensures correct royalty allocation.", salary: "£25k–£38k" },
     { name: "Music Lawyer", description: "Advises on contracts, rights, and disputes across publishing, recording, and live.", salary: "£35k–£80k" },
     { name: "Metadata Specialist", description: "Ensures accurate metadata for music releases across platforms.", salary: "£25k–£38k" },
+    { name: "ISRC Manager", description: "Assigns and tracks International Standard Recording Codes for labels, distributors and artists.", salary: "£25k–£40k" },
   ]},
   { title: "Marketing", icon: Megaphone, roles: [
     { name: "Artist Manager", description: "Guides an artist's career.", salary: "£25k–£80k" },
