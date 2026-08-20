@@ -12,8 +12,8 @@ import OnlineLearningGrid from "@/components/OnlineLearningGrid";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Briefcase, roles: [
-    { name: "Agency Intern / Assistant", description: "Supports registered agents with admin, scouting notes, and player logistics while learning the trade.", salary: "£18k–£24k" },
-    { name: "Junior Intermediary", description: "Registered with the FA, building a first network of players and contacts under a senior agent.", salary: "£20k–£30k (often commission-only)" },
+    { name: "Agency Intern / Assistant", description: "Supports registered agents with admin, scouting notes, and player logistics while learning the trade.", salary: "£25k–£28k" },
+    { name: "Junior Intermediary", description: "Registered with the FA, building a first network of players and contacts under a senior agent.", salary: "£26k–£34k (often commission-supplemented)" },
   ]},
   { title: "Mid Level", icon: Handshake, roles: [
     { name: "Football Agent / Intermediary", description: "Represents a small roster of players - negotiating contracts, image rights, and transfers.", salary: "£30k–£80k + commission" },
@@ -69,8 +69,8 @@ const FootballAgent = () => {
             "You understand football deeply - not just as a fan, but as a business",
             "You're organised enough to manage regulation, contracts, and deadlines under pressure",
           ],
-          salary: "£18k–£30k starting out (often commission-only) → £150k–£1m+ for established agents with top clients",
-          entryTip: "There's no traditional degree route in. The real entry point is the FIFA Football Agent Exam plus FA intermediary registration - most people get there by interning or assisting at an established agency first, building contacts through grassroots/academy football, or coming in via a sports law or sports management background. Reputation and trust take years to build, so most agents start by helping a senior agent's roster before taking on their own clients.",
+          salary: "£25k–£28k starting out → £150k–£1m+ for established agents with top clients",
+          entryTip: "There's no traditional degree route in. The real entry point is the FIFA Football Agent Exam plus FA intermediary registration - most people get there by interning or assisting at an established agency first, building contacts through grassroots/academy football, or coming in via a sports law or sports management background. Be wary of any agency internship advertised below National Living Wage - it should be a genuine paid role, not unpaid 'exposure'. Reputation and trust take years to build, so most agents start by helping a senior agent's roster before taking on their own clients.",
         }} />
         <CareerMap title="Football Agent Career Path" subtitle="From intern to running your own agency." stages={careerStages} industry="football" />
       </>
