@@ -139,6 +139,7 @@ const ALIAS_MAP: Array<{ test: RegExp; slug: string }> = [
   { test: /\b(football coach|first[- ]team coach|head coach|manager.*football)\b/i, slug: "football-coach" },
   { test: /\b(football scout|chief scout|recruitment analyst)\b/i, slug: "football-scout" },
   { test: /\b(football analyst|performance analyst|opposition analyst)\b/i, slug: "football-analyst" },
+  { test: /\b(agent\s*\/?\s*intermediary|football agent|player agent|intermediary)\b/i, slug: "football-agent" },
   { test: /\b(kit manager|kit assistant)\b/i, slug: "kit-manager" },
   { test: /\b(groundsperson|groundsman|head groundsperson)\b/i, slug: "groundsperson" },
   { test: /\b(sports scientist|s&c coach|strength\s*(?:&|and)\s*conditioning)\b/i, slug: "sports-scientist" },

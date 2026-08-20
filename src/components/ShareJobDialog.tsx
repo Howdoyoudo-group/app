@@ -7,12 +7,17 @@ import { Copy, Mail, Users, Check } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import type { Job } from "@/hooks/useJobs";
+
+interface ShareableJob {
+  dbId?: string;
+  title: string;
+  company: string;
+}
 
 interface ShareJobDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  job: Job;
+  job: ShareableJob;
 }
 
 interface CommunityMember {

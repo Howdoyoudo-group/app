@@ -193,6 +193,7 @@ const RoleGarmentTechnologist = lazy(() => import("./pages/roles/GarmentTechnolo
 const RoleMortgageAdvisor = lazy(() => import("./pages/roles/MortgageAdvisor.tsx"));
 const RoleITTechnology = lazy(() => import("./pages/roles/ITTechnology.tsx"));
 const RoleAI = lazy(() => import("./pages/roles/AI.tsx"));
+const RoleFootballAgent = lazy(() => import("./pages/roles/FootballAgent.tsx"));
 const RoleRetailAssistant = lazy(() => import("./pages/roles/RetailAssistant.tsx"));
 const RoleWarehouseDelivery = lazy(() => import("./pages/roles/WarehouseDelivery.tsx"));
 const RoleVehicleTechnician = lazy(() => import("./pages/roles/VehicleTechnician.tsx"));
@@ -404,6 +405,7 @@ const App = () => (
           <Route path="/roles/mortgage-advisor" element={<RoleMortgageAdvisor />} />
           <Route path="/roles/it-technology" element={<RoleITTechnology />} />
           <Route path="/roles/ai" element={<RoleAI />} />
+          <Route path="/roles/football-agent" element={<RoleFootballAgent />} />
           <Route path="/roles/ai-engineering" element={<RoleAI />} />
           <Route path="/roles/ai-research" element={<RoleAI />} />
           <Route path="/roles/ai-commercial" element={<RoleAI />} />

@@ -174,6 +174,14 @@ export const roles: RoleDefinition[] = [
     keywords: ["realtor", "property", "sales negotiator", "valuer", "property consultant", "sales agent", "residential sales"],
   },
   {
+    title: "Football Agent",
+    slug: "football-agent",
+    description: "Contracts, transfers, and trust - representing players on and off the pitch.",
+    industries: ["Football"],
+    category: "business",
+    keywords: ["intermediary", "player agent", "sports agent", "transfer", "FIFA agent", "player representation"],
+  },
+  {
     title: "Fitness Instructor",
     slug: "fitness-instructor",
     description: "Group classes, gym floor coaching, and getting people moving - the front line of the fitness industry.",
