@@ -145,6 +145,8 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "sWeMjVkhhQE", title: "What Does a Book Editor Do?", description: "A look inside the day-to-day of a book editor at one of the UK's biggest publishers.", tag: "Careers", channel: "Penguin Random House UK" },
     { youtubeId: "uCsZmeydAiI", title: "Come to Work With Me... Literary Agent Edition!", description: "A day in the life of a literary agent, from submissions to deal-making.", tag: "Careers", channel: "Publishers Association" },
     { youtubeId: "Vb0gsH12hdk", title: "Getting a Job in Publishing - What Does a Literary Agent Do?", description: "Breaking down the literary agent role and how to get into publishing.", tag: "Explainer", channel: "Epic Reads" },
+    { youtubeId: "2jotS_0evWM", title: "A Day in the Life of... a Waterstones Bookseller!", description: "A shift on the shop floor at Waterstones Nuneaton - what bookselling actually involves day to day.", tag: "Careers", channel: "Publishers Association" },
+    { youtubeId: "R6DSbf13iio", title: "How to Become a Book Editor at Penguin Random House", description: "A working editor on how she broke into publishing and what the job really involves.", tag: "Careers", channel: "Alyssa Matesic" },
   ],
   music: [
     { youtubeId: "Nb8idwwX4Yo", title: "How Do You Do, Music?", description: "Our own podcast — going inside the music industry with the people who live it: the paths in, the graft, and how it really works.", tag: "Podcast", channel: "How Do You Do?" },

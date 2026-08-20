@@ -76,7 +76,7 @@ const newsfeed = [
 ];
 
 const booksCompanies = [
-  { name: "Penguin Random House UK", url: "https://www.penguinrandomhouse.co.uk/careers/", founded: "2013", hq: "London", overview: "The world's largest trade book publisher - home to Penguin, Vintage, Transworld and dozens of imprints.", valueChainStage: "Editorial" },
+  { name: "Penguin Random House UK", url: "https://jobsearch.createyourowncareer.com/PRH_UK/content/home/?locale=en_GB", founded: "2013", hq: "London", overview: "The world's largest trade book publisher - home to Penguin, Vintage, Transworld and dozens of imprints.", valueChainStage: "Editorial" },
   { name: "HarperCollins UK", url: "https://harpercollins.pinpointhq.com", founded: "1817", hq: "London", overview: "One of the world's largest publishers, second only to Penguin Random House - fiction, non-fiction and children's books.", valueChainStage: "Editorial" },
   { name: "Hachette UK", url: "https://www.hachette.co.uk/careers/", founded: "1826", hq: "London", overview: "Major UK publishing group - Orion, Headline, John Murray and more under one roof.", valueChainStage: "Editorial" },
   { name: "Pan Macmillan", url: "https://www.panmacmillan.com/careers", founded: "1843", hq: "London", overview: "One of the 'Big Five' UK publishers - Pan, Macmillan, Picador and Bluebird imprints.", valueChainStage: "Editorial" },

@@ -555,4 +555,11 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "NP974uzvRGw", title: "ISRC Codes - What Are They? | Do You Need One?", channel: "Charles Cleyn" },
     { id: "n-AupJuMlCU", title: "What is an ISRC code and why do you need one?", channel: "Abbey Road" },
   ],
+  "literary-agent": [
+    { id: "uCsZmeydAiI", title: "Come to Work With Me... Literary Agent Edition!", channel: "Publishers Association" },
+    { id: "DHvt7qUCX2E", title: "Day in the Life of a Literary Agent | Literary Agent Stephanie Fretwell Hill", channel: "Middle Grade Ninja" },
+  ],
+  "bookseller": [
+    { id: "2jotS_0evWM", title: "A day in the life of... a Waterstones bookseller!", channel: "Publishers Association" },
+  ],
 };
