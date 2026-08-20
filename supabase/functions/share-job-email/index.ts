@@ -13,6 +13,7 @@ interface ShareJobEmailRequest {
   company: string;
   shareLink: string;
   email: string;
+  recipientName?: string;
   senderName?: string;
 }
 
@@ -27,7 +28,7 @@ serve(async (req) => {
 
   try {
     const body: ShareJobEmailRequest = await req.json();
-    const { jobId, jobTitle, company, shareLink, email, senderName = "A How Do You Do user" } = body;
+    const { jobId, jobTitle, company, shareLink, email, recipientName, senderName = "A How Do You Do user" } = body;
 
     if (!email || !jobTitle || !shareLink) {
       return new Response(
@@ -36,6 +37,12 @@ serve(async (req) => {
       );
     }
 
+    const rawFirst = (recipientName || "").trim().split(" ")[0];
+    const firstName = rawFirst ? rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase() : "";
+    const greeting = firstName
+      ? `How do you do, ${firstName}<span style="color:#00e600;">?</span>`
+      : `How do you do<span style="color:#00e600;">?</span>`;
+
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background: linear-gradient(135deg, #00ff00 0%, #ccff00 100%); padding: 32px; text-align: center;">
@@ -43,7 +50,7 @@ serve(async (req) => {
         </div>
 
         <div style="padding: 32px; border: 1px solid #e5e5e5;">
-          <p style="margin-top: 0; font-size: 16px;">Hi there,</p>
+          <h2 style="margin: 0 0 16px 0; font-size: 24px; font-weight: 800; color: #1a1a1a;">${greeting}</h2>
 
           <p style="font-size: 16px; line-height: 1.6;">
             ${senderName} found a job on <strong>How Do You Do?</strong> and thought you might be interested:

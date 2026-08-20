@@ -29,6 +29,7 @@ interface CommunityMember {
 export function ShareJobDialog({ open, onOpenChange, job }: ShareJobDialogProps) {
   const { user } = useAuth();
   const [email, setEmail] = useState("");
+  const [recipientName, setRecipientName] = useState("");
   const [userSearch, setUserSearch] = useState("");
   const [searchResults, setSearchResults] = useState<CommunityMember[]>([]);
   const [selectedMember, setSelectedMember] = useState<CommunityMember | null>(null);
@@ -85,6 +86,7 @@ export function ShareJobDialog({ open, onOpenChange, job }: ShareJobDialogProps)
           jobTitle: job.title,
           company: job.company,
           email,
+          recipientName: recipientName.trim() || undefined,
           shareLink,
           senderName: user?.user_metadata?.full_name || "A How Do You Do user",
         },
@@ -95,6 +97,7 @@ export function ShareJobDialog({ open, onOpenChange, job }: ShareJobDialogProps)
 
       toast.success(`Job shared with ${email}`);
       setEmail("");
+      setRecipientName("");
       onOpenChange(false);
     } catch (err) {
       toast.error("Failed to share job");
@@ -189,6 +192,12 @@ export function ShareJobDialog({ open, onOpenChange, job }: ShareJobDialogProps)
             <p className="text-sm text-muted-foreground">
               Enter an email address to share this job.
             </p>
+            <Input
+              type="text"
+              placeholder="Their name (optional)"
+              value={recipientName}
+              onChange={(e) => setRecipientName(e.target.value)}
+            />
             <Input
               type="email"
               placeholder="someone@example.com"
