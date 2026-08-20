@@ -190,9 +190,9 @@ export const ROLE_ICONS: Record<string, string> = {
   "football-physio": roleFootballPhysio,
   "football-analyst": roleFootballAnalyst,
   "academy-coach": roleAcademyCoach,
-  // Placeholder - reuse the Sales handshake doodle (deals/negotiation) until
-  // a bespoke Football Agent icon exists
-  "football-agent": roleSales,
+  // Placeholder - reuse the Football Coach doodle until a bespoke
+  // Football Agent icon exists
+  "football-agent": roleFootballCoach,
 
   // Journalism
   reporter: roleReporter,
