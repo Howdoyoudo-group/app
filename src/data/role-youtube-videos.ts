@@ -543,4 +543,10 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "UIA-K2uVCqY", title: "Finance Jobs with GREAT Work Life Balance & HIGH Pay", channel: "Shawn Hakimi" },
     { id: "4I8Um21du78", title: "Day in the Life of a Wealth Management Analyst | JPMorgan Chase & Co.", channel: "jpmorgan" },
   ],
+  "football-agent": [
+    { id: "AoZ0WO0-yU4", title: "Do Players Actually Need Agents?", channel: "Athletic Interest" },
+    { id: "WzFTP7Sj5FA", title: "How to Become a FIFA Agent (What Nobody Tells You First)", channel: "Brian Football Insider" },
+    { id: "lyZcN40C_jk", title: "How I Passed the FIFA Agent Exam: Insights and Tips to Reach 81% Pass Rate", channel: "Samuele Mura" },
+    { id: "wtWGA0hChiY", title: "Being a Football Agent: Getting into the Business (7 real tips)", channel: "Samuele Mura" },
+  ],
 };

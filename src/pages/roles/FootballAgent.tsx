@@ -29,21 +29,21 @@ const careerStages: CareerStage[] = [
 ];
 
 const podcasts = [
-  { title: "The Athletic FC Podcast", description: "Transfer news, deal analysis, and the business side of football from The Athletic's reporters.", url: "https://open.spotify.com/show/2vHOvHZ1CQZ6PVWKPnvvXK" },
-  { title: "The Football Agent Podcast", description: "Conversations with working agents on how deals really get done and how to break into the industry.", url: "https://open.spotify.com/search/the%20football%20agent%20podcast" },
-  { title: "The Transfer Window Podcast", description: "Deadline day analysis and the mechanics of how transfers and agent negotiations actually happen.", url: "https://open.spotify.com/search/transfer%20window%20podcast" },
+  { title: "The Agents Angle", description: "Two working football agents lift the lid on the industry - what agents actually do, and whether the 'shadowy sharks' stereotype holds up.", url: "https://open.spotify.com/show/3xrtnE3pVByql4hDxVYsuc" },
+  { title: "FIFA Agent Exam Podcast", description: "SportsAgent Institute's episode-by-episode guide to passing the FIFA Football Agent Exam - the real entry route into the profession.", url: "https://open.spotify.com/show/6mkI7H5hEKvF1QYiionwnW" },
+  { title: "The Price of Football", description: "Kieran Maguire breaks down football finances - including how transfer fees, agent commissions and player contracts actually work.", url: "https://open.spotify.com/show/7c7ltYVwnicbVz0uYTXAW5" },
 ];
 
 const articles = [
   { title: "The Athletic — Transfers", source: "The Athletic", url: "https://theathletic.com/football/transfers/" },
   { title: "Sky Sports — Transfer Centre", source: "Sky Sports", url: "https://www.skysports.com/transfer-centre" },
-  { title: "The FA — Intermediaries Regulations", source: "The Football Association", url: "https://www.thefa.com/football-rules-governance/policies/intermediaries" },
-  { title: "FIFA Football Agent Regulations (FFAR)", source: "FIFA", url: "https://www.fifa.com/legal/football-regulatory/agents" },
+  { title: "The FA — Football Agent Regulations", source: "The Football Association", url: "https://www.thefa.com/football-rules-governance/policies/player-status---agents" },
+  { title: "FIFA Football Agent Regulations (FFAR)", source: "FIFA", url: "https://inside.fifa.com/transfer-system/agents" },
 ];
 
 const courses = [
-  { title: "FIFA Football Agent Exam", description: "The mandatory route in - a multiple-choice exam FIFA requires before you can legally act as a football agent worldwide. No formal qualifications needed to sit it, but it's demanding and pass rates are low.", url: "https://www.fifa.com/legal/football-regulatory/agents" },
-  { title: "The FA — Intermediaries Registration", description: "How UK-based agents register with the Football Association, including the annual fee and compliance requirements once you're licensed.", url: "https://www.thefa.com/football-rules-governance/policies/intermediaries" },
+  { title: "FIFA Football Agent Exam", description: "The mandatory route in - a multiple-choice exam FIFA requires before you can legally act as a football agent worldwide. No formal qualifications needed to sit it, but it's demanding and pass rates are low.", url: "https://inside.fifa.com/transfer-system/agents" },
+  { title: "The FA — Registered Football Agents", description: "How UK-based agents register with the Football Association, including the annual fee and compliance requirements once you're licensed.", url: "https://www.thefa.com/football-rules-governance/policies/player-status---agents" },
   { title: "Sports Law LLM / Postgraduate courses", description: "Not required, but many agents come via a sports law or sports management degree - useful for contract negotiation and regulatory knowledge.", url: "https://www.google.com/search?q=sports+law+LLM+UK+universities" },
 ];
 
