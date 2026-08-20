@@ -9,7 +9,8 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   beer: "beer industry, craft beer, breweries, pub industry, brewing, beer brands",
   coffee: "coffee shops, coffee chains, specialty coffee, barista, coffee roasting, cafe industry",
   music: "music industry, record labels, live music, music festivals, streaming, music business",
-  
+  books: "publishing industry, book publishers, literary agents, bookselling, ebooks, audiobooks, book retail",
+
   "food-drink": "restaurants, pubs, bars, hotels, hospitality, catering, food service, food brands launching in supermarkets (Waitrose, Tesco, Sainsbury's, M&S, Aldi, Lidl), restaurant chain openings/closures (e.g. Franco Manca, Mango), food startups, FMCG brand news, retailer investment announcements",
   football: "football business, Premier League commercial, sports media rights, broadcasting rights, sports sponsorship. EXCLUDE match results, scores, lineups, player performance, transfer rumours",
   teaching: "education policy, schools, teaching, EdTech, universities, teacher training",
@@ -172,6 +173,7 @@ Return real, verifiable stories. For each, give the EXACT real headline as publi
       footwear: ["JD Sports", "UK sneaker market", "Schuh"],
       beer: ["UK brewery", "BrewDog", "UK pub group"],
       music: ["UK music industry", "live music UK", "UK record label"],
+      books: ["UK publishing industry", "Penguin Random House UK", "Waterstones", "UK book market"],
       beauty: ["UK beauty industry", "Boots beauty", "Space NK"],
       jewellery: ["UK jewellery retail", "Goldsmiths jeweller", "Pandora UK"],
       pets: ["UK pet retail", "Pets at Home", "UK veterinary group"],

@@ -169,6 +169,30 @@ const INDUSTRY_KEYWORDS: Record<string, string[]> = {
     "Beatport", "Live Nation", "AEG Presents", "DICE", "Academy Music Group",
     "Festival Republic", "Ticketmaster", "Focusrite", "Native Instruments",
   ],
+  books: [
+    // Core / well-known roles
+    "commissioning editor", "book editor", "literary agent", "publicist books",
+    "book publicist", "rights manager", "rights executive", "foreign rights",
+    "literary scout", "book designer", "production editor publishing",
+    // Entry-level
+    "editorial assistant", "publishing assistant", "rights assistant",
+    "marketing assistant publishing", "publicity assistant", "junior editor",
+    // Editorial & production
+    "copy editor", "proofreader", "development editor", "typesetter",
+    "cover designer", "print buyer publishing", "audiobook producer",
+    // Business of publishing
+    "royalties administrator", "contracts manager publishing",
+    "digital publishing manager", "publishing rights", "subsidiary rights",
+    // Bookselling & distribution
+    "bookseller", "book buyer", "distribution manager publishing",
+    "wholesale account manager books", "book retail manager",
+    // Publisher names — pulls all roles at these employers
+    "Penguin Random House", "HarperCollins", "Hachette UK", "Pan Macmillan",
+    "Bloomsbury Publishing", "Faber and Faber", "Faber & Faber",
+    "Simon and Schuster", "Bonnier Books", "Canongate Books", "Profile Books",
+    "Waterstones", "WH Smith", "Foyles", "Blackwell's Books",
+    "Curtis Brown", "United Agents", "Ingram Content",
+  ],
   teaching: [
     "teacher", "teaching assistant", "school teacher", "education", "curriculum",
     "secondary teacher", "primary teacher", "SEN teacher", "SEND teacher", "NQT", "ECT",
@@ -462,6 +486,7 @@ const INDUSTRY_STAGES: Record<string, string[]> = {
   fashion: ["Design", "Sourcing", "Production", "Marketing", "Retail", "Consumer"],
   football: ["Youth Development", "Scouting & Recruitment", "Club Operations", "Matchday", "Broadcasting", "Commercial"],
   music: ["Creation", "Recording", "Production", "Distribution", "Marketing", "Live & Exhibition"],
+  books: ["Creation & Writing", "Editorial", "Design & Production", "Rights & Business", "Marketing & Publicity", "Distribution & Retail"],
   hospitality: ["Concept & Design", "Kitchen", "Front of House", "Supply Chain", "Marketing", "Operations"],
   "food-drink": ["Concept & Design", "Kitchen", "Front of House", "Supply Chain", "Marketing", "Operations"],
   grocery: ["Sourcing", "Manufacturing", "Distribution", "Merchandising", "Retail Ops", "Consumer"],
@@ -523,6 +548,14 @@ const CLASSIFICATION_RULES: Record<string, Record<string, string[]>> = {
     "Business & Rights": ["royalt", "sync", "music rights", "catalogue", "music publishing", "label manager", "label coordinator", "music contracts", "entertainment lawyer", "music accountant", "streaming operations"],
     "Marketing & PR": ["artist manager", "pr ", "publicity", "social media", "playlist", "journalist", "music marketing", "music coordinator", "music assistant", "label assistant"],
     "Live & Events": ["tour", "live sound", "foh engineer", "monitor engineer", "stage manager", "promoter", "festival", "venue", "booking agent", "production manager music"],
+  },
+  books: {
+    "Creation & Writing": ["author", "ghostwriter", "ghost writer", "illustrator", "co-writer", "writer"],
+    "Editorial": ["editor", "editorial", "copy editor", "copyeditor", "proofreader", "commissioning"],
+    "Design & Production": ["book designer", "typesetter", "production editor", "cover design", "print buyer"],
+    "Rights & Business": ["rights", "royalt", "literary scout", "contracts manager", "foreign rights", "literary agent"],
+    "Marketing & Publicity": ["marketing", "publicist", "publicity", "social media", "content creator publishing"],
+    "Distribution & Retail": ["bookseller", "distribution", "wholesale", "digital publishing", "audiobook", "book buyer"],
   },
   fashion: {
     "Design": ["fashion design", "textile design", "pattern", "creative director", "trend"],
@@ -680,8 +713,8 @@ function classifyJob(title: string, description: string, industry: string): { st
 const ADZUNA_CATEGORY_TO_INDUSTRY: Record<string, string[]> = {
   "retail-jobs": ["fashion", "footwear", "beauty", "grocery", "jewellery", "interior-design"],
   "hospitality-catering-jobs": ["hospitality", "food-drink", "coffee", "bakery", "beer", "travel", "formula-1"],
-  "creative-design-jobs": ["fashion", "footwear", "interior-design", "cinema", "music", "jewellery", "formula-1"],
-  "pr-advertising-marketing-jobs": ["fashion", "beauty", "music", "football", "cinema", "charity", "influencing", "formula-1"],
+  "creative-design-jobs": ["fashion", "footwear", "interior-design", "cinema", "music", "books", "jewellery", "formula-1"],
+  "pr-advertising-marketing-jobs": ["fashion", "beauty", "music", "books", "football", "cinema", "charity", "influencing", "formula-1"],
   "it-jobs": ["gaming", "formula-1"],
   "engineering-jobs": ["cars", "formula-1", "travel", "beer", "coffee"],
   "healthcare-nursing-jobs": ["physiotherapy", "psychotherapy", "wellness", "health"],
@@ -1111,6 +1144,7 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
         beer: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare)\b/i,
         coffee: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare)\b/i,
         music: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare)\b/i,
+        books: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|warehouse|forklift|hgv|delivery driver|courier)\b/i,
         "interior-design": /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|forklift|warehouse operative)\b/i,
         "estate-agency": /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|forklift|warehouse operative)\b/i,
         "food-drink": /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|forklift)\b/i,
@@ -1787,6 +1821,7 @@ const REED_TITLE_BLOCKLIST: Record<string, RegExp> = {
   football: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|residential|children's home|childrens home|domiciliary|carer|teacher|teaching assistant|sen |send |send teacher|paediatric|pastoral|school|college|tutor|physiotherap|psycholog|counsellor|housekeep|cleaner|warehouse|forklift|hgv|driver|electrician|plumber|welder|labourer|lecturer|bingo caller|paralegal|solicitor|barrister|pawnbroker|surfacing operative|1st line engineer|it support|it service desk|service desk|apprentice (?!football|sport)|campsite|lifeguard|litiga|conveyancer|mortgage|estate agent|lettings)\b/i,
   cinema: /\b(care assistant|care worker|carer|nurse|nursing|social worker|support worker|domiciliary|live.in care|healthcare|warehouse|forklift|hgv|driver|electrician|plumber|welder|labourer)\b/i,
   music: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|warehouse|forklift|hgv|class 1 driver|class 2 driver|c\+e driver|tramper driver|delivery driver|courier|gxo|greencore|muller|stonegate|marston|calor gas|apleona|phs group|matchtech|specsavers|bet365|maintenance engineer|maintenance technician|machine operator|opex engineer|safety engineer|stores operative|gas service|service desk coordinator|hvac|wastekit|carpentry|joinery|engineering team leader|kitchen team|front of house team|activities assistant|inventory planning|portfolio director|early careers trainee|fundraising administrator|product architect)\b/i,
+  books: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|warehouse operative|forklift|hgv driver|class 1 driver|class 2 driver|delivery driver|courier|cyber security|software engineer|java developer|devops|sre|kafka|estate agent|lettings|hairdresser|beauty therapist|electrician|plumber|welder)\b/i,
   beer: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|delivery driver|hgv driver|parcel|courier|yodel|dpd|evri|hermes|amazon flex|warehouse operative|forklift|integration engineer|billing manager|financial controller|tax manager|finance director|lead engineer|facilities project manager|electrical.*engineer|mechanical.*engineer|strategy.*go.to.market|service delivery partner|collections and treasury)\b/i,
   coffee: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|butcher|butchery|hgv|forklift)\b/i,
   bakery: /\b(care assistant|nurse|nursing|social worker|support worker|healthcare|hgv|forklift|sushi)\b/i,
@@ -1921,6 +1956,7 @@ const REED_COMPANY_INDUSTRY_OVERRIDES: Record<string, string> = {
 // scope "tc" = check title+company only; "tcd" = also check description.
 const INDUSTRY_SIGNALS: Record<string, { rx: RegExp; scope: "tc" | "tcd" }> = {
   music: { scope: "tc", rx: /\b(music|musician|musical|record label|recording studio|sound engineer|live sound|tour manager|touring artist|artist manager|a&r|songwriter|composer|music producer|record producer|dj\b|orchestra|choir|opera house|operatic|conductor|spotify|apple music|tidal|deezer|warner music|universal music|sony music|bmg|live nation|aeg|o2 academy|royal albert hall|barbican|glastonbury|coachella|reading festival|musictech|music week|music business|music publishing|music licensing|music supervisor|music streaming|sync licensing|playlist editor|audio engineer|mastering engineer|mixing engineer|foh engineer|monitor engineer|stagehand|roadie|backline|music marketing|music pr|music agent|booking agent|talent buyer|music journalist|music critic|music photographer|music video|music teacher|music education|music therapy|music therapist)\b/i },
+  books: { scope: "tc", rx: /\b(publishing|publisher|book|books|author|literary agen(?:t|cy)|commissioning editor|copy ?editor|proofreader|editorial assistant|typesetter|bookseller|bookshop|book shop|ebook|e-book|audiobook|royalt|literary scout|book rights|foreign rights|literary fiction|penguin random house|harpercollins|hachette|pan macmillan|bloomsbury publishing|faber (?:and|&) faber|simon (?:and|&) schuster|bonnier books|canongate|profile books|waterstones|wh smith|foyles|blackwell['']?s|kindle direct publishing|kdp\b|audible|ingram content|curtis brown|united agents|society of authors|the bookseller)\b/i },
   "formula-1": { scope: "tcd", rx: /\b(formula\s?1|formula one|\bf1\b|grand prix|motorsport|motor sport|race engineer|race operations|trackside|paddock|aerodynamic|cfd|wind tunnel|vehicle dynamics|simulation engineer|performance engineer|strategy engineer|telemetry|composite|laminator|carbon fibre|motorsport logistics|racing team|mclaren racing|mercedes-amg petronas|red bull racing|aston martin f1|williams racing|alpine f1|haas f1|silverstone|motorsport uk|fia)\b/i },
   "horse-racing": { scope: "tcd", rx: /\b(horse[- ]?rac(?:e|ing)|horseracing|racehorse|race ?horse|racecourse|race.?course|race.?day|equine|equestrian|thoroughbred|jockey|stable[s]?\b|stable lad|stable lass|stable hand|head lad|head girl|head lass|work rider|exercise rider|travelling head|yard manager|racing yard|stud farm|stud manager|stud groom|bloodstock|farrier|paddock|turf club|BHA|British Horseracing|gallops|point.to.point|riding school|riding instructor|racecourse manager|clerk of the course|trainer['']?s assistant|assistant trainer|jockey club|newmarket|epsom|cheltenham|ascot|aintree|doncaster racecourse|kempton|sandown|goodwood|york races|weatherbys|godolphin|coolmore|juddmonte|shadwell|cheveley park|darley|careers in racing|yard and groom)\b/i },
   cinema: { scope: "tc", rx: /\b(film|movie|cinema|television|tv production|broadcast|production company|post.production|vfx|visual effects|animation studio|animator|screenwriter|screenplay|cinematograph|camera operator|dop\b|director of photography|gaffer|grip\b|focus puller|clapper loader|steadicam|colourist|colorist|foley|adr\b|dubbing|netflix|bbc studios|itv\b|channel ?4|sky studios|paramount|disney|warner bros|sony pictures|universal pictures|lionsgate|studiocanal|working title|aardman|pinewood|shepperton|elstree|framestore|dneg|the mill|molinare|goldcrest|technicolor|deluxe|bafta|bfi\b|documentary|docuseries|showrunner|commissioning editor|development producer|location manager|art director|set design|costume design|video editor|videographer|cinematographer|projectionist|everyman cinema|odeon|cineworld|vue cinemas|picturehouse)\b/i },
@@ -2029,6 +2065,7 @@ async function fetchReedJobs(industry: string, keywords: string[], apiKey: strin
     "charity", "money", "estate-agency", "travel", "cars", "farming",
     "interior-design", "beauty", "fashion", "psychotherapy",
     "music", // added: small pool of specialist jobs warrants deeper keyword sweep
+    "books", // small pool of specialist publishing jobs warrants deeper keyword sweep
   ]);
   const MAX_PAGES = isGradPass ? 2 : (DEEP_SWEEP_INDUSTRIES.has(industry) ? 12 : 5);
   const PAGE_SIZE = 100;
@@ -5686,7 +5723,7 @@ function orderIndustriesForFairUse(industries: string[]): string[] {
 // Targeted refreshes (body.industry) and health-monitor refetches
 // bypass this schedule so urgent gaps can still be filled.
 const INDUSTRY_DAY_SCHEDULE: Record<number, string[]> = {
-  0: ["football", "formula-1", "horse-racing", "gaming", "music", "theatre"], // Sun
+  0: ["football", "formula-1", "horse-racing", "gaming", "music", "books", "theatre"], // Sun
   1: ["fashion", "footwear", "jewellery", "beauty", "interior-design"],     // Mon
   2: ["hospitality", "food-drink", "coffee", "bakery", "beer"],             // Tue
   3: ["health", "wellness", "physiotherapy", "psychotherapy", "pets"],       // Wed
@@ -5725,6 +5762,7 @@ const UK_LOCATION_RE_INTERNS = /united kingdom|england|scotland|wales|northern i
 const INTERN_KEYWORDS: Record<string, string[]> = {
   cinema: ["film production intern", "tv production graduate"],
   music: ["music industry intern", "record label graduate"],
+  books: ["publishing intern", "publishing graduate scheme", "editorial intern"],
   fashion: ["fashion intern", "fashion graduate scheme"],
   journalism: ["journalism intern", "editorial graduate"],
   gaming: ["games industry intern", "game design graduate"],

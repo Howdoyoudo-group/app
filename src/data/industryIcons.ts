@@ -1,6 +1,7 @@
 import seriesBakery from "@/assets/series-bakery.jpg";
 import seriesBeauty from "@/assets/series-beauty.jpg";
 import seriesBeer from "@/assets/series-beer.jpg";
+import seriesBooks from "@/assets/series-books.jpg";
 import seriesCars from "@/assets/series-cars.jpg";
 import seriesCharity from "@/assets/series-charity.jpg";
 import seriesCinema from "@/assets/series-cinema.jpg";
@@ -37,6 +38,7 @@ export const INDUSTRY_ICONS: Record<string, string> = {
   "Bakery": seriesBakery,
   "Beauty": seriesBeauty,
   "Beer": seriesBeer,
+  "Books": seriesBooks,
   "Cars": seriesCars,
   "Charity": seriesCharity,
   "Film and TV": seriesCinema,

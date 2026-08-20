@@ -7,6 +7,9 @@ import seriesCinema from "@/assets/series-cinema.jpg";
 import seriesFashion from "@/assets/series-fashion.jpg";
 import seriesCoffee from "@/assets/series-coffee.jpg";
 import seriesMusic from "@/assets/series-music.jpg";
+// Placeholder image pending a real photo from the user - same pattern as
+// other reused-asset placeholders this session (see roleIcons.ts).
+import seriesBooks from "@/assets/series-books.jpg";
 import seriesGrocery from "@/assets/series-grocery.jpg";
 import seriesHospitality from "@/assets/series-hospitality.jpg";
 import seriesFootball from "@/assets/series-football.jpg";
@@ -60,6 +63,12 @@ const series = [
       "Craft breweries, global giants, taprooms, and pubs - the people and business behind every pint.",
     image: seriesBeer,
     href: "/beer",
+  },
+  {
+    title: "Books",
+    description: "Publishing houses, booksellers, authors, editors, and the stories behind the world's favourite reads.",
+    image: seriesBooks,
+    href: "/books",
   },
   {
     title: "Building",

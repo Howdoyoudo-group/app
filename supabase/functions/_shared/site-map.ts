@@ -18,6 +18,7 @@ export const SITE_INDUSTRIES = [
   { slug: "bakery", label: "Bakery" },
   { slug: "beauty", label: "Beauty" },
   { slug: "beer", label: "Beer" },
+  { slug: "books", label: "Books" },
   { slug: "cars", label: "Cars" },
   { slug: "charity", label: "Charity" },
   { slug: "cinema", label: "Film & TV" },

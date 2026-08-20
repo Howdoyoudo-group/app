@@ -141,6 +141,11 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "fZ-R1TQDf-E", title: "How the Lloyd's of London Market Works", description: "Lloyd's own explainer on how risk is placed in the world's leading specialist insurance market.", tag: "Explainer", duration: "1:52", channel: "Lloyd's of London" },
     { youtubeId: "GNXyX1pvfy4", title: "What Does an Insurance Broker Do? Breaking Into the Industry", description: "Tips and insights on how to start a career in insurance broking.", tag: "Careers", channel: "YouTube" },
   ],
+  books: [
+    { youtubeId: "sWeMjVkhhQE", title: "What Does a Book Editor Do?", description: "A look inside the day-to-day of a book editor at one of the UK's biggest publishers.", tag: "Careers", channel: "Penguin Random House UK" },
+    { youtubeId: "uCsZmeydAiI", title: "Come to Work With Me... Literary Agent Edition!", description: "A day in the life of a literary agent, from submissions to deal-making.", tag: "Careers", channel: "Publishers Association" },
+    { youtubeId: "Vb0gsH12hdk", title: "Getting a Job in Publishing - What Does a Literary Agent Do?", description: "Breaking down the literary agent role and how to get into publishing.", tag: "Explainer", channel: "Epic Reads" },
+  ],
   music: [
     { youtubeId: "Nb8idwwX4Yo", title: "How Do You Do, Music?", description: "Our own podcast — going inside the music industry with the people who live it: the paths in, the graft, and how it really works.", tag: "Podcast", channel: "How Do You Do?" },
     { youtubeId: "bXDU5E2_VDc", title: "How I Earn Money in the Music Business", description: "A breakdown of royalties, advances, publishing, and how artists actually get paid.", tag: "Explainer", duration: "17:16", channel: "KARRA" },

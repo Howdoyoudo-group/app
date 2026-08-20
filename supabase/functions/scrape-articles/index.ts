@@ -9,6 +9,7 @@ const INDUSTRY_CONTEXT: Record<string, string> = {
   beer: "beer industry, craft beer, breweries, pub industry, brewing, taproom, beer brands",
   coffee: "coffee shops, coffee chains, specialty coffee, barista, coffee roasting, cafe industry",
   music: "music industry, record labels, live music, music festivals, streaming, music business",
+  books: "publishing industry, book publishers, literary agents, bookselling, ebooks, audiobooks, book retail",
   grocery: "supermarkets, grocery retail, food supply chain, online grocery, food retail",
   "food-drink": "restaurants, pubs, bars, hotels, hospitality, catering, food service, dining",
   football: "football business, Premier League commercial, sports media rights, football club revenue, broadcasting rights, sports sponsorship",

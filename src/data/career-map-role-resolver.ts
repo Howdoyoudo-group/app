@@ -348,6 +348,7 @@ const INDUSTRY_TO_NCS_SECTOR: Record<string, string[]> = {
   journalism: ["creative-and-design"],
   cinema: ["creative-and-design"],
   theatre: ["creative-and-design"],
+  books: ["creative-and-design"],
   music: ["creative-and-design"],
   "interior-design": ["creative-and-design"],
   fashion: ["creative-and-design"],

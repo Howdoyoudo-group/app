@@ -48,6 +48,7 @@ const Jobs = lazy(() => import("./pages/Jobs.tsx"));
 const Coffee = lazy(() => import("./pages/Coffee.tsx"));
 const Cinema = lazy(() => import("./pages/Cinema.tsx"));
 const Music = lazy(() => import("./pages/Music.tsx"));
+const Books = lazy(() => import("./pages/Books.tsx"));
 const Grocery = lazy(() => import("./pages/Grocery.tsx"));
 const Fashion = lazy(() => import("./pages/Fashion.tsx"));
 const Hospitality = lazy(() => import("./pages/Hospitality.tsx"));
@@ -280,6 +281,7 @@ const App = () => (
           <Route path="/coffee" element={<Coffee />} />
           <Route path="/cinema" element={<Cinema />} />
           <Route path="/music" element={<Music />} />
+          <Route path="/books" element={<Books />} />
           <Route path="/grocery" element={<Grocery />} />
           <Route path="/fashion" element={<Fashion />} />
           <Route path="/hospitality" element={<Hospitality />} />

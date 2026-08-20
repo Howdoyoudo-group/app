@@ -11,6 +11,7 @@ export const INDUSTRIES: Industry[] = [
   { name: "Bakery", slug: "bakery" },
   { name: "Beauty", slug: "beauty" },
   { name: "Beer", slug: "beer" },
+  { name: "Books", slug: "books" },
   { name: "Building", slug: "building" },
   { name: "Cars", slug: "cars" },
   { name: "Charity", slug: "charity" },

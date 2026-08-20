@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 const industries = [
   { name: "Bakery", path: "/bakery" },
   { name: "Beer", path: "/beer" },
+  { name: "Books", path: "/books" },
   { name: "Building", path: "/building" },
   { name: "Charity", path: "/charity" },
   { name: "Delivery", path: "/delivery" },
