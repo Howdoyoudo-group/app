@@ -5,6 +5,30 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-08-20 — Andrew (main branch) — Added Books as a new industry (modelled on Music)
+
+### What was done THIS SESSION
+
+**New `/books` industry, built to full parity with Music per user request** ("publishing end to end, from creators to distribution, both physical and digital"):
+- New `src/pages/Books.tsx` — 6 career stages (Creation & Writing, Editorial, Design & Production, Rights & Business, Marketing & Publicity, Distribution & Retail), 25 real UK publishing companies with verified career URLs (Penguin Random House, HarperCollins, Hachette, Waterstones, Foyles, Curtis Brown, etc.), 3 verified podcasts, 3 verified YouTube videos, 4 verified job boards, all 9 tabs (Plan/Watch/Listen/Read/Who/Attend/Learn/Mentor/Jobs)
+- Wired into every site-wide surface Music touches: `industries.ts`, `roles.ts` (`industryToSlug` + 5 new Books-specific roles), `App.tsx` routing, feed doodle icon (`IndustryDoodle.tsx` → `BookOpen`), homepage lists (`SeriesGrid`, `Hero` marquee, `CoursesHighlight`, `RoleMixer`, `About`, `industryIcons.ts`), content pipeline (`generate-daily-briefings`, `fetch-rss-news`, `scrape-articles`, `refresh-all-content`, `fetch-industry-events` — added 4 verified real UK publishing events: London Book Fair, FutureBook Conference, IPG Conference, Society of Authors), jobs keyword search (`_shared/industry-registry.ts`, and in `fetch-external-jobs/index.ts`: `INDUSTRY_KEYWORDS`, `INDUSTRY_STAGES`/`CLASSIFICATION_RULES` — kept stage names identical between the two on purpose, since Music has a pre-existing mismatch bug there that wasn't repeated — `INDUSTRY_SIGNALS` with `scope: "tc"`, both title blocklists, Adzuna category map, deep-sweep set, day-of-week schedule (Sunday), intern keywords)
+- Scope decision (confirmed with user): backend jobs pipeline is frontend + keyword-search only — no RSS feed or ATS-scraper targets for Books yet (matches where Music was before this session's cleanup)
+- Series/hero image (`src/assets/series-books.jpg`) is a **temporary placeholder** (reused `series-journalism.jpg`) — user sent an AI-generated "Books?" doodle-collage image mid-session with the title/description baked into the image itself, but only as a pasted screenshot, not an accessible file. Asked user to save the real PNG into the project folder (same flow as the Fever Tree logo) and whether they want it cropped to just the illustration or used as-is — **no response yet, still pending**
+- `npm run typecheck` passes clean; verified in-browser that `/books` renders all 9 tabs correctly (Plan, Watch, Who tabs spot-checked with real content) and that Books appears correctly on the homepage (SeriesGrid card + Hero marquee)
+
+### Commits
+- `3f241a8` — Add Books as a new industry, modelled on Music
+- Pushed to both remotes: `howdoyoudo` + `origin` ✅
+
+### NOT done — blocked
+- **Edge functions NOT deployed.** Andrew's Supabase access token (`sbp_8e523e8d914808f1b60...`, recorded in memory as valid until July 2027) is now dead — 401s on both `supabase functions deploy` and `supabase projects list`. Touched functions still needing deployment once a fresh token exists: `fetch-external-jobs`, `generate-daily-briefings`, `fetch-rss-news`, `scrape-articles`, `refresh-all-content`, `fetch-industry-events`. Until deployed, Books will show empty Read/Attend tabs and get no jobs from Adzuna/Reed keyword search (frontend page itself works fine, career map/companies/videos/podcasts are all static). Need a new personal access token from the Supabase dashboard (Account → Access Tokens).
+- Optional Tier-2 items from the plan not yet done (low priority, degrade gracefully): `src/data/courses.ts` Substack/YouTube/TikTok entries for Books, `mentoring-orgs.ts`, `all-companies.ts` mirror of the Books company list, `CompanyLogo.tsx` domain lookups for publishers.
+
+### Suggested first task next session
+Get a fresh Supabase access token from Andrew, deploy the 6 touched edge functions, then trigger a targeted `fetch-external-jobs` call with `{"industry":"books"}` to confirm jobs actually start flowing in. Also check whether Andrew has sent the real Books hero image yet.
+
+---
+
 ## 2026-08-19 — Andrew (main branch) — Job share feature + fixed Music jobs pipeline (109 → 1,456 jobs)
 
 ### What was done THIS SESSION
