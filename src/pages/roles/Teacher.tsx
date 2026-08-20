@@ -12,8 +12,8 @@ import OnlineLearningGrid from "@/components/OnlineLearningGrid";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: GraduationCap, roles: [
-    { name: "Trainee Teacher (PGCE / QTS)", description: "Completes initial teacher training while gaining classroom experience.", salary: "£24k–£28k" },
-    { name: "Teaching Assistant", description: "Supports classroom teachers with learning activities and student welfare.", salary: "£18k–£22k" },
+    { name: "Trainee Teacher (PGCE / QTS)", description: "Completes initial teacher training while gaining classroom experience.", salary: "£25k–£28k" },
+    { name: "Teaching Assistant", description: "Supports classroom teachers with learning activities and student welfare.", salary: "£25k–£29k" },
     { name: "NQT / ECT", description: "Early Career Teacher - completes the induction period and builds classroom confidence.", salary: "£30k–£32k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [

@@ -12,7 +12,7 @@ import RoleOverview from "@/components/RoleOverview";
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Wrench, roles: [
     { name: "Apprentice Vehicle Technician", description: "3–4 year apprenticeship combining workshop training with college study.", salary: "£14k–£20k" },
-    { name: "Service Advisor", description: "Front-of-house - books in customers, manages the workshop's customer relationship.", salary: "£24k–£30k" },
+    { name: "Service Advisor", description: "Front-of-house - books in customers, manages the workshop's customer relationship.", salary: "£25k–£30k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
     { name: "Vehicle Technician", description: "Qualified mechanic - services, MOTs, diagnostics and repairs.", salary: "£28k–£36k" },

@@ -29,18 +29,18 @@ const deliveryStages: CareerStage[] = [
     title: "Last Mile & Courier",
     icon: Truck,
     roles: [
-      { name: "Delivery Driver", description: "Collects and delivers parcels on a multi-drop route — often self-employed or employed by a carrier.", salary: "£22k–£32k" },
+      { name: "Delivery Driver", description: "Collects and delivers parcels on a multi-drop route — often self-employed or employed by a carrier.", salary: "£25k–£32k" },
       { name: "HGV Driver", description: "Drives heavy goods vehicles on long-haul and regional trunking routes.", salary: "£32k–£50k" },
       { name: "LGV Driver", description: "Operates 7.5-tonne to 18-tonne vehicles on distribution and delivery routes.", salary: "£26k–£38k" },
-      { name: "Courier Rider", description: "Delivers food, parcels, and documents by bicycle, motorcycle, or e-bike.", salary: "£20k–£30k" },
+      { name: "Courier Rider", description: "Delivers food, parcels, and documents by bicycle, motorcycle, or e-bike.", salary: "£25k–£30k" },
     ],
   },
   {
     title: "Warehouse & Fulfilment",
     icon: Warehouse,
     roles: [
-      { name: "Warehouse Operative", description: "Picks, packs, and processes orders in a distribution centre or fulfilment hub.", salary: "£20k–£28k" },
-      { name: "Forklift Operator", description: "Uses counterbalance, reach, or order picker trucks to move pallets and racking.", salary: "£22k–£32k" },
+      { name: "Warehouse Operative", description: "Picks, packs, and processes orders in a distribution centre or fulfilment hub.", salary: "£25k–£28k" },
+      { name: "Forklift Operator", description: "Uses counterbalance, reach, or order picker trucks to move pallets and racking.", salary: "£25k–£32k" },
       { name: "Warehouse Supervisor", description: "Manages a shift team, overseeing productivity, safety, and order accuracy.", salary: "£26k–£36k" },
       { name: "Warehouse Manager", description: "Runs a warehouse operation — staffing, KPIs, health & safety, and throughput.", salary: "£35k–£55k" },
     ],
@@ -49,7 +49,7 @@ const deliveryStages: CareerStage[] = [
     title: "Operations & Logistics",
     icon: Route,
     roles: [
-      { name: "Logistics Coordinator", description: "Plans and tracks shipments, managing carrier relationships and delivery schedules.", salary: "£24k–£38k" },
+      { name: "Logistics Coordinator", description: "Plans and tracks shipments, managing carrier relationships and delivery schedules.", salary: "£25k–£38k" },
       { name: "Transport Planner", description: "Builds and optimises vehicle routes to maximise efficiency and on-time delivery.", salary: "£26k–£42k" },
       { name: "Fleet Manager", description: "Manages a vehicle fleet — maintenance, compliance, drivers, and costs.", salary: "£35k–£55k" },
       { name: "Operations Manager", description: "Oversees the full logistics operation — people, process, performance, and cost.", salary: "£40k–£70k" },

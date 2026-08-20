@@ -53,19 +53,19 @@ const gamingStages: CareerStage[] = [
     { name: "UI Artist", description: "Designs in-game menus, HUDs, and interface visuals.", salary: "£26k–£48k" },
   ]},
   { title: "QA & Live Ops", icon: Gamepad2, roles: [
-    { name: "QA Tester", description: "Tests for bugs, glitches, and gameplay issues across platforms.", salary: "£20k–£30k" },
+    { name: "QA Tester", description: "Tests for bugs, glitches, and gameplay issues across platforms.", salary: "£25k–£30k" },
     { name: "QA Lead", description: "Manages the testing team, triages bugs, and signs off builds.", salary: "£28k–£42k" },
     { name: "Live Ops Manager", description: "Runs post-launch content updates, seasonal events, and player engagement.", salary: "£35k–£60k" },
     { name: "Data Analyst", description: "Analyses player behaviour, retention, and monetisation metrics.", salary: "£30k–£55k" },
     { name: "Localisation Manager", description: "Coordinates translation and cultural adaptation for global markets.", salary: "£28k–£45k" },
-    { name: "Community Manager", description: "Engages with players on social media, forums, and Discord.", salary: "£24k–£40k" },
+    { name: "Community Manager", description: "Engages with players on social media, forums, and Discord.", salary: "£25k–£40k" },
   ]},
   { title: "Marketing & Publishing", icon: Megaphone, roles: [
     { name: "Brand Manager", description: "Defines and executes the marketing strategy for a game title.", salary: "£32k–£55k" },
     { name: "PR Manager", description: "Manages press coverage, review copies, and media relationships.", salary: "£30k–£50k" },
     { name: "Influencer Marketing Manager", description: "Partners with streamers, YouTubers, and content creators.", salary: "£28k–£50k" },
     { name: "Trailer Editor / Motion Designer", description: "Creates cinematic trailers and promotional video content.", salary: "£28k–£50k" },
-    { name: "Social Media Manager", description: "Runs the studio or game's social channels and community tone.", salary: "£24k–£42k" },
+    { name: "Social Media Manager", description: "Runs the studio or game's social channels and community tone.", salary: "£25k–£42k" },
     { name: "User Acquisition Manager", description: "Drives downloads and installs through paid and organic channels.", salary: "£30k–£55k" },
   ]},
   { title: "Business & Distribution", icon: Store, roles: [

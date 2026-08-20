@@ -55,25 +55,25 @@ const footwearStages: CareerStage[] = [
   ]},
   { title: "Manufacturing & Production", icon: Factory, roles: [
     { name: "Production Manager", description: "Oversees factory output, quality targets, and lean-manufacturing schedules.", salary: "£35k–£55k" },
-    { name: "Quality Controller", description: "Inspects samples and production runs for durability, finish, and fit consistency.", salary: "£24k–£35k" },
-    { name: "Cobbler / Sample Maker", description: "Hand-builds prototypes and one-off repairs using traditional craft techniques.", salary: "£22k–£32k" },
+    { name: "Quality Controller", description: "Inspects samples and production runs for durability, finish, and fit consistency.", salary: "£25k–£35k" },
+    { name: "Cobbler / Sample Maker", description: "Hand-builds prototypes and one-off repairs using traditional craft techniques.", salary: "£25k–£32k" },
     { name: "Fit Technologist", description: "Ensures footwear fits correctly across sizes through wear-testing and measurements.", salary: "£26k–£42k" },
   ]},
   { title: "Supply Chain & Logistics", icon: Truck, roles: [
     { name: "Supply Chain Analyst", description: "Maps global supplier networks, forecasts demand, and optimises lead times.", salary: "£30k–£50k" },
     { name: "Sourcing Manager", description: "Negotiates with tanneries, sole manufacturers, and component suppliers worldwide.", salary: "£35k–£60k" },
-    { name: "Logistics Coordinator", description: "Manages shipping, customs clearance, and warehouse distribution for footwear lines.", salary: "£24k–£38k" },
+    { name: "Logistics Coordinator", description: "Manages shipping, customs clearance, and warehouse distribution for footwear lines.", salary: "£25k–£38k" },
   ]},
   { title: "Retail & E-Commerce", icon: Store, roles: [
     { name: "Store Manager", description: "Runs day-to-day retail operations, visual merchandising, and team performance.", salary: "£28k–£42k" },
     { name: "E-Commerce Manager", description: "Drives online sales, manages product pages, and oversees fulfilment and returns.", salary: "£32k–£55k" },
-    { name: "Visual Merchandiser", description: "Designs in-store displays and window concepts that tell a product story.", salary: "£24k–£35k" },
+    { name: "Visual Merchandiser", description: "Designs in-store displays and window concepts that tell a product story.", salary: "£25k–£35k" },
     { name: "Trade Marketing Manager", description: "Develops marketing campaigns for wholesale partners and retail accounts.", salary: "£30k–£50k" },
   ]},
   { title: "Marketing & Brand", icon: TrendingUp, roles: [
     { name: "Brand Manager", description: "Shapes positioning, campaigns, and collaborations for footwear labels.", salary: "£35k–£60k" },
     { name: "Sneaker Buyer", description: "Curates seasonal ranges, negotiates allocations, and spots emerging trends.", salary: "£28k–£50k" },
-    { name: "Social & Content Creator", description: "Produces on-foot photography, unboxing videos, and influencer partnerships.", salary: "£24k–£40k" },
+    { name: "Social & Content Creator", description: "Produces on-foot photography, unboxing videos, and influencer partnerships.", salary: "£25k–£40k" },
   ]},
   { title: "Business & Strategy", icon: Users, roles: [
     { name: "Category Director", description: "Owns P&L for an entire footwear division - sets pricing, distribution, and growth targets.", salary: "£60k–£100k+" },

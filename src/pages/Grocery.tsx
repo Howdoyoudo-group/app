@@ -40,7 +40,7 @@ const groceryStages: CareerStage[] = [
     { name: "Production Manager", description: "Oversees factory production lines, managing output, quality, and team performance.", salary: "£32k–£55k" },
     { name: "NPD Manager", description: "Leads new product development from concept to launch, coordinating cross-functional teams.", salary: "£35k–£60k" },
     { name: "Packaging Designer", description: "Designs product packaging that meets brand, regulatory, sustainability, and functional requirements.", salary: "£26k–£45k" },
-    { name: "Quality Controller", description: "Conducts quality checks on production lines, sampling and testing products against standards.", salary: "£24k–£38k" },
+    { name: "Quality Controller", description: "Conducts quality checks on production lines, sampling and testing products against standards.", salary: "£25k–£38k" },
     { name: "Factory Operations Manager", description: "Runs the overall factory operation, managing efficiency, safety, and continuous improvement.", salary: "£38k–£65k" },
     { name: "Process Engineer", description: "Designs and optimises manufacturing processes to improve efficiency, yield, and food safety.", salary: "£30k–£50k" },
   ]},
@@ -65,11 +65,11 @@ const groceryStages: CareerStage[] = [
   { title: "Retail Ops", icon: Store, roles: [
     { name: "Store Manager", description: "Runs a supermarket store, managing staff, sales, stock, and customer experience.", salary: "£28k–£48k" },
     { name: "Regional Manager", description: "Oversees a group of stores, driving performance and consistency across the region.", salary: "£45k–£75k" },
-    { name: "Duty Manager", description: "Manages the store during a shift, handling staffing, deliveries, and customer issues.", salary: "£24k–£32k" },
-    { name: "Stock Controller", description: "Monitors and manages inventory levels, reducing waste and ensuring availability.", salary: "£22k–£32k" },
-    { name: "Customer Service Manager", description: "Leads the customer service team, handling complaints, refunds, and service standards.", salary: "£24k–£36k" },
+    { name: "Duty Manager", description: "Manages the store during a shift, handling staffing, deliveries, and customer issues.", salary: "£25k–£32k" },
+    { name: "Stock Controller", description: "Monitors and manages inventory levels, reducing waste and ensuring availability.", salary: "£25k–£32k" },
+    { name: "Customer Service Manager", description: "Leads the customer service team, handling complaints, refunds, and service standards.", salary: "£25k–£36k" },
     { name: "Fresh Food Manager", description: "Manages fresh departments (bakery, deli, produce), overseeing quality and waste reduction.", salary: "£25k–£38k" },
-    { name: "Checkout Team Leader", description: "Supervises checkout operations, managing queues, staff, and till accuracy.", salary: "£22k–£28k" },
+    { name: "Checkout Team Leader", description: "Supervises checkout operations, managing queues, staff, and till accuracy.", salary: "£25k–£28k" },
   ]},
   { title: "Consumer", icon: ShoppingCart, roles: [
     { name: "E-Commerce Manager", description: "Runs the online grocery platform, managing UX, product listings, and digital sales.", salary: "£35k–£60k" },
@@ -77,7 +77,7 @@ const groceryStages: CareerStage[] = [
     { name: "Customer Insight Analyst", description: "Analyses shopper data and loyalty card information to understand purchasing behaviour.", salary: "£28k–£48k" },
     { name: "Loyalty Programme Manager", description: "Designs and runs customer loyalty schemes to drive retention and basket size.", salary: "£32k–£55k" },
     { name: "App Product Manager", description: "Leads development of the grocery retailer's mobile app, managing features and user experience.", salary: "£40k–£65k" },
-    { name: "Home Delivery Driver Coordinator", description: "Schedules and manages home delivery drivers, optimising routes and customer time slots.", salary: "£24k–£35k" },
+    { name: "Home Delivery Driver Coordinator", description: "Schedules and manages home delivery drivers, optimising routes and customer time slots.", salary: "£25k–£35k" },
   ]},
 ];
 

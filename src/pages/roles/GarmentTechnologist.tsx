@@ -11,8 +11,8 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Scissors, roles: [
-    { name: "Assistant Garment Technologist", description: "Supports fit sessions, sample tracking, and basic spec sheets.", salary: "£22k–£28k" },
-    { name: "Quality Assurance Assistant", description: "Inspects samples and production for fit and construction issues.", salary: "£22k–£27k" },
+    { name: "Assistant Garment Technologist", description: "Supports fit sessions, sample tracking, and basic spec sheets.", salary: "£25k–£28k" },
+    { name: "Quality Assurance Assistant", description: "Inspects samples and production for fit and construction issues.", salary: "£25k–£27k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
     { name: "Garment Technologist", description: "Owns fit, construction and tech packs across a category from sample to bulk.", salary: "£30k–£42k" },

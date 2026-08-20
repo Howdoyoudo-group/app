@@ -27,8 +27,8 @@ import PodcastGrid from "@/components/PodcastGrid";
 const petsStages: CareerStage[] = [
   { title: "Veterinary & Animal Health", icon: Stethoscope, roles: [
     { name: "Veterinary Surgeon", description: "Diagnoses and treats illness and injury in companion animals across GP and referral practice.", salary: "£35k–£65k" },
-    { name: "Veterinary Nurse", description: "Supports surgical procedures, administers medication, and provides pre- and post-operative care.", salary: "£22k–£32k" },
-    { name: "Veterinary Receptionist", description: "First point of contact for pet owners - manages appointments, billing, and client communication.", salary: "£20k–£26k" },
+    { name: "Veterinary Nurse", description: "Supports surgical procedures, administers medication, and provides pre- and post-operative care.", salary: "£25k–£32k" },
+    { name: "Veterinary Receptionist", description: "First point of contact for pet owners - manages appointments, billing, and client communication.", salary: "£25k–£26k" },
     { name: "Animal Behaviourist", description: "Assesses and treats behavioural issues in dogs, cats, and other companion animals.", salary: "£25k–£45k" },
     { name: "Locum Vet", description: "Provides temporary cover across practices - flexibility and variety with premium day rates.", salary: "£300–£600/day" },
   ]},
@@ -42,20 +42,20 @@ const petsStages: CareerStage[] = [
     { name: "Store Manager", description: "Runs a pet retail store - stock management, team leadership, and customer experience.", salary: "£26k–£38k" },
     { name: "E-Commerce Manager", description: "Drives online sales for pet brands and retailers - from UX to conversion optimisation.", salary: "£32k–£52k" },
     { name: "Buyer", description: "Selects and negotiates product ranges - toys, accessories, food, and health products.", salary: "£28k–£48k" },
-    { name: "Visual Merchandiser", description: "Creates engaging in-store and window displays for pet retail environments.", salary: "£22k–£34k" },
+    { name: "Visual Merchandiser", description: "Creates engaging in-store and window displays for pet retail environments.", salary: "£25k–£34k" },
   ]},
   { title: "Pet Services & Wellbeing", icon: Heart, roles: [
-    { name: "Dog Groomer", description: "Provides grooming, bathing, and styling services for dogs across breeds.", salary: "£18k–£30k" },
-    { name: "Dog Walker / Pet Sitter", description: "Provides daily exercise, companionship, and overnight care for pets.", salary: "£18k–£28k" },
-    { name: "Dog Trainer", description: "Teaches obedience, socialisation, and specialist skills through structured training programmes.", salary: "£20k–£35k" },
-    { name: "Pet Photographer", description: "Captures professional portraits and lifestyle images of pets for owners and brands.", salary: "£22k–£40k" },
+    { name: "Dog Groomer", description: "Provides grooming, bathing, and styling services for dogs across breeds.", salary: "£25k–£30k" },
+    { name: "Dog Walker / Pet Sitter", description: "Provides daily exercise, companionship, and overnight care for pets.", salary: "£25k–£28k" },
+    { name: "Dog Trainer", description: "Teaches obedience, socialisation, and specialist skills through structured training programmes.", salary: "£25k–£35k" },
+    { name: "Pet Photographer", description: "Captures professional portraits and lifestyle images of pets for owners and brands.", salary: "£25k–£40k" },
     { name: "Animal Physiotherapist", description: "Delivers rehabilitation and mobility therapy for injured or post-operative animals.", salary: "£26k–£42k" },
   ]},
   { title: "Marketing & Brand", icon: Megaphone, roles: [
     { name: "Brand Manager", description: "Defines and grows brand identity for pet food, accessories, or services companies.", salary: "£32k–£55k" },
-    { name: "Social Media Manager", description: "Creates engaging pet content for Instagram, TikTok, and YouTube - the internet loves animals.", salary: "£24k–£40k" },
+    { name: "Social Media Manager", description: "Creates engaging pet content for Instagram, TikTok, and YouTube - the internet loves animals.", salary: "£25k–£40k" },
     { name: "PR & Communications Manager", description: "Manages press, influencer partnerships, and media coverage for pet brands.", salary: "£28k–£48k" },
-    { name: "Content Creator", description: "Produces blogs, videos, and educational content about pet care and products.", salary: "£22k–£38k" },
+    { name: "Content Creator", description: "Produces blogs, videos, and educational content about pet care and products.", salary: "£25k–£38k" },
   ]},
   { title: "Business & Operations", icon: Briefcase, roles: [
     { name: "Practice Manager", description: "Manages the business side of a veterinary practice - finances, staffing, and compliance.", salary: "£30k–£48k" },

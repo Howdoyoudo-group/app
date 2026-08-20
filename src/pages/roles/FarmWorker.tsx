@@ -11,7 +11,7 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Wheat, roles: [
-    { name: "General Farm Worker", description: "All-round farm work - livestock feeding, fencing, harvest help, machinery operation.", salary: "£22k–£26k (often + accommodation)" },
+    { name: "General Farm Worker", description: "All-round farm work - livestock feeding, fencing, harvest help, machinery operation.", salary: "£25k–£26k (often + accommodation)" },
     { name: "Seasonal Picker / Harvest Worker", description: "Soft fruit, veg, hops, vines - peak-season demand from May to October.", salary: "£12–£15/hr + piece-rate" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
@@ -47,7 +47,7 @@ const FarmWorker = () => {
         dayToDay: ["Feeding and checking livestock (dairy, beef, sheep, pigs)", "Driving tractors and operating machinery", "Seasonal harvest, drilling, spraying, baling", "Fencing, hedging and infrastructure repair", "Mucking out, calving / lambing assistance", "Loading and unloading deliveries"],
         skills: ["Livestock Husbandry", "Tractor & Telehandler Operation", "Spray Operator (PA1 / PA2 - usually sponsored)", "Manual Handling", "Basic Mechanics", "Health & Safety on Farm"],
         traits: ["Genuinely loves outdoor, physical work", "Comfortable with early starts (4am milking is real)", "Practical problem-solver", "Cares about animals and the land"],
-        salary: "£22k entry → progresses into management",
+        salary: "£25k entry → progresses into management",
         entryTip: "Routes in: Apply directly to working farms, large estates (National Trust, Crown Estate, RSPB), farming groups (Velcourt, Sentry) or direct-to-consumer producers (Riverford, Pipers Farm). Level 2 / 3 Agriculture apprenticeships at Harper Adams, Hartpury, Bishop Burton, Reaseheath. The Institute for Agriculture and Horticulture (TIAH) has a great careers tool.",
       }} />
       <CareerMap title="Farm Worker Career Path" subtitle="From general worker to farm manager." stages={careerStages} industry="farming" />

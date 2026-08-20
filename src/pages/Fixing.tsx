@@ -50,16 +50,16 @@ const fixingStages: CareerStage[] = [
     title: "Appliance & Device Repair",
     icon: Flame,
     roles: [
-      { name: "Appliance Repair Technician", description: "Diagnoses and repairs domestic white goods — washing machines, dishwashers, ovens.", salary: "£24k–£40k" },
-      { name: "Mobile Phone Repair Technician", description: "Fixes screens, batteries, and hardware faults on smartphones and tablets.", salary: "£20k–£35k" },
-      { name: "Electronics Repair Technician", description: "Repairs consumer electronics — TVs, laptops, audio equipment.", salary: "£22k–£38k" },
+      { name: "Appliance Repair Technician", description: "Diagnoses and repairs domestic white goods — washing machines, dishwashers, ovens.", salary: "£25k–£40k" },
+      { name: "Mobile Phone Repair Technician", description: "Fixes screens, batteries, and hardware faults on smartphones and tablets.", salary: "£25k–£35k" },
+      { name: "Electronics Repair Technician", description: "Repairs consumer electronics — TVs, laptops, audio equipment.", salary: "£25k–£38k" },
     ],
   },
   {
     title: "IT & Tech Support",
     icon: Monitor,
     roles: [
-      { name: "IT Support Technician", description: "Troubleshoots hardware, software, and network issues for businesses and end users.", salary: "£22k–£40k" },
+      { name: "IT Support Technician", description: "Troubleshoots hardware, software, and network issues for businesses and end users.", salary: "£25k–£40k" },
       { name: "Field Engineer", description: "Travels to client sites to install, configure, and fix IT infrastructure.", salary: "£28k–£48k" },
       { name: "Network Engineer", description: "Designs and maintains computer networks for organisations.", salary: "£32k–£60k" },
     ],
@@ -68,10 +68,10 @@ const fixingStages: CareerStage[] = [
     title: "Building Maintenance",
     icon: Wrench,
     roles: [
-      { name: "Maintenance Technician", description: "Handles day-to-day repairs and upkeep in residential or commercial buildings.", salary: "£22k–£38k" },
+      { name: "Maintenance Technician", description: "Handles day-to-day repairs and upkeep in residential or commercial buildings.", salary: "£25k–£38k" },
       { name: "Facilities Manager", description: "Oversees all maintenance, compliance, and operational services in a building or estate.", salary: "£35k–£65k" },
       { name: "Multi-Trade Engineer", description: "Skilled across plumbing, electrics, and carpentry — handles a wide range of repair jobs.", salary: "£28k–£48k" },
-      { name: "Handyperson", description: "General maintenance and repair across a range of trades for domestic clients.", salary: "£22k–£40k" },
+      { name: "Handyperson", description: "General maintenance and repair across a range of trades for domestic clients.", salary: "£25k–£40k" },
     ],
   },
   {

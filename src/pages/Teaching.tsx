@@ -55,12 +55,12 @@ const teachingStages: CareerStage[] = [
   ]},
   { title: "Classroom", icon: School, roles: [
     { name: "Classroom Teacher", description: "Plans and delivers lessons.", salary: "£30k–£46k" },
-    { name: "Teaching Assistant", description: "Supports teachers in the classroom.", salary: "£18k–£25k" },
+    { name: "Teaching Assistant", description: "Supports teachers in the classroom.", salary: "£25k–£32k" },
     { name: "SENCO", description: "Coordinates special educational needs provision.", salary: "£38k–£55k" },
-    { name: "Cover Supervisor", description: "Supervises classes when teachers are absent.", salary: "£20k–£26k" },
-    { name: "Tutor", description: "Provides one-to-one or small-group academic support.", salary: "£22k–£40k" },
-    { name: "Learning Support Assistant", description: "Works with students with additional learning needs.", salary: "£18k–£24k" },
-    { name: "Behaviour Mentor", description: "Supports students with behavioural challenges.", salary: "£22k–£30k" },
+    { name: "Cover Supervisor", description: "Supervises classes when teachers are absent.", salary: "£25k–£26k" },
+    { name: "Tutor", description: "Provides one-to-one or small-group academic support.", salary: "£25k–£40k" },
+    { name: "Learning Support Assistant", description: "Works with students with additional learning needs.", salary: "£25k–£31k" },
+    { name: "Behaviour Mentor", description: "Supports students with behavioural challenges.", salary: "£25k–£30k" },
   ]},
   { title: "Assessment", icon: ClipboardCheck, roles: [
     { name: "Examiner", description: "Marks exam papers for national qualifications.", salary: "£25k–£40k" },

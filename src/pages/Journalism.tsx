@@ -26,20 +26,20 @@ import PodcastGrid from "@/components/PodcastGrid";
 
 const journalismStages: CareerStage[] = [
   { title: "Reporting & Newsgathering", icon: Newspaper, roles: [
-    { name: "News Reporter", description: "Researches, writes, and files news stories on deadline.", salary: "£22k–£40k" },
+    { name: "News Reporter", description: "Researches, writes, and files news stories on deadline.", salary: "£25k–£40k" },
     { name: "Investigative Journalist", description: "Conducts in-depth, long-form investigations into public interest stories.", salary: "£30k–£55k" },
     { name: "Political Correspondent", description: "Covers Westminster, Whitehall, and UK political affairs.", salary: "£35k–£65k" },
     { name: "Foreign Correspondent", description: "Reports from overseas - conflict zones, elections, and global events.", salary: "£35k–£70k" },
-    { name: "Court Reporter", description: "Covers legal proceedings, trials, and justice system stories.", salary: "£24k–£38k" },
+    { name: "Court Reporter", description: "Covers legal proceedings, trials, and justice system stories.", salary: "£25k–£38k" },
     { name: "Data Journalist", description: "Uses data analysis and visualisation to find and tell stories.", salary: "£28k–£50k" },
-    { name: "Sports Reporter", description: "Covers live sport, match reports, transfers, and player interviews.", salary: "£22k–£45k" },
+    { name: "Sports Reporter", description: "Covers live sport, match reports, transfers, and player interviews.", salary: "£25k–£45k" },
   ]},
   { title: "Broadcast & Audio", icon: Radio, roles: [
-    { name: "Broadcast Journalist", description: "Reports for TV or radio - writing scripts, presenting, and filing packages.", salary: "£24k–£45k" },
+    { name: "Broadcast Journalist", description: "Reports for TV or radio - writing scripts, presenting, and filing packages.", salary: "£25k–£45k" },
     { name: "News Presenter / Anchor", description: "Presents live news bulletins on TV or radio.", salary: "£30k–£80k+" },
     { name: "Audio Producer", description: "Produces podcasts, radio packages, and audio documentaries.", salary: "£26k–£45k" },
-    { name: "Camera Operator", description: "Films news packages, live broadcasts, and documentary footage.", salary: "£24k–£42k" },
-    { name: "Video Journalist (VJ)", description: "Self-shoots, edits, and files video reports - a one-person crew.", salary: "£24k–£40k" },
+    { name: "Camera Operator", description: "Films news packages, live broadcasts, and documentary footage.", salary: "£25k–£42k" },
+    { name: "Video Journalist (VJ)", description: "Self-shoots, edits, and files video reports - a one-person crew.", salary: "£25k–£40k" },
     { name: "Broadcast Engineer", description: "Manages studio equipment, outside broadcast units, and live feeds.", salary: "£28k–£50k" },
   ]},
   { title: "Digital & Multimedia", icon: Globe, roles: [
@@ -51,9 +51,9 @@ const journalismStages: CareerStage[] = [
     { name: "Interactive / Visual Journalist", description: "Creates data visualisations, maps, and interactive features.", salary: "£28k–£50k" },
   ]},
   { title: "Photography & Visual", icon: Camera, roles: [
-    { name: "Press Photographer", description: "Captures news, sport, and feature images under deadline pressure.", salary: "£22k–£40k" },
+    { name: "Press Photographer", description: "Captures news, sport, and feature images under deadline pressure.", salary: "£25k–£40k" },
     { name: "Picture Editor", description: "Selects, crops, and sequences images for publication.", salary: "£28k–£45k" },
-    { name: "Photo Researcher", description: "Sources archive and stock images for articles and investigations.", salary: "£22k–£32k" },
+    { name: "Photo Researcher", description: "Sources archive and stock images for articles and investigations.", salary: "£25k–£32k" },
     { name: "Graphic Designer", description: "Creates infographics, charts, and editorial design for print and digital.", salary: "£26k–£45k" },
   ]},
   { title: "Editorial & Production", icon: Tv, roles: [
@@ -61,8 +61,8 @@ const journalismStages: CareerStage[] = [
     { name: "Section Editor", description: "Runs a specific desk - e.g. business, culture, sport, or foreign.", salary: "£35k–£60k" },
     { name: "Sub-Editor / Copy Editor", description: "Checks facts, grammar, legal issues, and writes headlines.", salary: "£26k–£42k" },
     { name: "Features Editor", description: "Commissions and edits long-form articles, profiles, and opinion pieces.", salary: "£30k–£50k" },
-    { name: "Fact-Checker", description: "Verifies claims, sources, and data before publication.", salary: "£24k–£36k" },
-    { name: "Editorial Assistant", description: "Supports editors with research, admin, and content coordination.", salary: "£22k–£28k" },
+    { name: "Fact-Checker", description: "Verifies claims, sources, and data before publication.", salary: "£25k–£36k" },
+    { name: "Editorial Assistant", description: "Supports editors with research, admin, and content coordination.", salary: "£25k–£28k" },
   ]},
   { title: "Commercial & Business", icon: Megaphone, roles: [
     { name: "Head of Subscriptions", description: "Drives reader revenue through paywalls, memberships, and retention.", salary: "£40k–£70k" },

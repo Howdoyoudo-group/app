@@ -11,12 +11,12 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: BookOpen, roles: [
-    { name: "Teaching Assistant (Level 2)", description: "General classroom support - small groups, 1:1, helping the teacher manage the room.", salary: "£18k–£22k (term-time, pro-rata)" },
-    { name: "Cover Supervisor", description: "Covers absent teachers - supervises the class through pre-set work.", salary: "£20k–£24k" },
+    { name: "Teaching Assistant (Level 2)", description: "General classroom support - small groups, 1:1, helping the teacher manage the room.", salary: "£25k–£29k (term-time, pro-rata)" },
+    { name: "Cover Supervisor", description: "Covers absent teachers - supervises the class through pre-set work.", salary: "£25k–£29k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
-    { name: "Higher Level Teaching Assistant (HLTA)", description: "Leads small groups, plans interventions, can cover whole classes.", salary: "£23k–£28k" },
-    { name: "SEN Teaching Assistant", description: "Specialism in Special Educational Needs - autism, ADHD, EHCP support.", salary: "£22k–£28k (often higher in SEN schools)" },
+    { name: "Higher Level Teaching Assistant (HLTA)", description: "Leads small groups, plans interventions, can cover whole classes.", salary: "£25k–£28k" },
+    { name: "SEN Teaching Assistant", description: "Specialism in Special Educational Needs - autism, ADHD, EHCP support.", salary: "£25k–£28k (often higher in SEN schools)" },
   ]},
   { title: "Senior Level", icon: BarChart3, roles: [
     { name: "SENCO Assistant / Lead TA", description: "Coordinates the TA team and supports the SENCO across the school.", salary: "£28k–£35k" },
@@ -47,7 +47,7 @@ const TeachingAssistant = () => {
         dayToDay: ["Supporting the class teacher through lessons", "Working 1:1 or small group with pupils who need extra help", "Running phonics, reading or maths interventions", "Helping prepare classroom resources and displays", "Playground supervision and pastoral care", "Liaising with parents, SENCO and external agencies"],
         skills: ["Classroom Management", "SEN Awareness (ASD, ADHD, Dyslexia, EHCPs)", "Phonics & Early Reading", "Behaviour Support", "Safeguarding", "Communication with Pupils, Parents & Staff"],
         traits: ["Genuine warmth with children", "Patient - progress is often slow", "Calm in noisy, unpredictable environments", "Reliable team player - supports a teacher daily"],
-        salary: "£18k Level 2 → £65k+ SENCO",
+        salary: "£25k Level 2 → £65k+ SENCO",
         entryTip: "Routes in: Apply directly to schools - many take TAs without prior qualifications and train on the job. Level 2 Teaching Assistant Apprenticeship is the standard formal route. From there, Level 3 (Senior TA), HLTA status, then QTS via the Teaching Apprenticeship route (4 years, paid, no tuition fees) or PGCE.",
       }} />
       <CareerMap title="Teaching Assistant Career Path" subtitle="From Level 2 TA to qualified teacher and SENCO." stages={careerStages} industry="teaching" />

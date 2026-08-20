@@ -59,15 +59,15 @@ const charityStages: CareerStage[] = [
     { name: "Compliance Officer", description: "Ensures regulatory and governance requirements.", salary: "£30k–£48k" },
     { name: "Safeguarding Lead", description: "Develops safeguarding policies.", salary: "£32k–£50k" },
     { name: "IT Manager", description: "Manages technology infrastructure.", salary: "£35k–£55k" },
-    { name: "Facilities Coordinator", description: "Manages office spaces and equipment.", salary: "£24k–£35k" },
+    { name: "Facilities Coordinator", description: "Manages office spaces and equipment.", salary: "£25k–£35k" },
   ]},
   { title: "Delivery", icon: Users, roles: [
     { name: "Programme Manager", description: "Manages delivery of specific programmes.", salary: "£32k–£50k" },
     { name: "Project Officer", description: "Supports project delivery.", salary: "£25k–£35k" },
-    { name: "Volunteer Coordinator", description: "Recruits, trains, and manages volunteers.", salary: "£24k–£35k" },
-    { name: "Community Worker", description: "Works directly with communities.", salary: "£24k–£35k" },
-    { name: "Outreach Worker", description: "Engages hard-to-reach groups.", salary: "£23k–£33k" },
-    { name: "Caseworker", description: "Provides direct one-to-one support.", salary: "£24k–£35k" },
+    { name: "Volunteer Coordinator", description: "Recruits, trains, and manages volunteers.", salary: "£25k–£35k" },
+    { name: "Community Worker", description: "Works directly with communities.", salary: "£25k–£35k" },
+    { name: "Outreach Worker", description: "Engages hard-to-reach groups.", salary: "£25k–£33k" },
+    { name: "Caseworker", description: "Provides direct one-to-one support.", salary: "£25k–£35k" },
     { name: "Service Manager", description: "Leads a team of frontline staff.", salary: "£30k–£48k" },
   ]},
   { title: "Impact & Reporting", icon: BarChart3, roles: [
@@ -77,7 +77,7 @@ const charityStages: CareerStage[] = [
     { name: "Report Writer", description: "Produces reports for funders and stakeholders.", salary: "£26k–£40k" },
     { name: "Communications Manager", description: "Leads external communications.", salary: "£30k–£50k" },
     { name: "PR Officer", description: "Generates media coverage.", salary: "£26k–£42k" },
-    { name: "Digital Content Creator", description: "Produces content across channels.", salary: "£24k–£38k" },
+    { name: "Digital Content Creator", description: "Produces content across channels.", salary: "£25k–£38k" },
   ]},
 ];
 

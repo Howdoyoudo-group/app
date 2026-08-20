@@ -27,7 +27,7 @@ import PodcastGrid from "@/components/PodcastGrid";
 const travelStages: CareerStage[] = [
   { title: "Airlines & Aviation", icon: Plane, roles: [
     { name: "Pilot", description: "Flies commercial aircraft, managing flight operations and passenger safety.", salary: "£55k–£150k" },
-    { name: "Cabin Crew", description: "Delivers in-flight service and safety, managing the passenger experience at altitude.", salary: "£22k–£40k" },
+    { name: "Cabin Crew", description: "Delivers in-flight service and safety, managing the passenger experience at altitude.", salary: "£25k–£40k" },
     { name: "Ground Operations Manager", description: "Coordinates airport ground handling, turnaround schedules, and ramp safety.", salary: "£32k–£55k" },
     { name: "Airline Revenue Manager", description: "Optimises pricing and seat inventory across routes to maximise yield.", salary: "£35k–£65k" },
     { name: "Flight Dispatcher", description: "Plans flight routes, fuel loads, and weather assessments for safe departures.", salary: "£28k–£42k" },
@@ -45,13 +45,13 @@ const travelStages: CareerStage[] = [
     { name: "Hotel General Manager", description: "Runs an entire hotel operation - P&L, guest experience, staffing, and strategy.", salary: "£40k–£85k" },
     { name: "Revenue & Yield Manager", description: "Sets room rates dynamically based on demand, events, and competitor pricing.", salary: "£32k–£55k" },
     { name: "Front Office Manager", description: "Leads the reception and concierge teams, managing check-in and guest services.", salary: "£26k–£40k" },
-    { name: "Housekeeping Manager", description: "Manages cleaning operations, linen supply, and room turnaround standards.", salary: "£24k–£36k" },
+    { name: "Housekeeping Manager", description: "Manages cleaning operations, linen supply, and room turnaround standards.", salary: "£25k–£36k" },
     { name: "F&B Director", description: "Oversees hotel restaurants, bars, room service, and events catering.", salary: "£35k–£60k" },
     { name: "Spa & Wellness Manager", description: "Runs the hotel spa, managing therapists, treatments, and revenue targets.", salary: "£28k–£45k" },
   ]},
   { title: "Tour Operators & Experiences", icon: MapPin, roles: [
     { name: "Tour Operator Manager", description: "Designs, packages, and manages holiday itineraries across destinations.", salary: "£28k–£50k" },
-    { name: "Travel Consultant", description: "Advises customers on destinations, flights, and packages - in-store or online.", salary: "£22k–£35k" },
+    { name: "Travel Consultant", description: "Advises customers on destinations, flights, and packages - in-store or online.", salary: "£25k–£35k" },
     { name: "Destination Manager", description: "Manages supplier relationships and product quality in a specific country or region.", salary: "£30k–£48k" },
     { name: "Experience Designer", description: "Creates immersive travel experiences - food tours, adventures, and cultural itineraries.", salary: "£26k–£42k" },
     { name: "Cruise Director", description: "Manages onboard entertainment, excursions, and guest experience on cruise ships.", salary: "£30k–£55k" },

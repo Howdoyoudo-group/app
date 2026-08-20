@@ -31,10 +31,10 @@ const careerStages: CareerStage[] = [
     title: "Entry Level",
     icon: Target,
     roles: [
-      { name: "Marketing Assistant", description: "Supports campaigns, manages social calendars, and coordinates marketing assets across channels.", salary: "£22k–£28k" },
-      { name: "Social Media Coordinator", description: "Creates and schedules social content, monitors engagement, and reports on channel performance.", salary: "£23k–£30k" },
-      { name: "Content Writer", description: "Writes blog posts, email copy, and website content aligned with brand voice and SEO strategy.", salary: "£24k–£30k" },
-      { name: "Marketing Intern", description: "Rotates across marketing functions, gaining exposure to campaigns, analytics, and creative processes.", salary: "£20k–£24k" },
+      { name: "Marketing Assistant", description: "Supports campaigns, manages social calendars, and coordinates marketing assets across channels.", salary: "£25k–£28k" },
+      { name: "Social Media Coordinator", description: "Creates and schedules social content, monitors engagement, and reports on channel performance.", salary: "£25k–£30k" },
+      { name: "Content Writer", description: "Writes blog posts, email copy, and website content aligned with brand voice and SEO strategy.", salary: "£25k–£30k" },
+      { name: "Marketing Intern", description: "Rotates across marketing functions, gaining exposure to campaigns, analytics, and creative processes.", salary: "£25k–£29k" },
     ],
   },
   {
@@ -201,7 +201,7 @@ const Marketing = () => {
                 "You keep up with trends without losing sight of strategy",
                 "You're comfortable juggling multiple projects at once",
               ],
-              salary: "£22k–£28k",
+              salary: "£25k–£28k",
               entryTip: "Many marketers start as assistants or interns - but freelance projects, personal blogs, and social media portfolios can fast-track your way in. A CIM qualification or Google Digital Marketing certificate helps, but real-world experience matters most.",
             }}
           />

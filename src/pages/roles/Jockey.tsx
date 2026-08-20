@@ -12,7 +12,7 @@ import RoleOverview from "@/components/RoleOverview";
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Trophy, roles: [
     { name: "Apprentice / Conditional Jockey", description: "9-month BHA licence course at the National Horseracing College or British Racing School, then attached to a trainer.", salary: "£12k–£18k + ride fees (£171/ride flat, £230/ride jumps)" },
-    { name: "Stable Lad / Work Rider", description: "Pre-jockey route - riding out daily for a trainer while applying for licence.", salary: "£22k–£28k + bed & board" },
+    { name: "Stable Lad / Work Rider", description: "Pre-jockey route - riding out daily for a trainer while applying for licence.", salary: "£25k–£28k + bed & board" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
     { name: "Professional Jockey (5+ winners)", description: "Loses apprentice claim - competing on level terms in handicaps and listed races.", salary: "£25k–£60k (ride fees + win % + retainers)" },

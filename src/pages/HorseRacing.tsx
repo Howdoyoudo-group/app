@@ -27,10 +27,10 @@ import PodcastGrid from "@/components/PodcastGrid";
 const horseRacingStages: CareerStage[] = [
   { title: "Riding & Stable", icon: Trophy, roles: [
     { name: "Jockey (Flat / Jump)", description: "Rides racehorses competitively - apprentice, conditional or fully licensed across UK racecourses.", salary: "£25k–£200k+ (with prize money)" },
-    { name: "Stable Lass / Lad", description: "Daily care of racehorses - feeding, mucking out, tack work and exercise rides.", salary: "£20k–£28k" },
-    { name: "Work Rider", description: "Experienced rider who exercises racehorses on the gallops each morning.", salary: "£24k–£35k" },
+    { name: "Stable Lass / Lad", description: "Daily care of racehorses - feeding, mucking out, tack work and exercise rides.", salary: "£25k–£28k" },
+    { name: "Work Rider", description: "Experienced rider who exercises racehorses on the gallops each morning.", salary: "£25k–£35k" },
     { name: "Head Lad / Head Person", description: "Runs the day-to-day in the trainer's yard - leads stable staff and looks after the horses.", salary: "£28k–£45k" },
-    { name: "Pupil Assistant", description: "Trainee position learning all aspects of running a racing yard with a view to assistant trainer.", salary: "£20k–£28k" },
+    { name: "Pupil Assistant", description: "Trainee position learning all aspects of running a racing yard with a view to assistant trainer.", salary: "£25k–£28k" },
   ]},
   { title: "Training & Performance", icon: Users, roles: [
     { name: "Racehorse Trainer", description: "Licensed by the BHA to train horses for racing - develops the horses, manages owners and entries.", salary: "£40k–£500k+ (highly variable)" },
@@ -41,7 +41,7 @@ const horseRacingStages: CareerStage[] = [
   ]},
   { title: "Veterinary & Welfare", icon: Stethoscope, roles: [
     { name: "Equine Vet", description: "Specialist veterinary surgeon caring for racehorses - diagnostics, surgery and racecourse cover.", salary: "£40k–£90k" },
-    { name: "Veterinary Nurse (Equine)", description: "Supports equine vets with surgery, hospitalisation and stable visits.", salary: "£24k–£34k" },
+    { name: "Veterinary Nurse (Equine)", description: "Supports equine vets with surgery, hospitalisation and stable visits.", salary: "£25k–£34k" },
     { name: "Farrier", description: "Specialist in shoeing racehorses - independent or attached to major training yards.", salary: "£30k–£60k" },
     { name: "Welfare Officer", description: "Works for the BHA, RoR or charities to safeguard racehorse welfare on and off the track.", salary: "£28k–£45k" },
   ]},

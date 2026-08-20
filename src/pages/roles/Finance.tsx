@@ -26,10 +26,10 @@ const careerStages: CareerStage[] = [
     title: "Entry Level",
     icon: Calculator,
     roles: [
-      { name: "Accounts Assistant", description: "Processes invoices, manages ledgers, and supports the finance team with day-to-day bookkeeping.", salary: "£22k–£28k" },
+      { name: "Accounts Assistant", description: "Processes invoices, manages ledgers, and supports the finance team with day-to-day bookkeeping.", salary: "£25k–£28k" },
       { name: "Finance Graduate", description: "Rotates across finance functions including management accounts, reporting, and commercial finance.", salary: "£25k–£32k" },
-      { name: "Payroll Administrator", description: "Manages employee payroll processing, tax calculations, and benefits administration.", salary: "£23k–£30k" },
-      { name: "Credit Controller", description: "Manages debtor accounts, chases payments, and maintains cash flow for the business.", salary: "£24k–£30k" },
+      { name: "Payroll Administrator", description: "Manages employee payroll processing, tax calculations, and benefits administration.", salary: "£25k–£30k" },
+      { name: "Credit Controller", description: "Manages debtor accounts, chases payments, and maintains cash flow for the business.", salary: "£25k–£30k" },
     ],
   },
   {
@@ -184,7 +184,7 @@ const Finance = () => {
                 "You thrive under deadlines - month-end doesn't faze you",
                 "You want to understand how businesses really work",
               ],
-              salary: "£22k–£32k",
+              salary: "£25k–£32k",
               entryTip: "Most finance careers start through graduate schemes or accounts assistant roles. An AAT qualification can get you started, while ACA, ACCA, or CIMA are the gold-standard professional qualifications. Many firms will sponsor your study.",
             }}
           />

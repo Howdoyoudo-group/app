@@ -11,7 +11,7 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: ShoppingCart, roles: [
-    { name: "Buying Admin Assistant (BAA)", description: "Critical path, sample chasing, supplier liaison, range admin. Standard entry route.", salary: "£24k–£28k" },
+    { name: "Buying Admin Assistant (BAA)", description: "Critical path, sample chasing, supplier liaison, range admin. Standard entry route.", salary: "£25k–£28k" },
     { name: "Allocator (Merchandising side)", description: "Allocates stock to stores, monitors sell-through, partners with the buyer.", salary: "£25k–£30k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
@@ -47,7 +47,7 @@ const Buyer = () => {
         dayToDay: ["Supplier meetings - UK and international", "Reviewing samples and signing off ranges", "Trade meetings with the merchandiser, weekly performance reviews", "Trend research and competitor analysis", "Negotiation on cost prices, margins, terms", "Critical path management - getting stock from sample to shop floor"],
         skills: ["Range Planning", "Supplier Negotiation", "Margin & Markup Calculation", "Trend Forecasting", "Critical Path Management", "Excel / Microsoft AX / Oracle Retail"],
         traits: ["Commercial - every decision affects the P&L", "Visually literate - taste matters", "Resilient negotiator - suppliers push back hard", "Highly organised - managing 100+ SKUs at once is normal"],
-        salary: "£24k BAA → £700k+ CCO",
+        salary: "£25k BAA → £700k+ CCO",
         entryTip: "Routes in: Most enter via a graduate scheme - Marks & Spencer, John Lewis, Next, ASOS, Tesco, Sainsbury's, Selfridges all run rotational buying & merchandising programmes. Open to any degree but business, fashion or maths backgrounds dominate. Direct entry as a BAA also possible.",
       }} />
       <CareerMap title="Buying Career Path" subtitle="From BAA to Chief Commercial Officer." stages={careerStages} industry="fashion" />

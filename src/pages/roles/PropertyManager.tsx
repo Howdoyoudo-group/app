@@ -11,7 +11,7 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Building2, roles: [
-    { name: "Property Management Assistant", description: "Inbound queries, contractor coordination, basic compliance admin.", salary: "£22k–£26k" },
+    { name: "Property Management Assistant", description: "Inbound queries, contractor coordination, basic compliance admin.", salary: "£25k–£26k" },
     { name: "Property Manager (Trainee)", description: "Owns a small portfolio (50–80 units) under supervision while studying ARLA.", salary: "£26k–£32k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
@@ -47,7 +47,7 @@ const PropertyManager = () => {
         dayToDay: ["Logging and dispatching maintenance tickets", "Coordinating contractors (plumbers, electricians, gas safety)", "Periodic property inspections", "Processing tenancy renewals and rent reviews", "Managing deposit returns and disputes (DPS / TDS)", "Compliance - gas safety, EICRs, EPCs, smoke alarms"],
         skills: ["Tenancy Law (Housing Act, Section 21/8)", "Compliance (Gas Safety, EICR, EPC, HHSRS)", "Contractor Management", "Service Charge & Block Accounting (TPI/IRPM for blocks)", "Conflict Resolution", "Property Software (Reapit, Alto, Jupix)"],
         traits: ["Calm under pressure - emergencies and angry tenants are part of the job", "Highly organised - 200 properties means 200 plates spinning", "Practical problem-solver", "Good written communicator - paper trails matter legally"],
-        salary: "£22k assistant → £300k+ firm owner",
+        salary: "£25k assistant → £300k+ firm owner",
         entryTip: "Routes in: Apply to lettings agencies (Foxtons, Dexters, Leaders, Romans), block management firms (FirstPort, Rendall & Rittner, Y&Y) or build-to-rent operators (Greystar, Get Living). ARLA Propertymark Level 3 (residential) or IRPM / TPI qualifications (block) are the standard credentials.",
       }} />
       <CareerMap title="Property Management Career Path" subtitle="From assistant to head of department or firm founder." stages={careerStages} industry="estate-agency" />

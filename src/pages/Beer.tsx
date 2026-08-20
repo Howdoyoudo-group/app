@@ -26,7 +26,7 @@ import PodcastGrid from "@/components/PodcastGrid";
 
 const beerStages: CareerStage[] = [
   { title: "Ingredients & Agriculture", icon: Sprout, roles: [
-    { name: "Maltster", description: "Processes raw barley and other grains into malt, managing germination, kilning, and quality.", salary: "£22k–£35k" },
+    { name: "Maltster", description: "Processes raw barley and other grains into malt, managing germination, kilning, and quality.", salary: "£25k–£35k" },
     { name: "Hop Buyer", description: "Sources hops from UK and international farms, negotiating contracts and assessing quality.", salary: "£28k–£45k" },
     { name: "Agricultural Scientist", description: "Researches barley and hop varieties for improved yield, flavour, and disease resistance.", salary: "£30k–£50k" },
     { name: "Supply Chain Coordinator", description: "Manages the logistics of raw ingredient sourcing from farm to brewery.", salary: "£26k–£40k" },
@@ -34,9 +34,9 @@ const beerStages: CareerStage[] = [
   ]},
   { title: "Brewing & Production", icon: Factory, roles: [
     { name: "Head Brewer", description: "Leads the brewing operation, developing recipes, managing production schedules, and maintaining quality.", salary: "£35k–£60k" },
-    { name: "Assistant Brewer", description: "Supports the head brewer with day-to-day brewing, cleaning, and fermentation monitoring.", salary: "£22k–£32k" },
+    { name: "Assistant Brewer", description: "Supports the head brewer with day-to-day brewing, cleaning, and fermentation monitoring.", salary: "£25k–£32k" },
     { name: "Quality Assurance Manager", description: "Tests beer at every stage for consistency, flavour, and compliance with safety standards.", salary: "£30k–£48k" },
-    { name: "Cellar Technician", description: "Manages fermentation, conditioning, and tank operations in the brewery cellar.", salary: "£22k–£30k" },
+    { name: "Cellar Technician", description: "Manages fermentation, conditioning, and tank operations in the brewery cellar.", salary: "£25k–£30k" },
     { name: "Packaging Manager", description: "Oversees canning, bottling, and kegging lines, ensuring efficiency and quality.", salary: "£28k–£42k" },
     { name: "R&D / Innovation Brewer", description: "Creates new beer styles, experimental batches, and seasonal specials.", salary: "£28k–£45k" },
     { name: "Production Planner", description: "Schedules brewing runs, manages raw material orders, and coordinates output targets.", salary: "£26k–£40k" },
@@ -44,14 +44,14 @@ const beerStages: CareerStage[] = [
   { title: "Taproom & Retail", icon: BeerIcon, roles: [
     { name: "Taproom Manager", description: "Runs the brewery's on-site bar, managing staff, events, and customer experience.", salary: "£26k–£38k" },
     { name: "Bar Manager", description: "Manages a pub or bar's daily operations, staff, stock, and service quality.", salary: "£25k–£36k" },
-    { name: "Beer Sommelier / Cicerone", description: "Advises customers on beer styles, food pairings, and tasting experiences.", salary: "£24k–£38k" },
-    { name: "Bartender", description: "Serves beer and other drinks, maintaining quality pours and customer engagement.", salary: "£21k–£28k" },
+    { name: "Beer Sommelier / Cicerone", description: "Advises customers on beer styles, food pairings, and tasting experiences.", salary: "£25k–£38k" },
+    { name: "Bartender", description: "Serves beer and other drinks, maintaining quality pours and customer engagement.", salary: "£25k–£28k" },
     { name: "Pub General Manager", description: "Runs a pub end-to-end - P&L, staff, compliance, and community engagement.", salary: "£30k–£45k" },
-    { name: "Events Coordinator", description: "Plans and delivers tap takeovers, beer festivals, and brewery tours.", salary: "£24k–£36k" },
+    { name: "Events Coordinator", description: "Plans and delivers tap takeovers, beer festivals, and brewery tours.", salary: "£25k–£36k" },
   ]},
   { title: "Distribution & Wholesale", icon: Truck, roles: [
     { name: "National Account Manager", description: "Manages relationships with major pub groups, supermarkets, and wholesale customers.", salary: "£35k–£60k" },
-    { name: "Sales Representative", description: "Visits pubs, bars, and off-licences to sell and promote the brewery's range.", salary: "£24k–£38k" },
+    { name: "Sales Representative", description: "Visits pubs, bars, and off-licences to sell and promote the brewery's range.", salary: "£25k–£38k" },
     { name: "Logistics Manager", description: "Coordinates delivery routes, fleet management, and warehouse operations.", salary: "£30k–£48k" },
     { name: "Export Manager", description: "Manages international distribution, navigating trade regulations and overseas partnerships.", salary: "£32k–£55k" },
     { name: "E-Commerce Manager", description: "Runs the online direct-to-consumer channel, managing subscriptions and digital sales.", salary: "£28k–£48k" },
@@ -60,13 +60,13 @@ const beerStages: CareerStage[] = [
   { title: "Retail & Off-Trade", icon: Store, roles: [
     { name: "Buyer (Beer Category)", description: "Selects and negotiates the beer range for supermarkets, bottle shops, or online retailers.", salary: "£30k–£55k" },
     { name: "Category Manager", description: "Manages the commercial performance of the beer category across retail.", salary: "£35k–£60k" },
-    { name: "Bottle Shop Owner", description: "Runs an independent craft beer shop, curating stock and building community.", salary: "£22k–£40k" },
-    { name: "Visual Merchandiser", description: "Designs in-store displays and promotions for beer brands in retail environments.", salary: "£24k–£35k" },
+    { name: "Bottle Shop Owner", description: "Runs an independent craft beer shop, curating stock and building community.", salary: "£25k–£40k" },
+    { name: "Visual Merchandiser", description: "Designs in-store displays and promotions for beer brands in retail environments.", salary: "£25k–£35k" },
   ]},
   { title: "Brand & Marketing", icon: Megaphone, roles: [
     { name: "Brand Manager", description: "Defines and executes brand positioning, campaigns, and identity for a beer brand.", salary: "£32k–£55k" },
     { name: "Social Media Manager", description: "Creates content and manages the brand's online community and engagement.", salary: "£26k–£42k" },
-    { name: "Content Creator", description: "Produces photography, video, and written content to tell the brewery's story.", salary: "£24k–£40k" },
+    { name: "Content Creator", description: "Produces photography, video, and written content to tell the brewery's story.", salary: "£25k–£40k" },
     { name: "PR & Communications Manager", description: "Manages press coverage, awards entries, and media relationships.", salary: "£30k–£50k" },
     { name: "Partnerships Manager", description: "Develops collaborations with food brands, festivals, and cultural partners.", salary: "£30k–£50k" },
     { name: "Taproom Experience Designer", description: "Designs the customer journey, merchandise, and brand touchpoints in brewery spaces.", salary: "£28k–£45k" },

@@ -12,8 +12,8 @@ import OnlineLearningGrid from "@/components/OnlineLearningGrid";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Brain, roles: [
-    { name: "Trainee Counsellor / Therapist", description: "Completes placement hours under supervision while studying for accreditation.", salary: "£20k–£26k" },
-    { name: "Mental Health Support Worker", description: "Provides front-line emotional support in NHS, charity, or community settings.", salary: "£22k–£28k" },
+    { name: "Trainee Counsellor / Therapist", description: "Completes placement hours under supervision while studying for accreditation.", salary: "£25k–£26k" },
+    { name: "Mental Health Support Worker", description: "Provides front-line emotional support in NHS, charity, or community settings.", salary: "£25k–£28k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
     { name: "Counsellor (BACP Accredited)", description: "Delivers therapy sessions - person-centred, CBT, integrative, or psychodynamic.", salary: "£28k–£38k" },

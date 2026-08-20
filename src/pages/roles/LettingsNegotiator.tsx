@@ -11,8 +11,8 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: KeyRound, roles: [
-    { name: "Lettings Assistant / Trainee", description: "Phone enquiries, viewing bookings, accompanying senior negotiators on viewings.", salary: "£20k–£24k + commission" },
-    { name: "Lettings Negotiator", description: "Owns viewings, applications and offer negotiation across a patch of properties.", salary: "£24k–£30k + commission (£28k–£40k OTE)" },
+    { name: "Lettings Assistant / Trainee", description: "Phone enquiries, viewing bookings, accompanying senior negotiators on viewings.", salary: "£25k–£31k + commission" },
+    { name: "Lettings Negotiator", description: "Owns viewings, applications and offer negotiation across a patch of properties.", salary: "£25k–£30k + commission (£28k–£40k OTE)" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
     { name: "Senior Lettings Negotiator", description: "Top biller in branch, mentors juniors, handles higher-end stock.", salary: "£30k–£40k + commission (£40k–£60k OTE)" },
@@ -47,7 +47,7 @@ const LettingsNegotiator = () => {
         dayToDay: ["Phone work - qualifying tenant enquiries", "Viewings (often back-to-back evenings and weekends)", "Negotiating offers between tenant and landlord", "Referencing, right-to-rent checks and contract setup", "Pitching for new landlord instructions", "Liaising with property management on move-in"],
         skills: ["Sales / Negotiation", "Lettings Compliance (Right to Rent, Deposit Schemes)", "Phone & Viewing Skills", "Landlord Relationship Management", "ARLA Propertymark Awareness", "Local Market Knowledge"],
         traits: ["Energetic - branch life moves fast", "Resilient - competitive market, lots of rejection", "Genuinely interested in property and people", "Self-motivated - commission rewards effort"],
-        salary: "£20k trainee → £300k+ agency owner",
+        salary: "£25k trainee → £300k+ agency owner",
         entryTip: "Routes in: Apply directly to high-street agencies (Foxtons, Dexters, Hamptons, Knight Frank, Savills) or independent agents. Most train on the job, with sponsored ARLA Propertymark qualifications (Level 3 Lettings & Property Management). No degree required.",
       }} />
       <CareerMap title="Lettings Career Path" subtitle="From trainee to head of lettings or agency owner." stages={careerStages} industry="estate-agency" />
