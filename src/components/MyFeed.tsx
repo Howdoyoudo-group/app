@@ -12,6 +12,7 @@ import FeedSaveButton from "./feed/FeedSaveButton";
 import PublisherThumb from "./feed/PublisherThumb";
 import { industryVideos } from "@/data/industry-videos";
 import { INDUSTRIES } from "@/data/industries";
+import { ALL_COMPANIES_FLAT } from "@/data/all-companies";
 import IndustryDoodle from "./feed/IndustryDoodle";
 import howdyMascot from "@/assets/howdy-mascot.png";
 
@@ -28,6 +29,15 @@ const CHIP_SLUGS: string[] = [
   ...CHIP_ORDER.filter(s => INDUSTRIES.some(i => i.slug === s)),
   ...INDUSTRIES.map(i => i.slug).filter(s => !CHIP_ORDER.includes(s)),
 ];
+
+// Company name -> real career/company site URL, so the "Who's Hiring" fallback
+// (top job-posting employers, not admin-curated) can link out to the actual
+// company instead of falling back to the marketplace. Last entry for a given
+// name wins - harmless since names are effectively unique per company.
+const COMPANY_URL_BY_NAME: Record<string, string> = {};
+ALL_COMPANIES_FLAT.forEach((c) => {
+  if (c.url) COMPANY_URL_BY_NAME[c.name.toLowerCase().trim()] = c.url;
+});
 
 type NewsItem = { id: string; title: string; source: string; url: string; ts: string; industry: string };
 type ArticleItem = NewsItem;
@@ -850,7 +860,7 @@ const MyFeed = ({ industries, targetCompanies = [] }: Props) => {
       seenEmps.add(key);
       emps.push({
         companyName: e.company_name, tagline: e.tagline || "",
-        logoUrl: e.logo_url, url: e.url, industry: e.industry,
+        logoUrl: e.logo_url, url: e.url || COMPANY_URL_BY_NAME[key] || null, industry: e.industry,
       });
     });
     if (emps.length === 0 && (topJobCompaniesRes.data || []).length > 0) {
@@ -867,7 +877,7 @@ const MyFeed = ({ industries, targetCompanies = [] }: Props) => {
         .slice(0, 8)
         .forEach((c) => emps.push({
           companyName: c.name, tagline: `${c.n} live ${c.n === 1 ? "job" : "jobs"}`,
-          logoUrl: null, url: null, industry: slug,
+          logoUrl: null, url: COMPANY_URL_BY_NAME[c.name.toLowerCase().trim()] || null, industry: slug,
         }));
     }
     const knownCompanyNames = emps.map((e) => e.companyName);
