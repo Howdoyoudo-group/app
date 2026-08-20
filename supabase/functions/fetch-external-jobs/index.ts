@@ -936,6 +936,13 @@ async function adzunaFetch(url: string): Promise<Response> {
   }
 }
 
+// AI data-labelling / RLHF gig platforms - their postings can genuinely
+// keyword-match an industry ("Music Producer - AI Evaluation", "Fashion
+// Rater") but they're freelance model-evaluation gig work, not a real
+// career-path job. Excluded platform-wide regardless of which industry
+// they were found under.
+const ALWAYS_EXCLUDE_COMPANIES = /\b(mercor|surge ai|invisible technologies|remotasks|scale ai|appen|outlier(?:\.ai)?|handshake ai)\b/i;
+
 // ── Adzuna API fetcher ──────────────────────────────────────────────
 async function fetchAdzunaJobs(industry: string, keywords: string[], appId: string, appKey: string, opts?: { temp?: boolean; grad?: boolean }) {
   const allJobs: any[] = [];
@@ -1154,10 +1161,20 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
       for (const r of results) {
         const companyName = r.company?.display_name || "Unknown";
         const jobTitle = (r.title || "").slice(0, 255);
-        
+
         // Skip government employers
         if (GOV_FILTER.test(companyName)) {
           console.log(`Skipping gov company "${companyName}" for ${industry}`);
+          continue;
+        }
+
+        // Skip AI data-labelling / RLHF gig platforms regardless of industry.
+        // Their postings ("Music Producer - AI Evaluation", "Fashion Rater")
+        // genuinely match an industry's keywords by title, but they're
+        // freelance model-evaluation gig work via a staffing platform, not a
+        // real career-path job in that industry - misleading to show here.
+        if (ALWAYS_EXCLUDE_COMPANIES.test(companyName)) {
+          console.log(`Skipping gig-platform company "${companyName}" for ${industry}`);
           continue;
         }
 
@@ -1225,6 +1242,21 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
             assignedIndustry = targetIndustry;
             break;
           }
+        }
+        // Cross-check against every industry's positive-signal gate - the same
+        // resolveIndustry() mechanism already used for Reed/Jooble/LinkedIn/
+        // JSearch/Indeed, previously missing here. Adzuna's free-text "what="
+        // param matches on description too, so a school's boilerplate "we
+        // offer strong music, art and drama" line was enough to pull unrelated
+        // subject-teacher and generic-recruiter postings into the Music feed
+        // (e.g. "Mathematics Teacher" @ a school whose one Music Teacher
+        // vacancy had already been matched). This corrects the industry when
+        // the title/company don't actually support the one it was searched
+        // under, same as every other source already does.
+        const resolvedIndustry = resolveIndustry(assignedIndustry, jobTitle, companyName, r.description || "");
+        if (resolvedIndustry !== assignedIndustry) {
+          console.log(`Adzuna resolveIndustry: "${jobTitle}" @ "${companyName}" ${assignedIndustry} → ${resolvedIndustry}`);
+          assignedIndustry = resolvedIndustry;
         }
         // ── Adzuna structured fields ──────────────────────────────
         // 1) Category → industry sanity check
@@ -1304,7 +1336,7 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
           source_url: "adzuna.com",
           expires_at: r.created ? new Date(new Date(r.created).getTime() + 60 * 86400000).toISOString() : null,
           // Flag conflicts so classify-jobs picks them up via the AI second pass
-          needs_review: categoryConflict || undefined,
+          needs_review: categoryConflict || assignedIndustry !== industry || undefined,
           // Force entry-level only when we believe it's a real grad role
           career_level: treatAsGrad ? "entry" : undefined,
           tags: tagSet.length > 0 ? tagSet : undefined,
@@ -2068,6 +2100,10 @@ async function fetchReedJobs(industry: string, keywords: string[], apiKey: strin
         const isAllowedNurseAgency = isHealthLike && NURSE_AGENCY_RX.test(company);
         if (REED_BANNED_COMPANIES.test(company) && !isAllowedNurseAgency) {
           console.log(`[${industry}] Reed BLOCKED recruiter: "${title}" @ ${company}`);
+          continue;
+        }
+        if (ALWAYS_EXCLUDE_COMPANIES.test(company)) {
+          console.log(`[${industry}] Reed BLOCKED gig-platform company: "${title}" @ ${company}`);
           continue;
         }
         // 3) Drop government / public-sector employers from consumer feeds.
