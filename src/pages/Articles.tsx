@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import jobToLoveCover from "@/assets/book-a-job-to-love.jpg";
 import parachuteCover from "@/assets/book-what-color-is-your-parachute.jpg";
 import eightyThousandHoursCover from "@/assets/book-80000-hours.jpg";
+import howToStartCover from "@/assets/book-how-to-start.jpg";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -42,6 +43,14 @@ const FEATURED_ARTICLES: Article[] = [
     url: "https://80000hours.org/book/",
     tag: "Career Philosophy",
     image: eightyThousandHoursCover,
+  },
+  {
+    title: "How to Start",
+    source: "Jodi Kantor",
+    description: "Discovering your life's work. The New York Times bestselling journalist behind the Weinstein investigation on the two principles - craft and need - that help you find and start meaningful work.",
+    url: "https://jodikantor.com/how-to-start",
+    tag: "Career Philosophy",
+    image: howToStartCover,
   },
   {
     title: "Feel like you can't get a job? You're not alone — but here's how to work around it",
