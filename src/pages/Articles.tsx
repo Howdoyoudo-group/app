@@ -4,6 +4,7 @@ import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import jobToLoveCover from "@/assets/book-a-job-to-love.jpg";
 import parachuteCover from "@/assets/book-what-color-is-your-parachute.jpg";
+import eightyThousandHoursCover from "@/assets/book-80000-hours.jpg";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -33,6 +34,14 @@ const FEATURED_ARTICLES: Article[] = [
     url: "https://www.parachutebook.com/",
     tag: "Career Philosophy",
     image: parachuteCover,
+  },
+  {
+    title: "80,000 Hours",
+    source: "Benjamin Todd",
+    description: "Find a fulfilling career that does good. Ten years of research from the 80,000 Hours team on how to combine impact, meaning and personal fit when planning a career.",
+    url: "https://80000hours.org/book/",
+    tag: "Career Philosophy",
+    image: eightyThousandHoursCover,
   },
   {
     title: "Feel like you can't get a job? You're not alone — but here's how to work around it",
