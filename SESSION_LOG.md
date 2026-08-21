@@ -5,6 +5,40 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-08-21 — Andrew (main branch) — Books industry: deployed backend, jobs/events/content now live
+
+### What was done THIS SESSION
+
+**Unblocked and finished the Books rollout from 2026-08-20:**
+- Andrew supplied a fresh Supabase personal access token (`sbp_551f46...`, saved to memory) — the previous one had died silently. Verified working via `supabase projects list`.
+- Deployed all 6 touched edge functions: `fetch-external-jobs`, `generate-daily-briefings`, `fetch-rss-news`, `scrape-articles`, `refresh-all-content`, `fetch-industry-events`.
+- Triggered targeted runs for Books. Confirmed live in the DB: **45+ jobs** (Penguin Random House, HarperCollins, Hachette, Simon & Schuster, Bloomsbury, Bonnier Books), daily briefing, breaking news, articles, and **10 events** (real: London Book Fair, FutureBook Conference, Independent Publishers Guild Conference, Society of Authors programmes).
+- Caught and fixed a quality bug while jobs were landing: `INDUSTRY_SIGNALS.books` in `fetch-external-jobs/index.ts` had bare `commissioning editor` / `copy editor` / `proofreader` / `editorial assistant` as match terms — these are generic enough that a BBC "Commissioning Editor, Comedy & Entertainment" role and an FT commissioning editor role leaked into Books. Same class of bug as the Music contamination fixed earlier this week. Tightened the regex to require book/publishing context (or rely on the real-publisher company-name matches, which already cover genuine listings) and redeployed. A handful of already-inserted contaminated rows from before the fix may still need a manual cleanup pass — not done this session.
+- Real hero/series image swapped in — found the user's actual PNG in the ChatGPT desktop app's local image cache (`~/Library/Caches/com.openai.chat/...`) after two rounds of them pasting only screenshots, cropped it to bleed edge-to-edge matching every other industry card (first crop attempt left a border/white-gap artefact, fixed in a follow-up commit).
+- Added curated `CompanyLogo.tsx` domains for all 25 Books companies (confirmed real logos rendering, not initials fallback).
+- Fixed Penguin Random House UK's careers link to their actual ATS (`jobsearch.createyourowncareer.com/PRH_UK`).
+- Built a real "The Download" 2-page briefing (`public/downloads/download-books.html`) using verified 2025 Publishers Association market data.
+- Added 6 real Books courses, 2 Substack newsletters, 2 YouTube channels to `courses.ts`; added 2 more verified "day in the life" videos to the Watch tab.
+- Replaced generic boilerplate on the Literary Agent and Bookseller role pages (`/roles/literary-agent`, `/roles/bookseller`) with bespoke pages matching the Football Agent / ISRC Manager pattern — real day-to-day, skills, salary, verified podcasts/articles/videos.
+- Added Books to `all-companies.ts` — it was missing from the Discover → Companies directory page entirely (separate data file from `Books.tsx`'s own company list).
+- Renamed "Articles" → "Reading" across nav (desktop + mobile Inspire dropdown), page heading, and SEO title.
+- Added three books to the Reading page with real cover thumbnails (sourced from Open Library by ISBN): *What Color Is Your Parachute?*, *80,000 Hours*, *How to Start*.
+- Updated the "Start with a blank sheet of paper" copy on Using Our Site per Andrew's new wording.
+
+### Commits
+`06f4ad2` `9ec4259` `e36e1ee` `5b1d152` `0265c7c` `da62de3` `aceb55e` `eef5f2e` `8e25346` — all pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+- Books industry is fully live end-to-end: page, jobs, events, news, briefings, companies directory, courses, role pages.
+- Supabase access token is fresh and working (see memory file for value) — should be good until ~13 Jul 2027, but this project's tokens have died silently before without explanation, so re-verify at the start of a session rather than trusting the expiry date blindly.
+
+### Left for next session
+- Manual cleanup: a couple of pre-fix contaminated job rows (BBC/FT "commissioning editor" roles mis-tagged as Books) may still be sitting in the `jobs` table from before the signal fix — worth a targeted `DELETE` or re-run once the fix has had a full cycle.
+- Minor duplicate events for Books (e.g. "London Book Fair" appearing twice — once from Perplexity discovery, once from the curated seed list, with slightly different URLs so the dedup-by-URL logic doesn't catch it). Cosmetic, not urgent.
+- Optional Tier-2 items still not done (low priority, degrade gracefully): TikTok creator for Books, `mentoring-orgs.ts` entry.
+
+---
+
 ## 2026-08-20 — Andrew (main branch) — Added Books as a new industry (modelled on Music)
 
 ### What was done THIS SESSION
