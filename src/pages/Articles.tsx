@@ -2,6 +2,8 @@ import { motion } from "framer-motion";
 import { BookOpen, ExternalLink } from "lucide-react";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
+import jobToLoveCover from "@/assets/book-a-job-to-love.jpg";
+import parachuteCover from "@/assets/book-what-color-is-your-parachute.jpg";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -12,6 +14,7 @@ type Article = {
   url: string;
   tag: string;
   date?: string;
+  image?: string;
 };
 
 const FEATURED_ARTICLES: Article[] = [
@@ -21,6 +24,15 @@ const FEATURED_ARTICLES: Article[] = [
     description: "An insightful guide to finding meaningful work and building a career aligned with your values and passions. Explore what makes a job fulfilling and how to pursue it.",
     url: "https://www.theschooloflife.com/shop/a-job-to-love/",
     tag: "Career Philosophy",
+    image: jobToLoveCover,
+  },
+  {
+    title: "What Color Is Your Parachute?",
+    source: "Richard N. Bolles",
+    description: "The world's most popular career handbook, updated every year since 1970. A practical, step-by-step guide to figuring out what you want to do and actually landing it.",
+    url: "https://www.parachutebook.com/",
+    tag: "Career Philosophy",
+    image: parachuteCover,
   },
   {
     title: "Feel like you can't get a job? You're not alone — but here's how to work around it",
@@ -86,6 +98,16 @@ export default function Articles() {
                   rel="noopener noreferrer"
                   className="group flex flex-col sm:flex-row gap-4 border-2 border-foreground rounded-2xl p-5 hover:shadow-[4px_4px_0_0_hsl(var(--foreground))] transition-shadow"
                 >
+                  {article.image && (
+                    <div className="shrink-0 w-20 sm:w-16">
+                      <img
+                        src={article.image}
+                        alt={`${article.title} cover`}
+                        className="w-20 h-28 sm:w-16 sm:h-24 object-cover rounded-md border border-foreground/20 shadow-sm"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2 flex-wrap">
                       <span className="font-display font-700 text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full bg-primary border border-foreground">
