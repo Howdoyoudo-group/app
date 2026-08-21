@@ -41,10 +41,10 @@ const UsingOurSite = () => {
               Most of us find it easier to decide what we want for lunch than what we want from our lives - even though work is where we'll spend most of our waking hours. Family, friends, expectations, past experiences and our own insecurities quietly narrow the options before we've even started looking.
             </p>
             <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
-              <strong>How Do You Do? exists to widen them again.</strong> This is a place for work curiosity - because curiosity creates ideas, conversations and possibilities, and possibilities improve probabilities. The more you explore, the more chances you give yourself to succeed.
+              <strong>How Do You Do? exists to widen them again.</strong> This is a place for work curiosity - because we believe curiosity creates ideas, conversations and possibilities, and possibilities improve probabilities. The more you explore, the more chances you give yourself to succeed.
             </p>
             <p className="font-body text-base text-muted-foreground leading-relaxed">
-              So forget what you're "supposed" to do. Start blank - or better, start with what you love, and see where it takes you. This is about discovering your energy and your purpose, and finding work that actually means something to you.
+              So forget what you're "supposed" to do. Start blank, or better, start with what you love, and see where it takes you. This is about discovering your energy and your purpose, and finding work that actually means something to you or even the things you dont want to do! Also importantly this is about exploration and most careers are not linear, so explore as many as you can.
             </p>
           </motion.div>
 
