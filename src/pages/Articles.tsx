@@ -80,7 +80,7 @@ export default function Articles() {
   return (
     <>
       <SEO
-        title="Articles | Howdoyoudo?"
+        title="Reading | Howdoyoudo?"
         description="Read the best career stories, industry insight and advice from around the web — curated for young people."
       />
 
@@ -91,7 +91,7 @@ export default function Articles() {
           <motion.div {...fadeUp} className="mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border-2 border-foreground/20 bg-background mb-4">
               <BookOpen className="w-3.5 h-3.5 text-primary" />
-              <span className="font-display font-700 text-xs uppercase tracking-widest">Articles</span>
+              <span className="font-display font-700 text-xs uppercase tracking-widest">Reading</span>
             </div>
             <h1 className="font-display font-900 text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-foreground mb-4">
               Read & learn.

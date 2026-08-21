@@ -81,7 +81,7 @@ const UsingOurSite = () => {
                 <h2 className="font-display font-700 text-2xl md:text-3xl">Get inspired</h2>
               </div>
               <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
-                Watch <Link to="/the-show" className="text-primary font-600 hover:underline">The HDYD Show</Link> - episodes, pitches, street interviews and shorts from people doing jobs you may never have heard of. Prefer to read? Head to <Link to="/articles" className="text-primary font-600 hover:underline">Articles</Link>. Watch, listen, read - whatever works for you. The goal is simple: stumble onto something you didn't know existed.
+                Watch <Link to="/the-show" className="text-primary font-600 hover:underline">The HDYD Show</Link> - episodes, pitches, street interviews and shorts from people doing jobs you may never have heard of. Prefer to read? Head to <Link to="/articles" className="text-primary font-600 hover:underline">Reading</Link>. Watch, listen, read - whatever works for you. The goal is simple: stumble onto something you didn't know existed.
               </p>
             </div>
 
