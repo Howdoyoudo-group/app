@@ -38,13 +38,40 @@ const UsingOurSite = () => {
           >
             <h2 className="font-display font-700 text-xl md:text-2xl mb-4">Start with a blank sheet of paper</h2>
             <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
-              Most of us find it easier to decide what we want for lunch than what we want from our lives - even though work is where we'll spend most of our waking hours. Family, friends, expectations, past experiences and our own insecurities quietly narrow the options before we've even started looking.
+              There are thousands of jobs in the world, yet most of us only ever consider a handful. Not because the others aren't for us, but because we never knew they existed.
             </p>
             <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
-              <strong>How Do You Do? exists to widen them again.</strong> This is a place for work curiosity - because we believe curiosity creates ideas, conversations and possibilities, and possibilities improve probabilities. The more you explore, the more chances you give yourself to succeed.
+              Long before we've even started looking, our choices have often been narrowed by family, friends, expectations, past experiences and our own insecurities. We rule things out without ever really knowing what's possible.
+            </p>
+            <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
+              At the same time, we're constantly told that AI will replace jobs and that the future of work is uncertain. Yet people will always eat, drink, watch films, listen to music, play sport, have pets, need healthcare, live in homes and travel. The industries behind those things aren't disappearing. They're evolving.
+            </p>
+            <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
+              What most of us never see is the extraordinary variety of work that makes everyday life possible.
+            </p>
+            <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
+              Take football. We think about the players, but behind every match are groundskeepers preparing the pitch, designers creating the kit, manufacturers producing the balls, broadcasters telling the story, photographers capturing the moments, ticketing teams welcoming fans, data analysts, marketers, accountants, lawyers, physiotherapists, software engineers and hundreds of other people. Every industry is like that. Behind the things you already love are thousands of jobs you may never have considered.
+            </p>
+            <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
+              <strong>That's why How Do You Do? exists.</strong>
+            </p>
+            <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
+              We're here to help you become curious about work.
+            </p>
+            <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
+              Because curiosity creates ideas. Ideas create conversations. Conversations create opportunities. And opportunities improve probabilities.
+            </p>
+            <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
+              So forget what you're "supposed" to do.
+            </p>
+            <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
+              Start with a blank page. Or better still, start with what you love.
+            </p>
+            <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
+              Explore the industries that interest you. Discover the people who work in them. Learn what their jobs are really like. Find pathways you never knew existed.
             </p>
             <p className="font-body text-base text-muted-foreground leading-relaxed">
-              So forget what you're "supposed" to do. Start blank, or better, start with what you love, and see where it takes you. This is about discovering your energy and your purpose, and finding work that actually means something to you or even the things you dont want to do! Also importantly this is about exploration and most careers are not linear, so explore as many as you can.
+              The answer to your future might not be somewhere far away. It might have been all around you all along.
             </p>
           </motion.div>
 
