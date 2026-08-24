@@ -272,7 +272,7 @@ function TinderJobCard({
                 {levelLabel}
               </span>
             )}
-            {job.matches.slice(0, 3).map((m) => (
+            {matchesToReasons(job.matches, industryLabel ?? job.industry).map((m) => (
               <span key={m} className="px-4 py-2 bg-background text-foreground font-display text-xs font-800 uppercase tracking-wide rounded-full">
                 {m}
               </span>
