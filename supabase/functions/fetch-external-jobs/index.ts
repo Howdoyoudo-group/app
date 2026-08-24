@@ -135,7 +135,15 @@ const INDUSTRY_KEYWORDS: Record<string, string[]> = {
     "gastropub", "fine dining", "café manager", "deli manager", "food technologist",
     "menu development", "food and beverage manager", "private chef", "events catering",
   ],
-  football: ["football", "premier league", "football club", "sports", "sports marketing", "sports commercial", "sports sponsorship", "broadcast rights", "matchday operations", "stadium manager", "sports media", "sports analyst", "performance analyst football", "football academy", "football operations", "club commercial", "fan engagement", "ticketing manager", "EFL", "FA group", "UEFA", "FIFA", "football PR", "football communications", "football partnerships", "football data", "football scouting"],
+  football: [
+    "football", "premier league", "football club", "sports", "sports marketing", "sports commercial", "sports sponsorship", "broadcast rights", "matchday operations", "stadium manager", "sports media", "sports analyst", "performance analyst football", "football academy", "football operations", "club commercial", "fan engagement", "ticketing manager", "EFL", "FA group", "UEFA", "FIFA", "football PR", "football communications", "football partnerships", "football data", "football scouting",
+    // Premier League 2026-27 clubs — pulls ALL roles at these employers
+    // (finance, marketing, ops, medical), same pattern as Music's label names.
+    "Arsenal FC", "Aston Villa", "AFC Bournemouth", "Brentford FC", "Brighton & Hove Albion",
+    "Chelsea FC", "Coventry City FC", "Crystal Palace FC", "Everton FC", "Fulham FC",
+    "Hull City", "Ipswich Town", "Leeds United", "Liverpool FC", "Manchester City",
+    "Manchester United", "Newcastle United", "Nottingham Forest", "Sunderland AFC", "Tottenham Hotspur",
+  ],
   music: [
     // Core / well-known roles
     "music producer", "record label", "A&R", "music publishing", "music supervisor",
@@ -1967,7 +1975,7 @@ const INDUSTRY_SIGNALS: Record<string, { rx: RegExp; scope: "tc" | "tcd" }> = {
   theatre: { scope: "tc", rx: /\b(theatre|theatres|theatrical|west end|stage manager|stage management|deputy stage manager|assistant stage manager|touring stage manager|company manager theatre|production manager theatre|wardrobe (?:supervisor|assistant|mistress|master)|costume (?:designer|maker|supervisor) theatre|set designer theatre|scenic (?:designer|artist|painter)|lighting (?:designer|technician) theatre|theatre (?:lighting|sound|technician|crew)|dramaturg|literary manager|casting director|panto\b|pantomime|am[- ]?dram|box office theatre|front of house theatre|foh theatre|national theatre|royal shakespeare company|\brsc\b|ambassador theatre group|\batg\b(?! plc automotive)|lw theatres|delfont mackintosh|sonia friedman|cameron mackintosh|\bprg\b production resource|white light lighting|glyndebourne|royal exchange theatre|bristol old vic|chichester festival theatre|sheffield theatres|birmingham rep|donmar warehouse|royal court theatre|nimax theatres|rada\b|royal academy of dramatic art|mandy\.com|spotlight\.com casting)\b/i },
   beauty: { scope: "tc", rx: /\b(beauty (?:therapist|advisor|consultant|counter|manager|expert|assistant|specialist|trainer|salon|brand)|beautician|aesthetician|aesthetic (?:nurse|practitioner|clinic)|hair (?:stylist|salon|colour|colourist|technician|extension)|hairdress(?:er|ing)|barber(?:ing|shop)?|makeup (?:artist|consultant|advisor)|mua\b|nail (?:technician|artist|bar)|manicur|pedicur|lash (?:tech|artist|technician)|brow (?:artist|technician|bar)|salon manager|spa (?:manager|therapist|host)|skincare|skin (?:therapist|specialist|expert)|cosmetic(?:s)? (?:buyer|brand|counter|advisor|consultant|trainer|merchandiser|developer|chemist|formulator|product|category)|fragrance (?:advisor|consultant|buyer|counter)|haircare|perfumer|sephora|space ?nk|charlotte tilbury|the body shop|l['']?or[eé]al|est[eé]e lauder|m\.?a\.?c\.? cosmetics|benefit cosmetics|bobbi brown|clinique|nars|rituals|lush\b|elemis|liz earle|trinny london|huda beauty|drunk elephant|glossier|fenty beauty|bare ?minerals|illamasqua|morphe|too faced|urban decay|sally beauty|cult beauty|lookfantastic|feel ?unique|boots no7|no7\b)\b/i },
   fashion: { scope: "tc", rx: /\b(fashion|apparel|clothing|garment|knitwear|womensw?ear|menswear|childrensw?ear|kidsw?ear|loungewear|swimwear|activewear|denim|tailoring|haute couture|ready[- ]to[- ]wear|rtw\b|atelier|garment (?:technologist|technician|tech)|textile (?:designer|technologist|buyer)|pattern (?:cutter|maker|grader)|fabric (?:buyer|sourcing|technologist)|trend forecaster|visual merchandiser|asos\b|boohoo|prettylittlething|missguided|shein|net[- ]a[- ]porter|matchesfashion|farfetch|ssense|browns fashion|selfridges|harrods|harvey nichols|liberty london|primark|h&m|zara\b|inditex|uniqlo|cos\b|& other stories|reiss\b|whistles|hobbs|jigsaw|me\\+em|kurt geiger|all ?saints|ted baker|paul smith|burberry|alexander mcqueen|stella mccartney|mulberry|barbour|belstaff|joules|fat face|white stuff|monsoon|accessorize|river island|new look|topshop|topman|urban outfitters|anthropologie|free people|gym ?shark|castore|sweaty betty|lululemon|nobody['']?s child|rixo\b|nadine merabi|self portrait|ganni|jacquemus|loewe\b|chanel\b|dior\b|prada\b|gucci\b|louis vuitton|lvmh|kering|hermes|hermès|fendi\b|valentino|saint laurent|ysl\b|givenchy|balmain|moncler|moschino|versace|armani)\b/i },
-  football: { scope: "tc", rx: /\b(football|soccer|premier league|premiership football|fa cup|uefa|fifa\b|football club|\bfc\b|football academy|football coach|football scout|football analyst|football administration|football association|english football league|sky sports|tnt sports|bt sport|talksport|the athletic|professional footballers|\bpfa\b|league managers association|football foundation|brighton & hove albion|brighton and hove albion|manchester united|manchester city|liverpool fc|arsenal fc|chelsea fc|tottenham|spurs\b|west ham|newcastle united|aston villa|crystal palace|everton fc|fulham fc|brentford fc|leeds united|leicester city|nottingham forest|wolverhampton wanderers|wolves fc|sheffield united|sheffield wednesday|burnley fc|cardiff city|swansea city|sunderland afc|norwich city|southampton fc|coventry city|preston north end|hull city|middlesbrough fc|millwall fc|\bqpr\b|queens park rangers|reading fc|stoke city|watford fc|\bwba\b|west bromwich|bournemouth fc|afc bournemouth)\b/i },
+  football: { scope: "tc", rx: /\b(football|soccer|premier league|premiership football|fa cup|uefa|fifa\b|football club|\bfc\b|football academy|football coach|football scout|football analyst|football administration|football association|english football league|sky sports|tnt sports|bt sport|talksport|the athletic|professional footballers|\bpfa\b|league managers association|football foundation|brighton & hove albion|brighton and hove albion|manchester united|manchester city|liverpool fc|arsenal fc|chelsea fc|tottenham|spurs\b|west ham|newcastle united|aston villa|crystal palace|everton fc|fulham fc|brentford fc|leeds united|leicester city|nottingham forest|wolverhampton wanderers|wolves fc|sheffield united|sheffield wednesday|burnley fc|cardiff city|swansea city|sunderland afc|norwich city|southampton fc|coventry city|ipswich town|preston north end|hull city|middlesbrough fc|millwall fc|\bqpr\b|queens park rangers|reading fc|stoke city|watford fc|\bwba\b|west bromwich|bournemouth fc|afc bournemouth)\b/i },
   journalism: { scope: "tc", rx: /\b(journalist|reporter|newsroom|news editor|sub.?editor|copy editor|feature writer|investigative journalist|broadcast journalist|press officer|nctj|digital journalist|news producer|editorial assistant|magazine editor|staff writer|columnist|correspondent|wire service|news agency|bbc news|sky news|itn|guardian|telegraph|times newspaper|daily mail|financial times|economist|reuters|bloomberg|associated press|pa media|press association|reach plc|news uk)\b/i },
   wellness: { scope: "tc", rx: /\b(personal trainer|fitness instructor|fitness coach|wellness coach|wellbeing coach|nutritionist|dietitian|nutrition coach|yoga (?:instructor|teacher)|pilates (?:instructor|teacher)|spa (?:manager|therapist|host)|spa receptionist|massage therapist|sports therapist|holistic therapist|meditation|mindfulness|breathwork|reformer pilates|barre instructor|class instructor|group exercise|exercise referral|health coach|life coach|wellness centre|wellness retreat|sweaty betty|lululemon|gymshark|barry['']?s|psycle|third space|equinox|david lloyd|virgin active|nuffield health|pure gym|the gym group|fitness first|f45|orangetheory|peloton|les mills)\b/i },
   teaching: { scope: "tc", rx: /\b(teacher|teaching assistant|nursery (?:nurse|practitioner|teacher)|early years|eyfs|primary teacher|secondary teacher|sen (?:teacher|coordinator|teaching)|send teacher|head ?teacher|deputy head|assistant head|cover supervisor|learning support|\blsa\b|\bhlta\b|exam invigilator|sixth form|college lecturer|fe lecturer|further education lecturer|higher education lecturer|university lecturer|tefl|esol tutor|private tutor|education recruitment|\bqts\b|teach first|now teach)\b/i },
@@ -3027,6 +3035,71 @@ async function fetchPinpointJobs(tenant: { slug: string; company: string; indust
     return allJobs;
   } catch (err) {
     console.error(`Pinpoint fetch error for "${tenant.slug}":`, err);
+    return [];
+  }
+}
+
+// ── Teamtailor (direct ATS - public JSON Feed, no key) ───────────────
+// Teamtailor-powered career sites (custom domain or *.teamtailor.com
+// subdomain) expose a standard JSON Feed at `<domain>/jobs.json` - no
+// auth required. Verified live 2026-08-21 against Coventry City and
+// Nottingham Forest.
+const TEAMTAILOR_TENANTS: Array<{ domain: string; company: string; industry: string }> = [
+  { domain: "coventrycityfootballclub.teamtailor.com", company: "Coventry City FC", industry: "football" },
+  { domain: "careers.nottinghamforest.co.uk", company: "Nottingham Forest FC", industry: "football" },
+];
+
+async function fetchTeamtailorJobs(tenant: { domain: string; company: string; industry: string }) {
+  try {
+    const res = await fetch(`https://${tenant.domain}/jobs.json`, {
+      headers: { "Accept": "application/json", "User-Agent": "Mozilla/5.0 (compatible; HowDoYouDoBot/1.0)" },
+    });
+    if (!res.ok) {
+      console.error(`Teamtailor error for "${tenant.domain}": ${res.status}`);
+      return [];
+    }
+    const data = await res.json();
+    const items: any[] = Array.isArray(data?.items) ? data.items : [];
+    console.log(`[${tenant.industry}] Teamtailor(${tenant.domain}): ${items.length} raw items`);
+
+    const allJobs: any[] = [];
+    for (const item of items) {
+      const title = String(item.title || "").trim();
+      const link = String(item.url || "").trim();
+      if (!title || !link) continue;
+
+      const desc = String(item.content_html || "")
+        .replace(/<[^>]*>/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+      const jobLocation = item._jobposting?.jobLocation?.[0]?.address;
+      const locationStr = jobLocation
+        ? [jobLocation.addressLocality, jobLocation.addressRegion].filter(Boolean).join(", ") || null
+        : null;
+
+      const { stage, roleCategory } = classifyJob(title, desc, tenant.industry);
+      const posted = item.date_published ? new Date(item.date_published) : null;
+      const expiresAt = new Date((posted?.getTime() ?? Date.now()) + 60 * 86400000).toISOString();
+
+      allJobs.push({
+        title: title.slice(0, 255),
+        company: tenant.company.slice(0, 200),
+        industry: tenant.industry,
+        value_chain_stage: stage,
+        role_category: roleCategory,
+        location: locationStr?.slice(0, 200) ?? null,
+        type: "Full-time",
+        salary: null,
+        description: desc.slice(0, 2000) || null,
+        url: link,
+        source_url: tenant.domain,
+        expires_at: expiresAt,
+      });
+    }
+    return allJobs;
+  } catch (err) {
+    console.error(`Teamtailor fetch error for "${tenant.domain}":`, err);
     return [];
   }
 }
@@ -7260,6 +7333,16 @@ Deno.serve(async (req) => {
         if (pinpointJobs.length > 0) {
           allJobs.push(...pinpointJobs);
           console.log(`[${industry}] Pinpoint(${tenant.slug}): ${pinpointJobs.length} jobs`);
+        }
+      }
+
+      // 12a. Teamtailor tenants (direct ATS JSON Feed, no key, no quota).
+      const teamtailorTenants = TEAMTAILOR_TENANTS.filter((t) => t.industry === industry);
+      for (const tenant of teamtailorTenants) {
+        const teamtailorJobs = await fetchTeamtailorJobs(tenant);
+        if (teamtailorJobs.length > 0) {
+          allJobs.push(...teamtailorJobs);
+          console.log(`[${industry}] Teamtailor(${tenant.domain}): ${teamtailorJobs.length} jobs`);
         }
       }
 
