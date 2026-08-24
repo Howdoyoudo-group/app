@@ -5,12 +5,17 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Copy, Mail, Users, Check } from "lucide-react";
 import { toast } from "sonner";
-import type { Job } from "@/hooks/useJobs";
+
+interface ShareableJob {
+  dbId?: string;
+  title: string;
+  company: string;
+}
 
 interface ShareJobDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  job: Job;
+  job: ShareableJob;
 }
 
 export function ShareJobDialog({ open, onOpenChange, job }: ShareJobDialogProps) {
