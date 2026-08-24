@@ -11,8 +11,8 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: FileText, roles: [
-    { name: "Conveyancing Assistant / Paralegal", description: "File opening, ID checks, search ordering, supporting fee earners.", salary: "£22k–£28k" },
-    { name: "Trainee Licensed Conveyancer (CLC)", description: "Studying CLC qualification while working in a conveyancing firm.", salary: "£24k–£32k" },
+    { name: "Conveyancing Assistant / Paralegal", description: "File opening, ID checks, search ordering, supporting fee earners.", salary: "£25k–£28k" },
+    { name: "Trainee Licensed Conveyancer (CLC)", description: "Studying CLC qualification while working in a conveyancing firm.", salary: "£25k–£32k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
     { name: "Licensed Conveyancer / Property Solicitor", description: "Runs own caseload of 50–80 active matters from instruction to completion.", salary: "£35k–£50k" },
@@ -47,7 +47,7 @@ const Conveyancer = () => {
         dayToDay: ["Reviewing draft contracts and title deeds", "Ordering and reviewing property searches (LA, water, environmental)", "Raising and answering enquiries with the other side", "Liaising with mortgage lenders and brokers", "Coordinating exchange and completion days", "Final accounting and post-completion (SDLT, Land Registry)"],
         skills: ["Property Law (Conveyancing)", "CLC / SQE Knowledge", "Case Management Software", "Lender Panel Compliance", "Client Communication under Pressure", "SDLT & HMRC Filing"],
         traits: ["Methodical - one missed enquiry can break a chain", "Calm under client and chain pressure", "Strong written communicator", "Detail-obsessed - small print matters"],
-        salary: "£22k assistant → £200k+ partner",
+        salary: "£25k assistant → £200k+ partner",
         entryTip: "Routes in: Apply directly to high-street firms, conveyancing factories (Premier Property Lawyers, O'Neill Patient, My Home Move) or estate agency in-house teams. Most will sponsor your CLC qualification. Solicitor route via SQE is also possible. Apprenticeships at Levels 4–6 in conveyancing are a strong school-leaver entry.",
       }} />
       <CareerMap title="Conveyancing Career Path" subtitle="From assistant to partner or department head." stages={careerStages} industry="estate-agency" />

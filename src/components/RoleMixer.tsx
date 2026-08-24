@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const INDUSTRIES = [
   "Football", "Music", "Fashion", "Cinema & Film", "Gaming", "Journalism",
-  "Farming", "Beer & Drinks", "Coffee", "Formula 1", "Jewellery",
+  "Farming", "Beer & Drinks", "Books", "Coffee", "Formula 1", "Jewellery",
   "Horse Racing", "Pets", "Charity", "Travel",
   "Interior Design", "Beauty", "Estate Agency", "Teaching",
   "Bakery", "Cars", "Grocery", "Hospitality",

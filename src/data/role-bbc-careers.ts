@@ -97,6 +97,11 @@ export const ROLE_BBC_STORIES: Record<string, BBCCareerStory | null> = {
   "veterinary-surgeon": { id: "znmvwty", title: "How to become a vet: Lucy's story", image: "https://ichef.bbci.co.uk/images/ic/1200xn/p0gbtkdd.jpg" },
   "warehouse-delivery": { id: "zknhwsg", title: "Could a career in logistics show you the way?", image: "https://ichef.bbci.co.uk/images/ic/1200xn/p0m8k0vv.jpg" },
   "wealth-manager": null,
+  "literary-agent": null,
+  "bookseller": null,
+  "book-editor": null,
+  "book-publicist": null,
+  "rights-manager": null,
 };
 
 export const BBC_CAREER_BASE = "https://www.bbc.co.uk/bitesize/articles/";

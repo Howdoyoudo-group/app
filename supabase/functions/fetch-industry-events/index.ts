@@ -33,6 +33,7 @@ const INDUSTRIES: { slug: string; name: string; hint: string; eventbrite?: strin
   { slug: "journalism", name: "UK journalism and news media", hint: "Society of Editors, British Journalism Awards, Press Gazette, NUJ Conference, News Xchange, King's Trust media courses", eventbrite: "journalism+media+press+UK", meetup: "journalism+writing+london" },
   { slug: "money", name: "UK financial services and fintech", hint: "Money 20/20 Europe, FT Live, Finovate Europe, CityWire, CFA UK, UK Finance", eventbrite: "fintech+finance+banking+UK", meetup: "fintech+finance+london" },
   { slug: "music", name: "UK music industry", hint: "AIM Awards, The Great Escape, Wide Days, MMF, Music Week Awards, King's Trust music programmes", eventbrite: "music+industry+UK", meetup: "music+industry+london" },
+  { slug: "books", name: "UK publishing industry", hint: "London Book Fair, FutureBook Conference, Independent Publishers Guild Conference, Society of Authors events", eventbrite: "publishing+industry+UK", meetup: "publishing+london" },
   { slug: "pets", name: "UK pet industry", hint: "PATS Telford, London Vet Show, BSAVA Congress, Pet Industry Federation", eventbrite: "pets+veterinary+animal+UK", meetup: "pets+animals+london" },
   { slug: "physiotherapy", name: "UK physiotherapy profession", hint: "CSP Annual Conference, Therapy Expo, BASRaT, Physio First, King's Trust health programmes", eventbrite: "physiotherapy+sports+health+UK", meetup: "physiotherapy+london" },
   { slug: "psychotherapy", name: "UK psychotherapy and counselling", hint: "BACP Conference, UKCP, BPS Conference, New Savoy Conference, King's Trust steps-to-success mental health programmes", eventbrite: "therapy+counselling+mental+health+UK", meetup: "therapy+wellbeing+london" },
@@ -166,6 +167,12 @@ const SEED_EVENTS: Record<string, Array<{
   title: string; url: string; date_label: string; starts_on?: string;
   location: string; event_type: string; organizer: string; description: string;
 }>> = {
+  books: [
+    { title: "London Book Fair", url: "https://www.londonbookfair.co.uk", date_label: "Mar 2027", location: "London, UK", event_type: "conference", organizer: "London Book Fair", description: "The UK's biggest publishing trade fair, bringing together publishers, agents, and booksellers from around the world." },
+    { title: "FutureBook Conference", url: "https://futurebook.com", date_label: "Nov 2026", location: "London, UK", event_type: "conference", organizer: "The Bookseller", description: "The Bookseller's annual conference on the future of publishing, digital, and the book trade." },
+    { title: "Independent Publishers Guild Conference", url: "https://www.independentpublishersguild.com", date_label: "Rolling", location: "UK-wide", event_type: "conference", organizer: "Independent Publishers Guild", description: "Conferences and events for independent publishers, covering the business side of the trade." },
+    { title: "Society of Authors Events", url: "https://www.societyofauthors.org", date_label: "Rolling", location: "UK-wide", event_type: "programme", organizer: "Society of Authors", description: "Talks, workshops, and networking events for writers and those starting out in publishing." },
+  ],
   music: [
     { title: "The Great Escape", url: "https://greatescapefestival.com", date_label: "May 2027", location: "Brighton, UK", event_type: "conference", organizer: "The Great Escape", description: "UK's leading festival for new music and the music industry's annual gathering." },
     { title: "ILMC – International Live Music Conference", url: "https://www.ilmc.com", date_label: "Mar 2027", location: "London, UK", event_type: "conference", organizer: "ILMC", description: "Global summit for the live music industry, held annually in London." },

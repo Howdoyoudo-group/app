@@ -26,10 +26,10 @@ const careerStages: CareerStage[] = [
     title: "Entry Level",
     icon: Settings,
     roles: [
-      { name: "Operations Coordinator", description: "Supports daily operations by coordinating schedules, managing admin, and solving logistical problems.", salary: "£23k–£30k" },
-      { name: "Warehouse Operative", description: "Picks, packs, and manages stock in distribution centres, keeping the supply chain moving.", salary: "£22k–£28k" },
-      { name: "Shift Manager", description: "Manages a team during a shift, handling staffing, targets, and real-time problem-solving.", salary: "£24k–£32k" },
-      { name: "Logistics Assistant", description: "Coordinates deliveries, tracks shipments, and supports the logistics team with documentation.", salary: "£22k–£28k" },
+      { name: "Operations Coordinator", description: "Supports daily operations by coordinating schedules, managing admin, and solving logistical problems.", salary: "£25k–£30k" },
+      { name: "Warehouse Operative", description: "Picks, packs, and manages stock in distribution centres, keeping the supply chain moving.", salary: "£25k–£28k" },
+      { name: "Shift Manager", description: "Manages a team during a shift, handling staffing, targets, and real-time problem-solving.", salary: "£25k–£32k" },
+      { name: "Logistics Assistant", description: "Coordinates deliveries, tracks shipments, and supports the logistics team with documentation.", salary: "£25k–£28k" },
     ],
   },
   {
@@ -182,7 +182,7 @@ const Operations = () => {
                 "You're a natural organiser who loves structure",
                 "You get satisfaction from measurable improvements",
               ],
-              salary: "£23k–£30k",
+              salary: "£25k–£30k",
               entryTip: "Operations roles are everywhere - from warehouse coordinators to shift managers to ops assistants. Many people move into ops from frontline roles. CIPS, Lean Six Sigma, and CMI qualifications can accelerate your progression.",
             }}
           />

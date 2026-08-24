@@ -11,8 +11,8 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: PawPrint, roles: [
-    { name: "Student Veterinary Nurse", description: "3-year apprenticeship or 2-year diploma in a training practice - on-the-job + college.", salary: "£18k–£22k while training" },
-    { name: "Veterinary Care Assistant (VCA)", description: "Pre-RVN role - animal handling, kennels, theatre prep, owner support.", salary: "£20k–£23k" },
+    { name: "Student Veterinary Nurse", description: "3-year apprenticeship or 2-year diploma in a training practice - on-the-job + college.", salary: "£25k–£28k while training" },
+    { name: "Veterinary Care Assistant (VCA)", description: "Pre-RVN role - animal handling, kennels, theatre prep, owner support.", salary: "£25k–£28k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
     { name: "Registered Veterinary Nurse (RVN)", description: "Independent clinical role - anaesthesia, nursing care, surgery assist, owner consults.", salary: "£26k–£32k" },
@@ -47,7 +47,7 @@ const VeterinaryNurse = () => {
         dayToDay: ["Anaesthesia monitoring during surgery", "Inpatient nursing - meds, IV fluids, post-op care", "Theatre prep and surgical assist", "Owner clinics - weight, dental, behaviour, second vaccinations", "Lab work - bloods, urinalysis, microscopy", "Mentoring student nurses and VCAs"],
         skills: ["Anaesthesia & Analgesia", "Surgical Nursing", "IV Catheterisation", "Pharmacology", "Owner Communication", "Clinical Coaching"],
         traits: ["Practical hands-on temperament - physical, varied days", "Comfortable with sick animals and difficult conversations", "Calm in surgical and emergency settings", "Strong team player - practices live and die on team"],
-        salary: "£18k trainee → £75k group lead nurse",
+        salary: "£25k trainee → £75k group lead nurse",
         entryTip: "Routes in: 3-year Veterinary Nursing Apprenticeship (Level 3) at an RCVS-approved training practice, or a 2-year FdSc / diploma at a vet college (Bicton, Bishop Burton, Hadlow). RVN registration with the RCVS on completion.",
       }} />
       <CareerMap title="Veterinary Nursing Career Path" subtitle="From trainee to head nurse or hospital manager." stages={careerStages} industry="pets" />

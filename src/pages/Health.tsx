@@ -39,10 +39,10 @@ const healthStages: CareerStage[] = [
     { name: "Health Visitor", description: "Specialist community nurse supporting families with children under 5.", salary: "£35k–£48k" },
   ]},
   { title: "Care & Social Care", icon: Heart, roles: [
-    { name: "Care Worker / Carer", description: "Provides personal, practical and emotional support to older or disabled people at home or in residential care.", salary: "£20k–£26k" },
+    { name: "Care Worker / Carer", description: "Provides personal, practical and emotional support to older or disabled people at home or in residential care.", salary: "£25k–£26k" },
     { name: "Care Home Manager", description: "Runs a residential or nursing home - staff, regulation, residents and families.", salary: "£30k–£55k" },
     { name: "Live-in Carer", description: "Provides 24/7 in-home support, often as an alternative to residential care.", salary: "£700–£1,100/wk" },
-    { name: "Domiciliary Care Coordinator", description: "Plans and supervises home-care visits across a region for a care provider.", salary: "£24k–£32k" },
+    { name: "Domiciliary Care Coordinator", description: "Plans and supervises home-care visits across a region for a care provider.", salary: "£25k–£32k" },
     { name: "Social Worker (Adults / Children)", description: "Statutory role safeguarding vulnerable people and coordinating care plans.", salary: "£30k–£45k" },
   ]},
   { title: "Allied Health & Pharmacy", icon: FlaskConical, roles: [

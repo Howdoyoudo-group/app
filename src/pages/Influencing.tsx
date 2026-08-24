@@ -28,14 +28,14 @@ const influencingStages: CareerStage[] = [
   { title: "Creators & Talent", icon: Sparkles, roles: [
     { name: "Content Creator", description: "Builds an audience by posting consistently across TikTok, Instagram, YouTube or Substack - full-time creator economy work.", salary: "£0–£500k+" },
     { name: "Vlogger / YouTuber", description: "Produces long-form video content - channel strategy, filming, editing, monetisation.", salary: "£0–£250k+" },
-    { name: "Podcast Host", description: "Hosts and develops a podcast - interviews, story arcs, sponsor reads, and cross-platform distribution.", salary: "£20k–£150k+" },
+    { name: "Podcast Host", description: "Hosts and develops a podcast - interviews, story arcs, sponsor reads, and cross-platform distribution.", salary: "£25k–£150k+" },
     { name: "Newsletter Writer", description: "Builds a paid Substack or beehiiv audience - research, writing, and reader retention.", salary: "£0–£200k+" },
     { name: "Live Streamer", description: "Streams gaming, chat, or commentary on Twitch / YouTube - community building and subs revenue.", salary: "£0–£200k+" },
   ]},
   { title: "Production & Craft", icon: Camera, roles: [
     { name: "Video Editor", description: "Edits short-form (Reels/TikTok) and long-form (YouTube) content for creators and brands.", salary: "£25k–£55k" },
     { name: "Videographer", description: "Films creator content, brand shoots and behind-the-scenes - gear, lighting, and on-set direction.", salary: "£26k–£55k" },
-    { name: "Photographer", description: "Shoots editorial, lifestyle and product imagery for creator brands and sponsors.", salary: "£24k–£60k" },
+    { name: "Photographer", description: "Shoots editorial, lifestyle and product imagery for creator brands and sponsors.", salary: "£25k–£60k" },
     { name: "Producer", description: "Plans shoots end-to-end - schedules, locations, talent briefs, and post-production handover.", salary: "£30k–£60k" },
     { name: "Graphic / Motion Designer", description: "Designs thumbnails, channel art, lower thirds, and motion graphics that drive click-through.", salary: "£26k–£50k" },
   ]},

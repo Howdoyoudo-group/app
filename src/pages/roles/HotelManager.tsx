@@ -11,7 +11,7 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Building2, roles: [
-    { name: "Receptionist / Front Office", description: "Front-of-house service, guest check-in, and the first face of the hotel.", salary: "£20k–£25k" },
+    { name: "Receptionist / Front Office", description: "Front-of-house service, guest check-in, and the first face of the hotel.", salary: "£25k–£30k" },
     { name: "Duty Manager", description: "Oversees a shift across departments - service, safety, and guest experience.", salary: "£25k–£32k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [

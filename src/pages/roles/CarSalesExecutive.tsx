@@ -11,8 +11,8 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Car, roles: [
-    { name: "Sales Executive (Used Cars)", description: "Showroom floor - qualifying buyers, test drives, finance proposals. Most start here.", salary: "£22k–£26k basic + commission (£35k–£50k OTE)" },
-    { name: "Sales Executive (New Cars)", description: "Brand-trained at a franchised dealership - Audi, BMW, Mercedes, Toyota, etc.", salary: "£24k–£28k basic + commission (£40k–£55k OTE)" },
+    { name: "Sales Executive (Used Cars)", description: "Showroom floor - qualifying buyers, test drives, finance proposals. Most start here.", salary: "£25k–£26k basic + commission (£35k–£50k OTE)" },
+    { name: "Sales Executive (New Cars)", description: "Brand-trained at a franchised dealership - Audi, BMW, Mercedes, Toyota, etc.", salary: "£25k–£28k basic + commission (£40k–£55k OTE)" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
     { name: "Senior Sales Executive", description: "Top performer with repeat buyers - handles higher-value cars and complex deals.", salary: "£28k–£35k basic + commission (£55k–£75k OTE)" },
@@ -47,7 +47,7 @@ const CarSalesExecutive = () => {
         dayToDay: ["Greeting walk-in customers and qualifying needs", "Test drives and showroom demonstrations", "Building finance proposals (PCP, HP, lease)", "Selling F&I add-ons (GAP insurance, paint protection, service plans)", "Following up internet leads and existing customer database", "Handover days - preparing the car and customer experience"],
         skills: ["Consultative Sales", "Finance Products (PCP / HP / Lease)", "Product Knowledge (full model line-up)", "FCA Consumer Duty / SAF Approval", "CRM (Kerridge, Pinnacle, Drive)", "Negotiation"],
         traits: ["Genuinely passionate about cars", "Resilient - most leads don't convert", "Disciplined follow-up - money is in the database", "Customer-first - referrals drive long-term earnings"],
-        salary: "£22k basic + commission → £200k+ Dealer Principal",
+        salary: "£25k basic + commission → £200k+ Dealer Principal",
         entryTip: "Routes in: Apply directly to franchised dealerships (Sytner, Inchcape, Lookers, Vertu, JCT600) or independents. Most run sponsored brand training (Audi UK Academy, BMW Sales Academy, JLR Step-In). FCA SAF (Specialist Automotive Finance) qualification required to sell finance - usually completed within first 90 days. No degree required.",
       }} />
       <CareerMap title="Car Sales Career Path" subtitle="From showroom floor to Dealer Principal." stages={careerStages} industry="cars" />

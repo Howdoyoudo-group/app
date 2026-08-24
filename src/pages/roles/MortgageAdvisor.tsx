@@ -11,8 +11,8 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Home, roles: [
-    { name: "Mortgage Administrator", description: "Supports advisors with documentation, lender submissions, and case progression.", salary: "£22k–£28k" },
-    { name: "Trainee Mortgage Advisor", description: "Studies for CeMAP while learning the role under a qualified advisor.", salary: "£24k–£30k" },
+    { name: "Mortgage Administrator", description: "Supports advisors with documentation, lender submissions, and case progression.", salary: "£25k–£28k" },
+    { name: "Trainee Mortgage Advisor", description: "Studies for CeMAP while learning the role under a qualified advisor.", salary: "£25k–£30k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
     { name: "Mortgage Advisor", description: "CeMAP-qualified, advises clients on mortgage and protection products.", salary: "£35k–£55k (OTE)" },

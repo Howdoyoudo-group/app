@@ -554,6 +554,7 @@ const Hero = () => {
                   { label: "Bakery", slug: "bakery" },
                   { label: "Beauty", slug: "beauty" },
                   { label: "Beer", slug: "beer" },
+                  { label: "Books", slug: "books" },
                   { label: "Cars", slug: "cars" },
                   { label: "Charity", slug: "charity" },
                   { label: "Film and TV", slug: "cinema" },

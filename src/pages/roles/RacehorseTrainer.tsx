@@ -11,7 +11,7 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Award, roles: [
-    { name: "Stable Hand / Work Rider", description: "Year-round yard work - riding out daily, mucking out, strapping. The standard route in.", salary: "£22k–£28k + bed & board" },
+    { name: "Stable Hand / Work Rider", description: "Year-round yard work - riding out daily, mucking out, strapping. The standard route in.", salary: "£25k–£28k + bed & board" },
     { name: "Pupil Assistant Trainer", description: "Often a former jockey or BHA-trained yard manager working under a senior trainer.", salary: "£28k–£40k + accommodation" },
   ]},
   { title: "Mid Level", icon: Target, roles: [

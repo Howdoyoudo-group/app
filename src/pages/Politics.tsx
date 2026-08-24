@@ -29,7 +29,7 @@ const politicsStages: CareerStage[] = [
     title: "Civil Service",
     icon: Landmark,
     roles: [
-      { name: "Administrative Officer (AO)", description: "Entry-level operational delivery — processing claims, running front-line services, no degree required. The most common way into a department.", salary: "£23k–£27k" },
+      { name: "Administrative Officer (AO)", description: "Entry-level operational delivery — processing claims, running front-line services, no degree required. The most common way into a department.", salary: "£25k–£27k" },
       { name: "Policy Advisor", description: "Drafts and develops government policy — the largest and most iconic civil service function.", salary: "£30k–£45k" },
       { name: "Civil Service Fast Streamer", description: "The flagship 2-year accelerated leadership scheme across 17 specialisms (Policy, Diplomatic, Economics, Digital and more) — hugely competitive, success rates vary from under 1% to ~6% depending on the stream.", salary: "£28k–£35k (rising fast)" },
       { name: "Government Economist / Statistician", description: "Analyses economic and social data feeding directly into Treasury and departmental decisions (Government Economic Service / Government Statistical Service).", salary: "£35k–£60k" },
@@ -41,7 +41,7 @@ const politicsStages: CareerStage[] = [
     title: "Parliament & Elected Politics",
     icon: Vote,
     roles: [
-      { name: "Caseworker", description: "Handles constituent casework for an individual MP — immigration, housing, benefits, NHS complaints. Employed directly by the MP, not Parliament.", salary: "£24k–£30k" },
+      { name: "Caseworker", description: "Handles constituent casework for an individual MP — immigration, housing, benefits, NHS complaints. Employed directly by the MP, not Parliament.", salary: "£25k–£30k" },
       { name: "Parliamentary Researcher", description: "Westminster-based — drafts speeches and briefings, monitors debates and select committees, handles political correspondence for an MP.", salary: "£25k–£35k" },
       { name: "House of Commons Library Researcher", description: "Produces impartial policy research briefings for any MP on any topic — employed by the parliamentary service, not an individual politician.", salary: "£30k–£45k" },
       { name: "Hansard Reporter", description: "Verbatim transcriber of debates in the Commons and Lords — trains toward a Diploma in Parliamentary Reporting, no politics background required.", salary: "£30k–£45k" },
@@ -65,7 +65,7 @@ const politicsStages: CareerStage[] = [
     title: "Think Tanks & Policy Research",
     icon: BookOpen,
     roles: [
-      { name: "Research Assistant", description: "Entry point into policy research — literature reviews, data analysis, drafting sections of a report, often project-funded.", salary: "£24k–£32k" },
+      { name: "Research Assistant", description: "Entry point into policy research — literature reviews, data analysis, drafting sections of a report, often project-funded.", salary: "£25k–£32k" },
       { name: "Research Fellow", description: "Leads a research programme (e.g. 'Head of Housing'), publishes under their own name, becomes a media commentator on their subject.", salary: "£35k–£55k" },
       { name: "Programme Manager", description: "Coordinates multi-stakeholder research projects, often involving funders, government departments or corporate partners.", salary: "£32k–£50k" },
       { name: "Communications / Press Officer", description: "Pitches think tank findings to journalists — think tanks live or die by media pickup, making this a genuinely central role.", salary: "£28k–£45k" },

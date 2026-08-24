@@ -11,8 +11,8 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Headphones, roles: [
-    { name: "Customer Service Advisor", description: "Phone, email and chat - answers product, order, returns and account queries.", salary: "£21k–£25k + shift bonus" },
-    { name: "Live Chat / Social Care Agent", description: "Handles brand inbound on chat, Instagram, Twitter and review platforms.", salary: "£22k–£26k" },
+    { name: "Customer Service Advisor", description: "Phone, email and chat - answers product, order, returns and account queries.", salary: "£25k–£29k + shift bonus" },
+    { name: "Live Chat / Social Care Agent", description: "Handles brand inbound on chat, Instagram, Twitter and review platforms.", salary: "£25k–£26k" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
     { name: "Senior Advisor / Specialist", description: "Handles complex / escalated cases - refunds, complaints, technical issues.", salary: "£26k–£32k" },
@@ -47,7 +47,7 @@ const CustomerService = () => {
         dayToDay: ["Inbound calls, emails, chat and social DMs", "Order tracking, refunds and returns", "Handling complaints - empathy plus action", "Logging tickets in the CRM (Zendesk, Freshdesk, Salesforce Service Cloud)", "Escalating systemic issues to product / ops", "Hitting CSAT, NPS and SLA targets"],
         skills: ["Active Listening", "Conflict Resolution & De-escalation", "CRM Software (Zendesk, Salesforce, Freshdesk)", "Written Communication", "Process & SLA Awareness", "Empathy under Pressure"],
         traits: ["Genuinely cares about resolving the customer's issue", "Calm with frustrated, occasionally rude callers", "Fast learner - product knowledge is everything", "Resilient - bad days are normal"],
-        salary: "£21k advisor → £300k+ Chief Customer Officer",
+        salary: "£25k advisor → £300k+ Chief Customer Officer",
         entryTip: "Routes in: Apply directly to retailers, brands and platforms (ASOS, Amazon, John Lewis, Octopus Energy, Monzo, Bulb). No formal qualifications needed. Level 2/3 Customer Service Practitioner Apprenticeship is the formal route. Octopus Energy, Monzo and Starling Bank in particular are known for hiring strongly from CS into product, ops and commercial roles.",
       }} />
       <CareerMap title="Customer Service Career Path" subtitle="From advisor to Chief Customer Officer." stages={careerStages} industry="grocery" />

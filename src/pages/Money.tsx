@@ -26,7 +26,7 @@ import PodcastGrid from "@/components/PodcastGrid";
 
 const moneyStages: CareerStage[] = [
   { title: "Banking", icon: Landmark, roles: [
-    { name: "Retail Banker", description: "Front-line role helping personal customers with current accounts, mortgages and lending.", salary: "£24k–£38k" },
+    { name: "Retail Banker", description: "Front-line role helping personal customers with current accounts, mortgages and lending.", salary: "£25k–£38k" },
     { name: "Investment Banker", description: "Advises corporates on M&A, IPOs, debt and equity issuance - long hours, big numbers.", salary: "£60k–£150k+" },
     { name: "Relationship Manager", description: "Owns the bank's relationship with SME or corporate clients - credit, treasury, payments.", salary: "£40k–£75k" },
     { name: "Credit Analyst", description: "Assesses creditworthiness of borrowers and structures lending decisions.", salary: "£35k–£65k" },

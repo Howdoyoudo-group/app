@@ -52,6 +52,10 @@ export const substackByIndustry: Record<string, SubstackNewsletter[]> = {
     { name: "Listen to Lillian", url: "https://listentolillian.substack.com/", description: "British cinema history and criticism - industry analysis from a historian and film critic." },
     { name: "The Industry", url: "https://theindustry.co/", description: "Daily film and TV news - industry deals, production updates, and the business of screen entertainment." },
   ],
+  books: [
+    { name: "Kesia Lupo's Substack", url: "https://kesialupo.substack.com/", description: "A UK literary agent and former commissioning editor on submissions, the agent-author relationship, and how publishing decisions really get made." },
+    { name: "Something to Say", url: "https://abigailbergstrom.substack.com/", description: "A literary agent and novelist on the realities of getting published, from submission to bestseller lists." },
+  ],
   music: [
     { name: "MUSIC x", url: "https://musicx.substack.com/", description: "European music industry economics - publishing, streaming deals, and the business of a diverse music ecosystem." },
     { name: "Water & Music", url: "https://waterandmusic.substack.com/", description: "Music and technology business analysis - how innovation is creating new music industry careers." },
@@ -186,6 +190,10 @@ export const youtubeByIndustry: Record<string, YouTubeChannel[]> = {
     { name: "BFI", url: "https://www.youtube.com/@BritishFilmInstitute", description: "The British Film Institute - career pathways, Film Academy insights, and how to break into the UK film industry." },
     { name: "Into Film", url: "https://www.youtube.com/@IntoFilm", description: "Screen industry careers education - roles explained, career pathways, and industry professional interviews." },
     { name: "ScreenSkills", url: "https://www.youtube.com/@ScreenSkills", description: "The UK's official screen industries skills body - training, career guides, and routes into film and TV work." },
+  ],
+  books: [
+    { name: "Reedsy", url: "https://www.youtube.com/@Reedsy", description: "Publishing platform for authors - practical videos on editing, querying agents, self-publishing, and book marketing." },
+    { name: "Jericho Writers", url: "https://www.youtube.com/@JerichoWriters", description: "Writing courses and masterclasses on getting published, working with literary agents, and building a writing career." },
   ],
   music: [
     { name: "Point Blank Music School", url: "https://www.youtube.com/@pointblankmusicschool", description: "London music school covering careers in production, sound engineering, and the music business." },
@@ -549,6 +557,14 @@ export const coursesByIndustry: Record<string, Course[]> = {
     { title: "KLC School of Design", provider: "KLC", url: "https://klc.co.uk/", description: "Renowned London school offering diplomas in interior design.", free: false },
     { title: "SketchUp for Interior Design", provider: "SketchUp", url: "https://www.sketchup.com/plans-and-pricing/sketchup-free", description: "Learn 3D modelling for interior design projects with the free version.", free: true },
     { title: "British Institute of Interior Design", provider: "BIID", url: "https://biid.org.uk/", description: "Professional body offering CPD, mentoring, and career resources for interior designers.", free: false },
+  ],
+  books: [
+    { title: "Introduction to Publishing", provider: "Publishing Training Centre", url: "https://www.publishingtrainingcentre.co.uk/", description: "The UK publishing industry's own training body - courses on editorial, rights, marketing and production skills.", free: false },
+    { title: "Faber Academy Writing Courses", provider: "Faber Academy", url: "https://www.faberacademy.com/", description: "Creative writing courses run by Faber & Faber, from first drafts to getting published.", free: false },
+    { title: "Curtis Brown Creative", provider: "Curtis Brown Creative", url: "https://www.curtisbrowncreative.co.uk/", description: "Online and in-person writing courses from one of the UK's leading literary agencies.", free: false },
+    { title: "Jericho Writers Courses", provider: "Jericho Writers", url: "https://jerichowriters.com/", description: "Online courses and coaching on writing, editing, and getting a literary agent.", free: false },
+    { title: "Publishers Association", provider: "Publishers Association", url: "https://www.publishers.org.uk", description: "The UK publishing trade body - skills resources, career guides, and industry data.", free: true },
+    { title: "National Centre for Writing", provider: "National Centre for Writing", url: "https://nationalcentreforwriting.org.uk/", description: "Courses, workshops and mentoring for writers and literary translators, based in Norwich.", free: false },
   ],
   music: [
     { title: "Music Business Foundations", provider: "Berklee / Coursera", url: "https://www.coursera.org/learn/music-business-foundations", description: "How the music industry works - labels, publishing, streaming, and live.", free: true },

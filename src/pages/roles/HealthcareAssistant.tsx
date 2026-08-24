@@ -11,8 +11,8 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: HandHeart, roles: [
-    { name: "Healthcare Assistant (Band 2)", description: "Personal care, observations, supporting nurses on the ward - no formal qualifications needed to start.", salary: "£22k–£24k (Band 2)" },
-    { name: "Senior HCA (Band 3)", description: "Care Certificate completed, plus extra clinical skills (venepuncture, ECG, catheter care).", salary: "£24k–£27k (Band 3)" },
+    { name: "Healthcare Assistant (Band 2)", description: "Personal care, observations, supporting nurses on the ward - no formal qualifications needed to start.", salary: "£25k–£28k (Band 2)" },
+    { name: "Senior HCA (Band 3)", description: "Care Certificate completed, plus extra clinical skills (venepuncture, ECG, catheter care).", salary: "£25k–£27k (Band 3)" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
     { name: "Assistant Practitioner (Band 4)", description: "Foundation degree-level - extended clinical role, supervises Band 2/3 staff.", salary: "£27k–£30k (Band 4)" },
@@ -47,7 +47,7 @@ const HealthcareAssistant = () => {
         dayToDay: ["Personal care - washing, dressing, toileting, mobility", "Observations - blood pressure, temperature, pulse, respiration", "Helping patients eat and drink", "Making beds and turning patients to prevent pressure sores", "Chaperoning, escorting and supporting nurses on procedures", "Documentation in patient notes"],
         skills: ["Care Certificate (15 standards)", "Basic Life Support (BLS)", "Manual Handling", "Infection Control", "Communication with Patients & Families", "Record Keeping"],
         traits: ["Genuinely warm - you're the person patients see most", "Physically resilient - lots of bending, lifting, on your feet", "Calm with bodily fluids and difficult moments", "Reliable - wards run on shift cover"],
-        salary: "£22k Band 2 → £30k+ Nursing Associate",
+        salary: "£25k Band 2 → £30k+ Nursing Associate",
         entryTip: "Routes in: Apply directly to NHS Trusts, Bupa, HCA Healthcare and care homes - most train you on the Care Certificate in your first 12 weeks. Healthcare Support Worker apprenticeship (Level 2/3) is the formal route. From here you can progress to Nursing Associate (Level 5 apprenticeship) and then Registered Nurse via the Nursing Degree Apprenticeship.",
       }} />
       <CareerMap title="HCA Career Path" subtitle="From Band 2 to Registered Nurse via paid apprenticeships." stages={careerStages} industry="health" />

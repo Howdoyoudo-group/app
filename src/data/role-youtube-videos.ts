@@ -543,4 +543,23 @@ export const ROLE_YOUTUBE_VIDEOS: Record<string, RoleYouTubeVideo[]> = {
     { id: "UIA-K2uVCqY", title: "Finance Jobs with GREAT Work Life Balance & HIGH Pay", channel: "Shawn Hakimi" },
     { id: "4I8Um21du78", title: "Day in the Life of a Wealth Management Analyst | JPMorgan Chase & Co.", channel: "jpmorgan" },
   ],
+  "football-agent": [
+    { id: "AoZ0WO0-yU4", title: "Do Players Actually Need Agents?", channel: "Athletic Interest" },
+    { id: "WzFTP7Sj5FA", title: "How to Become a FIFA Agent (What Nobody Tells You First)", channel: "Brian Football Insider" },
+    { id: "lyZcN40C_jk", title: "How I Passed the FIFA Agent Exam: Insights and Tips to Reach 81% Pass Rate", channel: "Samuele Mura" },
+    { id: "wtWGA0hChiY", title: "Being a Football Agent: Getting into the Business (7 real tips)", channel: "Samuele Mura" },
+  ],
+  "isrc-manager": [
+    { id: "ZeorINQB2RA", title: "DO THIS Before Your Next Release! (ISRC CODES)", channel: "Spinlight Studio" },
+    { id: "214RpprAltU", title: "What is ISRC code? (ISRC Number)", channel: "The Modern Musician" },
+    { id: "NP974uzvRGw", title: "ISRC Codes - What Are They? | Do You Need One?", channel: "Charles Cleyn" },
+    { id: "n-AupJuMlCU", title: "What is an ISRC code and why do you need one?", channel: "Abbey Road" },
+  ],
+  "literary-agent": [
+    { id: "uCsZmeydAiI", title: "Come to Work With Me... Literary Agent Edition!", channel: "Publishers Association" },
+    { id: "DHvt7qUCX2E", title: "Day in the Life of a Literary Agent | Literary Agent Stephanie Fretwell Hill", channel: "Middle Grade Ninja" },
+  ],
+  "bookseller": [
+    { id: "2jotS_0evWM", title: "A day in the life of... a Waterstones bookseller!", channel: "Publishers Association" },
+  ],
 };

@@ -11,6 +11,7 @@ interface TheDownloadProps {
 // Map slug -> file extension ("html" or "pdf").
 const AVAILABLE_DOWNLOADS: Record<string, "html" | "pdf"> = {
   bakery: "html",
+  books: "html",
   building: "html",
   beauty: "html",
   beer: "html",

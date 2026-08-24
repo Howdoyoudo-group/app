@@ -26,8 +26,8 @@ import PodcastGrid from "@/components/PodcastGrid";
 
 const estateAgencyStages: CareerStage[] = [
   { title: "Sales & Lettings", icon: Home, roles: [
-    { name: "Sales Negotiator", description: "Entry-level role - handles viewings, enquiries, and offers between buyers and sellers.", salary: "£20k–£30k + commission" },
-    { name: "Lettings Negotiator", description: "Entry-level role - markets rental properties, conducts viewings and matches tenants to landlords.", salary: "£20k–£28k + commission" },
+    { name: "Sales Negotiator", description: "Entry-level role - handles viewings, enquiries, and offers between buyers and sellers.", salary: "£25k–£30k + commission" },
+    { name: "Lettings Negotiator", description: "Entry-level role - markets rental properties, conducts viewings and matches tenants to landlords.", salary: "£25k–£28k + commission" },
     { name: "Senior Sales Negotiator", description: "Manages higher-value instructions and mentors junior negotiators.", salary: "£25k–£40k + commission" },
     { name: "Lettings Manager", description: "Runs the lettings department - landlord relationships, rent reviews, and team performance.", salary: "£30k–£45k + bonus" },
     { name: "New Homes Sales Consultant", description: "Sells properties on behalf of housebuilders and developers, often on-site.", salary: "£25k–£40k + commission" },
@@ -35,24 +35,24 @@ const estateAgencyStages: CareerStage[] = [
   ]},
   { title: "Valuation & Instruction", icon: Lightbulb, roles: [
     { name: "Valuer", description: "Assesses properties to determine accurate market value.", salary: "£25k–£40k" },
-    { name: "Lister / Listing Agent", description: "Wins new instructions from homeowners looking to sell or let.", salary: "£22k–£45k + commission" },
+    { name: "Lister / Listing Agent", description: "Wins new instructions from homeowners looking to sell or let.", salary: "£25k–£45k + commission" },
     { name: "Branch Manager", description: "Runs an estate agency branch end-to-end - sales, lettings, and team.", salary: "£35k–£60k + bonus" },
     { name: "RICS Surveyor", description: "Conducts formal property surveys for buyers and lenders.", salary: "£30k–£55k" },
     { name: "Area Director", description: "Oversees multiple branches in a region.", salary: "£50k–£80k + bonus" },
   ]},
   { title: "Client Services", icon: Users, roles: [
-    { name: "Property Manager", description: "Manages a portfolio of rental properties on behalf of landlords.", salary: "£24k–£35k" },
-    { name: "Sales Progressor", description: "Chases solicitors and brokers to keep transactions moving to completion.", salary: "£22k–£32k" },
-    { name: "Customer Service Coordinator", description: "Handles enquiries and schedules viewings.", salary: "£20k–£26k" },
+    { name: "Property Manager", description: "Manages a portfolio of rental properties on behalf of landlords.", salary: "£25k–£35k" },
+    { name: "Sales Progressor", description: "Chases solicitors and brokers to keep transactions moving to completion.", salary: "£25k–£32k" },
+    { name: "Customer Service Coordinator", description: "Handles enquiries and schedules viewings.", salary: "£25k–£26k" },
     { name: "Relocation Consultant", description: "Supports corporate clients relocating staff to new cities.", salary: "£28k–£45k" },
-    { name: "Tenancy Administrator", description: "Processes agreements, references, and deposits for new tenancies.", salary: "£20k–£26k" },
+    { name: "Tenancy Administrator", description: "Processes agreements, references, and deposits for new tenancies.", salary: "£25k–£26k" },
   ]},
   { title: "Marketing & PropTech", icon: Megaphone, roles: [
     { name: "Marketing Manager", description: "Plans campaigns and manages portal listings on Rightmove and Zoopla.", salary: "£30k–£50k" },
-    { name: "Property Photographer", description: "Shoots professional property photography, floorplans and video tours.", salary: "£22k–£38k" },
-    { name: "Social Media Manager", description: "Builds the agency's online presence and lead generation.", salary: "£24k–£38k" },
+    { name: "Property Photographer", description: "Shoots professional property photography, floorplans and video tours.", salary: "£25k–£38k" },
+    { name: "Social Media Manager", description: "Builds the agency's online presence and lead generation.", salary: "£25k–£38k" },
     { name: "PropTech Product Manager", description: "Develops digital tools for agents - CRMs, valuation platforms, virtual viewings.", salary: "£40k–£70k" },
-    { name: "Content Writer / Copywriter", description: "Writes property descriptions, brochures and market reports.", salary: "£24k–£38k" },
+    { name: "Content Writer / Copywriter", description: "Writes property descriptions, brochures and market reports.", salary: "£25k–£38k" },
     { name: "Data Analyst", description: "Analyses market data, lead conversion and branch performance.", salary: "£30k–£50k" },
   ]},
   { title: "Legal & Compliance", icon: FileText, roles: [

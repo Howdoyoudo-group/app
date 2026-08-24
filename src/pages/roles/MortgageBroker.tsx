@@ -11,7 +11,7 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Home, roles: [
-    { name: "Mortgage Administrator", description: "Case packaging, lender liaison, supporting brokers - common entry route.", salary: "£24k–£30k" },
+    { name: "Mortgage Administrator", description: "Case packaging, lender liaison, supporting brokers - common entry route.", salary: "£25k–£30k" },
     { name: "Trainee Broker (CeMAP studying)", description: "Working towards Certificate in Mortgage Advice & Practice on a sponsored route.", salary: "£26k–£32k + commission" },
   ]},
   { title: "Mid Level", icon: Target, roles: [

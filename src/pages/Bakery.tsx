@@ -47,27 +47,27 @@ const bakeryIcons = [
 
 const bakeryStages: CareerStage[] = [
   { title: "Ingredients & Sourcing", icon: Wheat, roles: [
-    { name: "Flour Miller", description: "Sources and mills grain into specialist flours for bakeries.", salary: "£22k–£30k" },
+    { name: "Flour Miller", description: "Sources and mills grain into specialist flours for bakeries.", salary: "£25k–£30k" },
     { name: "Ingredient Buyer", description: "Negotiates supply contracts for butter, sugar, yeast, and specialty ingredients.", salary: "£28k–£40k" },
     { name: "Quality Assurance Manager", description: "Tests raw materials and ensures compliance with food safety standards.", salary: "£30k–£45k" },
   ]},
   { title: "Production & Baking", icon: ChefHat, roles: [
-    { name: "Artisan Baker", description: "Hand-crafts sourdough, pastries, and speciality breads.", salary: "£22k–£32k" },
+    { name: "Artisan Baker", description: "Hand-crafts sourdough, pastries, and speciality breads.", salary: "£25k–£32k" },
     { name: "Head Baker", description: "Leads production schedules, recipe development, and kitchen teams.", salary: "£30k–£42k" },
-    { name: "Pastry Chef", description: "Creates cakes, viennoiserie, and decorated celebration pieces.", salary: "£24k–£36k" },
+    { name: "Pastry Chef", description: "Creates cakes, viennoiserie, and decorated celebration pieces.", salary: "£25k–£36k" },
     { name: "NPD Chef", description: "Develops new products and recipes, testing flavours and formats for market.", salary: "£28k–£42k" },
     { name: "Food Technologist", description: "Applies food science to improve shelf life, texture, and production processes.", salary: "£26k–£40k" },
-    { name: "Production Operative", description: "Operates mixing, baking, and packaging machinery in commercial bakeries.", salary: "£20k–£26k" },
+    { name: "Production Operative", description: "Operates mixing, baking, and packaging machinery in commercial bakeries.", salary: "£25k–£26k" },
   ]},
   { title: "Distribution & Wholesale", icon: Truck, roles: [
     { name: "Wholesale Account Manager", description: "Manages relationships with cafés, restaurants, and retailers.", salary: "£28k–£40k" },
-    { name: "Delivery Driver", description: "Runs early-morning routes getting fresh products to customers.", salary: "£22k–£28k" },
-    { name: "Logistics Coordinator", description: "Plans delivery routes, manages cold-chain, and schedules production dispatch.", salary: "£24k–£35k" },
+    { name: "Delivery Driver", description: "Runs early-morning routes getting fresh products to customers.", salary: "£25k–£28k" },
+    { name: "Logistics Coordinator", description: "Plans delivery routes, manages cold-chain, and schedules production dispatch.", salary: "£25k–£35k" },
   ]},
   { title: "Retail & Shopfront", icon: Store, roles: [
     { name: "Bakery Manager", description: "Runs day-to-day operations, staffing, stock, and customer experience.", salary: "£26k–£35k" },
-    { name: "Counter Staff", description: "Serves customers, handles till, and maintains displays.", salary: "£20k–£24k" },
-    { name: "Café Manager", description: "Manages the eat-in side of bakery-café operations, including coffee and dine-in service.", salary: "£24k–£32k" },
+    { name: "Counter Staff", description: "Serves customers, handles till, and maintains displays.", salary: "£25k–£33k" },
+    { name: "Café Manager", description: "Manages the eat-in side of bakery-café operations, including coffee and dine-in service.", salary: "£25k–£32k" },
   ]},
   { title: "Brand & Marketing", icon: ShoppingBasket, roles: [
     { name: "Brand Manager", description: "Develops the bakery's identity, packaging, and social media presence.", salary: "£30k–£45k" },

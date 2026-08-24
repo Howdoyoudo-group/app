@@ -8,7 +8,7 @@ const ALL_INDUSTRIES = [
   "bakery", "beauty", "beer", "cars", "charity", "cinema", "coffee",
   "estate-agency", "farming", "fashion", "food-drink", "football", "footwear",
   "gaming", "grocery", "health", "horse-racing", "hospitality",
-  "interior-design", "jewellery", "journalism", "money", "music", "pets",
+  "interior-design", "jewellery", "journalism", "money", "music", "books", "pets",
   "physiotherapy", "psychotherapy", "teaching", "travel", "wellness",
   "building", "fixing", "delivery", "tennis",
 ];

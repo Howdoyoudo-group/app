@@ -33,13 +33,13 @@ const farmingStages: CareerStage[] = [
   ]},
   { title: "Livestock & Dairy", icon: Beef, roles: [
     { name: "Herd Manager", description: "Leads a dairy or beef herd - feeding, breeding, health, milk yield and welfare standards.", salary: "£28k–£45k" },
-    { name: "Stockperson", description: "Hands-on care of cattle, sheep or pigs - feeding, monitoring health and assisting with breeding.", salary: "£22k–£32k" },
+    { name: "Stockperson", description: "Hands-on care of cattle, sheep or pigs - feeding, monitoring health and assisting with breeding.", salary: "£25k–£32k" },
     { name: "Dairy Farm Manager", description: "Runs a commercial dairy operation - parlour, pasture, staff and milk contracts.", salary: "£35k–£55k" },
-    { name: "Shepherd", description: "Manages flocks across UK upland and lowland farms - lambing, shearing, grazing rotation.", salary: "£24k–£36k" },
+    { name: "Shepherd", description: "Manages flocks across UK upland and lowland farms - lambing, shearing, grazing rotation.", salary: "£25k–£36k" },
     { name: "Poultry Manager", description: "Oversees broiler, layer or free-range egg production - biosecurity, feed, welfare.", salary: "£28k–£42k" },
   ]},
   { title: "Horticulture & Produce", icon: Sprout, roles: [
-    { name: "Horticulturist", description: "Grows fruit, veg, salad or ornamentals at scale - protected cropping, plant health, picking schedules.", salary: "£24k–£38k" },
+    { name: "Horticulturist", description: "Grows fruit, veg, salad or ornamentals at scale - protected cropping, plant health, picking schedules.", salary: "£25k–£38k" },
     { name: "Glasshouse Manager", description: "Runs a commercial glasshouse - climate control, irrigation, IPM and labour planning.", salary: "£32k–£48k" },
     { name: "Soft Fruit Grower", description: "Specialist in strawberries, raspberries and berries for UK supermarkets and direct sales.", salary: "£28k–£42k" },
     { name: "Nursery Manager", description: "Oversees a plant or tree nursery - propagation, sales, retail and trade customers.", salary: "£26k–£40k" },

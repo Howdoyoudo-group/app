@@ -11,7 +11,7 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Heart, roles: [
-    { name: "Stable Hand / Groom (Trainee)", description: "Mucking out, feeding, leading horses. Often comes with bed and board.", salary: "£22k–£26k + accommodation" },
+    { name: "Stable Hand / Groom (Trainee)", description: "Mucking out, feeding, leading horses. Often comes with bed and board.", salary: "£25k–£26k + accommodation" },
     { name: "Apprentice (Level 2 Racehorse Care)", description: "Two-year apprenticeship through the National Horseracing College or British Racing School.", salary: "£18k–£22k while training + accommodation" },
   ]},
   { title: "Mid Level", icon: Target, roles: [
@@ -47,7 +47,7 @@ const StableHand = () => {
         dayToDay: ["Mucking out - usually 3–4 boxes per groom", "Feeding (dawn and evening)", "Grooming, plaiting, strapping for races", "Leading horses out for exercise lots", "Tack cleaning and yard maintenance", "Travelling horses to racecourses on race days"],
         skills: ["Horse Handling & Welfare", "Yard Hygiene & Stable Management", "Tack Care", "Trailer / Horsebox Loading", "Basic Equine First Aid", "BHA Welfare Standards"],
         traits: ["Genuine love of horses - they're hard work", "Physically fit and tireless - early starts every day", "Calm temperament - horses pick up your energy", "Team player - yards live or die on staff cohesion"],
-        salary: "£22k entry → £120k+ stud manager",
+        salary: "£25k entry → £120k+ stud manager",
         entryTip: "Routes in: Apply directly to a licensed trainer's yard - most provide accommodation and on-the-job training. The National Horseracing College (Doncaster) and British Racing School (Newmarket) offer Level 2 Racehorse Care apprenticeships - the formal entry route, fully funded.",
       }} />
       <CareerMap title="Stable Career Path" subtitle="From groom to head lad, stud manager or trainer." stages={careerStages} industry="horse-racing" />

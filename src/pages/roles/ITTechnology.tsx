@@ -12,7 +12,7 @@ import RoleOverview from "@/components/RoleOverview";
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Code, roles: [
     { name: "Junior Software Engineer", description: "Builds and maintains features under the guidance of senior engineers.", salary: "£32k–£45k" },
-    { name: "IT Support Analyst", description: "First-line technical support for internal users and systems.", salary: "£24k–£32k" },
+    { name: "IT Support Analyst", description: "First-line technical support for internal users and systems.", salary: "£25k–£32k" },
     { name: "Data Analyst", description: "Cleans, models, and reports on data to support business decisions.", salary: "£28k–£40k" },
   ]},
   { title: "Mid Level", icon: Server, roles: [

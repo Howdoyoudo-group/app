@@ -40,7 +40,7 @@ const theatreStages: CareerStage[] = [
     title: "Stage & Production Management",
     icon: Theater,
     roles: [
-      { name: "Assistant Stage Manager (ASM)", description: "Entry point into stage management — running props, backstage tracking and supporting the DSM during the show. The standard first job for stage management graduates.", salary: "£450–£550 per week (touring) / £24k–£28k (venue-based)" },
+      { name: "Assistant Stage Manager (ASM)", description: "Entry point into stage management — running props, backstage tracking and supporting the DSM during the show. The standard first job for stage management graduates.", salary: "£450–£550 per week (touring) / £25k–£28k (venue-based)" },
       { name: "Deputy Stage Manager (DSM)", description: "\"Calls\" the show from the book — cueing lighting, sound and set changes live, every performance. The technical heart of stage management.", salary: "£550–£700 per week / £28k–£36k" },
       { name: "Stage Manager", description: "Runs the entire backstage operation and company welfare during rehearsals and the run — the senior stage management role on a production.", salary: "£600–£800 per week / £32k–£42k" },
       { name: "Company Manager", description: "Handles contracts, payroll, welfare and logistics for the whole cast and crew — especially critical on tours.", salary: "£35k–£50k" },
@@ -56,7 +56,7 @@ const theatreStages: CareerStage[] = [
       { name: "Sound Engineer / No.1 Sound", description: "Designs and mixes a show's live sound — radio mics, playback and the acoustic balance between orchestra, band and voices.", salary: "£26k–£42k" },
       { name: "Set / Scenic Designer", description: "Designs the physical world of a production — usually freelance, paid per show, with fees scaling from small fringe venues to major subsidised houses.", salary: "£2k–£15k+ per production (freelance fee)" },
       { name: "Costume Designer / Wardrobe Supervisor", description: "Designs or maintains a show's costumes — wardrobe supervisors run day-to-day repairs, laundry and quick-changes throughout the run.", salary: "£25k–£38k (wardrobe staff role)" },
-      { name: "Wigs, Hair & Makeup Artist", description: "Builds and maintains wigs, period hair and stage makeup — a specialist technical craft with its own training route (e.g. via Royal Central).", salary: "£24k–£34k" },
+      { name: "Wigs, Hair & Makeup Artist", description: "Builds and maintains wigs, period hair and stage makeup — a specialist technical craft with its own training route (e.g. via Royal Central).", salary: "£25k–£34k" },
       { name: "AV / Video Technician", description: "Operates the video projection and screen content increasingly used in modern staging, from concept musicals to corporate-style theatre.", salary: "£28k–£42k" },
     ],
   },
@@ -75,9 +75,9 @@ const theatreStages: CareerStage[] = [
     title: "Front of House & Venue Operations",
     icon: Ticket,
     roles: [
-      { name: "Venue Technician", description: "The resident technical crew for a theatre building — get-ins, get-outs and running the house systems for whatever show is in.", salary: "£22k–£32k" },
-      { name: "House Manager", description: "Runs the audience-facing side of a venue on show nights — front of house team, safety, and the overall visitor experience.", salary: "£24k–£34k" },
-      { name: "Box Office Manager", description: "Runs ticketing operations and the box office team — pricing, access schemes and the systems behind every sale.", salary: "£23k–£30k" },
+      { name: "Venue Technician", description: "The resident technical crew for a theatre building — get-ins, get-outs and running the house systems for whatever show is in.", salary: "£25k–£32k" },
+      { name: "House Manager", description: "Runs the audience-facing side of a venue on show nights — front of house team, safety, and the overall visitor experience.", salary: "£25k–£34k" },
+      { name: "Box Office Manager", description: "Runs ticketing operations and the box office team — pricing, access schemes and the systems behind every sale.", salary: "£25k–£30k" },
       { name: "Front of House Team Member / Usher", description: "The most common entry-level job in a theatre building — ticket checks, ushering and audience service. A genuine route in for many backstage and admin careers.", salary: "£11–£13 per hour" },
     ],
   },
@@ -225,6 +225,7 @@ const Theatre = () => {
               { title: "The Stage Jobs", description: "The UK's biggest theatre and performing arts jobs board - performing, backstage, technical and touring roles, plus auditions.", url: "https://jobs.thestage.co.uk/" },
               { title: "Arts Jobs (Arts Council England)", description: "Vacancies across the wider UK arts and culture sector, hosted by Arts Council England.", url: "https://www.artsjobs.org.uk/jobs" },
               { title: "UK Theatre — Industry Job Vacancies", description: "The trade body's own jobs board, covering venues and companies across the UK.", url: "https://uktheatre.org/jobs/" },
+              { title: "Run The Check", description: "Curated UK creative and arts opportunities - includes theatre roles at companies like Immediate Theatre and Shakespeare's Globe alongside wider arts sector jobs.", url: "https://www.runthecheck.com" },
             ]}
           />
           <IndustryRolesShowcase stages={theatreStages} industry="Theatre" companies={theatreCompanies} />

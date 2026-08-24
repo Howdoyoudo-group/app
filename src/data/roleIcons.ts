@@ -190,6 +190,12 @@ export const ROLE_ICONS: Record<string, string> = {
   "football-physio": roleFootballPhysio,
   "football-analyst": roleFootballAnalyst,
   "academy-coach": roleAcademyCoach,
+  // Placeholder - reuse the Football Coach doodle until a bespoke
+  // Football Agent icon exists
+  "football-agent": roleFootballCoach,
+  // Placeholder - reuse the Data Analyst doodle until a bespoke
+  // ISRC Manager icon exists
+  "isrc-manager": roleDataAnalyst,
 
   // Journalism
   reporter: roleReporter,

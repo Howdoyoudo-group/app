@@ -30,7 +30,7 @@ const buildingStages: CareerStage[] = [
     icon: Ruler,
     roles: [
       { name: "Architect", description: "Designs buildings and oversees delivery from concept through planning to completion.", salary: "£30k–£80k" },
-      { name: "Architectural Technician", description: "Produces detailed technical drawings and manages planning applications.", salary: "£24k–£45k" },
+      { name: "Architectural Technician", description: "Produces detailed technical drawings and manages planning applications.", salary: "£25k–£45k" },
       { name: "Structural Engineer", description: "Ensures buildings and infrastructure are safe and structurally sound.", salary: "£35k–£70k" },
       { name: "Interior Architect", description: "Designs the internal spaces, layouts, and specifications of buildings.", salary: "£30k–£55k" },
     ],

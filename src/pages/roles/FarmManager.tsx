@@ -11,7 +11,7 @@ import RoleOverview from "@/components/RoleOverview";
 
 const careerStages: CareerStage[] = [
   { title: "Entry Level", icon: Tractor, roles: [
-    { name: "Farm Worker / Stockperson", description: "On-the-ground farm experience - essential foundation before management.", salary: "£22k–£28k + accommodation often" },
+    { name: "Farm Worker / Stockperson", description: "On-the-ground farm experience - essential foundation before management.", salary: "£25k–£28k + accommodation often" },
     { name: "Assistant Farm Manager", description: "Deputy role on a larger farm - learns the P&L, labour and machinery side.", salary: "£28k–£36k + house" },
   ]},
   { title: "Mid Level", icon: Target, roles: [

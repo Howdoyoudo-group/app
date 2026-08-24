@@ -4,6 +4,7 @@ import {
   Activity, Medal, UtensilsCrossed, Sofa, Banknote, Music,
   Stethoscope, Brain, GraduationCap, Flower2, Gamepad2,
   Video, Gem, PawPrint, Plane, Dumbbell, Package, Wrench, HardHat,
+  Newspaper, Landmark, Drama, BookOpen,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -46,6 +47,7 @@ const INDUSTRY_ICON: Record<string, LucideIcon> = {
   bakery: Croissant,
   beauty: Sparkles,
   beer: Beer,
+  books: BookOpen,
   cars: Car,
   charity: Heart,
   cinema: Clapperboard,
@@ -69,7 +71,7 @@ const INDUSTRY_ICON: Record<string, LucideIcon> = {
   wellness: Flower2,
   gaming: Gamepad2,
   influencing: Video,
-  journalism: Gem,
+  journalism: Newspaper,
   jewellery: Gem,
   pets: PawPrint,
   travel: Plane,
@@ -77,6 +79,8 @@ const INDUSTRY_ICON: Record<string, LucideIcon> = {
   building: HardHat,
   fixing: Wrench,
   delivery: Package,
+  politics: Landmark,
+  theatre: Drama,
 };
 
 interface Props {

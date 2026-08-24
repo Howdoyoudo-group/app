@@ -48,6 +48,7 @@ const Jobs = lazy(() => import("./pages/Jobs.tsx"));
 const Coffee = lazy(() => import("./pages/Coffee.tsx"));
 const Cinema = lazy(() => import("./pages/Cinema.tsx"));
 const Music = lazy(() => import("./pages/Music.tsx"));
+const Books = lazy(() => import("./pages/Books.tsx"));
 const Grocery = lazy(() => import("./pages/Grocery.tsx"));
 const Fashion = lazy(() => import("./pages/Fashion.tsx"));
 const Hospitality = lazy(() => import("./pages/Hospitality.tsx"));
@@ -193,6 +194,10 @@ const RoleGarmentTechnologist = lazy(() => import("./pages/roles/GarmentTechnolo
 const RoleMortgageAdvisor = lazy(() => import("./pages/roles/MortgageAdvisor.tsx"));
 const RoleITTechnology = lazy(() => import("./pages/roles/ITTechnology.tsx"));
 const RoleAI = lazy(() => import("./pages/roles/AI.tsx"));
+const RoleFootballAgent = lazy(() => import("./pages/roles/FootballAgent.tsx"));
+const RoleISRCManager = lazy(() => import("./pages/roles/ISRCManager.tsx"));
+const RoleLiteraryAgent = lazy(() => import("./pages/roles/LiteraryAgent.tsx"));
+const RoleBookseller = lazy(() => import("./pages/roles/Bookseller.tsx"));
 const RoleRetailAssistant = lazy(() => import("./pages/roles/RetailAssistant.tsx"));
 const RoleWarehouseDelivery = lazy(() => import("./pages/roles/WarehouseDelivery.tsx"));
 const RoleVehicleTechnician = lazy(() => import("./pages/roles/VehicleTechnician.tsx"));
@@ -278,6 +283,7 @@ const App = () => (
           <Route path="/coffee" element={<Coffee />} />
           <Route path="/cinema" element={<Cinema />} />
           <Route path="/music" element={<Music />} />
+          <Route path="/books" element={<Books />} />
           <Route path="/grocery" element={<Grocery />} />
           <Route path="/fashion" element={<Fashion />} />
           <Route path="/hospitality" element={<Hospitality />} />
@@ -404,6 +410,10 @@ const App = () => (
           <Route path="/roles/mortgage-advisor" element={<RoleMortgageAdvisor />} />
           <Route path="/roles/it-technology" element={<RoleITTechnology />} />
           <Route path="/roles/ai" element={<RoleAI />} />
+          <Route path="/roles/football-agent" element={<RoleFootballAgent />} />
+          <Route path="/roles/isrc-manager" element={<RoleISRCManager />} />
+          <Route path="/roles/literary-agent" element={<RoleLiteraryAgent />} />
+          <Route path="/roles/bookseller" element={<RoleBookseller />} />
           <Route path="/roles/ai-engineering" element={<RoleAI />} />
           <Route path="/roles/ai-research" element={<RoleAI />} />
           <Route path="/roles/ai-commercial" element={<RoleAI />} />

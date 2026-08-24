@@ -26,16 +26,16 @@ import PodcastGrid from "@/components/PodcastGrid";
 
 const jewelleryStages: CareerStage[] = [
   { title: "Design & Creation", icon: Palette, roles: [
-    { name: "Jewellery Designer", description: "Conceptualises and sketches new pieces - from engagement rings to high jewellery collections.", salary: "£22k–£50k" },
+    { name: "Jewellery Designer", description: "Conceptualises and sketches new pieces - from engagement rings to high jewellery collections.", salary: "£25k–£50k" },
     { name: "CAD Designer", description: "Uses 3D modelling software (Rhino, MatrixGold) to render precise jewellery designs.", salary: "£25k–£45k" },
     { name: "Creative Director", description: "Sets the overall aesthetic vision for a jewellery brand or maison.", salary: "£55k–£120k" },
     { name: "Trend Forecaster", description: "Identifies upcoming materials, styles, and consumer preferences in the luxury market.", salary: "£30k–£50k" },
   ]},
   { title: "Craft & Workshop", icon: Hammer, roles: [
-    { name: "Bench Jeweller", description: "Hand-fabricates, solders, sets stones, and finishes fine jewellery at the workbench.", salary: "£22k–£45k" },
-    { name: "Stone Setter", description: "Secures gemstones into metal mounts using prong, bezel, pavé, and channel techniques.", salary: "£24k–£48k" },
-    { name: "Polisher & Finisher", description: "Applies final surface treatments - polishing, plating, and quality finishing.", salary: "£20k–£32k" },
-    { name: "Engraver", description: "Hand or machine engraves inscriptions, patterns, and decorative details.", salary: "£22k–£40k" },
+    { name: "Bench Jeweller", description: "Hand-fabricates, solders, sets stones, and finishes fine jewellery at the workbench.", salary: "£25k–£45k" },
+    { name: "Stone Setter", description: "Secures gemstones into metal mounts using prong, bezel, pavé, and channel techniques.", salary: "£25k–£48k" },
+    { name: "Polisher & Finisher", description: "Applies final surface treatments - polishing, plating, and quality finishing.", salary: "£25k–£32k" },
+    { name: "Engraver", description: "Hand or machine engraves inscriptions, patterns, and decorative details.", salary: "£25k–£40k" },
     { name: "Gemmologist", description: "Identifies, grades, and certifies gemstones for quality and authenticity.", salary: "£25k–£50k" },
     { name: "Master Goldsmith", description: "Senior craftsperson overseeing complex commissions and bespoke pieces.", salary: "£35k–£65k" },
   ]},
@@ -46,18 +46,18 @@ const jewelleryStages: CareerStage[] = [
     { name: "Quality Assurance Manager", description: "Inspects finished pieces against hallmarking standards and brand specifications.", salary: "£28k–£48k" },
   ]},
   { title: "Retail & Client Experience", icon: Store, roles: [
-    { name: "Sales Consultant", description: "Advises clients in-store on engagement rings, gifts, and fine jewellery purchases.", salary: "£22k–£35k + commission" },
+    { name: "Sales Consultant", description: "Advises clients in-store on engagement rings, gifts, and fine jewellery purchases.", salary: "£25k–£35k + commission" },
     { name: "Store Manager", description: "Leads a boutique team - targets, visual merchandising, and VIP client relationships.", salary: "£32k–£55k" },
     { name: "Bespoke Consultant", description: "Guides clients through the commission process - from brief to finished piece.", salary: "£28k–£45k" },
-    { name: "Visual Merchandiser", description: "Creates compelling window and in-store displays that tell the brand story.", salary: "£24k–£40k" },
+    { name: "Visual Merchandiser", description: "Creates compelling window and in-store displays that tell the brand story.", salary: "£25k–£40k" },
     { name: "E-commerce Manager", description: "Runs the online store - product photography, UX, and digital sales strategy.", salary: "£30k–£55k" },
   ]},
   { title: "Marketing & Brand", icon: Megaphone, roles: [
     { name: "Brand Manager", description: "Defines and protects the brand identity across all channels and campaigns.", salary: "£32k–£55k" },
     { name: "PR & Communications Manager", description: "Manages press coverage, celebrity placements, and influencer partnerships.", salary: "£30k–£50k" },
-    { name: "Social Media Manager", description: "Creates aspirational content for Instagram, TikTok, and Pinterest.", salary: "£24k–£42k" },
+    { name: "Social Media Manager", description: "Creates aspirational content for Instagram, TikTok, and Pinterest.", salary: "£25k–£42k" },
     { name: "Photographer / Art Director", description: "Shoots campaign imagery and lookbooks for collections and e-commerce.", salary: "£28k–£55k" },
-    { name: "Content Copywriter", description: "Writes product descriptions, brand stories, and editorial for digital and print.", salary: "£24k–£40k" },
+    { name: "Content Copywriter", description: "Writes product descriptions, brand stories, and editorial for digital and print.", salary: "£25k–£40k" },
   ]},
   { title: "Business & Operations", icon: Briefcase, roles: [
     { name: "Head of Retail", description: "Oversees multi-store or concession operations and commercial performance.", salary: "£50k–£90k" },

@@ -32,7 +32,7 @@ const tennisStages: CareerStage[] = [
       { name: "Professional Player", description: "Competes on the ATP, WTA, or ITF circuits, managing a team of coaches, physios, and agents around a global tournament schedule.", salary: "Varies widely" },
       { name: "LTA Performance Coach", description: "Develops elite junior and senior players at the National Tennis Centre or regional academies.", salary: "£30k–£60k" },
       { name: "Club Head Coach", description: "Runs the coaching programme at a private or municipal tennis club, delivering group sessions and private lessons.", salary: "£26k–£50k" },
-      { name: "Tennis Teacher", description: "Delivers coaching to recreational players of all ages and abilities at clubs, schools, and parks.", salary: "£22k–£38k" },
+      { name: "Tennis Teacher", description: "Delivers coaching to recreational players of all ages and abilities at clubs, schools, and parks.", salary: "£25k–£38k" },
       { name: "Performance Director", description: "Sets the national player development strategy and oversees elite pathways from junior to senior level.", salary: "£60k–£120k" },
     ],
   },
@@ -64,8 +64,8 @@ const tennisStages: CareerStage[] = [
     roles: [
       { name: "Tennis Commentator", description: "Provides live expert commentary and analysis for TV, radio, and streaming broadcasts.", salary: "£30k–£100k+" },
       { name: "Broadcast Producer", description: "Directs and produces live tennis coverage and studio programming.", salary: "£35k–£65k" },
-      { name: "Tennis Journalist", description: "Covers the tour for national or specialist publications — matchday reporting, features, and investigations.", salary: "£24k–£50k" },
-      { name: "Digital Content Creator", description: "Creates social media content, short-form video, and editorial for clubs, tours, or media brands.", salary: "£24k–£40k" },
+      { name: "Tennis Journalist", description: "Covers the tour for national or specialist publications — matchday reporting, features, and investigations.", salary: "£25k–£50k" },
+      { name: "Digital Content Creator", description: "Creates social media content, short-form video, and editorial for clubs, tours, or media brands.", salary: "£25k–£40k" },
       { name: "Data Analyst / Statistician", description: "Produces performance statistics and visualisations used by broadcasters, coaches, and betting operators.", salary: "£28k–£50k" },
     ],
   },
@@ -84,7 +84,7 @@ const tennisStages: CareerStage[] = [
     title: "Governing Bodies & Development",
     icon: Users,
     roles: [
-      { name: "LTA Development Officer", description: "Grows participation in local areas — working with clubs, schools, and community groups to get more people playing.", salary: "£24k–£38k" },
+      { name: "LTA Development Officer", description: "Grows participation in local areas — working with clubs, schools, and community groups to get more people playing.", salary: "£25k–£38k" },
       { name: "National Development Manager", description: "Leads regional or national participation strategies across schools, parks, and community clubs.", salary: "£38k–£60k" },
       { name: "ITF Programme Coordinator", description: "Coordinates international development programmes for the International Tennis Federation.", salary: "£28k–£45k" },
       { name: "Venue / Facility Manager", description: "Manages a tennis facility — courts, staff, scheduling, and commercial operations.", salary: "£28k–£50k" },

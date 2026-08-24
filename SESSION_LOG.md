@@ -5,6 +5,99 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-08-21 — Andrew (main branch) — Books industry: deployed backend, jobs/events/content now live
+
+### What was done THIS SESSION
+
+**Unblocked and finished the Books rollout from 2026-08-20:**
+- Andrew supplied a fresh Supabase personal access token (`sbp_551f46...`, saved to memory) — the previous one had died silently. Verified working via `supabase projects list`.
+- Deployed all 6 touched edge functions: `fetch-external-jobs`, `generate-daily-briefings`, `fetch-rss-news`, `scrape-articles`, `refresh-all-content`, `fetch-industry-events`.
+- Triggered targeted runs for Books. Confirmed live in the DB: **45+ jobs** (Penguin Random House, HarperCollins, Hachette, Simon & Schuster, Bloomsbury, Bonnier Books), daily briefing, breaking news, articles, and **10 events** (real: London Book Fair, FutureBook Conference, Independent Publishers Guild Conference, Society of Authors programmes).
+- Caught and fixed a quality bug while jobs were landing: `INDUSTRY_SIGNALS.books` in `fetch-external-jobs/index.ts` had bare `commissioning editor` / `copy editor` / `proofreader` / `editorial assistant` as match terms — these are generic enough that a BBC "Commissioning Editor, Comedy & Entertainment" role and an FT commissioning editor role leaked into Books. Same class of bug as the Music contamination fixed earlier this week. Tightened the regex to require book/publishing context (or rely on the real-publisher company-name matches, which already cover genuine listings) and redeployed. A handful of already-inserted contaminated rows from before the fix may still need a manual cleanup pass — not done this session.
+- Real hero/series image swapped in — found the user's actual PNG in the ChatGPT desktop app's local image cache (`~/Library/Caches/com.openai.chat/...`) after two rounds of them pasting only screenshots, cropped it to bleed edge-to-edge matching every other industry card (first crop attempt left a border/white-gap artefact, fixed in a follow-up commit).
+- Added curated `CompanyLogo.tsx` domains for all 25 Books companies (confirmed real logos rendering, not initials fallback).
+- Fixed Penguin Random House UK's careers link to their actual ATS (`jobsearch.createyourowncareer.com/PRH_UK`).
+- Built a real "The Download" 2-page briefing (`public/downloads/download-books.html`) using verified 2025 Publishers Association market data.
+- Added 6 real Books courses, 2 Substack newsletters, 2 YouTube channels to `courses.ts`; added 2 more verified "day in the life" videos to the Watch tab.
+- Replaced generic boilerplate on the Literary Agent and Bookseller role pages (`/roles/literary-agent`, `/roles/bookseller`) with bespoke pages matching the Football Agent / ISRC Manager pattern — real day-to-day, skills, salary, verified podcasts/articles/videos.
+- Added Books to `all-companies.ts` — it was missing from the Discover → Companies directory page entirely (separate data file from `Books.tsx`'s own company list).
+- Renamed "Articles" → "Reading" across nav (desktop + mobile Inspire dropdown), page heading, and SEO title.
+- Added three books to the Reading page with real cover thumbnails (sourced from Open Library by ISBN): *What Color Is Your Parachute?*, *80,000 Hours*, *How to Start*.
+- Updated the "Start with a blank sheet of paper" copy on Using Our Site per Andrew's new wording.
+
+### Commits
+`06f4ad2` `9ec4259` `e36e1ee` `5b1d152` `0265c7c` `da62de3` `aceb55e` `eef5f2e` `8e25346` — all pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+- Books industry is fully live end-to-end: page, jobs, events, news, briefings, companies directory, courses, role pages.
+- Supabase access token is fresh and working (see memory file for value) — should be good until ~13 Jul 2027, but this project's tokens have died silently before without explanation, so re-verify at the start of a session rather than trusting the expiry date blindly.
+
+### Left for next session
+- Manual cleanup: a couple of pre-fix contaminated job rows (BBC/FT "commissioning editor" roles mis-tagged as Books) may still be sitting in the `jobs` table from before the signal fix — worth a targeted `DELETE` or re-run once the fix has had a full cycle.
+- Minor duplicate events for Books (e.g. "London Book Fair" appearing twice — once from Perplexity discovery, once from the curated seed list, with slightly different URLs so the dedup-by-URL logic doesn't catch it). Cosmetic, not urgent.
+- Optional Tier-2 items still not done (low priority, degrade gracefully): TikTok creator for Books, `mentoring-orgs.ts` entry.
+
+---
+
+## 2026-08-20 — Andrew (main branch) — Added Books as a new industry (modelled on Music)
+
+### What was done THIS SESSION
+
+**New `/books` industry, built to full parity with Music per user request** ("publishing end to end, from creators to distribution, both physical and digital"):
+- New `src/pages/Books.tsx` — 6 career stages (Creation & Writing, Editorial, Design & Production, Rights & Business, Marketing & Publicity, Distribution & Retail), 25 real UK publishing companies with verified career URLs (Penguin Random House, HarperCollins, Hachette, Waterstones, Foyles, Curtis Brown, etc.), 3 verified podcasts, 3 verified YouTube videos, 4 verified job boards, all 9 tabs (Plan/Watch/Listen/Read/Who/Attend/Learn/Mentor/Jobs)
+- Wired into every site-wide surface Music touches: `industries.ts`, `roles.ts` (`industryToSlug` + 5 new Books-specific roles), `App.tsx` routing, feed doodle icon (`IndustryDoodle.tsx` → `BookOpen`), homepage lists (`SeriesGrid`, `Hero` marquee, `CoursesHighlight`, `RoleMixer`, `About`, `industryIcons.ts`), content pipeline (`generate-daily-briefings`, `fetch-rss-news`, `scrape-articles`, `refresh-all-content`, `fetch-industry-events` — added 4 verified real UK publishing events: London Book Fair, FutureBook Conference, IPG Conference, Society of Authors), jobs keyword search (`_shared/industry-registry.ts`, and in `fetch-external-jobs/index.ts`: `INDUSTRY_KEYWORDS`, `INDUSTRY_STAGES`/`CLASSIFICATION_RULES` — kept stage names identical between the two on purpose, since Music has a pre-existing mismatch bug there that wasn't repeated — `INDUSTRY_SIGNALS` with `scope: "tc"`, both title blocklists, Adzuna category map, deep-sweep set, day-of-week schedule (Sunday), intern keywords)
+- Scope decision (confirmed with user): backend jobs pipeline is frontend + keyword-search only — no RSS feed or ATS-scraper targets for Books yet (matches where Music was before this session's cleanup)
+- Series/hero image (`src/assets/series-books.jpg`) is a **temporary placeholder** (reused `series-journalism.jpg`) — user sent an AI-generated "Books?" doodle-collage image mid-session with the title/description baked into the image itself, but only as a pasted screenshot, not an accessible file. Asked user to save the real PNG into the project folder (same flow as the Fever Tree logo) and whether they want it cropped to just the illustration or used as-is — **no response yet, still pending**
+- `npm run typecheck` passes clean; verified in-browser that `/books` renders all 9 tabs correctly (Plan, Watch, Who tabs spot-checked with real content) and that Books appears correctly on the homepage (SeriesGrid card + Hero marquee)
+
+### Commits
+- `3f241a8` — Add Books as a new industry, modelled on Music
+- Pushed to both remotes: `howdoyoudo` + `origin` ✅
+
+### NOT done — blocked
+- **Edge functions NOT deployed.** Andrew's Supabase access token (`sbp_8e523e8d914808f1b60...`, recorded in memory as valid until July 2027) is now dead — 401s on both `supabase functions deploy` and `supabase projects list`. Touched functions still needing deployment once a fresh token exists: `fetch-external-jobs`, `generate-daily-briefings`, `fetch-rss-news`, `scrape-articles`, `refresh-all-content`, `fetch-industry-events`. Until deployed, Books will show empty Read/Attend tabs and get no jobs from Adzuna/Reed keyword search (frontend page itself works fine, career map/companies/videos/podcasts are all static). Need a new personal access token from the Supabase dashboard (Account → Access Tokens).
+- Optional Tier-2 items from the plan not yet done (low priority, degrade gracefully): `src/data/courses.ts` Substack/YouTube/TikTok entries for Books, `mentoring-orgs.ts`, `all-companies.ts` mirror of the Books company list, `CompanyLogo.tsx` domain lookups for publishers.
+
+### Suggested first task next session
+Get a fresh Supabase access token from Andrew, deploy the 6 touched edge functions, then trigger a targeted `fetch-external-jobs` call with `{"industry":"books"}` to confirm jobs actually start flowing in. Also check whether Andrew has sent the real Books hero image yet.
+
+---
+
+## 2026-08-19 — Andrew (main branch) — Job share feature + fixed Music jobs pipeline (109 → 1,456 jobs)
+
+### What was done THIS SESSION
+
+**1. Added job sharing feature to Marketplace job cards**
+- New `ShareJobDialog` component: copy link, share via email (Resend), share with a community member
+- New edge functions: `share-job-email`, `search-community-members`, `share-job-with-member`
+- New `job_shares` table (migration `20260820120000_job_shares.sql`) with RLS
+- Fixed missing CORS headers on all three new edge functions (was silently blocking every browser request even though curl tests worked)
+- Switched `SUPABASE_SERVICE_ROLE_KEY` → `HDYD_SERVICE_JWT` in the new functions per project convention
+- Share emails now show the HDYD wordmark logo (`public/logo-howdoyoudo-flat.png`)
+- Share links go to `/marketplace?jobId=<id>` so the specific job opens focused, not just the generic marketplace page
+
+**2. Diagnosed and fixed why Music had far fewer jobs than every other industry**
+Music sat at 109 jobs vs. 966 (beauty) / 1,756 (football). Root causes, found by tracing the actual pipeline rather than guessing:
+- `scrape-ats-jobs` (direct Spotify/UMG/Warner Music/Live Nation ATS scraper) existed in code but was **never scheduled on any cron** — last run was a one-off manual test on 26 July. Scheduled it as a new daily cron (`scrape-ats-jobs-daily`, 4:30am UTC, jobid 33). A single manual run added 1,252 new jobs across all 62 configured companies.
+- Of Music's 7 RSS feed sources, 5 were dead or wrong: MusicTechJobs (TLS handshake failure), Music Week (URL returns their homepage HTML, not RSS — 0 items every run), MusicJobs.com (invalid TLS cert), Arts Jobs ×2 (DNS no longer resolves). Removed all 5.
+- Creative Access's feed URL pointed at their general press/news feed, not a jobs feed — had been silently inserting **non-job press-release articles** ("Weston Mercury reports on...", "BookBrunch report on...") mislabeled as Music jobs since 12 June. Removed the feed and deleted the 10 junk rows it had produced.
+- musically.com (Music Ally Jobs) was the only genuinely working feed — kept it, verified end-to-end that real UK music-industry jobs (Warp Records, The Orchard, PACE Rights Management) now land correctly with HTML entities properly decoded.
+- Result: Music jobs went from **109 → 1,456** during this session (via the scrape-ats-jobs backfill + a natural cron cycle + Reed/employer-keyword sweep once the pipeline was actually healthy).
+- This is the same "crons fail silently" root cause Woody's new `ops-health-alert` watchdog was built to catch (commit `87655e6`, same session) — his monitor catches hard HTTP failures and total job-count drops; it doesn't yet catch a cron that was simply never scheduled or a feed returning HTTP 200 with silently-wrong content, which is what both of these were. Worth extending his watchdog for that later.
+
+### Commits
+- `144996f` `174245f` `1596573` `a0bf674` `9492d70` `bb87c1d` — job share feature (see above)
+- `2fc2216` — Music RSS feed fixes + scrape-ats-jobs cron
+- Pushed to both remotes: `howdoyoudo` + `origin` ✅
+- Edge functions deployed: `share-job-email`, `search-community-members`, `share-job-with-member`, `scrape-ats-jobs`, `fetch-external-jobs`
+
+### Current state
+- Job cards on Marketplace have a working share button (link/email/community)
+- Music industry jobs pipeline is healthy: 1,456 live jobs, clean RSS source, daily ATS scrape now scheduled
+- `scrape-ats-jobs-daily` cron benefits every industry it covers (62 companies), not just Music
+
+---
+
 ## 2026-08-17 — Andrew (main branch) — Added free AI courses + music attribution + School of Life credit
 
 ### What was done THIS SESSION

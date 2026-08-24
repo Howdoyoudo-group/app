@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 
-const INDUSTRIES = ["Fashion", "Football", "Music", "Beauty", "Food", "Travel", "Technology", "Beer", "Pets", "Gaming"];
+const INDUSTRIES = ["Fashion", "Football", "Music", "Beauty", "Food", "Travel", "Technology", "Beer", "Books", "Pets", "Gaming"];
 
 const About = () => {
   return (
