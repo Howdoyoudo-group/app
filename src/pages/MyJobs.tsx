@@ -225,7 +225,8 @@ function TinderJobCard({
         <div className="flex-1 flex flex-col p-6 pb-4 min-h-0">
           {/* Top row: match badge + bookmark */}
           <div className="flex items-center justify-between mb-5 flex-shrink-0">
-            <span className="px-3.5 py-1.5 bg-foreground text-background font-display font-800 text-[11px] tracking-wide uppercase rounded-full">
+            <span className="inline-flex items-center gap-1.5 pl-1.5 pr-3.5 py-1.5 bg-foreground text-background font-display font-800 text-[11px] tracking-wide uppercase rounded-full">
+              <img src={howdyMascot} alt="" className="w-5 h-5 object-contain rounded-full bg-background/10" />
               {band.label}
             </span>
             <button
