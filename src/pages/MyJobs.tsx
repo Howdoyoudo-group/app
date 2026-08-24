@@ -261,19 +261,19 @@ function TinderJobCard({
           )}
 
           {/* Tag pills: salary · level · match tags */}
-          <div className="flex flex-wrap gap-2 mt-auto flex-shrink-0">
+          <div className="flex flex-wrap gap-2.5 mt-auto flex-shrink-0">
             {job.salary && (
-              <span className="px-3 py-1.5 bg-background text-foreground font-display text-[10px] font-800 uppercase tracking-wide rounded-full">
+              <span className="px-4 py-2 bg-background text-foreground font-display text-xs font-800 uppercase tracking-wide rounded-full">
                 {job.salary}
               </span>
             )}
             {levelLabel && (
-              <span className="px-3 py-1.5 bg-background text-foreground font-display text-[10px] font-800 uppercase tracking-wide rounded-full">
+              <span className="px-4 py-2 bg-background text-foreground font-display text-xs font-800 uppercase tracking-wide rounded-full">
                 {levelLabel}
               </span>
             )}
             {job.matches.slice(0, 3).map((m) => (
-              <span key={m} className="px-3 py-1.5 bg-background text-foreground font-display text-[10px] font-800 uppercase tracking-wide rounded-full">
+              <span key={m} className="px-4 py-2 bg-background text-foreground font-display text-xs font-800 uppercase tracking-wide rounded-full">
                 {m}
               </span>
             ))}
@@ -361,7 +361,7 @@ function TinderCardStack({
         </div>
       )}
       {/* Card stack */}
-      <div className="relative w-full" style={{ height: 480 }}>
+      <div className="relative w-full" style={{ height: 520 }}>
         {[...visible].reverse().map((job, i) => {
           const stackIndex = visible.length - 1 - i;
           return (
