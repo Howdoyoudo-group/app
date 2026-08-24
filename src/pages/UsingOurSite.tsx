@@ -4,6 +4,7 @@ import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { Link } from "react-router-dom";
 import { launchHowdyTour } from "@/components/HowdyTour";
+import HowdyReadAloud from "@/components/HowdyReadAloud";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -37,6 +38,7 @@ const UsingOurSite = () => {
             className="mb-12 bg-primary/5 border-2 border-primary/20 rounded-2xl p-6 md:p-8"
           >
             <h2 className="font-display font-700 text-xl md:text-2xl mb-4">Start with a blank sheet of paper</h2>
+            <HowdyReadAloud src="/audio/howdy-start-blank-sheet.mp3" />
             <p className="font-body text-base text-muted-foreground mb-4 leading-relaxed">
               There are thousands of jobs in the world, yet most of us only ever consider a handful. Not because the others aren't for us, but because we never knew they existed.
             </p>
