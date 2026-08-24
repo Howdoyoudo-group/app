@@ -68,6 +68,11 @@ import roleLiveEventsManager from "@/assets/role-live-events-manager.png";
 import roleTravelConsultant from "@/assets/role-travel-consultant.png";
 import roleInteriorDesigner from "@/assets/role-interior-designer.png";
 import roleGroceryStoreManager from "@/assets/role-grocery-store-manager.png";
+// No bespoke doodle exists yet for these roles - reuse the parent
+// industry's series card illustration until one is commissioned.
+import seriesBooks from "@/assets/series-books.jpg";
+import seriesTheatre from "@/assets/series-theatre.jpg";
+import seriesPolitics from "@/assets/series-politics.jpg";
 
 export const ROLE_ICONS: Record<string, string> = {
   marketing: roleMarketing,
@@ -209,4 +214,25 @@ export const ROLE_ICONS: Record<string, string> = {
   "travel-consultant": roleTravelConsultant,
   "interior-designer": roleInteriorDesigner,
   "grocery-store-manager": roleGroceryStoreManager,
+
+  // Books - no bespoke doodle yet, reuse the Books industry series card
+  "book-editor": seriesBooks,
+  "literary-agent": seriesBooks,
+  "book-publicist": seriesBooks,
+  "rights-manager": seriesBooks,
+  bookseller: seriesBooks,
+
+  // Theatre - no bespoke doodle yet, reuse the Theatre industry series card
+  performer: seriesTheatre,
+  "theatre-stage-manager": seriesTheatre,
+  "theatre-technician": seriesTheatre,
+  "theatre-costume-designer": seriesTheatre,
+  "theatre-producer": seriesTheatre,
+
+  // Politics - no bespoke doodle yet, reuse the Politics industry series card
+  "policy-advisor": seriesPolitics,
+  "parliamentary-researcher": seriesPolitics,
+  "council-officer": seriesPolitics,
+  "think-tank-researcher": seriesPolitics,
+  "public-affairs-manager": seriesPolitics,
 };
