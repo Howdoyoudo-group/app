@@ -5,6 +5,27 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-08-21 (later) — Andrew (main branch) — All 20 Premier League clubs added to Football + new Teamtailor scraper
+
+### What was done THIS SESSION
+
+- Added the 13 Premier League clubs missing from `footballCompanies` in `src/pages/Football.tsx` — Aston Villa, Bournemouth, Brentford, Coventry City, Crystal Palace, Everton, Fulham, Hull City, Ipswich Town, Leeds United, Manchester City, Newcastle United, Nottingham Forest, Sunderland — alongside the 7 already there (Man Utd, Liverpool, Arsenal, Chelsea, Spurs, Brighton, City Football Group). Verified against the confirmed 2026-27 season lineup (Coventry/Ipswich/Hull promoted; West Ham/Burnley/Wolves relegated) and every careers URL checked live before committing.
+- Added all 20 club names to `INDUSTRY_KEYWORDS.football` in `fetch-external-jobs/index.ts` so Reed/Adzuna keyword search pulls jobs from each club by name — same pattern as Music's label names.
+- Fixed a real gap: Ipswich Town was missing from the `INDUSTRY_SIGNALS.football` quality-gate regex — every other club was already covered, this was the one hole.
+- **Built a new ATS scraper**: `TEAMTAILOR_TENANTS` + `fetchTeamtailorJobs()` — Teamtailor-powered career sites expose a public JSON Feed at `<domain>/jobs.json`, no auth needed. Verified live against Coventry City and Nottingham Forest (both confirmed running Teamtailor) and wired into the main handler alongside the existing Pinpoint/Oracle HCM/Workday tenant scrapers. Deployed and triggered — full end-to-end result not yet confirmed as of this log entry (Reed's keyword sweep runs before the ATS tenant step, so football's now-46-keyword list takes a few minutes to get there).
+- The other 11 newly-added clubs don't have a verified direct-ATS integration — each one turned out to run a different platform (Workday for Everton/Villa possibly, custom SPAs for Leeds/Ipswich, unclear for Fulham/Hull/Newcastle) and none could be confirmed working within a reasonable research budget. They rely on the keyword-search layer for now, which is how most non-ATS employers on the site already work.
+- **Ran into a real merge conflict**: while this was in progress, another session (running in a git worktree) pushed 5 commits to `main`, including its own unrelated edit to `fetch-external-jobs/index.ts` (a salary duplicate-range display fix). `git push` was rejected as non-fast-forward; merged cleanly with `git merge howdoyoudo/main --no-edit` (auto-merged, no conflicts), re-ran typecheck, redeployed the function with both changes included, then pushed.
+
+### Commits
+`5c74799` + merge commit `0012917` — pushed to both remotes ✅
+
+### Left for next session
+- Confirm the Teamtailor scraper actually landed rows for Coventry City / Nottingham Forest (was mid-poll when this entry was written).
+- If there's appetite, research and verify ATS integrations for the remaining 11 clubs (Aston Villa, Everton, Fulham, Leeds, Newcastle, Hull, Ipswich, Manchester City) — each needs its specific platform identified and endpoint tested live before adding, same standard applied to Coventry/Forest.
+- **Someone else is actively working on this repo concurrently** (the worktree session that pushed the salary-display fix) — check `git log` timestamps before starting new work, not just `SESSION_LOG.md`.
+
+---
+
 ## 2026-08-21 — Andrew (main branch) — Books industry: deployed backend, jobs/events/content now live
 
 ### What was done THIS SESSION
