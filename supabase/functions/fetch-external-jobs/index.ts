@@ -1338,7 +1338,14 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
         // 4) Salary with predicted flag
         let salaryStr: string | null = null;
         if (r.salary_min && r.salary_max) {
-          const base = `£${Math.round(r.salary_min)} - £${Math.round(r.salary_max)}`;
+          const salMin = Math.round(r.salary_min);
+          const salMax = Math.round(r.salary_max);
+          // Adzuna's ML salary predictor sometimes returns a single-point
+          // estimate as salary_min === salary_max — show it as one figure,
+          // not a zero-width "£X - £X" range.
+          const base = salMin === salMax
+            ? `£${salMin.toLocaleString("en-GB")}`
+            : `£${salMin.toLocaleString("en-GB")} - £${salMax.toLocaleString("en-GB")}`;
           salaryStr = r.salary_is_predicted ? `${base} (est.)` : base;
         }
 
@@ -1492,7 +1499,14 @@ async function fetchAdzunaByCategory(industry: string, appId: string, appKey: st
 
         let salaryStr: string | null = null;
         if (r.salary_min && r.salary_max) {
-          const base = `£${Math.round(r.salary_min)} - £${Math.round(r.salary_max)}`;
+          const salMin = Math.round(r.salary_min);
+          const salMax = Math.round(r.salary_max);
+          // Adzuna's ML salary predictor sometimes returns a single-point
+          // estimate as salary_min === salary_max — show it as one figure,
+          // not a zero-width "£X - £X" range.
+          const base = salMin === salMax
+            ? `£${salMin.toLocaleString("en-GB")}`
+            : `£${salMin.toLocaleString("en-GB")} - £${salMax.toLocaleString("en-GB")}`;
           salaryStr = r.salary_is_predicted ? `${base} (est.)` : base;
         }
 
@@ -1617,7 +1631,14 @@ async function fetchAdzunaByCategoryGeo(industry: string, appId: string, appKey:
 
         let salaryStr: string | null = null;
         if (r.salary_min && r.salary_max) {
-          const base = `£${Math.round(r.salary_min)} - £${Math.round(r.salary_max)}`;
+          const salMin = Math.round(r.salary_min);
+          const salMax = Math.round(r.salary_max);
+          // Adzuna's ML salary predictor sometimes returns a single-point
+          // estimate as salary_min === salary_max — show it as one figure,
+          // not a zero-width "£X - £X" range.
+          const base = salMin === salMax
+            ? `£${salMin.toLocaleString("en-GB")}`
+            : `£${salMin.toLocaleString("en-GB")} - £${salMax.toLocaleString("en-GB")}`;
           salaryStr = r.salary_is_predicted ? `${base} (est.)` : base;
         }
 
