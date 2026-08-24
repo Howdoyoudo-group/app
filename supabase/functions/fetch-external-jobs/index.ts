@@ -3125,6 +3125,174 @@ async function fetchTeamtailorJobs(tenant: { domain: string; company: string; in
   }
 }
 
+// ── Direct Firecrawl scrapers for Premier League clubs whose career
+// sites don't run a public ATS API. Each site's markdown structure was
+// inspected live before writing its regex - verified 2026-08-21.
+async function firecrawlMarkdown(url: string, firecrawlKey: string, waitFor = 3000): Promise<string> {
+  const res = await fetch("https://api.firecrawl.dev/v2/scrape", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${firecrawlKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ url, formats: ["markdown"], onlyMainContent: true, waitFor }),
+  });
+  if (!res.ok) {
+    console.warn(`Firecrawl error for "${url}": ${res.status}`);
+    return "";
+  }
+  const payload = await res.json();
+  return payload?.data?.markdown ?? payload?.markdown ?? "";
+}
+
+function parseUkDate(raw: string | null): string | null {
+  if (!raw) return null;
+  const m = raw.match(/(\d{1,2})\s*(?:st|nd|rd|th)?\s*([A-Za-z]+)\s*(\d{4})|(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (!m) return null;
+  let d: Date;
+  if (m[1]) {
+    d = new Date(`${m[1]} ${m[2]} ${m[3]} 23:59:59 UTC`);
+  } else {
+    d = new Date(`${m[6]}-${m[5]}-${m[4]}T23:59:59Z`);
+  }
+  return Number.isNaN(d.getTime()) ? null : d.toISOString();
+}
+
+// Everton FC - careers.evertonfc.com (Angular SPA, no public API found).
+async function fetchEvertonJobs(firecrawlKey: string) {
+  if (!firecrawlKey) return [];
+  const allJobs: any[] = [];
+  const seen = new Set<string>();
+  try {
+    const md = await firecrawlMarkdown("https://careers.evertonfc.com/vacancies", firecrawlKey, 3500);
+    if (!md) return [];
+    const cardRegex = /\[\*\*([^\n*]+)\*\*\\\\([\s\S]*?)\]\((https:\/\/careers\.evertonfc\.com\/job\/\d+)\)/g;
+    let match: RegExpExecArray | null;
+    while ((match = cardRegex.exec(md)) !== null) {
+      const [, rawTitle, body, url] = match;
+      if (seen.has(url)) continue;
+      seen.add(url);
+      const title = rawTitle.trim().slice(0, 255);
+      const closing = body.match(/Closing date:\s*([\d\/]+)/)?.[1] ?? null;
+      const locMatch = body.match(/([A-Za-z\s]+,\s*[A-Za-z\s]+,\s*United Kingdom)/);
+      const location = locMatch ? locMatch[1].trim().slice(0, 200) : null;
+      const salaryMatch = body.match(/(Competitive|Up to £[\d,]+ per year|£[\d,]+\s*-\s*£[\d,]+)/);
+      const salary = salaryMatch ? salaryMatch[1] : null;
+      const desc = body.replace(/\\\\/g, " ").replace(/\s+/g, " ").trim().slice(0, 2000);
+      const { stage, roleCategory } = classifyJob(title, desc, "football");
+      allJobs.push({
+        title, company: "Everton FC", industry: "football", value_chain_stage: stage, role_category: roleCategory,
+        location, type: "Full-time", salary, description: desc || null, url,
+        source_url: "careers.evertonfc.com",
+        expires_at: parseUkDate(closing) ?? new Date(Date.now() + 60 * 86400000).toISOString(),
+      });
+    }
+  } catch (err) {
+    console.error("Everton fetch error:", err);
+  }
+  return allJobs;
+}
+
+// Leeds United - leedsunited.com/en/club/careers (custom Next.js page, no API).
+async function fetchLeedsUnitedJobs(firecrawlKey: string) {
+  if (!firecrawlKey) return [];
+  const allJobs: any[] = [];
+  try {
+    const md = await firecrawlMarkdown("https://www.leedsunited.com/en/club/careers", firecrawlKey, 3500);
+    if (!md) return [];
+    const cards = md.split(/\n### /).slice(1);
+    for (const raw of cards) {
+      const card = "### " + raw;
+      const title = card.match(/^### ([^\n]+)/)?.[1]?.trim().slice(0, 255);
+      if (!title) continue;
+      const location = card.match(/\*\*Location:\*\*\s*([^\n]+)/)?.[1]?.trim().slice(0, 200) ?? null;
+      const contract = card.match(/\*\*Contract:?\s*([^\n*]+)\*\*/)?.[1]?.trim() ?? "";
+      const deadline = card.match(/(?:📅\s*)?\*\*(?:Application )?Deadline:\*\*\s*([^\n]+)/)?.[1] ?? null;
+      const applyLinks = [...card.matchAll(/\*\*Apply here:\*\*\s*\[[^\]]*\]\(([^)]+)\)/g)];
+      const url = applyLinks.length ? applyLinks[applyLinks.length - 1][1] : null;
+      if (!url) continue;
+      const desc = card.replace(/^### [^\n]+\n/, "").replace(/\*\*/g, "").replace(/\s+/g, " ").trim().slice(0, 2000);
+      const { stage, roleCategory } = classifyJob(title, desc, "football");
+      allJobs.push({
+        title, company: "Leeds United", industry: "football", value_chain_stage: stage, role_category: roleCategory,
+        location, type: /part[\s-]?time/i.test(contract) ? "Part-time" : "Full-time",
+        salary: null, description: desc || null, url,
+        source_url: "leedsunited.com",
+        expires_at: parseUkDate(deadline) ?? new Date(Date.now() + 60 * 86400000).toISOString(),
+      });
+    }
+  } catch (err) {
+    console.error("Leeds United fetch error:", err);
+  }
+  return allJobs;
+}
+
+// Newcastle United - careers.newcastleunited.com/jobs (Jobtrain-style board).
+async function fetchNewcastleUnitedJobs(firecrawlKey: string) {
+  if (!firecrawlKey) return [];
+  const allJobs: any[] = [];
+  const seen = new Set<string>();
+  try {
+    const md = await firecrawlMarkdown("https://careers.newcastleunited.com/jobs", firecrawlKey, 3500);
+    if (!md) return [];
+    const cardRegex = /\[([^\]]+)\]\((https:\/\/careers\.newcastleunited\.com\/job\/[^)]+)\)(?:\s*New)?\s*\n\n(?:\s*-\s*([^\n]+)\n)?\s*-\s*Posted\s*\n?\s*([\s\S]*?)\n\n([\s\S]*?)\[Save Job\]/g;
+    let match: RegExpExecArray | null;
+    while ((match = cardRegex.exec(md)) !== null) {
+      const [, rawTitle, rawUrl, location, , descRaw] = match;
+      // Job ID is the trailing digits before any ?query or #fragment - use
+      // it to dedupe the 2-3 near-duplicate card renderings this board emits.
+      const jobId = rawUrl.match(/-(\d+)(?:[?#]|$)/)?.[1];
+      const url = jobId ? `https://careers.newcastleunited.com/job/${rawUrl.split("/").pop()!.split(/[?#]/)[0]}` : rawUrl;
+      if (jobId && seen.has(jobId)) continue;
+      if (jobId) seen.add(jobId);
+      const title = rawTitle.trim().slice(0, 255);
+      const desc = descRaw.replace(/\s+/g, " ").trim().slice(0, 2000);
+      const { stage, roleCategory } = classifyJob(title, desc, "football");
+      allJobs.push({
+        title, company: "Newcastle United", industry: "football", value_chain_stage: stage, role_category: roleCategory,
+        location: location?.trim().slice(0, 200) ?? null, type: "Full-time", salary: null,
+        description: desc || null, url,
+        source_url: "careers.newcastleunited.com",
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
+      });
+    }
+  } catch (err) {
+    console.error("Newcastle United fetch error:", err);
+  }
+  return allJobs;
+}
+
+// City Football Group (Manchester City) - careers.cityfootballgroup.com/search.
+async function fetchCityFootballGroupJobs(firecrawlKey: string) {
+  if (!firecrawlKey) return [];
+  const allJobs: any[] = [];
+  const seen = new Set<string>();
+  try {
+    const md = await firecrawlMarkdown("https://careers.cityfootballgroup.com/search", firecrawlKey, 3500);
+    if (!md) return [];
+    const cardRegex = /Title\[([^\]]+)\]\((https:\/\/careers\.cityfootballgroup\.com\/job\/[^)]+)\)([\s\S]*?)(?=Title\[|$)/g;
+    let match: RegExpExecArray | null;
+    while ((match = cardRegex.exec(md)) !== null) {
+      const [, rawTitle, url, body] = match;
+      if (seen.has(url)) continue;
+      seen.add(url);
+      const title = rawTitle.trim().slice(0, 255);
+      const location = body.match(/Location\s*\n*\s*([^\n]+)/)?.[1]?.trim().slice(0, 200) ?? null;
+      const contract = body.match(/Contract Type\s*\n*\s*([^\n]+)/)?.[1]?.trim() ?? "";
+      const org = body.match(/Organisation\s*\n*\s*([^\n]+)/)?.[1]?.trim() ?? "City Football Group";
+      const { stage, roleCategory } = classifyJob(title, `${org}`, "football");
+      allJobs.push({
+        title, company: org.includes("Manchester City") ? org : "City Football Group",
+        industry: "football", value_chain_stage: stage, role_category: roleCategory,
+        location, type: /part/i.test(contract) ? "Part-time" : "Full-time",
+        salary: null, description: null, url,
+        source_url: "careers.cityfootballgroup.com",
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
+      });
+    }
+  } catch (err) {
+    console.error("City Football Group fetch error:", err);
+  }
+  return allJobs;
+}
+
 // ── Oracle Recruiting Cloud (HCM REST API - direct, no key) ───────────
 // Many large UK retailers / employers run their careers portal on Oracle
 // HCM Cloud. The public site is a JS-rendered SPA, but the underlying
@@ -3402,6 +3570,8 @@ const WORKDAY_TENANTS: Array<{
   },
   // Brentford FC - football (Workday wd107)
   { company: "Brentford FC", industry: "football", tenant: "brentfordfootballclub", wd: "wd107", site: "BrentfordFC", allUk: true },
+  // Aston Villa - football (Workday wd502) - verified live 2026-08-21
+  { company: "Aston Villa", industry: "football", tenant: "avfc", wd: "wd502", site: "avfc_careers", allUk: true },
 
   // ===== Cinema / Film & TV =====
   { company: "Sky",            industry: "cinema",   tenant: "sky",          wd: "wd3", site: "Sky_Careers",
@@ -7364,6 +7534,30 @@ Deno.serve(async (req) => {
         if (teamtailorJobs.length > 0) {
           allJobs.push(...teamtailorJobs);
           console.log(`[${industry}] Teamtailor(${tenant.domain}): ${teamtailorJobs.length} jobs`);
+        }
+      }
+
+      // 12a2. Football club career sites with no public ATS API - direct
+      // Firecrawl markdown scrape per club, one call each, only on the
+      // football pass. Verified live against real listings 2026-08-21.
+      // Sequential, not Promise.all - Firecrawl's free tier rate-limits
+      // concurrent requests, which silently dropped 2 of 4 sources in testing.
+      if (industry === "football") {
+        const fcKey = Deno.env.get("FIRECRAWL_API_KEY") || "";
+        if (fcKey) {
+          const sources: Array<[string, () => Promise<any[]>]> = [
+            ["Everton", () => fetchEvertonJobs(fcKey)],
+            ["Leeds United", () => fetchLeedsUnitedJobs(fcKey)],
+            ["Newcastle United", () => fetchNewcastleUnitedJobs(fcKey)],
+            ["City Football Group", () => fetchCityFootballGroupJobs(fcKey)],
+          ];
+          for (const [label, fetcher] of sources) {
+            const jobs = await fetcher();
+            if (jobs.length > 0) {
+              allJobs.push(...jobs);
+              console.log(`[football] ${label} (Firecrawl direct): ${jobs.length} jobs`);
+            }
+          }
         }
       }
 
