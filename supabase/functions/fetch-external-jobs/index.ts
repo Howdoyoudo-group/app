@@ -7241,6 +7241,41 @@ Deno.serve(async (req) => {
         }
       }
 
+      // Football club career sites with no public ATS API - direct Firecrawl
+      // markdown scrape per club. Run early and saved immediately, same as
+      // horse-racing/F1 above - the football keyword sweep alone runs 46
+      // keywords through Reed/Adzuna and can consume the whole background
+      // execution budget, which was silently dropping these Firecrawl calls
+      // when they ran after the sweep instead of before it (found live
+      // 2026-08-21: Everton/Newcastle landed inconsistently, Leeds/CFG never
+      // did, despite both parsing correctly in isolation).
+      if (industry === "football") {
+        const fcKey = Deno.env.get("FIRECRAWL_API_KEY") || "";
+        if (fcKey) {
+          const footballDirectJobs: any[] = [];
+          const sources: Array<[string, () => Promise<any[]>]> = [
+            ["Everton", () => fetchEvertonJobs(fcKey)],
+            ["Leeds United", () => fetchLeedsUnitedJobs(fcKey)],
+            ["Newcastle United", () => fetchNewcastleUnitedJobs(fcKey)],
+            ["City Football Group", () => fetchCityFootballGroupJobs(fcKey)],
+          ];
+          for (const [label, fetcher] of sources) {
+            const jobs = await fetcher();
+            if (jobs.length > 0) {
+              footballDirectJobs.push(...jobs);
+              allJobs.push(...jobs);
+              console.log(`[football] ${label} (Firecrawl direct): ${jobs.length} jobs`);
+            }
+          }
+          const seenDirect = new Set<string>();
+          const directToSave = footballDirectJobs.filter((j) => j.url && !seenDirect.has(j.url) && seenDirect.add(j.url));
+          for (let i = 0; i < directToSave.length; i += 50) {
+            totalInserted += await safeUpsertJobs(supabase, directToSave.slice(i, i + 50));
+          }
+          console.log(`[football] Direct sources saved immediately: ${directToSave.length} jobs`);
+        }
+      }
+
       // Run high-value direct employer feeds before slow aggregators so targeted
       // refreshes for brands like M&S / Next land even if Adzuna/Reed are slow.
       const priorityOracleTenants = ORACLE_HCM_TENANTS.filter((t) =>
@@ -7534,30 +7569,6 @@ Deno.serve(async (req) => {
         if (teamtailorJobs.length > 0) {
           allJobs.push(...teamtailorJobs);
           console.log(`[${industry}] Teamtailor(${tenant.domain}): ${teamtailorJobs.length} jobs`);
-        }
-      }
-
-      // 12a2. Football club career sites with no public ATS API - direct
-      // Firecrawl markdown scrape per club, one call each, only on the
-      // football pass. Verified live against real listings 2026-08-21.
-      // Sequential, not Promise.all - Firecrawl's free tier rate-limits
-      // concurrent requests, which silently dropped 2 of 4 sources in testing.
-      if (industry === "football") {
-        const fcKey = Deno.env.get("FIRECRAWL_API_KEY") || "";
-        if (fcKey) {
-          const sources: Array<[string, () => Promise<any[]>]> = [
-            ["Everton", () => fetchEvertonJobs(fcKey)],
-            ["Leeds United", () => fetchLeedsUnitedJobs(fcKey)],
-            ["Newcastle United", () => fetchNewcastleUnitedJobs(fcKey)],
-            ["City Football Group", () => fetchCityFootballGroupJobs(fcKey)],
-          ];
-          for (const [label, fetcher] of sources) {
-            const jobs = await fetcher();
-            if (jobs.length > 0) {
-              allJobs.push(...jobs);
-              console.log(`[football] ${label} (Firecrawl direct): ${jobs.length} jobs`);
-            }
-          }
         }
       }
 
