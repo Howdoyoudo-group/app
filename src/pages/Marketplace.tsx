@@ -1122,18 +1122,19 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     (async () => {
       const { data } = await supabase
         .from("pinned_industry_employers")
-        .select("company_name, tagline, url, rank")
+        .select("company_name, tagline, why_work_here, url, rank")
         .ilike("industry", slug)
+        .eq("active", true)
         .order("rank", { ascending: true })
         .limit(1);
       if (cancelled) return;
       if (!data || data.length === 0) { setDbPinnedEmployer(null); return; }
-      const row = data[0] as { company_name: string; tagline: string | null; url: string | null };
+      const row = data[0] as { company_name: string; tagline: string | null; why_work_here: string[] | null; url: string | null };
       setDbPinnedEmployer({
         company: row.company_name,
         slug: row.company_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
         tagline: row.tagline || `A notable employer in ${industry}.`,
-        whyWorkHere: [],
+        whyWorkHere: row.why_work_here ?? [],
         careersUrl: row.url || `/marketplace?industry=${encodeURIComponent(industry)}`,
       });
     })();

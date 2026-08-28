@@ -1088,6 +1088,57 @@ export type Database = {
           },
         ]
       }
+      job_shares: {
+        Row: {
+          company: string | null
+          id: string
+          job_id: string
+          job_title: string | null
+          read_at: string | null
+          share_link: string | null
+          shared_at: string
+          shared_by: string
+          shared_with: string
+        }
+        Insert: {
+          company?: string | null
+          id?: string
+          job_id: string
+          job_title?: string | null
+          read_at?: string | null
+          share_link?: string | null
+          shared_at?: string
+          shared_by: string
+          shared_with: string
+        }
+        Update: {
+          company?: string | null
+          id?: string
+          job_id?: string
+          job_title?: string | null
+          read_at?: string | null
+          share_link?: string | null
+          shared_at?: string
+          shared_by?: string
+          shared_with?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_shares_shared_by_fkey"
+            columns: ["shared_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "job_shares_shared_with_fkey"
+            columns: ["shared_with"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jobs: {
         Row: {
           ai_confidence: number | null
@@ -1382,8 +1433,27 @@ export type Database = {
         }
         Relationships: []
       }
+      ops_health_snapshots: {
+        Row: {
+          checked_at: string
+          id: string
+          total_jobs: number
+        }
+        Insert: {
+          checked_at?: string
+          id?: string
+          total_jobs: number
+        }
+        Update: {
+          checked_at?: string
+          id?: string
+          total_jobs?: number
+        }
+        Relationships: []
+      }
       pinned_industry_employers: {
         Row: {
+          active: boolean
           company_name: string
           created_at: string
           id: string
@@ -1393,8 +1463,10 @@ export type Database = {
           tagline: string | null
           updated_at: string
           url: string | null
+          why_work_here: string[]
         }
         Insert: {
+          active?: boolean
           company_name: string
           created_at?: string
           id?: string
@@ -1404,8 +1476,10 @@ export type Database = {
           tagline?: string | null
           updated_at?: string
           url?: string | null
+          why_work_here?: string[]
         }
         Update: {
+          active?: boolean
           company_name?: string
           created_at?: string
           id?: string
@@ -1415,6 +1489,7 @@ export type Database = {
           tagline?: string | null
           updated_at?: string
           url?: string | null
+          why_work_here?: string[]
         }
         Relationships: []
       }
@@ -1840,6 +1915,24 @@ export type Database = {
         }
         Relationships: []
       }
+      scrape_jobs_cursor: {
+        Row: {
+          id: boolean
+          last_index: number
+          updated_at: string
+        }
+        Insert: {
+          id?: boolean
+          last_index?: number
+          updated_at?: string
+        }
+        Update: {
+          id?: boolean
+          last_index?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sent_newsletters: {
         Row: {
           briefing_date: string
@@ -2023,6 +2116,33 @@ export type Database = {
           role_title?: string
           status?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      source_health_log: {
+        Row: {
+          broken: Json
+          broken_count: number
+          checked_at: string
+          id: number
+          source_type: string
+          working_count: number
+        }
+        Insert: {
+          broken?: Json
+          broken_count: number
+          checked_at?: string
+          id?: never
+          source_type: string
+          working_count: number
+        }
+        Update: {
+          broken?: Json
+          broken_count?: number
+          checked_at?: string
+          id?: never
+          source_type?: string
+          working_count?: number
         }
         Relationships: []
       }
@@ -2560,6 +2680,7 @@ export type Database = {
         }
         Returns: number
       }
+      ops_health_check: { Args: never; Returns: Json }
       read_email_batch: {
         Args: { batch_size: number; queue_name: string; vt: number }
         Returns: {

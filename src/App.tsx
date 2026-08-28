@@ -103,6 +103,7 @@ const AdminAdzunaRuns = lazy(() => import("./pages/AdminAdzunaRuns.tsx"));
 const AdminIndustryHealth = lazy(() => import("./pages/AdminIndustryHealth.tsx"));
 const AdminUsers = lazy(() => import("./pages/AdminUsers.tsx"));
 const AdminAiCosts = lazy(() => import("./pages/AdminAiCosts.tsx"));
+const AdminEmployerSpotlight = lazy(() => import("./pages/AdminEmployerSpotlight.tsx"));
 const AdminTeam = lazy(() => import("./pages/AdminTeam.tsx"));
 const CompanyMeEm = lazy(() => import("./pages/CompanyMeEm.tsx"));
 const CompanyGails = lazy(() => import("./pages/CompanyGails.tsx"));
@@ -339,6 +340,7 @@ const App = () => (
           <Route path="/admin/industry-health" element={<AdminIndustryHealth />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/ai-costs" element={<AdminAiCosts />} />
+          <Route path="/admin/employer-spotlight" element={<AdminEmployerSpotlight />} />
           <Route path="/admin/team" element={<AdminTeam />} />
           <Route path="/admin" element={<AdminTeam />} />
           <Route path="/company/me-em" element={<CompanyMeEm />} />

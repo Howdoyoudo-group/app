@@ -12,7 +12,7 @@ import {
 import {
   Loader2, FileText, Users, Activity, DollarSign, Briefcase,
   ExternalLink, Download, Video, Upload, Trash2, Palette, BarChart3, Copy,
-  FolderPlus, Plus, Folder,
+  FolderPlus, Plus, Folder, Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -34,6 +34,7 @@ const ADMIN_LINKS = [
   { title: "Industry Health", description: "Live job counts and feed monitoring.", to: "/admin/industry-health", icon: Activity },
   { title: "Adzuna Runs", description: "Inspect Adzuna ingestion logs and throttling.", to: "/admin/adzuna-runs", icon: Briefcase },
   { title: "AI Costs", description: "Track Lovable AI usage and spend.", to: "/admin/ai-costs", icon: DollarSign },
+  { title: "Employer Spotlight", description: "Choose the promoted company per industry and write its tile content.", to: "/admin/employer-spotlight", icon: Sparkles },
 ];
 
 interface VideoFile {
