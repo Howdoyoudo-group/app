@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,7 +15,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import {
-  Loader2, Sparkles, Plus, Pencil, Trash2, ArrowUp, ArrowDown, X,
+  Loader2, Sparkles, Plus, Pencil, Trash2, ArrowUp, ArrowDown, X, Upload, Image as ImageIcon, Video,
 } from "lucide-react";
 import { toast } from "sonner";
 import CompanyLogo from "@/components/CompanyLogo";
@@ -44,6 +44,8 @@ interface SpotlightRow {
   why_work_here: string[];
   url: string | null;
   logo_url: string | null;
+  media_url: string | null;
+  media_type: "image" | "video" | null;
   active: boolean;
 }
 
@@ -59,8 +61,13 @@ const emptyDraft = {
   why_work_here: [] as string[],
   url: "",
   logo_url: "",
+  media_url: "",
+  media_type: "image" as "image" | "video",
   active: true,
 };
+
+const slugifyForPath = (s: string) =>
+  s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "spotlight";
 
 export default function AdminEmployerSpotlight() {
   const { user, loading: authLoading } = useAuth();
@@ -98,7 +105,7 @@ export default function AdminEmployerSpotlight() {
     setLoading(true);
     const { data, error } = await supabase
       .from("pinned_industry_employers")
-      .select("id, industry, company_name, rank, tagline, why_work_here, url, logo_url, active")
+      .select("id, industry, company_name, rank, tagline, why_work_here, url, logo_url, media_url, media_type, active")
       .order("industry", { ascending: true })
       .order("rank", { ascending: true });
     setLoading(false);
@@ -163,6 +170,8 @@ export default function AdminEmployerSpotlight() {
       why_work_here: row.why_work_here ?? [],
       url: row.url ?? "",
       logo_url: row.logo_url ?? "",
+      media_url: row.media_url ?? "",
+      media_type: row.media_type ?? "image",
       active: row.active,
     });
     setBulletDraft("");
@@ -179,6 +188,32 @@ export default function AdminEmployerSpotlight() {
       // Only fill the URL if the admin hasn't already typed one.
       url: d.url || match?.url || "",
     }));
+  };
+
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadMedia = async (file: File) => {
+    const isVideo = file.type.startsWith("video/");
+    const isImage = file.type.startsWith("image/");
+    if (!isVideo && !isImage) {
+      toast.error("Please choose an image or video file");
+      return;
+    }
+    setUploadingMedia(true);
+    const ext = file.name.split(".").pop()?.toLowerCase() || (isVideo ? "mp4" : "jpg");
+    const path = `spotlight/${slugifyForPath(draft.industry)}-${slugifyForPath(draft.company_name)}-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("company-assets")
+      .upload(path, file, { upsert: true, cacheControl: "3600" });
+    setUploadingMedia(false);
+    if (upErr) {
+      toast.error(`Upload failed: ${upErr.message}`);
+      return;
+    }
+    const { data: pub } = supabase.storage.from("company-assets").getPublicUrl(path);
+    setDraft((d) => ({ ...d, media_url: pub.publicUrl, media_type: isVideo ? "video" : "image" }));
+    toast.success(`${isVideo ? "Video" : "Image"} uploaded`);
   };
 
   const addBullet = () => {
@@ -213,6 +248,8 @@ export default function AdminEmployerSpotlight() {
       why_work_here: draft.why_work_here,
       url: draft.url.trim() || null,
       logo_url: draft.logo_url.trim() || null,
+      media_url: draft.media_url.trim() || null,
+      media_type: draft.media_url.trim() ? draft.media_type : null,
       active: draft.active,
     };
 
@@ -531,6 +568,79 @@ export default function AdminEmployerSpotlight() {
                 onChange={(e) => setDraft((d) => ({ ...d, logo_url: e.target.value }))}
                 placeholder="Leave blank to use the automatic company logo lookup"
               />
+            </div>
+
+            <div className="space-y-2 border rounded-md p-3">
+              <Label>Banner image or video (optional)</Label>
+              <p className="text-xs text-muted-foreground">
+                Replaces the plain colour band with the employer's own creative on the tile.
+                Upload a file or paste a link (an image, a direct video file, or a YouTube/Vimeo link).
+              </p>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={draft.media_type === "image" ? "default" : "outline"}
+                  onClick={() => setDraft((d) => ({ ...d, media_type: "image" }))}
+                >
+                  <ImageIcon className="h-3.5 w-3.5 mr-1" /> Image
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={draft.media_type === "video" ? "default" : "outline"}
+                  onClick={() => setDraft((d) => ({ ...d, media_type: "video" }))}
+                >
+                  <Video className="h-3.5 w-3.5 mr-1" /> Video
+                </Button>
+              </div>
+              <Input
+                type="url"
+                value={draft.media_url}
+                onChange={(e) => setDraft((d) => ({ ...d, media_url: e.target.value }))}
+                placeholder={draft.media_type === "video" ? "https://youtube.com/watch?v=… or a direct video link" : "https://…"}
+              />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept={draft.media_type === "video" ? "video/*" : "image/*"}
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) uploadMedia(file);
+                  e.target.value = "";
+                }}
+              />
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                disabled={uploadingMedia}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {uploadingMedia ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Upload className="h-3.5 w-3.5 mr-1" />}
+                {uploadingMedia ? "Uploading…" : "Upload a file instead"}
+              </Button>
+              {draft.media_url && (
+                <div className="flex items-center gap-2 pt-1">
+                  {draft.media_type === "video" ? (
+                    <span className="text-xs text-muted-foreground">Video set - preview on the live tile.</span>
+                  ) : (
+                    <img
+                      src={draft.media_url}
+                      alt="Spotlight media preview"
+                      className="h-16 w-28 object-cover rounded border"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setDraft((d) => ({ ...d, media_url: "" }))}
+                    className="text-xs text-destructive hover:underline"
+                  >
+                    Remove
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2">

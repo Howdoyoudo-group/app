@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CompanyLogo from "@/components/CompanyLogo";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { trackInteraction } from "@/hooks/useTrackInteraction";
 import { getCompanyBrand } from "@/lib/company-brand";
 import { getCompanyProfilePath } from "@/lib/company-profiles";
+import { toEmbeddableVideo } from "@/lib/video-embed";
 
 export interface CompanyProfile {
   name: string;
@@ -162,6 +164,8 @@ type Spotlight = {
   tagline: string;
   whyWorkHere: string[];
   url: string;
+  mediaUrl: string | null;
+  mediaType: "image" | "video" | null;
 };
 
 /** Premium "advert" tile for the editor-picked Employer Spotlight - same
@@ -172,6 +176,11 @@ const EmployerSpotlightTile = ({ spotlight }: { spotlight: Spotlight }) => {
   const brand = getCompanyBrand(spotlight.slug);
   const profilePath = getCompanyProfilePath(spotlight.name);
   const isExternalUrl = /^https?:\/\//i.test(spotlight.url || "");
+  const embed = spotlight.mediaType === "video" && spotlight.mediaUrl
+    ? toEmbeddableVideo(spotlight.mediaUrl)
+    : null;
+  const hasCustomMedia = Boolean(spotlight.mediaUrl);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -179,44 +188,92 @@ const EmployerSpotlightTile = ({ spotlight }: { spotlight: Spotlight }) => {
       transition={{ duration: 0.35 }}
       className="relative border-2 border-foreground bg-card flex flex-col min-w-0 overflow-hidden shadow-[6px_6px_0_0_hsl(var(--foreground))] mb-8"
     >
-      <div
-        className="relative px-4 md:px-6 pt-4 pb-12"
-        style={{ backgroundColor: brand.bg, color: brand.fg }}
-      >
+      {hasCustomMedia ? (
+        <div className="relative">
+          <div
+            className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-0.5 border bg-card/90"
+            style={{ borderColor: "hsl(var(--foreground))" }}
+          >
+            <Sparkles className="w-3 h-3" /> Employer spotlight
+          </div>
+          {spotlight.mediaType === "video" && embed ? (
+            embed.kind === "iframe" ? (
+              <iframe
+                src={embed.src}
+                title={`${spotlight.name} video`}
+                className="w-full aspect-video border-0 block"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <video
+                src={embed.src}
+                controls
+                muted
+                loop
+                playsInline
+                className="w-full aspect-video object-cover block"
+              />
+            )
+          ) : (
+            <img
+              src={spotlight.mediaUrl!}
+              alt={`${spotlight.name} banner`}
+              className="w-full aspect-[21/9] object-cover block"
+            />
+          )}
+        </div>
+      ) : (
         <div
-          aria-hidden
-          className="absolute inset-0 opacity-[0.08] pointer-events-none"
-          style={{
-            backgroundImage:
-              "repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 10px)",
-          }}
-        />
-        <div className="relative flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <div
-              className="inline-flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-0.5 border"
-              style={{ borderColor: brand.fg, color: brand.fg, opacity: 0.85 }}
-            >
-              <Sparkles className="w-3 h-3" /> Employer spotlight
+          className="relative px-4 md:px-6 pt-4 pb-12"
+          style={{ backgroundColor: brand.bg, color: brand.fg }}
+        >
+          <div
+            aria-hidden
+            className="absolute inset-0 opacity-[0.08] pointer-events-none"
+            style={{
+              backgroundImage:
+                "repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 10px)",
+            }}
+          />
+          <div className="relative flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div
+                className="inline-flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-0.5 border"
+                style={{ borderColor: brand.fg, color: brand.fg, opacity: 0.85 }}
+              >
+                <Sparkles className="w-3 h-3" /> Employer spotlight
+              </div>
+              <h3
+                className="font-display font-700 text-xl md:text-2xl leading-tight mt-2 break-words"
+                style={{ color: brand.fg }}
+              >
+                {spotlight.name}
+              </h3>
+              <p
+                className="font-body text-sm leading-relaxed mt-1.5 max-w-prose"
+                style={{ color: brand.fg, opacity: 0.92 }}
+              >
+                {spotlight.tagline}
+              </p>
             </div>
-            <h3
-              className="font-display font-700 text-xl md:text-2xl leading-tight mt-2 break-words"
-              style={{ color: brand.fg }}
-            >
-              {spotlight.name}
-            </h3>
-            <p
-              className="font-body text-sm leading-relaxed mt-1.5 max-w-prose"
-              style={{ color: brand.fg, opacity: 0.92 }}
-            >
-              {spotlight.tagline}
-            </p>
           </div>
         </div>
-      </div>
+      )}
+
+      {hasCustomMedia && (
+        <div className="px-4 md:px-6 pt-3">
+          <h3 className="font-display font-700 text-xl md:text-2xl leading-tight break-words">
+            {spotlight.name}
+          </h3>
+          <p className="font-body text-sm leading-relaxed mt-1.5 max-w-prose text-muted-foreground">
+            {spotlight.tagline}
+          </p>
+        </div>
+      )}
 
       <div className="relative px-4 md:px-6">
-        <div className="-mt-9 mb-3 inline-flex bg-card border-2 border-foreground p-1.5 shadow-sm">
+        <div className={`${hasCustomMedia ? "mt-3" : "-mt-9"} mb-3 inline-flex bg-card border-2 border-foreground p-1.5 shadow-sm`}>
           <CompanyLogo company={spotlight.name} size={56} />
         </div>
       </div>
@@ -286,31 +343,40 @@ export const CompanyProfileGrid = ({
 }) => {
   const industry = (industryProp ?? industryFromPath() ?? "").toLowerCase();
   const [spotlight, setSpotlight] = useState<Spotlight | null>(null);
+  // Whether we've finished checking for a pin yet. The animated grid below
+  // waits for this before its first paint, so the spotlighted company is
+  // never briefly included then removed - that flicker was getting the
+  // exit animation stuck (a lingering opacity:0 ghost card) rather than
+  // cleanly unmounting.
+  const [spotlightChecked, setSpotlightChecked] = useState(false);
 
   // Load the single winning Employer Spotlight pin for this industry (lowest
   // rank, active row). It renders as its own premium "advert" tile above the
   // grid - not merged into the grid as an ordinary card.
   useEffect(() => {
-    if (!industry) return;
+    if (!industry) { setSpotlightChecked(true); return; }
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("pinned_industry_employers")
-        .select("company_name, tagline, why_work_here, url")
+        .select("company_name, tagline, why_work_here, url, media_url, media_type")
         .ilike("industry", industry)
         .eq("active", true)
         .order("rank", { ascending: true })
         .limit(1);
       if (cancelled) return;
       const row = data?.[0] as any;
-      if (!row) { setSpotlight(null); return; }
+      if (!row) { setSpotlight(null); setSpotlightChecked(true); return; }
       setSpotlight({
         name: row.company_name,
         slug: row.company_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
         tagline: row.tagline || `A notable employer in ${industry}.`,
         whyWorkHere: row.why_work_here ?? [],
         url: row.url || "#",
+        mediaUrl: row.media_url || null,
+        mediaType: row.media_type || null,
       });
+      setSpotlightChecked(true);
     })();
     return () => { cancelled = true; };
   }, [industry]);
@@ -454,6 +520,11 @@ export const CompanyProfileGrid = ({
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {!spotlightChecked ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-40 w-full" />
+          ))
+        ) : (
         <AnimatePresence mode="popLayout">
           {filtered.map((c) => (
             <motion.div
@@ -473,6 +544,7 @@ export const CompanyProfileGrid = ({
             </motion.div>
           ))}
         </AnimatePresence>
+        )}
       </div>
     </>
   );

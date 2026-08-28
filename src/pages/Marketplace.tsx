@@ -51,6 +51,7 @@ import { inferCareerLevelFromUnderstandMe, normalizeCareerLevel, isCraftServiceJ
 import { getIndustryRankBoost } from "@scoring/industry-rankings.ts";
 import { getCompanyProfilePath, getCompanySlug } from "@/lib/company-profiles";
 import { getCompanyBrand } from "@/lib/company-brand";
+import { toEmbeddableVideo } from "@/lib/video-embed";
 import { getCompanyExternalUrl } from "@/lib/company-external-links";
 import { trackInteraction } from "@/hooks/useTrackInteraction";
 import { useSavedJobs } from "@/hooks/useSavedJobs";
@@ -70,6 +71,8 @@ type FeaturedEmployer = {
   tagline: string;
   whyWorkHere: string[];
   careersUrl: string;
+  mediaUrl?: string | null;
+  mediaType?: "image" | "video" | null;
 };
 const FEATURED_EMPLOYERS: Record<string, FeaturedEmployer> = {
   Bakery: {
@@ -1122,20 +1125,22 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     (async () => {
       const { data } = await supabase
         .from("pinned_industry_employers")
-        .select("company_name, tagline, why_work_here, url, rank")
+        .select("company_name, tagline, why_work_here, url, rank, media_url, media_type")
         .ilike("industry", slug)
         .eq("active", true)
         .order("rank", { ascending: true })
         .limit(1);
       if (cancelled) return;
       if (!data || data.length === 0) { setDbPinnedEmployer(null); return; }
-      const row = data[0] as { company_name: string; tagline: string | null; why_work_here: string[] | null; url: string | null };
+      const row = data[0] as { company_name: string; tagline: string | null; why_work_here: string[] | null; url: string | null; media_url: string | null; media_type: "image" | "video" | null };
       setDbPinnedEmployer({
         company: row.company_name,
         slug: row.company_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
         tagline: row.tagline || `A notable employer in ${industry}.`,
         whyWorkHere: row.why_work_here ?? [],
         careersUrl: row.url || `/marketplace?industry=${encodeURIComponent(industry)}`,
+        mediaUrl: row.media_url,
+        mediaType: row.media_type,
       });
     })();
     return () => { cancelled = true; };
@@ -2692,6 +2697,8 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     // Only show "View company profile" when a real profile page exists -
     // otherwise the button used to dead-end on a 404 placeholder route.
     const profilePath = getCompanyProfilePath(emp.company);
+    const embed = emp.mediaType === "video" && emp.mediaUrl ? toEmbeddableVideo(emp.mediaUrl) : null;
+    const hasCustomMedia = Boolean(emp.mediaUrl);
     return (
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -2699,47 +2706,95 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
         transition={{ duration: 0.35 }}
         className="relative border-2 border-foreground bg-card flex flex-col min-w-0 overflow-hidden shadow-[6px_6px_0_0_hsl(var(--foreground))]"
       >
-        {/* Brand band */}
-        <div
-          className="relative px-4 md:px-5 pt-4 pb-12"
-          style={{ backgroundColor: brand.bg, color: brand.fg }}
-        >
-          {/* subtle diagonal pattern to differentiate from job cards */}
+        {hasCustomMedia ? (
+          <div className="relative">
+            <div
+              className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-0.5 border bg-card/90"
+              style={{ borderColor: "hsl(var(--foreground))" }}
+            >
+              <Sparkles className="w-3 h-3" /> Employer spotlight
+            </div>
+            {emp.mediaType === "video" && embed ? (
+              embed.kind === "iframe" ? (
+                <iframe
+                  src={embed.src}
+                  title={`${emp.company} video`}
+                  className="w-full aspect-video border-0 block"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  src={embed.src}
+                  controls
+                  muted
+                  loop
+                  playsInline
+                  className="w-full aspect-video object-cover block"
+                />
+              )
+            ) : (
+              <img
+                src={emp.mediaUrl!}
+                alt={`${emp.company} banner`}
+                className="w-full aspect-[21/9] object-cover block"
+              />
+            )}
+          </div>
+        ) : (
+          /* Brand band */
           <div
-            aria-hidden
-            className="absolute inset-0 opacity-[0.08] pointer-events-none"
-            style={{
-              backgroundImage:
-                "repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 10px)",
-            }}
-          />
-          <div className="relative flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <div
-                className="inline-flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-0.5 border"
-                style={{ borderColor: brand.fg, color: brand.fg, opacity: 0.85 }}
-              >
-                <Sparkles className="w-3 h-3" /> Employer spotlight
+            className="relative px-4 md:px-5 pt-4 pb-12"
+            style={{ backgroundColor: brand.bg, color: brand.fg }}
+          >
+            {/* subtle diagonal pattern to differentiate from job cards */}
+            <div
+              aria-hidden
+              className="absolute inset-0 opacity-[0.08] pointer-events-none"
+              style={{
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 10px)",
+              }}
+            />
+            <div className="relative flex items-start justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div
+                  className="inline-flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-0.5 border"
+                  style={{ borderColor: brand.fg, color: brand.fg, opacity: 0.85 }}
+                >
+                  <Sparkles className="w-3 h-3" /> Employer spotlight
+                </div>
+                <h3
+                  className="font-display font-700 text-xl md:text-2xl leading-tight mt-2 break-words"
+                  style={{ color: brand.fg }}
+                >
+                  {emp.company}
+                </h3>
+                <p
+                  className="font-body text-sm leading-relaxed mt-1.5 max-w-prose"
+                  style={{ color: brand.fg, opacity: 0.92 }}
+                >
+                  {emp.tagline}
+                </p>
               </div>
-              <h3
-                className="font-display font-700 text-xl md:text-2xl leading-tight mt-2 break-words"
-                style={{ color: brand.fg }}
-              >
-                {emp.company}
-              </h3>
-              <p
-                className="font-body text-sm leading-relaxed mt-1.5 max-w-prose"
-                style={{ color: brand.fg, opacity: 0.92 }}
-              >
-                {emp.tagline}
-              </p>
             </div>
           </div>
-        </div>
+        )}
+
+        {hasCustomMedia && (
+          <div className="px-4 md:px-5 pt-3">
+            <h3 className="font-display font-700 text-xl md:text-2xl leading-tight break-words">
+              {emp.company}
+            </h3>
+            <p className="font-body text-sm leading-relaxed mt-1.5 max-w-prose text-muted-foreground">
+              {emp.tagline}
+            </p>
+          </div>
+        )}
 
         {/* Logo overlapping the band */}
         <div className="relative px-4 md:px-5">
-          <div className="-mt-9 mb-3 inline-flex bg-card border-2 border-foreground p-1.5 shadow-sm">
+          <div className={`${hasCustomMedia ? "mt-3" : "-mt-9"} mb-3 inline-flex bg-card border-2 border-foreground p-1.5 shadow-sm`}>
             <CompanyLogo company={emp.company} size={56} />
           </div>
         </div>

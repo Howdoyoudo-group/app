@@ -1459,6 +1459,8 @@ export type Database = {
           id: string
           industry: string
           logo_url: string | null
+          media_type: string | null
+          media_url: string | null
           rank: number
           tagline: string | null
           updated_at: string
@@ -1472,6 +1474,8 @@ export type Database = {
           id?: string
           industry: string
           logo_url?: string | null
+          media_type?: string | null
+          media_url?: string | null
           rank?: number
           tagline?: string | null
           updated_at?: string
@@ -1485,6 +1489,8 @@ export type Database = {
           id?: string
           industry?: string
           logo_url?: string | null
+          media_type?: string | null
+          media_url?: string | null
           rank?: number
           tagline?: string | null
           updated_at?: string
