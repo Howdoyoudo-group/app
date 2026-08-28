@@ -56,6 +56,10 @@ export default function AdminEmployerSpotlight() {
   const [rows, setRows] = useState<SpotlightRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
+  // Locks every row in an industry group while a reorder is in flight for
+  // that group - prevents a second click landing on a row that just moved
+  // to a new screen position after the first click's reload/re-sort.
+  const [busyIndustry, setBusyIndustry] = useState<string | null>(null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
@@ -107,6 +111,17 @@ export default function AdminEmployerSpotlight() {
     });
     return Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b));
   }, [rows]);
+
+  // Every industry, always - not just the ones that happen to already have a
+  // pinned row. Without this, an industry with zero spotlights (e.g. Estate
+  // Agency) never appears on the page at all, which reads as "missing"
+  // rather than "empty".
+  const allIndustryGroups = useMemo(() => {
+    const map = new Map(rowsByIndustry);
+    return INDUSTRIES
+      .map((i) => ({ slug: i.slug, name: i.name, list: map.get(i.slug) ?? [] }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [rowsByIndustry]);
 
   const openNew = () => {
     setDraft(emptyDraft);
@@ -220,15 +235,26 @@ export default function AdminEmployerSpotlight() {
     await loadRows();
   };
 
-  const bumpRank = async (row: SpotlightRow, delta: number) => {
-    setBusyId(row.id);
-    const next = Math.max(0, (row.rank ?? 0) + delta);
-    const { error } = await supabase
-      .from("pinned_industry_employers")
-      .update({ rank: next })
-      .eq("id", row.id);
-    setBusyId(null);
-    if (error) { toast.error(`Update failed: ${error.message}`); return; }
+  // Swaps a row with its immediate neighbour in the *currently displayed*
+  // sort order for that industry, rather than blindly adding/subtracting
+  // from its rank. A plain +/-1 bump can create rank ties (as happened live -
+  // Dr. Martens and Vans both sitting at rank 6) and, combined with an
+  // immediate reload, moves the whole list under the user's cursor between
+  // clicks. Swapping two concrete rank values and locking the whole
+  // industry group while it's in flight avoids both problems.
+  const bumpRank = async (row: SpotlightRow, direction: -1 | 1) => {
+    const group = rowsByIndustry.find(([slug]) => slug === row.industry.toLowerCase())?.[1] ?? [];
+    const idx = group.findIndex((r) => r.id === row.id);
+    const neighbour = group[idx + direction];
+    if (!neighbour) return; // already first/last - nothing to swap with
+
+    setBusyIndustry(row.industry);
+    const [{ error: e1 }, { error: e2 }] = await Promise.all([
+      supabase.from("pinned_industry_employers").update({ rank: neighbour.rank }).eq("id", row.id),
+      supabase.from("pinned_industry_employers").update({ rank: row.rank }).eq("id", neighbour.id),
+    ]);
+    setBusyIndustry(null);
+    if (e1 || e2) { toast.error(`Reorder failed: ${(e1 ?? e2)?.message}`); return; }
     await loadRows();
   };
 
@@ -272,15 +298,23 @@ export default function AdminEmployerSpotlight() {
 
         {loading ? (
           <div className="p-12 flex justify-center"><Loader2 className="h-6 w-6 animate-spin" /></div>
-        ) : rows.length === 0 ? (
-          <Card className="p-8 text-center text-sm text-muted-foreground">
-            No employer spotlights configured yet. Click "Add spotlight" to promote a company on an industry page.
-          </Card>
         ) : (
           <div className="space-y-8">
-            {rowsByIndustry.map(([slug, list]) => (
+            {allIndustryGroups.map(({ slug, name, list }) => (
               <div key={slug}>
-                <h2 className="text-lg font-semibold mb-3">{labelForSlug(slug)}</h2>
+                <h2 className="text-lg font-semibold mb-3">{name}</h2>
+                {list.length === 0 ? (
+                  <Card className="p-4 flex items-center justify-between gap-4">
+                    <p className="text-sm text-muted-foreground">No spotlight set for {name} yet.</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => { setDraft({ ...emptyDraft, industry: slug }); setBulletDraft(""); setDialogOpen(true); }}
+                    >
+                      <Plus className="h-4 w-4" /> Add spotlight
+                    </Button>
+                  </Card>
+                ) : (
                 <div className="grid gap-3">
                   {list.map((row) => (
                     <Card key={row.id} className={`p-4 flex items-start gap-4 ${!row.active ? "opacity-50" : ""}`}>
@@ -306,23 +340,24 @@ export default function AdminEmployerSpotlight() {
                         )}
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
-                        <Button size="icon" variant="ghost" onClick={() => bumpRank(row, -1)} disabled={busyId === row.id} aria-label="Move up">
+                        <Button size="icon" variant="ghost" onClick={() => bumpRank(row, -1)} disabled={busyId === row.id || busyIndustry === row.industry} aria-label="Move up">
                           <ArrowUp className="h-4 w-4" />
                         </Button>
-                        <Button size="icon" variant="ghost" onClick={() => bumpRank(row, 1)} disabled={busyId === row.id} aria-label="Move down">
+                        <Button size="icon" variant="ghost" onClick={() => bumpRank(row, 1)} disabled={busyId === row.id || busyIndustry === row.industry} aria-label="Move down">
                           <ArrowDown className="h-4 w-4" />
                         </Button>
-                        <Switch checked={row.active} onCheckedChange={() => toggleActive(row)} disabled={busyId === row.id} />
-                        <Button size="icon" variant="ghost" onClick={() => openEdit(row)} aria-label="Edit">
+                        <Switch checked={row.active} onCheckedChange={() => toggleActive(row)} disabled={busyId === row.id || busyIndustry === row.industry} />
+                        <Button size="icon" variant="ghost" onClick={() => openEdit(row)} disabled={busyIndustry === row.industry} aria-label="Edit">
                           <Pencil className="h-4 w-4" />
                         </Button>
-                        <Button size="icon" variant="ghost" onClick={() => remove(row)} disabled={busyId === row.id} aria-label="Delete">
+                        <Button size="icon" variant="ghost" onClick={() => remove(row)} disabled={busyId === row.id || busyIndustry === row.industry} aria-label="Delete">
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
                     </Card>
                   ))}
                 </div>
+                )}
               </div>
             ))}
           </div>
