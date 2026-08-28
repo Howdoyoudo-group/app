@@ -552,7 +552,7 @@ const companyUrls: Record<string, string> = {
   "England Football": "https://careers.thefa.com/jobs/home/",
   "Foxtons": "https://www.foxtons.co.uk/about/careers",
   "Savills": "https://www.savills.co.uk/careers",
-  "Purplebricks": "https://www.purplebricks.co.uk/careers",
+  "Purplebricks": "https://purplebricks.bamboohr.com/careers",
   "Rightmove": "https://www.rightmove.co.uk/careers/",
   "Knight Frank": "https://www.knightfrank.co.uk/careers",
   "Costa Coffee": "https://www.costa.co.uk/careers",

@@ -201,7 +201,7 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Belvoir Group", url: "https://www.belvoirgroup.com/careers", industry: "Estate Agency" },
     { name: "Knight Frank", url: "https://www.knightfrank.co.uk", industry: "Estate Agency" },
     { name: "Savills", url: "https://www.savills.co.uk/careers/", industry: "Estate Agency", profileUrl: "/company/savills" },
-    { name: "Purplebricks", url: "https://www.purplebricks.co.uk", industry: "Estate Agency", profileUrl: "/company/purplebricks" },
+    { name: "Purplebricks", url: "https://purplebricks.bamboohr.com/careers", industry: "Estate Agency", profileUrl: "/company/purplebricks" },
     { name: "Rightmove", url: "https://boards.greenhouse.io/rightmovecareers", industry: "Estate Agency", profileUrl: "/company/rightmove" },
     { name: "Zoopla", url: "https://apply.workable.com/zoopla/", industry: "Estate Agency" },
     { name: "My Home Move", url: "https://myhomemove.current-vacancies.com/", industry: "Estate Agency" },

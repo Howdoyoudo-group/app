@@ -405,6 +405,10 @@ for (const spec of INDUSTRY_REGISTRY) {
 
 // ── RSS feed config (specialist job boards with working RSS feeds) ──
 const RSS_JOB_FEEDS: Record<string, { url: string; source: string; tags?: string[]; maxItems?: number }[]> = {
+  books: [
+    // Guardian Jobs - Publishing sector RSS. Verified live 2026-08-28.
+    { url: "https://jobs.theguardian.com/jobsrss/?Sector=6497221&countrycode=GB", source: "Guardian Jobs - Publishing", maxItems: 30 },
+  ],
   cinema: [
     { url: "https://www.mandy.com/uk/job-search/rss?category=film", source: "Mandy.com" },
     { url: "https://www.screenskills.com/jobs-and-opportunities/rss/", source: "ScreenSkills" },
@@ -3121,6 +3125,295 @@ async function fetchTeamtailorJobs(tenant: { domain: string; company: string; in
     return allJobs;
   } catch (err) {
     console.error(`Teamtailor fetch error for "${tenant.domain}":`, err);
+    return [];
+  }
+}
+
+// ── BambooHR (direct ATS - public JSON API, no key) ──────────────────
+// BambooHR-hosted career sites expose a clean public JSON API, no auth:
+//   GET https://<tenant>.bamboohr.com/careers/list        - all openings
+//   GET https://<tenant>.bamboohr.com/careers/<id>/detail - full description
+// Apply/share URL is https://<tenant>.bamboohr.com/careers/<id>.
+// Verified live 2026-08-28 against Purplebricks (20 openings).
+const BAMBOOHR_TENANTS: Array<{ tenant: string; company: string; industry: string }> = [
+  { tenant: "purplebricks", company: "Purplebricks", industry: "estate-agency" },
+];
+
+async function fetchBambooHrJobs(tenant: { tenant: string; company: string; industry: string }) {
+  try {
+    const listRes = await fetch(`https://${tenant.tenant}.bamboohr.com/careers/list`, {
+      headers: { "Accept": "application/json", "User-Agent": "Mozilla/5.0 (compatible; HowDoYouDoBot/1.0)" },
+    });
+    if (!listRes.ok) {
+      console.error(`BambooHR error for "${tenant.tenant}": ${listRes.status}`);
+      return [];
+    }
+    const listData = await listRes.json();
+    const openings: any[] = Array.isArray(listData?.result) ? listData.result : [];
+    console.log(`[${tenant.industry}] BambooHR(${tenant.tenant}): ${openings.length} raw openings`);
+
+    const allJobs: any[] = [];
+    for (const o of openings) {
+      const title = String(o.jobOpeningName || "").trim();
+      const id = String(o.id || "").trim();
+      if (!title || !id) continue;
+      const url = `https://${tenant.tenant}.bamboohr.com/careers/${id}`;
+
+      let desc = "";
+      let compensation: string | null = null;
+      try {
+        const detailRes = await fetch(`https://${tenant.tenant}.bamboohr.com/careers/${id}/detail`, {
+          headers: { "Accept": "application/json", "User-Agent": "Mozilla/5.0 (compatible; HowDoYouDoBot/1.0)" },
+        });
+        if (detailRes.ok) {
+          const detail = await detailRes.json();
+          const jobOpening = detail?.result?.jobOpening;
+          desc = String(jobOpening?.description || "")
+            .replace(/<[^>]*>/g, " ")
+            .replace(/&nbsp;/g, " ")
+            .replace(/\s+/g, " ")
+            .trim();
+          compensation = jobOpening?.compensation ? String(jobOpening.compensation).slice(0, 200) : null;
+        }
+      } catch {
+        // Fall back to just the list-level fields if the detail call fails.
+      }
+
+      const locationParts = [o.atsLocation?.city, o.atsLocation?.state].filter(Boolean);
+      const locationStr = locationParts.length ? locationParts.join(", ") : (o.atsLocation?.country ?? null);
+
+      const employment = String(o.employmentStatusLabel || "").toLowerCase();
+      const jobType = employment.includes("part") ? "Part-time"
+        : employment.includes("contract") || employment.includes("temp") ? "Contract"
+        : "Full-time";
+
+      const { stage, roleCategory } = classifyJob(title, desc, tenant.industry);
+
+      allJobs.push({
+        title: title.slice(0, 255),
+        company: tenant.company.slice(0, 200),
+        industry: tenant.industry,
+        value_chain_stage: stage,
+        role_category: roleCategory,
+        location: locationStr?.slice(0, 200) ?? null,
+        type: jobType,
+        work_mode: o.isRemote || /remote/i.test(String(o.atsLocation?.city ?? "")) ? "Remote" : "On-site",
+        salary: compensation,
+        description: desc.slice(0, 2000) || null,
+        url,
+        source_url: `${tenant.tenant}.bamboohr.com`,
+        expires_at: new Date(Date.now() + 60 * 86400000).toISOString(),
+      });
+    }
+    return allJobs;
+  } catch (err) {
+    console.error(`BambooHR fetch error for "${tenant.tenant}":`, err);
+    return [];
+  }
+}
+
+// ── Books industry direct sources - no key, no Firecrawl needed ──────
+// All three are plain server-rendered pages (no JS rendering required).
+// Verified live 2026-08-28.
+
+// The Bookseller Jobs (jobs.thebookseller.com) - "Jobs in Books" board,
+// plain HTML, no auth. Card format:
+//   <h3><a href="/career/<id>/<slug>">Title</a></h3>
+//   ... <span class="location">...</span> <span class="companyName">...</span>
+async function fetchBooksellerJobs() {
+  try {
+    const res = await fetch("https://jobs.thebookseller.com/candidate/job_search/quick/results", {
+      headers: { "User-Agent": "howdoyoudo-bot/1.0" },
+    });
+    if (!res.ok) {
+      console.error(`Bookseller error: ${res.status}`);
+      return [];
+    }
+    const html = await res.text();
+    const chunks = html.split(/href="(\/career\/\d+\/[a-z0-9-]+)"/i).slice(1);
+    const allJobs: any[] = [];
+    const seen = new Set<string>();
+    for (let i = 0; i < chunks.length; i += 2) {
+      const path = chunks[i];
+      const rest = chunks[i + 1] || "";
+      if (seen.has(path)) continue;
+      seen.add(path);
+
+      const title = rest.match(/^[^<]*>\s*([^<]+?)\s*<\/a>/)?.[1]?.trim();
+      if (!title) continue;
+      const descRaw = rest.match(/search-result-item-description[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? "";
+      const desc = descRaw.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+      const location = rest.match(/class="location">([^<]*)<\/span>/)?.[1]?.replace(/\s+/g, " ").trim() || null;
+      const company = rest.match(/class="companyName">([^<]*)<\/span>/)?.[1]?.trim() || "The Bookseller Jobs";
+
+      const url = `https://jobs.thebookseller.com${path}`;
+      const { stage, roleCategory } = classifyJob(title, desc, "books");
+
+      allJobs.push({
+        title: title.slice(0, 255),
+        company: company.slice(0, 200),
+        industry: "books",
+        value_chain_stage: stage,
+        role_category: roleCategory,
+        location,
+        type: "Full-time",
+        salary: null,
+        description: desc.slice(0, 2000) || null,
+        url,
+        source_url: "jobs.thebookseller.com",
+        expires_at: new Date(Date.now() + 45 * 86400000).toISOString(),
+      });
+    }
+    return allJobs;
+  } catch (err) {
+    console.error("Bookseller fetch error:", err);
+    return [];
+  }
+}
+
+// IPG's job cards don't print the employer name as text anywhere - only
+// as an alt-less logo image filename (e.g. "berghahn%20100px.jpg"). Known
+// filenames are mapped to their real, verified company name; anything new
+// falls back to a best-effort cleanup of the filename itself.
+const IPG_LOGO_COMPANY_MAP: Record<string, string> = {
+  "andotherstories100px": "And Other Stories",
+  "berghahn 100px": "Berghahn Books",
+  "bloomsbury logo square": "Bloomsbury Publishing",
+  "edward elgar": "Edward Elgar Publishing",
+  "intellectnew100px": "Intellect Books",
+  "nosy crow resized (002)": "Nosy Crow",
+  "pushkinlogo100": "Pushkin Press",
+  "quarto": "Quarto Group",
+  "thames and hudson": "Thames & Hudson",
+  "westchester100pxnew": "Westchester Publishing Services",
+};
+
+function companyFromIpgLogoFile(logoFile: string): string {
+  const decoded = decodeURIComponent(logoFile).replace(/[-_]+/g, " ").trim();
+  const mapped = IPG_LOGO_COMPANY_MAP[decoded.toLowerCase()];
+  if (mapped) return mapped;
+  // Best-effort fallback for a filename we haven't seen before: strip
+  // common asset-naming noise (size markers, "logo", "resized", version
+  // suffixes) rather than showing the raw filename.
+  return decoded
+    .replace(/\d+px/gi, " ")
+    .replace(/\blogo\b/gi, " ")
+    .replace(/\bresized\b/gi, " ")
+    .replace(/\bnew\b/gi, " ")
+    .replace(/\(\d+\)/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (c) => c.toUpperCase()) || "Independent Publishers Guild";
+}
+
+// Independent Publishers Guild Jobs Board - plain ASP.NET HTML, no auth.
+// Card format: <div class="BlockTLItem">...<h4><a href="...">Title</a></h4>
+//   ...Posted on <span>DD/MM/YYYY</span>...<img src=".../jobs%20logos/<company>.png">
+async function fetchIPGJobsBoardJobs() {
+  try {
+    const res = await fetch("https://independentpublishersguild.com/IPG/IPG/Jobs_Board/Jobs-board.aspx", {
+      headers: { "User-Agent": "howdoyoudo-bot/1.0" },
+    });
+    if (!res.ok) {
+      console.error(`IPG Jobs Board error: ${res.status}`);
+      return [];
+    }
+    const html = await res.text();
+    const cards = html.split('class="BlockTLItem"').slice(1);
+    const allJobs: any[] = [];
+    for (const card of cards) {
+      const href = card.match(/href="([^"]*Job-posts\/[^"]+)"/)?.[1];
+      const title = card.match(/<h4><a[^>]*>([^<]+)<\/a>/)?.[1]?.trim();
+      if (!href || !title) continue;
+      const dateRaw = card.match(/Posted on <span>([^<]*)<\/span>/)?.[1]?.trim();
+      const logoFile = card.match(/jobs%20logos\/([^"/.]+)\.\w+"/)?.[1];
+      const company = logoFile ? companyFromIpgLogoFile(logoFile) : "Independent Publishers Guild";
+
+      // href is relative (../../Jobs_Board/Job-posts/X.aspx) from the board
+      // page's own path (/IPG/IPG/Jobs_Board/) - resolve against that base.
+      const url = new URL(href, "https://independentpublishersguild.com/IPG/IPG/Jobs_Board/Jobs-board.aspx").toString();
+
+      // UK date format (DD/MM/YYYY)
+      let publishedAt: Date | null = null;
+      const dm = dateRaw?.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      if (dm) publishedAt = new Date(`${dm[3]}-${dm[2]}-${dm[1]}T12:00:00Z`);
+
+      const { stage, roleCategory } = classifyJob(title, "", "books");
+
+      allJobs.push({
+        title: title.slice(0, 255),
+        company: company.slice(0, 200),
+        industry: "books",
+        value_chain_stage: stage,
+        role_category: roleCategory,
+        location: null,
+        type: "Full-time",
+        salary: null,
+        description: null,
+        url,
+        source_url: "independentpublishersguild.com",
+        expires_at: new Date((publishedAt?.getTime() ?? Date.now()) + 45 * 86400000).toISOString(),
+      });
+    }
+    return allJobs;
+  } catch (err) {
+    console.error("IPG Jobs Board fetch error:", err);
+    return [];
+  }
+}
+
+// Creative Access - Book/Newspaper/Magazine Publishing category. Next.js
+// page embeds the full job list as clean JSON in __NEXT_DATA__ - no
+// rendering, no auth needed.
+async function fetchCreativeAccessPublishingJobs() {
+  try {
+    const res = await fetch("https://opportunities.creativeaccess.org.uk/jobs/book-newspaper-magazine-publishing", {
+      headers: { "User-Agent": "howdoyoudo-bot/1.0" },
+    });
+    if (!res.ok) {
+      console.error(`Creative Access error: ${res.status}`);
+      return [];
+    }
+    const html = await res.text();
+    const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+    if (!m) {
+      console.error("Creative Access: __NEXT_DATA__ not found");
+      return [];
+    }
+    const data = JSON.parse(m[1]);
+    const pages: any[] = data?.props?.pageProps?.data?.jobs?.pages ?? [];
+    const allJobs: any[] = [];
+    for (const j of pages) {
+      const title = String(j.title || "").trim();
+      const path = j.url?.path;
+      if (!title || !path) continue;
+      const company = String(j.organization || "Creative Access").trim();
+      const location = Array.isArray(j.address) && j.address.length > 0 ? String(j.address[0]) : null;
+      const url = `https://opportunities.creativeaccess.org.uk${path}`;
+
+      const { stage, roleCategory } = classifyJob(title, "", "books");
+      const expiration = j.expiration ? new Date(j.expiration) : null;
+
+      allJobs.push({
+        title: title.slice(0, 255),
+        company: company.slice(0, 200),
+        industry: "books",
+        value_chain_stage: stage,
+        role_category: roleCategory,
+        location: location?.slice(0, 200) ?? null,
+        type: "Full-time",
+        salary: null,
+        description: null,
+        url,
+        source_url: "opportunities.creativeaccess.org.uk",
+        expires_at: (expiration && !Number.isNaN(expiration.getTime()))
+          ? expiration.toISOString()
+          : new Date(Date.now() + 45 * 86400000).toISOString(),
+      });
+    }
+    return allJobs;
+  } catch (err) {
+    console.error("Creative Access fetch error:", err);
     return [];
   }
 }
@@ -7274,6 +7567,52 @@ Deno.serve(async (req) => {
           }
           console.log(`[football] Direct sources saved immediately: ${directToSave.length} jobs`);
         }
+      }
+
+      // BambooHR direct tenants - plain JSON API, no key needed. Run early
+      // and saved immediately, same reasoning as football above.
+      const bambooTenants = BAMBOOHR_TENANTS.filter((t) => t.industry === industry);
+      if (bambooTenants.length > 0) {
+        const bambooDirectJobs: any[] = [];
+        for (const tenant of bambooTenants) {
+          const jobs = await fetchBambooHrJobs(tenant);
+          if (jobs.length > 0) {
+            bambooDirectJobs.push(...jobs);
+            allJobs.push(...jobs);
+            console.log(`[${industry}] BambooHR(${tenant.tenant}) direct: ${jobs.length} jobs`);
+          }
+        }
+        const seenBamboo = new Set<string>();
+        const bambooToSave = bambooDirectJobs.filter((j) => j.url && !seenBamboo.has(j.url) && seenBamboo.add(j.url));
+        for (let i = 0; i < bambooToSave.length; i += 50) {
+          totalInserted += await safeUpsertJobs(supabase, bambooToSave.slice(i, i + 50));
+        }
+        console.log(`[${industry}] BambooHR direct sources saved immediately: ${bambooToSave.length} jobs`);
+      }
+
+      // Books direct sources - plain HTML/JSON, no key needed. Run early
+      // and saved immediately, same reasoning as football above.
+      if (industry === "books") {
+        const booksDirectJobs: any[] = [];
+        const sources: Array<[string, () => Promise<any[]>]> = [
+          ["Bookseller Jobs", () => fetchBooksellerJobs()],
+          ["IPG Jobs Board", () => fetchIPGJobsBoardJobs()],
+          ["Creative Access", () => fetchCreativeAccessPublishingJobs()],
+        ];
+        for (const [label, fetcher] of sources) {
+          const jobs = await fetcher();
+          if (jobs.length > 0) {
+            booksDirectJobs.push(...jobs);
+            allJobs.push(...jobs);
+            console.log(`[books] ${label} (direct): ${jobs.length} jobs`);
+          }
+        }
+        const seenBooksDirect = new Set<string>();
+        const booksDirectToSave = booksDirectJobs.filter((j) => j.url && !seenBooksDirect.has(j.url) && seenBooksDirect.add(j.url));
+        for (let i = 0; i < booksDirectToSave.length; i += 50) {
+          totalInserted += await safeUpsertJobs(supabase, booksDirectToSave.slice(i, i + 50));
+        }
+        console.log(`[books] Direct sources saved immediately: ${booksDirectToSave.length} jobs`);
       }
 
       // Run high-value direct employer feeds before slow aggregators so targeted

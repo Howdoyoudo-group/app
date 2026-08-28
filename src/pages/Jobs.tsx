@@ -59,7 +59,7 @@ const industries = [
       { name: "Savills", url: "https://www.savills.co.uk/careers", description: "Global property advisory & agency" },
       { name: "Knight Frank", url: "https://www.knightfrank.co.uk/careers", description: "Partnership-owned property consultancy" },
       { name: "Rightmove", url: "https://www.rightmove.co.uk/careers", description: "UK's largest property portal" },
-      { name: "Purplebricks", url: "https://www.purplebricks.co.uk/careers", description: "Hybrid online estate agent (acquired Strike)" },
+      { name: "Purplebricks", url: "https://purplebricks.bamboohr.com/careers", description: "Hybrid online estate agent (acquired Strike)" },
       { name: "Zoopla", url: "https://www.zoopla.co.uk/careers", description: "Property portal & data platform" },
     ],
   },

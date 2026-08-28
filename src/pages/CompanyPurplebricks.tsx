@@ -9,7 +9,7 @@ const data: CompanyCultureData = {
   industrySlug: "estate-agency",
   coverImage,
   website: "https://www.purplebricks.co.uk",
-  careersUrl: "https://www.purplebricks.co.uk",
+  careersUrl: "https://purplebricks.bamboohr.com/careers",
   founded: "2014",
   hq: "Solihull",
   employees: "500+",
