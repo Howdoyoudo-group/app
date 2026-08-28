@@ -343,7 +343,7 @@ export default function AdminEmployerSpotlight() {
                 disabled={!!draft.id}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent className="max-h-72">
+                <SelectContent className="max-h-72" position="item-aligned">
                   {INDUSTRIES.map((i) => (
                     <SelectItem key={i.slug} value={i.slug}>{i.name}</SelectItem>
                   ))}
