@@ -53,6 +53,20 @@ const FEATURED_ARTICLES: Article[] = [
     image: howToStartCover,
   },
   {
+    title: "Jimmy's Jobs of the Future",
+    source: "Jimmy McLoughlin OBE",
+    description: "The UK's most-trusted careers podcast - a former Downing Street business advisor interviews Prime Ministers, Chancellors and CEOs about work, with 110k+ listeners tuning in every month.",
+    url: "https://www.jobsofthefuture.co",
+    tag: "Podcast",
+  },
+  {
+    title: "Max Klymenko",
+    source: "@maxklymenko on YouTube",
+    description: "Home of the viral \"Career Ladder\" series - guessing strangers' jobs in under two minutes. A brilliant, fast way to see just how many different careers actually exist.",
+    url: "https://www.youtube.com/@maxklymenko/shorts",
+    tag: "Video",
+  },
+  {
     title: "Feel like you can't get a job? You're not alone — but here's how to work around it",
     source: "The Conversation",
     description: "Automation now does the screening before a human ever looks at your application. Jason Walker breaks down five evidence-based strategies to navigate the modern job market — from optimising for AI to building a visible portfolio.",
@@ -80,7 +94,7 @@ export default function Articles() {
   return (
     <>
       <SEO
-        title="Reading | Howdoyoudo?"
+        title="Stuff We Rate | Howdoyoudo?"
         description="Read the best career stories, industry insight and advice from around the web — curated for young people."
       />
 
@@ -91,7 +105,7 @@ export default function Articles() {
           <motion.div {...fadeUp} className="mb-12">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border-2 border-foreground/20 bg-background mb-4">
               <BookOpen className="w-3.5 h-3.5 text-primary" />
-              <span className="font-display font-700 text-xs uppercase tracking-widest">Reading</span>
+              <span className="font-display font-700 text-xs uppercase tracking-widest">Stuff We Rate</span>
             </div>
             <h1 className="font-display font-900 text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-foreground mb-4">
               Read & learn.

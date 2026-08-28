@@ -30,7 +30,7 @@ const NAV_SECTIONS: NavSection[] = [
     label: "Inspire",
     items: [
       { label: "The HDYD Show", to: "/the-show", description: "Episodes, pitches, street interviews & photos" },
-      { label: "Reading", to: "/articles", description: "Read & learn" },
+      { label: "Stuff We Rate", to: "/articles", description: "Read & learn" },
       { label: "Using our Site", to: "/using-our-site", description: "Your guide to discovering work you love" },
     ],
   },
