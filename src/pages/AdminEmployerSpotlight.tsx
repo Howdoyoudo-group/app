@@ -20,6 +20,20 @@ import {
 import { toast } from "sonner";
 import CompanyLogo from "@/components/CompanyLogo";
 import { INDUSTRIES } from "@/data/industries";
+import { ALL_COMPANIES_BY_INDUSTRY } from "@/data/all-companies";
+
+// ALL_COMPANIES_BY_INDUSTRY (the same list that drives each industry page's
+// own "Who" tab) isn't keyed by the canonical slug/name used everywhere
+// else - it has its own historical naming. Bridge the two so picking a
+// company here always uses the exact name the Who tab already renders,
+// which is what makes CompanyProfileCard's pinned/hardcoded merge match up.
+const SLUG_TO_COMPANIES_KEY: Record<string, string> = {
+  cinema: "Film & TV",
+  hospitality: "Food & Drink",
+  "interior-design": "Home & Design",
+};
+const companiesKeyForSlug = (slug: string) =>
+  SLUG_TO_COMPANIES_KEY[slug] ?? INDUSTRIES.find((i) => i.slug === slug)?.name ?? slug;
 
 interface SpotlightRow {
   id: string;
@@ -65,6 +79,16 @@ export default function AdminEmployerSpotlight() {
   const [draft, setDraft] = useState(emptyDraft);
   const [bulletDraft, setBulletDraft] = useState("");
   const [saving, setSaving] = useState(false);
+  // "Other" lets an admin type a company that isn't on the Who tab yet
+  // (e.g. a brand new pin with no hardcoded profile). Starts true whenever
+  // the current draft's company isn't one of the known candidates, so
+  // editing an existing free-text pin doesn't clobber it back to a picker.
+  const [manualCompany, setManualCompany] = useState(false);
+
+  const companyCandidates = useMemo(
+    () => ALL_COMPANIES_BY_INDUSTRY[companiesKeyForSlug(draft.industry)] ?? [],
+    [draft.industry],
+  );
 
   useEffect(() => {
     document.title = "Employer Spotlight · Admin";
@@ -123,9 +147,10 @@ export default function AdminEmployerSpotlight() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [rowsByIndustry]);
 
-  const openNew = () => {
-    setDraft(emptyDraft);
+  const openNew = (industry?: string) => {
+    setDraft(industry ? { ...emptyDraft, industry } : emptyDraft);
     setBulletDraft("");
+    setManualCompany(false);
     setDialogOpen(true);
   };
 
@@ -141,7 +166,19 @@ export default function AdminEmployerSpotlight() {
       active: row.active,
     });
     setBulletDraft("");
+    const candidates = ALL_COMPANIES_BY_INDUSTRY[companiesKeyForSlug(row.industry)] ?? [];
+    setManualCompany(!candidates.some((c) => c.name === row.company_name));
     setDialogOpen(true);
+  };
+
+  const selectCompanyCandidate = (name: string) => {
+    const match = companyCandidates.find((c) => c.name === name);
+    setDraft((d) => ({
+      ...d,
+      company_name: name,
+      // Only fill the URL if the admin hasn't already typed one.
+      url: d.url || match?.url || "",
+    }));
   };
 
   const addBullet = () => {
@@ -291,7 +328,7 @@ export default function AdminEmployerSpotlight() {
               time (the lowest rank, active row wins); reorder with the arrows to change who's currently featured.
             </p>
           </div>
-          <Button onClick={openNew}>
+          <Button onClick={() => openNew()}>
             <Plus className="h-4 w-4" /> Add spotlight
           </Button>
         </header>
@@ -309,7 +346,7 @@ export default function AdminEmployerSpotlight() {
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => { setDraft({ ...emptyDraft, industry: slug }); setBulletDraft(""); setDialogOpen(true); }}
+                      onClick={() => openNew(slug)}
                     >
                       <Plus className="h-4 w-4" /> Add spotlight
                     </Button>
@@ -374,7 +411,10 @@ export default function AdminEmployerSpotlight() {
               <Label>Industry</Label>
               <Select
                 value={draft.industry}
-                onValueChange={(v) => setDraft((d) => ({ ...d, industry: v }))}
+                onValueChange={(v) => {
+                  setDraft((d) => ({ ...d, industry: v, company_name: "", url: "" }));
+                  setManualCompany(false);
+                }}
                 disabled={!!draft.id}
               >
                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -390,13 +430,47 @@ export default function AdminEmployerSpotlight() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="es-company">Company name</Label>
-              <Input
-                id="es-company"
-                value={draft.company_name}
-                onChange={(e) => setDraft((d) => ({ ...d, company_name: e.target.value }))}
-                placeholder="e.g. Greggs"
-              />
+              <Label htmlFor="es-company">Company</Label>
+              {companyCandidates.length > 0 && !manualCompany ? (
+                <>
+                  <Select
+                    value={draft.company_name || undefined}
+                    onValueChange={(v) => {
+                      if (v === "__other__") { setManualCompany(true); setDraft((d) => ({ ...d, company_name: "" })); }
+                      else selectCompanyCandidate(v);
+                    }}
+                  >
+                    <SelectTrigger id="es-company"><SelectValue placeholder="Pick a company from the Who tab…" /></SelectTrigger>
+                    <SelectContent className="max-h-72" position="item-aligned">
+                      {companyCandidates.map((c) => (
+                        <SelectItem key={c.name} value={c.name}>{c.name}</SelectItem>
+                      ))}
+                      <SelectItem value="__other__">Other (type manually)…</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    Picking from this list keeps the spotlight name matched to the same company's card on the Who tab.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Input
+                    id="es-company"
+                    value={draft.company_name}
+                    onChange={(e) => setDraft((d) => ({ ...d, company_name: e.target.value }))}
+                    placeholder="e.g. Greggs"
+                  />
+                  {companyCandidates.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => { setManualCompany(false); setDraft((d) => ({ ...d, company_name: "" })); }}
+                      className="text-xs text-primary hover:underline"
+                    >
+                      Pick from the Who tab list instead
+                    </button>
+                  )}
+                </>
+              )}
             </div>
 
             <div className="space-y-1">

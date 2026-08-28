@@ -178,6 +178,7 @@ export const CompanyProfileGrid = ({
         .from("pinned_industry_employers")
         .select("company_name, rank, tagline, url")
         .ilike("industry", industry)
+        .eq("active", true)
         .order("rank", { ascending: true })
         .order("company_name", { ascending: true });
       if (cancelled || !data) return;
