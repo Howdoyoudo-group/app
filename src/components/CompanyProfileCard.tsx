@@ -1,12 +1,15 @@
-import { Star, ArrowRight, Target, Check } from "lucide-react";
+import { Star, ArrowRight, Target, Check, Sparkles, Building2, Briefcase, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CompanyLogo from "@/components/CompanyLogo";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { trackInteraction } from "@/hooks/useTrackInteraction";
+import { getCompanyBrand } from "@/lib/company-brand";
+import { getCompanyProfilePath } from "@/lib/company-profiles";
 
 export interface CompanyProfile {
   name: string;
@@ -153,6 +156,122 @@ const industryFromPath = (): string | null => {
   return seg;
 };
 
+type Spotlight = {
+  name: string;
+  slug: string;
+  tagline: string;
+  whyWorkHere: string[];
+  url: string;
+};
+
+/** Premium "advert" tile for the editor-picked Employer Spotlight - same
+ * brand-banner treatment as the Marketplace jobs-page spotlight, so a pinned
+ * employer reads as a promoted feature rather than just an ordinary card
+ * that happens to be first. */
+const EmployerSpotlightTile = ({ spotlight }: { spotlight: Spotlight }) => {
+  const brand = getCompanyBrand(spotlight.slug);
+  const profilePath = getCompanyProfilePath(spotlight.name);
+  const isExternalUrl = /^https?:\/\//i.test(spotlight.url || "");
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35 }}
+      className="relative border-2 border-foreground bg-card flex flex-col min-w-0 overflow-hidden shadow-[6px_6px_0_0_hsl(var(--foreground))] mb-8"
+    >
+      <div
+        className="relative px-4 md:px-6 pt-4 pb-12"
+        style={{ backgroundColor: brand.bg, color: brand.fg }}
+      >
+        <div
+          aria-hidden
+          className="absolute inset-0 opacity-[0.08] pointer-events-none"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(45deg, currentColor 0 1px, transparent 1px 10px)",
+          }}
+        />
+        <div className="relative flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <div
+              className="inline-flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-0.5 border"
+              style={{ borderColor: brand.fg, color: brand.fg, opacity: 0.85 }}
+            >
+              <Sparkles className="w-3 h-3" /> Employer spotlight
+            </div>
+            <h3
+              className="font-display font-700 text-xl md:text-2xl leading-tight mt-2 break-words"
+              style={{ color: brand.fg }}
+            >
+              {spotlight.name}
+            </h3>
+            <p
+              className="font-body text-sm leading-relaxed mt-1.5 max-w-prose"
+              style={{ color: brand.fg, opacity: 0.92 }}
+            >
+              {spotlight.tagline}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative px-4 md:px-6">
+        <div className="-mt-9 mb-3 inline-flex bg-card border-2 border-foreground p-1.5 shadow-sm">
+          <CompanyLogo company={spotlight.name} size={56} />
+        </div>
+      </div>
+
+      <div className="px-4 md:px-6 pb-4 md:pb-5 flex flex-col gap-3">
+        {spotlight.whyWorkHere.length > 0 && (
+          <div>
+            <p className="font-display font-700 text-xs uppercase tracking-wide text-foreground mb-2">
+              Why work here
+            </p>
+            <ul className="space-y-1.5">
+              {spotlight.whyWorkHere.map((point) => (
+                <li
+                  key={point}
+                  className="flex items-start gap-2 text-foreground/80 font-body text-xs leading-relaxed"
+                >
+                  <span
+                    className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0"
+                    style={{ backgroundColor: brand.bg }}
+                    aria-hidden="true"
+                  />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className="flex items-center gap-2 pt-1 flex-wrap">
+          {profilePath ? (
+            <Button
+              size="sm"
+              className="font-body text-xs border-2 border-foreground hover:opacity-90"
+              style={{ backgroundColor: brand.bg, color: brand.fg }}
+              asChild
+            >
+              <Link to={profilePath}>
+                <Building2 className="w-3.5 h-3.5 mr-1" /> View company profile
+              </Link>
+            </Button>
+          ) : null}
+          {isExternalUrl && (
+            <Button size="sm" variant="outline" className="font-body text-xs border-2 border-foreground" asChild>
+              <a href={spotlight.url} target="_blank" rel="noopener noreferrer">
+                <Briefcase className="w-3.5 h-3.5 mr-1" />
+                See open roles
+                <ExternalLink className="w-3 h-3 ml-1" />
+              </a>
+            </Button>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 /** Filterable grid of company profiles with value chain stage toggle */
 export const CompanyProfileGrid = ({
   companies,
@@ -166,49 +285,41 @@ export const CompanyProfileGrid = ({
   industry?: string;
 }) => {
   const industry = (industryProp ?? industryFromPath() ?? "").toLowerCase();
-  const [pinned, setPinned] = useState<CompanyProfile[]>([]);
+  const [spotlight, setSpotlight] = useState<Spotlight | null>(null);
 
-  // Load pinned employers for this industry from the database, then merge
-  // with the page-defined `companies` (pinned ones come first; dedup by name).
+  // Load the single winning Employer Spotlight pin for this industry (lowest
+  // rank, active row). It renders as its own premium "advert" tile above the
+  // grid - not merged into the grid as an ordinary card.
   useEffect(() => {
     if (!industry) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from("pinned_industry_employers")
-        .select("company_name, rank, tagline, url")
+        .select("company_name, tagline, why_work_here, url")
         .ilike("industry", industry)
         .eq("active", true)
         .order("rank", { ascending: true })
-        .order("company_name", { ascending: true });
-      if (cancelled || !data) return;
-      // Build minimal CompanyProfile entries; admins can pin any brand by name
-      // even if it doesn't yet have a hardcoded profile entry.
-      const mapped: CompanyProfile[] = data.map((p: any) => ({
-        name: p.company_name,
-        url: p.url || "#",
-        founded: "",
-        hq: "",
-        overview: p.tagline || "Pinned by editors as a notable employer in this industry.",
-      }));
-      setPinned(mapped);
+        .limit(1);
+      if (cancelled) return;
+      const row = data?.[0] as any;
+      if (!row) { setSpotlight(null); return; }
+      setSpotlight({
+        name: row.company_name,
+        slug: row.company_name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""),
+        tagline: row.tagline || `A notable employer in ${industry}.`,
+        whyWorkHere: row.why_work_here ?? [],
+        url: row.url || "#",
+      });
     })();
     return () => { cancelled = true; };
   }, [industry]);
 
-  // Merge: pinned first, then any hardcoded company not already pinned (case-insensitive name match).
-  const mergedCompanies = (() => {
-    if (pinned.length === 0) return companies;
-    const pinnedNames = new Set(pinned.map((p) => p.name.toLowerCase()));
-    // For pinned brands that DO have a richer hardcoded entry, prefer the hardcoded one
-    // (more fields like glassdoor/trustpilot) but keep pinned position.
-    const enrichedPinned: CompanyProfile[] = pinned.map((p) => {
-      const rich = companies.find((c) => c.name.toLowerCase() === p.name.toLowerCase());
-      return rich ?? p;
-    });
-    const remaining = companies.filter((c) => !pinnedNames.has(c.name.toLowerCase()));
-    return [...enrichedPinned, ...remaining];
-  })();
+  // The spotlighted company already gets its own featured tile above the
+  // grid, so drop it from the ordinary grid to avoid showing it twice.
+  const mergedCompanies = spotlight
+    ? companies.filter((c) => c.name.toLowerCase() !== spotlight.name.toLowerCase())
+    : companies;
 
   const stages = Array.from(
     new Set(mergedCompanies.map((c) => c.valueChainStage).filter(Boolean))
@@ -311,6 +422,8 @@ export const CompanyProfileGrid = ({
           <span className="text-primary">.</span>
         </h2>
       )}
+
+      {spotlight && <EmployerSpotlightTile spotlight={spotlight} />}
 
       {hasStages && (
         <div className="flex flex-wrap gap-2 mb-8">
