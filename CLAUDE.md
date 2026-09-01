@@ -125,8 +125,31 @@ where created > now() - interval '6 hours' group by status_code;
 3. **WhatsApp** — needs Twilio keys from partner
 4. **Email users** — rewrite `send-account-migration` for two approaches: Google users (just sign in) vs email users (reset password)
 5. **Onboarding empty profiles** — many migrated users need to complete /onboarding
+6. **Harden cron auth against Supabase's legacy-JWT deprecation** — on 2026-09-01 found Supabase silently started rejecting the project's original auto-generated `anon` key (issued May 2025) for any function with `verify_jwt: true`. Broke 6 crons (`ops-health-alert`, `industry-health-monitor`, `generate-daily-briefings`, `fetch-industry-events`, `refresh-all-content-daily`, `whatsapp-daily-digest`) for ~11 days, silently — pg_cron reported "succeeded" throughout because `net.http_post` only queues the call, it doesn't check the actual HTTP result. Patched by swapping those crons' Authorization headers to `HDYD_SERVICE_JWT` (works today, but is still a JWT that could face the same deprecation later). The durable fix Supabase itself recommends: set `verify_jwt = false` on every cron-triggered function and do the auth check in code instead — see the new pattern below. Not yet applied to the 6 patched functions.
 
 ## Important Patterns
+
+### Edge function auth — cron-triggered functions
+Supabase is deprecating "legacy" JWT-format API keys project-wide, and any
+function with `verify_jwt: true` in its deploy config is at risk of a future
+key getting silently rejected (`UNAUTHORIZED_LEGACY_JWT`) — pg_cron won't
+surface this as a failure, since `net.http_post` only confirms the call was
+queued, not that it succeeded. `fetch-external-jobs` never broke because it
+already deploys with `verify_jwt: false`.
+
+**For every new cron-triggered function:**
+1. Deploy with `verify_jwt: false` (add `[functions.<name>] verify_jwt = false`
+   to `supabase/config.toml`, or pass `--no-verify-jwt` on deploy) — this
+   takes Supabase's own key-rotation risk out of the picture entirely.
+2. Check auth yourself in the function's own code instead, e.g.:
+   ```typescript
+   const auth = req.headers.get("Authorization");
+   if (auth !== `Bearer ${Deno.env.get("HDYD_SERVICE_JWT")}`) {
+     return new Response("Unauthorized", { status: 401 });
+   }
+   ```
+   (`fetch-external-jobs` itself skips even this in-code check today — that's
+   a pre-existing gap, not the pattern to copy. New functions should add it.)
 
 ### AI functions (Gemini)
 ```typescript
