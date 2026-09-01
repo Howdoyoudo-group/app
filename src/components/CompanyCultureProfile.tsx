@@ -14,6 +14,7 @@ import {
 import SignUpForm from "@/components/SignUpForm";
 import CompanyLogo from "@/components/CompanyLogo";
 import { useTrackPageView } from "@/hooks/useTrackInteraction";
+import SEO, { companyDesc, breadcrumbJsonLd } from "@/components/SEO";
 
 export interface CompanyCultureData {
   slug: string;
@@ -56,6 +57,16 @@ const CompanyCultureProfile = ({ data }: { data: CompanyCultureData }) => {
   });
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title={`${data.name} Careers & Culture`}
+        description={data.tagline ? `${data.name} - ${data.tagline.replace(/\.+$/, "")}. ${companyDesc(data.name)}` : companyDesc(data.name)}
+        path={`/company/${data.slug}`}
+        jsonLd={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: data.industry, path: `/${data.industrySlug}` },
+          { name: data.name, path: `/company/${data.slug}` },
+        ])}
+      />
       {/* Cover Image */}
       <div className="relative w-full h-[280px] md:h-[400px] overflow-hidden">
         <img

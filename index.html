@@ -36,7 +36,12 @@
     <link rel="icon" type="image/png" sizes="192x192" href="/icon-main-192.png?v=14" />
     <meta name="theme-color" content="#00E600" />
     <title>How Do You Do?</title>
-    <meta name="description" content="Explore careers across 34 UK industries — from fashion and football to farming and formula 1. Discover jobs, guides, role maps, and what it's really like to work in the industries you love.">
+    <!-- No static <meta name="description"> here on purpose: react-helmet-async
+         (SEO.tsx) sets a per-page one on every route once JS runs, and Google/Bing
+         both execute JS reliably. A static duplicate here left two conflicting
+         description tags in the DOM (found 2026-09-01) - og:description below stays
+         static, since it's the fallback for no-JS social-preview bots (Slack,
+         WhatsApp, Twitter) that never run the JS override at all. -->
     <meta name="author" content="Howdoyoudo" />
     <meta name="google-site-verification" content="DBXt8kJboLL3wjSvIZUFxHAPlT6vmpV9p2mmSgvvsNc" />
 

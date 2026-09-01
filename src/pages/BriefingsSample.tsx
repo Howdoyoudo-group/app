@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Newspaper, Sparkles, ExternalLink, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import SEO, { breadcrumbJsonLd } from "@/components/SEO";
 
 interface SourceLink {
   title: string;
@@ -71,6 +72,15 @@ const BriefingsSample = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEO
+        title="Daily Career Briefings"
+        description="Fresh, AI-curated career news and industry takeaways, generated daily across UK industries - what's happening and what it means for your career."
+        path="/briefings"
+        jsonLd={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Daily Briefings", path: "/briefings" },
+        ])}
+      />
       <header className="border-b-2 border-foreground bg-background">
         <div className="max-w-5xl mx-auto px-5 py-6 md:py-10 flex items-start justify-between gap-4">
           <div>
