@@ -99,6 +99,7 @@ const interiorDesignCompanies = [
   { name: "Havwoods", url: "https://havwoods.com/uk/careers/", founded: "1975", hq: "Lancashire", glassdoor: 3.7, trustpilot: 4.5, overview: "Specialist wood flooring supplier to the design trade.", valueChainStage: "Materials & Finishes" },
   { name: "Tom Dixon", url: "https://www.tomdixon.net/en_gb/jobs", founded: "2002", hq: "London", glassdoor: 3.6, trustpilot: 2.2, profileUrl: "/company/tom-dixon", overview: "A design brand spanning lighting, furniture, and accessories.", valueChainStage: "Product & Manufacturing" },
   { name: "Sonder Living", url: "https://www.sonderliving.com/careers", founded: "2015", hq: "London", glassdoor: 3.8, trustpilot: 4.6, overview: "A trade-focused furniture and accessories brand.", valueChainStage: "Sourcing & Supply" },
+  { name: "Swoon", url: "https://www.swooneditions.com", founded: "2012", hq: "London", overview: "Online-only direct-to-consumer furniture retailer selling sofas, dining and living furniture direct from craftspeople at below-retail prices.", valueChainStage: "Retail & Homewares" },
 ];
 
 const InteriorDesign = () => {

@@ -5777,6 +5777,13 @@ const GREENHOUSE_TENANTS: GreenhouseTenant[] = [
   { board: "onrunning",        company: "On Running",       industry: "footwear",    allUk: false },
   // Health
   { board: "heliosx",          company: "HeliosX",          industry: "health",      allUk: false },
+  // Money
+  { board: "tide",             company: "Tide",             industry: "money",       allUk: false },
+  { board: "gocardless",       company: "GoCardless",       industry: "money",       allUk: false },
+  // Wellness
+  { board: "classpass",        company: "ClassPass",        industry: "wellness",    allUk: false },
+  // Beauty
+  { board: "glossier",         company: "Glossier",         industry: "beauty",      allUk: false },
 ];
 
 async function fetchGreenhouseJobs(tenant: GreenhouseTenant) {
@@ -5868,6 +5875,15 @@ const WORKABLE_TENANTS: WorkableTenant[] = [
   { slug: "hunters",              company: "Hunters",              industry: "estate-agency", allUk: true },
   { slug: "jll",                  company: "JLL",                  industry: "estate-agency", allUk: true },
   { slug: "cbre",                 company: "CBRE",                 industry: "estate-agency", allUk: true },
+  // Pets
+  { slug: "petlab-co",            company: "PetLab Co.",           industry: "pets",          allUk: false },
+  // Beauty
+  { slug: "trinnylondon",         company: "Trinny London",        industry: "beauty",        allUk: false },
+  { slug: "skinandme",            company: "Skin + Me",            industry: "beauty",        allUk: true  },
+  // Wellness
+  { slug: "neom-wellbeing",       company: "NEOM Wellbeing",       industry: "wellness",      allUk: true  },
+  // Interior Design / Home
+  { slug: "swoon-editions",       company: "Swoon",                industry: "interior-design", allUk: false },
 ];
 
 async function fetchWorkableJobs(tenant: WorkableTenant) {
@@ -6052,6 +6068,14 @@ const ASHBY_TENANTS: AshbyTenant[] = [
   { board: "MUBI", company: "MUBI", industry: "cinema", allUk: false },
   { board: "joor", company: "JOOR", industry: "fashion", allUk: false },
   { board: "trainline", company: "Trainline", industry: "travel", allUk: false },
+  // Money
+  { board: "thought-machine", company: "Thought Machine", industry: "money", allUk: true },
+  { board: "marshmallow",     company: "Marshmallow",     industry: "money", allUk: true },
+  { board: "griffin",         company: "Griffin",         industry: "money", allUk: true },
+  // Wellness
+  { board: "zoe",             company: "ZOE",             industry: "wellness", allUk: false },
+  // Fixing
+  { board: "checkatrade",     company: "Checkatrade",     industry: "fixing", allUk: true },
 ];
 
 async function fetchAshbyJobs(tenant: AshbyTenant) {
@@ -6670,6 +6694,10 @@ type LeverTenant = {
   company: string;
   industry: string;
   allUk?: boolean;
+  // Some UK/EU companies host their Lever board on the EU data-residency
+  // instance (api.eu.lever.co) instead of the default api.lever.co - the
+  // default host 404s for these, so this must be set explicitly per tenant.
+  euRegion?: boolean;
   routes?: Array<{ match: RegExp; industry: string; company?: string }>;
 };
 
@@ -6690,13 +6718,20 @@ const LEVER_TENANTS: LeverTenant[] = [
   // Cinema
   { company_slug: "bfi",          company: "BFI",            industry: "cinema",    allUk: true  },
   { company_slug: "sister-pictures", company: "Sister Pictures", industry: "cinema", allUk: true },
+  // Money
+  { company_slug: "zopa",         company: "Zopa",           industry: "money",     allUk: true  },
+  // Pets
+  { company_slug: "trustedhousesitters.com", company: "TrustedHousesitters", industry: "pets", allUk: true },
+  // Wellness (EU-hosted Lever board - see euRegion below)
+  { company_slug: "numan",        company: "Numan",          industry: "health",    allUk: true, euRegion: true },
 ];
 
 async function fetchLeverJobs(tenant: LeverTenant) {
   const allJobs: any[] = [];
   try {
+    const host = tenant.euRegion ? "api.eu.lever.co" : "api.lever.co";
     const res = await fetch(
-      `https://api.lever.co/v0/postings/${tenant.company_slug}?mode=json`,
+      `https://${host}/v0/postings/${tenant.company_slug}?mode=json`,
       { headers: { Accept: "application/json" } },
     );
     if (!res.ok) {
@@ -7656,6 +7691,81 @@ Deno.serve(async (req) => {
             console.log(`[${industry}] Priority TalentFunnel(${tenant.company}): saved=${inserted} of ${matched.length}`);
           } catch (e: any) {
             console.error(`[${industry}] Priority TalentFunnel(${tenant.company}) save error:`, e?.message || e);
+          }
+        }
+      }
+
+      // Priority Greenhouse/Lever/Workable/Ashby tenants - run early and save
+      // immediately, same reasoning as OracleHCM/TalentFunnel above. These ATS
+      // tenants also exist further down the pipeline (after Adzuna/Reed), but
+      // for heavy industries (money, health, wellness) that late pass was
+      // silently getting starved by WORKER_RESOURCE_LIMIT before it ever ran -
+      // found live 2026-09-02: Tide/GoCardless/Zopa/Thought Machine/
+      // Marshmallow/ZOE/ClassPass/Numan never landed despite their APIs
+      // returning real jobs when checked in isolation. The late passes stay
+      // in place as a harmless redundant safety net (deduped by URL).
+      const priorityGhTenants = GREENHOUSE_TENANTS.filter((t) =>
+        t.industry === industry || (t.routes ?? []).some((r) => r.industry === industry)
+      );
+      for (const tenant of priorityGhTenants) {
+        const ghJobs = await fetchGreenhouseJobs(tenant);
+        const matched = ghJobs.filter((j) => j.industry === industry);
+        if (matched.length > 0) {
+          allJobs.push(...matched);
+          try {
+            const inserted = await safeUpsertJobs(supabase, matched);
+            totalInserted += inserted;
+            console.log(`[${industry}] Priority Greenhouse(${tenant.board}): saved=${inserted} of ${matched.length}`);
+          } catch (e: any) {
+            console.error(`[${industry}] Priority Greenhouse(${tenant.board}) save error:`, e?.message || e);
+          }
+        }
+      }
+
+      const priorityLeverTenants = LEVER_TENANTS.filter((t) =>
+        t.industry === industry || (t.routes ?? []).some((r) => r.industry === industry)
+      );
+      for (const tenant of priorityLeverTenants) {
+        const leverJobs = await fetchLeverJobs(tenant);
+        const matched = leverJobs.filter((j) => j.industry === industry);
+        if (matched.length > 0) {
+          allJobs.push(...matched);
+          try {
+            const inserted = await safeUpsertJobs(supabase, matched);
+            totalInserted += inserted;
+            console.log(`[${industry}] Priority Lever(${tenant.company_slug}): saved=${inserted} of ${matched.length}`);
+          } catch (e: any) {
+            console.error(`[${industry}] Priority Lever(${tenant.company_slug}) save error:`, e?.message || e);
+          }
+        }
+      }
+
+      const priorityWkTenants = WORKABLE_TENANTS.filter((t) => t.industry === industry);
+      for (const tenant of priorityWkTenants) {
+        const wkJobs = await fetchWorkableJobs(tenant);
+        if (wkJobs.length > 0) {
+          allJobs.push(...wkJobs);
+          try {
+            const inserted = await safeUpsertJobs(supabase, wkJobs);
+            totalInserted += inserted;
+            console.log(`[${industry}] Priority Workable(${tenant.slug}): saved=${inserted} of ${wkJobs.length}`);
+          } catch (e: any) {
+            console.error(`[${industry}] Priority Workable(${tenant.slug}) save error:`, e?.message || e);
+          }
+        }
+      }
+
+      const priorityAshTenants = ASHBY_TENANTS.filter((t) => t.industry === industry);
+      for (const tenant of priorityAshTenants) {
+        const ashJobs = await fetchAshbyJobs(tenant);
+        if (ashJobs.length > 0) {
+          allJobs.push(...ashJobs);
+          try {
+            const inserted = await safeUpsertJobs(supabase, ashJobs);
+            totalInserted += inserted;
+            console.log(`[${industry}] Priority Ashby(${tenant.board}): saved=${inserted} of ${ashJobs.length}`);
+          } catch (e: any) {
+            console.error(`[${industry}] Priority Ashby(${tenant.board}) save error:`, e?.message || e);
           }
         }
       }

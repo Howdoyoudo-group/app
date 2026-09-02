@@ -91,6 +91,9 @@ const beautyCompanies = [
   { name: "Larry King Hair", url: "https://www.larryking.co.uk/pages/careers", founded: "2016", hq: "London", overview: "Celebrity hairdresser's salon and product brand, bringing editorial hair expertise to the high street.", valueChainStage: "Professional Services" },
   { name: "Toni & Guy", url: "https://www.toniandguy.com/careers", founded: "1963", hq: "London", glassdoor: 3.5, overview: "Iconic global hairdressing brand with 475+ salons worldwide. Known for fashion-forward styling, education academies, and launching thousands of hairdressing careers.", valueChainStage: "Professional Services" },
   { name: "Townhouse", url: "https://townhousebeauty.com/careers/", founded: "2017", hq: "London", overview: "Fast-growing luxury nail salon brand redefining the nail bar experience with chic interiors, hygiene-first standards, and a tech-enabled booking model.", valueChainStage: "Professional Services" },
+  { name: "Trinny London", url: "https://www.trinnylondon.com/uk/careers", founded: "2017", hq: "London", overview: "Direct-to-consumer beauty brand by Trinny Woodall - clip-together cream makeup 'stacks' and skincare, matched via a personalised digital profiling tool.", valueChainStage: "Brand & Marketing" },
+  { name: "Glossier", url: "https://life.glossier.com/", founded: "2014", hq: "New York (UK team: London)", overview: "Direct-to-consumer beauty brand built from a beauty blog - skin-first makeup and skincare sold online and through its own retail stores.", valueChainStage: "Brand & Marketing" },
+  { name: "Skin + Me", url: "https://apply.workable.com/skinandme", founded: "2020", hq: "London", overview: "Personalised prescription skincare - dermatologist-designed, monthly-adjusted topical treatments for acne and skin-ageing, delivered direct to the door.", valueChainStage: "Product Development" },
 ];
 
 const Beauty = () => {
