@@ -99,7 +99,7 @@ harmless redundant safety net (deduped by URL).
 ## Content Pipeline
 - `refresh-all-content` → `fetch-rss-news` + `scrape-articles` per industry (6am weekdays)
 - `generate-daily-briefings` — 5am weekdays, all 30 industries
-- `send-daily-digest` — 7am weekdays
+- `send-daily-digest` — 7am Mon/Fri (was weekdays until 2026-09-02; also restructured to one consolidated email per subscriber covering all their industries, instead of one full email per industry — see the function's own comments)
 
 ## Cron Jobs
 21 scheduled. Crons live in the DB (`cron.job`), NOT in migrations — list them with:
@@ -112,7 +112,7 @@ harmless redundant safety net (deduped by URL).
 - `fetch-cvlibrary-jobs` — 3am daily (affiliate XML feed)
 - `score-new-jobs` — 6:30am + 6:30pm
 - `generate-daily-briefings` — 5am Mon/Thu
-- `send-daily-digest` — 7am weekdays
+- `send-daily-digest` — 7am Mon/Fri (was weekdays until 2026-09-02; also restructured to one consolidated email per subscriber covering all their industries, instead of one full email per industry — see the function's own comments)
 - `audit-job-links` — 2am nightly
 - `validate-jobs` — 23:59 Sun–Thu
 - `refresh-all-content` — every 6h + 6am weekdays
