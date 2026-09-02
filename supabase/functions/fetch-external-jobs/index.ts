@@ -3072,6 +3072,7 @@ async function fetchPinpointJobs(tenant: { slug: string; company: string; indust
 const TEAMTAILOR_TENANTS: Array<{ domain: string; company: string; industry: string }> = [
   { domain: "coventrycityfootballclub.teamtailor.com", company: "Coventry City FC", industry: "football" },
   { domain: "careers.nottinghamforest.co.uk", company: "Nottingham Forest FC", industry: "football" },
+  { domain: "careers.castore.com", company: "Castore", industry: "football" },
 ];
 
 async function fetchTeamtailorJobs(tenant: { domain: string; company: string; industry: string }) {
@@ -7783,6 +7784,26 @@ Deno.serve(async (req) => {
             console.log(`[${industry}] Priority Ashby(${tenant.board}): saved=${inserted} of ${ashJobs.length}`);
           } catch (e: any) {
             console.error(`[${industry}] Priority Ashby(${tenant.board}) save error:`, e?.message || e);
+          }
+        }
+      }
+
+      // Priority Teamtailor tenants - same early-save reasoning as the ATS
+      // block above. Football in particular runs a heavy keyword sweep (see
+      // the football block earlier in this loop) that has starved late
+      // passes before, so any Teamtailor tenant in a heavy industry needs
+      // this too, not just Greenhouse/Lever/Workable/Ashby.
+      const priorityTtTenants = TEAMTAILOR_TENANTS.filter((t) => t.industry === industry);
+      for (const tenant of priorityTtTenants) {
+        const ttJobs = await fetchTeamtailorJobs(tenant);
+        if (ttJobs.length > 0) {
+          allJobs.push(...ttJobs);
+          try {
+            const inserted = await safeUpsertJobs(supabase, ttJobs);
+            totalInserted += inserted;
+            console.log(`[${industry}] Priority Teamtailor(${tenant.domain}): saved=${inserted} of ${ttJobs.length}`);
+          } catch (e: any) {
+            console.error(`[${industry}] Priority Teamtailor(${tenant.domain}) save error:`, e?.message || e);
           }
         }
       }

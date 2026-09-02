@@ -299,6 +299,7 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Liverpool FC", url: "https://careers.liverpoolfc.com", industry: "Football" },
     { name: "Arsenal", url: "https://careers.arsenal.com/jobs", industry: "Football" },
     { name: "Chelsea FC", url: "https://www.chelseafc.com/en/careers", industry: "Football" },
+    { name: "Castore", url: "https://careers.castore.com/jobs", industry: "Football" },
     { name: "Tottenham Hotspur", url: "https://www.tottenhamhotspur.com/the-club/careers/", industry: "Football" },
     { name: "City Football Group", url: "https://www.cityfootballgroup.com/careers/", industry: "Football" },
     { name: "DAZN", url: "https://careers.dazn.com", industry: "Football" },
