@@ -1850,7 +1850,7 @@ function buildConsolidatedEmailHtml(
           <tr>
             <td style="padding:36px 28px 20px 28px;">
               <p style="margin:0 0 14px 0; font-size:11px; color:#1a1a1a; text-transform:uppercase; letter-spacing:3px; font-weight:900; font-family:${displayFont};">
-                Your Daily Brief
+                Your Daily Briefing
               </p>
               <img src="${ASSET_BASE}/howdoyoudo-wordmark.png" alt="How do you do?" width="360" height="155" style="display:block; width:360px; height:auto; max-width:100%; margin:0;" />
               <p style="margin:18px 0 0 0; font-family:${displayFont}; font-size:22px; font-weight:900; color:#1a1a1a; letter-spacing:-0.5px; line-height:1.15;">
@@ -1915,27 +1915,16 @@ function buildConsolidatedEmailHtml(
                   <td>
                     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                       ${[
-                        { letter: "F", title: "The Feed", desc: "Get all your news and analysis in one place.", href: "https://www.howdoyoudo.co.uk/my-jobs?ref=email-features", isNew: true },
-                        { letter: "P", title: "Profile Builder", desc: "A CV like you have never seen before - tailored, industry-specific and built in minutes.", href: "https://www.howdoyoudo.co.uk/cv-builder?ref=email-features", isNew: false },
-                        { letter: "R", title: "Resources", desc: "Courses, books, podcasts and tools - everything you need to grow, in one place.", href: "https://www.howdoyoudo.co.uk/learning?ref=email-features", isNew: false },
-                        { letter: "U", title: "Unpacking every industry", desc: "36 industry hubs - career maps, salaries, who's hiring, podcasts, courses and more.", href: "https://www.howdoyoudo.co.uk/marketplace?ref=email-features", isNew: false },
+                        { title: "The Feed", desc: "Get all your news and analysis in one place.", href: "https://www.howdoyoudo.co.uk/my-jobs?ref=email-features", isNew: true },
+                        { title: "Profile Builder", desc: "A CV like you have never seen before - tailored, industry-specific and built in minutes.", href: "https://www.howdoyoudo.co.uk/cv-builder?ref=email-features", isNew: false },
+                        { title: "Resources", desc: "Courses, books, podcasts and tools - everything you need to grow, in one place.", href: "https://www.howdoyoudo.co.uk/learning?ref=email-features", isNew: false },
+                        { title: "Unpacking every industry", desc: "36 industry hubs - career maps, salaries, who's hiring, podcasts, courses and more.", href: "https://www.howdoyoudo.co.uk/marketplace?ref=email-features", isNew: false },
                       ].map((f, idx, arr) => `
                         <tr>
                           <td style="padding:12px 0; ${idx < arr.length - 1 ? "border-bottom:1px solid #e5e5e5;" : ""}">
                             <a href="${f.href}" style="text-decoration:none; color:#1a1a1a; display:block;">
-                              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
-                                <tr>
-                                  <td valign="top" style="width:44px; padding-right:12px;">
-                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="36" height="36" style="border-collapse:collapse; background-color:#1a1a1a;">
-                                      <tr><td align="center" valign="middle" style="width:36px; height:36px; color:#ffffff; font-family:${displayFont}; font-size:16px; font-weight:900; line-height:36px;">${f.letter}<span style="color:#00e600;">.</span></td></tr>
-                                    </table>
-                                  </td>
-                                  <td valign="top">
-                                    <span style="display:block; font-family:${displayFont}; font-size:14px; font-weight:900; color:#1a1a1a;">${f.title}<span style="color:#00e600;">.</span>${f.isNew ? ` <span style="display:inline-block; margin-left:6px; padding:2px 7px; background-color:#00e600; color:#1a1a1a; font-family:${displayFont}; font-size:9px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; vertical-align:middle;">New</span>` : ""}</span>
-                                    <span style="display:block; margin-top:2px; font-family:${fontStack}; font-size:12px; color:#666; line-height:1.4;">${f.desc}</span>
-                                  </td>
-                                </tr>
-                              </table>
+                              <span style="display:block; font-family:${displayFont}; font-size:14px; font-weight:900; color:#1a1a1a;">${f.title}<span style="color:#00e600;">.</span>${f.isNew ? ` <span style="display:inline-block; margin-left:6px; padding:2px 7px; background-color:#00e600; color:#1a1a1a; font-family:${displayFont}; font-size:9px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; vertical-align:middle;">New</span>` : ""}</span>
+                              <span style="display:block; margin-top:2px; font-family:${fontStack}; font-size:12px; color:#666; line-height:1.4;">${f.desc}</span>
                             </a>
                           </td>
                         </tr>
@@ -2006,7 +1995,7 @@ function buildConsolidatedPlainText(
   const firstName = subscriberName.split(" ")[0] || subscriberName;
   const dateStr = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
   const lines: string[] = [
-    `HOW DO YOU DO? — YOUR DAILY BRIEF`,
+    `HOW DO YOU DO? — YOUR DAILY BRIEFING`,
     `Good morning ${firstName}. ${dateStr}.`,
     ``,
     `PERSONALISED JOBS WAITING FOR YOU`,
@@ -3109,7 +3098,7 @@ Deno.serve(async (req) => {
 
       const html = buildConsolidatedEmailHtml(sub.name, modules, unsubscribeUrl, personalised, nudgeSignup, sub.email);
       const text = buildConsolidatedPlainText(sub.name, modules, unsubscribeUrl);
-      const subject = `Your Daily Brief · ${dateLabel}`;
+      const subject = `Your Daily Briefing · ${dateLabel}`;
       const messageId = crypto.randomUUID();
 
       const sendRes = await sendViaResend({
