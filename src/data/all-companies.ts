@@ -733,3 +733,19 @@ export function getCompaniesByIndustry(industryName: string): CompanyData[] {
 export function getIndustriesWithCompanies(): typeof INDUSTRIES {
   return INDUSTRIES.filter(ind => ALL_COMPANIES_BY_INDUSTRY[ind.name]);
 }
+
+const ALL_COMPANIES_BY_LOWER_NAME: Record<string, CompanyData> = {};
+for (const c of ALL_COMPANIES_FLAT) {
+  const key = c.name.toLowerCase();
+  if (!ALL_COMPANIES_BY_LOWER_NAME[key]) ALL_COMPANIES_BY_LOWER_NAME[key] = c;
+}
+
+/** Careers/website URL for a company as shown on its industry's Who tab,
+ * matched case-insensitively by name across every industry (a company name
+ * is unambiguous regardless of which industry key it's filed under). This
+ * is the richest, largest source of real company links on the site - check
+ * it before falling back to the smaller curated profile/external-link lists. */
+export function getCompanyUrlFromWhoData(name: string | null | undefined): string | null {
+  if (!name) return null;
+  return ALL_COMPANIES_BY_LOWER_NAME[name.trim().toLowerCase()]?.url || null;
+}

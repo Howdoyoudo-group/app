@@ -17,6 +17,7 @@ import {
 import { useJobTracker, TRACKER_STATUSES, type TrackerItem, type TrackerStatus, type NewTrackerItem } from "@/hooks/useJobTracker";
 import { getCompanyProfilePath } from "@/lib/company-profiles";
 import { getCompanyExternalUrl } from "@/lib/company-external-links";
+import { getCompanyUrlFromWhoData } from "@/data/all-companies";
 import CompanyLogo from "@/components/CompanyLogo";
 import { INDUSTRIES } from "@/data/industries";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,11 @@ const helpMeApplyLink = (item: TrackerItem) => {
 const companyInfoLink = (item: TrackerItem): { label: string; to: string } => {
   const profilePath = getCompanyProfilePath(item.company);
   if (profilePath) return { label: "Company profile", to: profilePath };
+  // Same URL already shown on that company's card in the industry's Who tab -
+  // by far the largest source of real company links on the site, so check
+  // it before the smaller curated "Most Wanted" external-link list.
+  const whoUrl = getCompanyUrlFromWhoData(item.company);
+  if (whoUrl) return { label: "Company website", to: whoUrl };
   const external = getCompanyExternalUrl(item.company);
   if (external) return { label: "Company website", to: external };
   return {
