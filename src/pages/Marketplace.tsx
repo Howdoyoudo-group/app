@@ -33,9 +33,9 @@ import {
   ArrowUpDown,
   ChevronDown,
   Share2,
-  ListPlus,
-  ListChecks,
+  Kanban,
 } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ShareJobDialog } from "@/components/ShareJobDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -2549,18 +2549,20 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
               <Bookmark className="w-5 h-5" />
             )}
           </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); trackJob(job); }}
-            className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
-            aria-label={isTracked(job.dbId) ? "In Job Tracker" : "Track this job"}
-            title={isTracked(job.dbId) ? "In Job Tracker" : "Track this job"}
-          >
-            {isTracked(job.dbId) ? (
-              <ListChecks className="w-5 h-5 text-primary" />
-            ) : (
-              <ListPlus className="w-5 h-5" />
-            )}
-          </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={(e) => { e.stopPropagation(); trackJob(job); }}
+                className={`p-1.5 transition-colors ${isTracked(job.dbId) ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+                aria-label={isTracked(job.dbId) ? "In your Job Tracker" : "Add to Job Tracker"}
+              >
+                <Kanban className="w-5 h-5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isTracked(job.dbId) ? "In your Job Tracker" : "Add to Job Tracker"}
+            </TooltipContent>
+          </Tooltip>
           <button
             onClick={(e) => { e.stopPropagation(); setShareOpen(true); }}
             className="p-1.5 text-muted-foreground hover:text-primary transition-colors"

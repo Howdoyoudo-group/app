@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Copy, Download, Loader2, FileText, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Sparkles, Copy, Download, Loader2, FileText, ArrowRight, ExternalLink } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,13 @@ const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, 
 
 export default function HelpMeApply() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  // Carries the job over from a Job Tracker card (or any other "Help me
+  // apply" link) so this page isn't just a blank form disconnected from the
+  // job the user actually clicked from.
+  const prefillCompany = searchParams.get("company") || "";
+  const prefillTitle = searchParams.get("title") || "";
+  const prefillUrl = searchParams.get("url") || "";
   const [jobDescription, setJobDescription] = useState("");
   const [tone, setTone] = useState<"formal" | "friendly">("friendly");
   const [coverLetter, setCoverLetter] = useState("");
@@ -53,12 +60,15 @@ export default function HelpMeApply() {
         })),
       };
 
+      const contextHeader = prefillCompany || prefillTitle
+        ? `Role: ${prefillTitle || "Unknown"}\nCompany: ${prefillCompany || "Unknown"}\n\n`
+        : "";
       const res = await fetch(
         "https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/help-me-apply",
         {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ jobDescription, tone, profileData }),
+          body: JSON.stringify({ jobDescription: contextHeader + jobDescription, tone, profileData }),
         }
       );
       const data = await res.json().catch(() => ({}));
@@ -138,6 +148,30 @@ export default function HelpMeApply() {
                   ))}
                 </div>
               </div>
+
+              {(prefillCompany || prefillTitle) && (
+                <div className="flex items-center justify-between gap-3 border-2 border-primary/40 bg-primary/5 rounded-2xl px-4 py-3">
+                  <p className="font-body text-sm text-foreground">
+                    Cover letter for{" "}
+                    <span className="font-display font-700">{prefillTitle || "this role"}</span>
+                    {prefillCompany && (
+                      <>
+                        {" "}at <span className="font-display font-700">{prefillCompany}</span>
+                      </>
+                    )}
+                  </p>
+                  {prefillUrl && (
+                    <a
+                      href={prefillUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 inline-flex items-center gap-1 text-xs font-body text-primary hover:underline"
+                    >
+                      View listing <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              )}
 
               {/* Job description input */}
               <div>

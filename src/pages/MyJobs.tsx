@@ -46,7 +46,8 @@ import MentorRequestsInbox from "@/components/MentorRequestsInbox";
 import howdyMascot from "@/assets/howdy-mascot.png";
 import { matchesToReasons } from "@/lib/profile-matching";
 import { useJobTracker } from "@/hooks/useJobTracker";
-import { ListPlus, ListChecks } from "lucide-react";
+import { Kanban } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 /* ───── Hand-drawn rounded pill CTA - matches home hero style ───── */
 const LIME = "hsl(120, 100%, 45%)";
@@ -237,13 +238,18 @@ function TinderJobCard({
               {band.label}
             </span>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <button
-                onClick={(e) => { e.stopPropagation(); onTrack(job.id); }}
-                className="w-9 h-9 rounded-full bg-background/50 hover:bg-background/80 flex items-center justify-center transition-colors"
-                title={isTracked ? "In Job Tracker" : "Track this job"}
-              >
-                {isTracked ? <ListChecks className="w-[18px] h-[18px]" /> : <ListPlus className="w-[18px] h-[18px]" />}
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onTrack(job.id); }}
+                    className={`w-9 h-9 rounded-full bg-background/50 hover:bg-background/80 flex items-center justify-center transition-colors ${isTracked ? "text-primary" : ""}`}
+                    aria-label={isTracked ? "In your Job Tracker" : "Add to Job Tracker"}
+                  >
+                    <Kanban className="w-[18px] h-[18px]" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{isTracked ? "In your Job Tracker" : "Add to Job Tracker"}</TooltipContent>
+              </Tooltip>
               <button
                 onClick={(e) => { e.stopPropagation(); onSave(job.id); }}
                 className="w-9 h-9 rounded-full bg-background/50 hover:bg-background/80 flex items-center justify-center transition-colors"

@@ -10,10 +10,12 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 import {
   Plus, Loader2, MapPin, Banknote, Pencil, Trash2, Building2, Sparkles,
-  Calendar, BookOpen, Users, Compass, Search, ExternalLink,
+  Calendar, BookOpen, Users, Compass, Search, ExternalLink, Kanban, X,
 } from "lucide-react";
 import { useJobTracker, TRACKER_STATUSES, type TrackerItem, type TrackerStatus, type NewTrackerItem } from "@/hooks/useJobTracker";
 import { getCompanyProfilePath } from "@/lib/company-profiles";
+import { getCompanyExternalUrl } from "@/lib/company-external-links";
+import CompanyLogo from "@/components/CompanyLogo";
 import { INDUSTRIES } from "@/data/industries";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -37,17 +39,38 @@ const industryLabel = (slug: string | null) => {
   return INDUSTRIES.find((i) => i.slug === slug)?.name ?? slug;
 };
 
+/** `/help-me-apply` reads these to prefill, so the chip actually references
+ * the tracked job instead of dropping the user on a blank form. */
+const helpMeApplyLink = (item: TrackerItem) => {
+  const params = new URLSearchParams();
+  params.set("company", item.company);
+  params.set("title", item.title);
+  if (item.url) params.set("url", item.url);
+  return `/help-me-apply?${params.toString()}`;
+};
+
+/** Company profile if we have a real culture page, otherwise fall back to
+ * the company's own careers/website link (same source used for the "Most
+ * Wanted" chips elsewhere) - only omitted if we genuinely have neither. */
+const companyInfoLink = (item: TrackerItem): { label: string; to: string } | null => {
+  const profilePath = getCompanyProfilePath(item.company);
+  if (profilePath) return { label: "Company profile", to: profilePath };
+  const external = getCompanyExternalUrl(item.company);
+  if (external) return { label: "Company website", to: external };
+  return null;
+};
+
 /** Contextual next-step links, tailored to where the card sits in the pipeline. */
 const suggestedActions = (item: TrackerItem) => {
   const actions: { label: string; icon: typeof Building2; to?: string; onClick?: () => void }[] = [];
-  const profilePath = getCompanyProfilePath(item.company);
+  const companyInfo = companyInfoLink(item);
 
   if (item.status === "wishlist") {
-    if (profilePath) actions.push({ label: "Company profile", icon: Building2, to: profilePath });
-    actions.push({ label: "Help me apply", icon: Sparkles, to: "/help-me-apply" });
+    if (companyInfo) actions.push({ label: companyInfo.label, icon: Building2, to: companyInfo.to });
+    actions.push({ label: "Help me apply", icon: Sparkles, to: helpMeApplyLink(item) });
     if (item.industry) actions.push({ label: "Explore industry", icon: Compass, to: `/${item.industry}` });
   } else if (item.status === "applied") {
-    actions.push({ label: "Help me apply", icon: Sparkles, to: "/help-me-apply" });
+    actions.push({ label: "Help me apply", icon: Sparkles, to: helpMeApplyLink(item) });
     actions.push({ label: "Find a mentor", icon: Users, to: "/mentoring" });
     actions.push({
       label: "Ask Howdy",
@@ -55,7 +78,7 @@ const suggestedActions = (item: TrackerItem) => {
       onClick: () => openHowdy(`Help me follow up on my application to ${item.company} for ${item.title}.`),
     });
   } else if (item.status === "interviewing") {
-    if (profilePath) actions.push({ label: "Company profile", icon: Building2, to: profilePath });
+    if (companyInfo) actions.push({ label: companyInfo.label, icon: Building2, to: companyInfo.to });
     actions.push({ label: "Find a mentor", icon: Users, to: "/mentoring" });
     actions.push({
       label: "Ask Howdy",
@@ -75,7 +98,7 @@ const suggestedActions = (item: TrackerItem) => {
 
   if (item.industry) {
     actions.push({ label: "Events", icon: Calendar, to: `/${item.industry}#attend` });
-    actions.push({ label: "Learning hub", icon: BookOpen, to: `/${item.industry}#courses` });
+    actions.push({ label: "Learning hub", icon: BookOpen, to: `/${item.industry}#learn` });
   }
   return actions;
 };
@@ -84,6 +107,13 @@ const ActionChip = ({ label, icon: Icon, to, onClick }: ReturnType<typeof sugges
   const className =
     "inline-flex items-center gap-1 px-2 py-1 border border-foreground/30 rounded-full text-[10px] font-body font-500 text-foreground/70 hover:border-foreground hover:text-foreground transition-colors whitespace-nowrap";
   if (to) {
+    if (/^https?:\/\//i.test(to)) {
+      return (
+        <a href={to} target="_blank" rel="noopener noreferrer" className={className}>
+          <Icon className="w-3 h-3" /> {label}
+        </a>
+      );
+    }
     return (
       <Link to={to} className={className}>
         <Icon className="w-3 h-3" /> {label}
@@ -101,25 +131,29 @@ const TrackerCard = ({
   item,
   onEdit,
   onRemove,
+  onStatusChange,
   dragHandleProps,
   isDragging,
 }: {
   item: TrackerItem;
   onEdit: () => void;
   onRemove: () => void;
+  onStatusChange: (status: TrackerStatus) => void;
   dragHandleProps?: Record<string, unknown>;
   isDragging?: boolean;
 }) => (
   <div
-    {...dragHandleProps}
     className={`border-2 border-foreground bg-card rounded-2xl p-3.5 shadow-[3px_3px_0_0_hsl(var(--foreground))] transition-opacity ${
       isDragging ? "opacity-40" : ""
     }`}
   >
     <div className="flex items-start justify-between gap-2">
-      <div className="min-w-0">
-        <h4 className="font-display font-700 text-sm text-foreground truncate">{item.title}</h4>
-        <p className="font-body text-xs text-muted-foreground truncate">{item.company}</p>
+      <div {...dragHandleProps} className="flex items-start gap-2 min-w-0 cursor-grab active:cursor-grabbing">
+        <CompanyLogo company={item.company} size={32} className="shrink-0 mt-0.5" />
+        <div className="min-w-0">
+          <h4 className="font-display font-700 text-sm text-foreground truncate">{item.title}</h4>
+          <p className="font-body text-xs text-muted-foreground truncate">{item.company}</p>
+        </div>
       </div>
       <div className="flex items-center gap-1 shrink-0">
         <button
@@ -139,6 +173,21 @@ const TrackerCard = ({
           <Trash2 className="w-3.5 h-3.5" />
         </button>
       </div>
+    </div>
+
+    {/* Explicit status control - always available, doesn't rely on drag-and-drop
+        being discovered (desktop board still supports dragging too). */}
+    <div className="mt-2.5" onPointerDown={(e) => e.stopPropagation()}>
+      <Select value={item.status} onValueChange={(v) => onStatusChange(v as TrackerStatus)}>
+        <SelectTrigger className="h-7 text-[11px] rounded-full border-foreground/30 px-2.5">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent position="item-aligned">
+          {TRACKER_STATUSES.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
 
     {(item.location || item.salary) && (
@@ -183,12 +232,29 @@ const TrackerCard = ({
 );
 
 /** Draggable wrapper (desktop board only). */
-const SortableCard = ({ item, onEdit, onRemove }: { item: TrackerItem; onEdit: () => void; onRemove: () => void }) => {
+const SortableCard = ({
+  item,
+  onEdit,
+  onRemove,
+  onStatusChange,
+}: {
+  item: TrackerItem;
+  onEdit: () => void;
+  onRemove: () => void;
+  onStatusChange: (status: TrackerStatus) => void;
+}) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
   return (
     <div ref={setNodeRef} style={style}>
-      <TrackerCard item={item} onEdit={onEdit} onRemove={onRemove} dragHandleProps={{ ...attributes, ...listeners }} isDragging={isDragging} />
+      <TrackerCard
+        item={item}
+        onEdit={onEdit}
+        onRemove={onRemove}
+        onStatusChange={onStatusChange}
+        dragHandleProps={{ ...attributes, ...listeners }}
+        isDragging={isDragging}
+      />
     </div>
   );
 };
@@ -210,6 +276,17 @@ const emptyDraft = {
 export default function JobTracker() {
   const { user, loading: authLoading } = useAuth();
   const { items, loading, addItem, updateStatus, updateItem, removeItem } = useJobTracker();
+  const [showIntro, setShowIntro] = useState(() => {
+    try {
+      return localStorage.getItem("job-tracker-intro-dismissed") !== "1";
+    } catch {
+      return true;
+    }
+  });
+  const dismissIntro = () => {
+    setShowIntro(false);
+    try { localStorage.setItem("job-tracker-intro-dismissed", "1"); } catch {}
+  };
   const [dialogOpen, setDialogOpen] = useState(false);
   const [draft, setDraft] = useState(emptyDraft);
   const [saving, setSaving] = useState(false);
@@ -360,6 +437,54 @@ export default function JobTracker() {
           </Link>
         </header>
 
+        {showIntro && (
+          <div className="relative border-2 border-foreground rounded-2xl p-4 sm:p-5 mb-6 bg-primary/5">
+            <button
+              type="button"
+              onClick={dismissIntro}
+              aria-label="Dismiss"
+              className="absolute top-3 right-3 p-1 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <h2 className="font-display font-900 text-sm uppercase tracking-wide mb-3 pr-6">
+              How Job Tracker works
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                {
+                  step: "1",
+                  icon: Kanban,
+                  label: "Track a job",
+                  desc: "Tap the board icon on any listing in the Marketplace or Howdy Jobs, or add one manually here.",
+                },
+                {
+                  step: "2",
+                  icon: ExternalLink,
+                  label: "Move it forward",
+                  desc: "Use the status pill on a card (or drag it on desktop) as you go from Wishlist to Applied, Interviewing, Offer.",
+                },
+                {
+                  step: "3",
+                  icon: Sparkles,
+                  label: "Follow the suggestions",
+                  desc: "Every card links to Help Me Apply, Company Profiles, Mentoring, Events and more for that stage.",
+                },
+              ].map((s) => (
+                <div key={s.step} className="border-2 border-foreground/20 rounded-2xl p-3 flex gap-2.5 bg-background">
+                  <div className="w-6 h-6 rounded-full bg-primary border-2 border-foreground flex items-center justify-center shrink-0 font-display font-900 text-[11px]">
+                    {s.step}
+                  </div>
+                  <div>
+                    <p className="font-display font-700 text-xs uppercase tracking-wide mb-0.5">{s.label}</p>
+                    <p className="font-body text-[11px] text-muted-foreground leading-snug">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="flex justify-end mb-5">
           <Button onClick={openNew} className="rounded-2xl font-display font-700 text-xs uppercase tracking-wider">
             <Plus className="w-4 h-4 mr-1.5" /> Add job
@@ -405,7 +530,13 @@ export default function JobTracker() {
                         <SortableContext items={[s.value, ...list.map((i) => i.id)]} strategy={verticalListSortingStrategy}>
                           <div id={s.value} className="space-y-3 min-h-[80px]">
                             {list.map((item) => (
-                              <SortableCard key={item.id} item={item} onEdit={() => openEdit(item)} onRemove={() => remove(item.id)} />
+                              <SortableCard
+                                key={item.id}
+                                item={item}
+                                onEdit={() => openEdit(item)}
+                                onRemove={() => remove(item.id)}
+                                onStatusChange={(status) => updateStatus(item.id, status, 0)}
+                              />
                             ))}
                           </div>
                         </SortableContext>
@@ -414,12 +545,14 @@ export default function JobTracker() {
                   })}
                 </div>
                 <DragOverlay>
-                  {activeItem ? <TrackerCard item={activeItem} onEdit={() => {}} onRemove={() => {}} /> : null}
+                  {activeItem ? (
+                    <TrackerCard item={activeItem} onEdit={() => {}} onRemove={() => {}} onStatusChange={() => {}} />
+                  ) : null}
                 </DragOverlay>
               </DndContext>
             </div>
 
-            {/* Mobile: stacked list with a status selector per card */}
+            {/* Mobile: stacked list, same explicit status control as desktop */}
             <div className="md:hidden space-y-6">
               {TRACKER_STATUSES.map((s) => {
                 const list = byStatus.get(s.value) ?? [];
@@ -431,21 +564,13 @@ export default function JobTracker() {
                     </h3>
                     <div className="space-y-3">
                       {list.map((item) => (
-                        <div key={item.id}>
-                          <TrackerCard item={item} onEdit={() => openEdit(item)} onRemove={() => remove(item.id)} />
-                          <div className="mt-2">
-                            <Select value={item.status} onValueChange={(v) => updateStatus(item.id, v as TrackerStatus, 0)}>
-                              <SelectTrigger className="h-8 text-xs rounded-xl">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {TRACKER_STATUSES.map((opt) => (
-                                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
+                        <TrackerCard
+                          key={item.id}
+                          item={item}
+                          onEdit={() => openEdit(item)}
+                          onRemove={() => remove(item.id)}
+                          onStatusChange={(status) => updateStatus(item.id, status, 0)}
+                        />
                       ))}
                     </div>
                   </div>
