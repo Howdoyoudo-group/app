@@ -106,6 +106,7 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Vistry Group", url: "https://www.vistrycareers.co.uk/", industry: "Building" },
     { name: "Willmott Dixon", url: "https://www.willmottdixon.co.uk/careers", industry: "Building" },
     { name: "Wates Group", url: "https://www.wates.co.uk/careers", industry: "Building" },
+    { name: "PlanRadar", url: "https://www.planradar.com/en/career/", industry: "Building" },
   ],
   Cars: [
     { name: "Jaguar Land Rover", url: "https://www.jaguarlandrovercareers.com", industry: "Cars" },
@@ -116,10 +117,14 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Pendragon / Stratstone", url: "https://www.stratstone.com/about-us/careers/", industry: "Cars" },
     { name: "Arnold Clark", url: "https://www.arnoldclark.com/careers", industry: "Cars" },
     { name: "Octopus Electric Vehicles", url: "https://octopusev.com/careers", industry: "Cars" },
+    { name: "Ohme", url: "https://ohme-ev.com/job-postings/", industry: "Cars" },
     { name: "Halfords", url: "https://careers.halfordscareers.com", industry: "Cars" },
     { name: "AA (Automobile Association)", url: "https://www.theaacareers.co.uk", industry: "Cars" },
     { name: "RAC", url: "https://www.rac-careers.com", industry: "Cars" },
     { name: "Kwik Fit", url: "https://www.kwik-fit.com/careers", industry: "Cars" },
+    { name: "Motorway", url: "https://careers.motorway.co.uk/", industry: "Cars" },
+    { name: "Carwow", url: "https://www.carwow.co.uk/jobs", industry: "Cars" },
+    { name: "Carmoola", url: "https://apply.workable.com/carmoola-1/", industry: "Cars" },
   ],
   Charity: [
     { name: "Blackbaud", url: "https://careers.blackbaud.com", industry: "Charity" },
@@ -191,6 +196,9 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "XPO Logistics", url: "https://jobs.xpo.com/gb/en", industry: "Delivery" },
     { name: "Yodel", url: "https://jobs.yodel.co.uk", industry: "Delivery" },
     { name: "Wincanton", url: "https://www.wincanton.co.uk/careers", industry: "Delivery" },
+    { name: "HIVED", url: "https://www.hived.space/careers", industry: "Delivery" },
+    { name: "Relay", url: "https://relaytech.co/careers", industry: "Delivery" },
+    { name: "AnyVan", url: "https://www.anyvan.com/careers", industry: "Delivery" },
   ],
   "Estate Agency": [
     { name: "Connells Group", url: "https://www.connellsgroup.co.uk/careers", industry: "Estate Agency" },
@@ -284,6 +292,7 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Geek Squad (Currys)", url: "https://www.currys.co.uk/careers", industry: "Fixing" },
     { name: "Uswitch / Go.Compare", url: "https://www.zoopla.co.uk/careers", industry: "Fixing" },
     { name: "Checkatrade", url: "https://www.checkatrade.com/careers", industry: "Fixing" },
+    { name: "Elyos AI", url: "https://elyos.ai/careers", industry: "Fixing" },
   ],
   Football: [
     { name: "Manchester United", url: "https://www.manutd.com/en/club/jobs", industry: "Football" },
@@ -387,6 +396,7 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Waitrose", url: "https://www.jlpjobs.com", industry: "Grocery" },
     { name: "Deliveroo", url: "https://careers.deliveroo.co.uk", industry: "Grocery" },
     { name: "Gousto", url: "https://www.gousto.co.uk/careers", industry: "Grocery" },
+    { name: "Too Good To Go", url: "https://www.toogoodtogo.com/en-gb/about-us/careers", industry: "Grocery" },
   ],
   Health: [
     { name: "NHS England", url: "https://www.jobs.nhs.uk", industry: "Health" },

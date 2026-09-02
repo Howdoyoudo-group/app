@@ -106,6 +106,7 @@ const buildingCompanies = [
   { name: "Vistry Group", founded: "2020", hq: "Kings Hill", overview: "Created from the merger of Bovis Homes and Galliford Try's housebuilding arm, now a major affordable housing provider.", url: "https://www.vistrycareers.co.uk/", glassdoor: 3.4, valueChainStage: "Development & Land" },
   { name: "Willmott Dixon", founded: "1852", hq: "Letchworth", overview: "Independent contractor and developer working across education, health, leisure, and residential sectors.", url: "https://www.willmottdixon.co.uk/careers", glassdoor: 4.1, valueChainStage: "Site Management & Engineering" },
   { name: "Wates Group", founded: "1897", hq: "Leatherhead", overview: "Family-owned contractor working across residential, commercial, and public sector construction.", url: "https://www.wates.co.uk/careers", glassdoor: 3.8, valueChainStage: "Site Management & Engineering" },
+  { name: "PlanRadar", founded: "2013", hq: "Vienna (UK: London)", overview: "Cloud-based construction and real estate platform for digital documentation, task management, defect tracking and team communication across a building's lifecycle.", url: "https://www.planradar.com/en/career/", valueChainStage: "Construction Tech" },
 ];
 
 const Building = () => {

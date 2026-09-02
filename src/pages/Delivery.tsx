@@ -99,6 +99,9 @@ const deliveryCompanies = [
   { name: "XPO Logistics", founded: "2011", hq: "London (UK)", overview: "Global logistics provider specialising in heavy goods, freight brokerage, and last-mile delivery for UK retailers.", url: "https://jobs.xpo.com/gb/en", glassdoor: 3.2, valueChainStage: "Operations & Logistics" },
   { name: "Yodel", founded: "2010", hq: "Liverpool", overview: "Parcel carrier operating a network of service centres and self-employed couriers, focused on the retail sector.", url: "https://jobs.yodel.co.uk", glassdoor: 2.7, valueChainStage: "Last Mile & Courier" },
   { name: "Wincanton", founded: "1925", hq: "Chippenham", overview: "UK contract logistics specialist providing supply chain solutions for grocery, retail, defence, and construction.", url: "https://www.wincanton.co.uk/careers", glassdoor: 3.4, valueChainStage: "Operations & Logistics" },
+  { name: "HIVED", founded: "2021", hq: "London", overview: "All-electric last-mile parcel delivery network for e-commerce brands - 100% electric fleet, ships for 100+ brands including Asos and Zara.", url: "https://www.hived.space/careers", valueChainStage: "Last Mile & Courier" },
+  { name: "Relay", founded: "2022", hq: "London", overview: "AI-powered hyperlocal last-mile delivery network for e-commerce - routes parcels through a distributed network of high-street partner depots instead of a hub-and-spoke model.", url: "https://relaytech.co/careers", valueChainStage: "Last Mile & Courier" },
+  { name: "AnyVan", founded: "2009", hq: "London", overview: "Online marketplace matching large-item deliveries, removals and vehicle transport to available capacity on transport providers' existing routes.", url: "https://www.anyvan.com/careers", valueChainStage: "Last Mile & Courier" },
 ];
 
 const Delivery = () => {

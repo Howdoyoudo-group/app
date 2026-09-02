@@ -106,6 +106,7 @@ const groceryCompanies = [
   { name: "Waitrose", founded: "1904", hq: "Bracknell", overview: "Employee-owned food retailer known for premium quality.", glassdoor: 3.6, trustpilot: 1.9, url: "https://www.jlpjobs.com", valueChainStage: "Retail Ops" },
   { name: "Deliveroo", founded: "2013", hq: "London", overview: "On-demand food and grocery delivery platform.", url: "https://careers.deliveroo.co.uk", glassdoor: 3.6, valueChainStage: "Consumer" },
   { name: "Gousto", founded: "2012", hq: "London", overview: "Recipe box company using data and automation to reduce food waste.", url: "https://www.gousto.co.uk/careers", glassdoor: 3.8, trustpilot: 4.4, valueChainStage: "Consumer" },
+  { name: "Too Good To Go", founded: "2015", hq: "Copenhagen (UK: London)", overview: "Marketplace app connecting consumers to restaurants and shops with unsold surplus food, sold at a discount to cut food waste.", url: "https://www.toogoodtogo.com/en-gb/about-us/careers", valueChainStage: "Consumer" },
 ];
 
 const Grocery = () => {

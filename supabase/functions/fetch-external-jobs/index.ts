@@ -5784,6 +5784,12 @@ const GREENHOUSE_TENANTS: GreenhouseTenant[] = [
   { board: "classpass",        company: "ClassPass",        industry: "wellness",    allUk: false },
   // Beauty
   { board: "glossier",         company: "Glossier",         industry: "beauty",      allUk: false },
+  // Cars
+  { board: "ohme",             company: "Ohme",             industry: "cars",        allUk: false },
+  // Grocery
+  { board: "toogoodtogo",      company: "Too Good To Go",   industry: "grocery",     allUk: false },
+  // Building
+  { board: "planradar",        company: "PlanRadar",        industry: "building",    allUk: false },
 ];
 
 async function fetchGreenhouseJobs(tenant: GreenhouseTenant) {
@@ -5884,6 +5890,8 @@ const WORKABLE_TENANTS: WorkableTenant[] = [
   { slug: "neom-wellbeing",       company: "NEOM Wellbeing",       industry: "wellness",      allUk: true  },
   // Interior Design / Home
   { slug: "swoon-editions",       company: "Swoon",                industry: "interior-design", allUk: false },
+  // Cars
+  { slug: "carmoola-1",           company: "Carmoola",             industry: "cars",          allUk: true  },
 ];
 
 async function fetchWorkableJobs(tenant: WorkableTenant) {
@@ -6076,6 +6084,15 @@ const ASHBY_TENANTS: AshbyTenant[] = [
   { board: "zoe",             company: "ZOE",             industry: "wellness", allUk: false },
   // Fixing
   { board: "checkatrade",     company: "Checkatrade",     industry: "fixing", allUk: true },
+  // Cars
+  { board: "motorway",        company: "Motorway",        industry: "cars",   allUk: true },
+  { board: "Carwow",          company: "Carwow",          industry: "cars",   allUk: false },
+  // Delivery
+  { board: "hived",           company: "HIVED",           industry: "delivery", allUk: true },
+  { board: "relay",           company: "Relay",           industry: "delivery", allUk: true },
+  { board: "anyvan",          company: "AnyVan",          industry: "delivery", allUk: false },
+  // Fixing
+  { board: "elyos",           company: "Elyos AI",        industry: "fixing",   allUk: true },
 ];
 
 async function fetchAshbyJobs(tenant: AshbyTenant) {
