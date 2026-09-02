@@ -112,6 +112,7 @@ const NAV_SECTIONS: NavSection[] = [
     label: "Jobs",
     items: [
       { label: "Jobs Marketplace", to: "/marketplace", description: "Browse all live roles" },
+      { label: "Job Tracker", to: "/job-tracker", description: "Track every application in one board", badge: "New" },
       { label: "Howdy Jobs", to: "/my-jobs?tab=jobs", description: "Roles matched to your profile" },
       { label: "CV Builder", to: "/cv-builder", description: "Build a profile that stands out" },
       { label: "Help Me Apply", to: "/help-me-apply", description: "AI cover letters & applications", badge: "New" },

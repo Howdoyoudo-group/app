@@ -45,6 +45,8 @@ import MembersArea from "@/components/MembersArea";
 import MentorRequestsInbox from "@/components/MentorRequestsInbox";
 import howdyMascot from "@/assets/howdy-mascot.png";
 import { matchesToReasons } from "@/lib/profile-matching";
+import { useJobTracker } from "@/hooks/useJobTracker";
+import { ListPlus, ListChecks } from "lucide-react";
 
 /* ───── Hand-drawn rounded pill CTA - matches home hero style ───── */
 const LIME = "hsl(120, 100%, 45%)";
@@ -156,6 +158,8 @@ function TinderJobCard({
   onOpen,
   onSave,
   savedIdSet,
+  onTrack,
+  trackedIdSet,
   isTop,
   stackIndex,
   exitDirection,
@@ -166,6 +170,8 @@ function TinderJobCard({
   onOpen: (url: string, id?: string) => void;
   onSave: (id: string) => void;
   savedIdSet: Set<string>;
+  onTrack: (id: string) => void;
+  trackedIdSet: Set<string>;
   isTop: boolean;
   stackIndex: number;
   exitDirection: "left" | "right" | null;
@@ -188,6 +194,7 @@ function TinderJobCard({
   const levelLabel = job.career_level ? (LEVEL_LABELS[job.career_level.toLowerCase()] ?? null) : null;
   const jobTypeLabel = normalizeJobType(job.type);
   const isSaved = savedIdSet.has(job.id);
+  const isTracked = trackedIdSet.has(job.id);
   const source = detectJobSource(job.url);
 
   return (
@@ -229,13 +236,22 @@ function TinderJobCard({
               <img src={howdyMascot} alt="" className="w-5 h-5 object-contain rounded-full bg-background/10" />
               {band.label}
             </span>
-            <button
-              onClick={(e) => { e.stopPropagation(); onSave(job.id); }}
-              className="w-9 h-9 rounded-full bg-background/50 hover:bg-background/80 flex items-center justify-center transition-colors flex-shrink-0"
-              title="Save for later"
-            >
-              {isSaved ? <BookmarkCheck className="w-[18px] h-[18px]" /> : <Bookmark className="w-[18px] h-[18px]" />}
-            </button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <button
+                onClick={(e) => { e.stopPropagation(); onTrack(job.id); }}
+                className="w-9 h-9 rounded-full bg-background/50 hover:bg-background/80 flex items-center justify-center transition-colors"
+                title={isTracked ? "In Job Tracker" : "Track this job"}
+              >
+                {isTracked ? <ListChecks className="w-[18px] h-[18px]" /> : <ListPlus className="w-[18px] h-[18px]" />}
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onSave(job.id); }}
+                className="w-9 h-9 rounded-full bg-background/50 hover:bg-background/80 flex items-center justify-center transition-colors"
+                title="Save for later"
+              >
+                {isSaved ? <BookmarkCheck className="w-[18px] h-[18px]" /> : <Bookmark className="w-[18px] h-[18px]" />}
+              </button>
+            </div>
           </div>
 
           {/* Title */}
@@ -304,6 +320,8 @@ function TinderCardStack({
   onSave,
   onOpen,
   savedIdSet,
+  onTrack,
+  trackedIdSet,
 }: {
   jobs: (Job & { score: number; matches: string[] })[];
   isFallback?: boolean;
@@ -312,6 +330,8 @@ function TinderCardStack({
   onSave: (id: string) => void;
   onOpen: (url: string, id?: string) => void;
   savedIdSet: Set<string>;
+  onTrack: (id: string) => void;
+  trackedIdSet: Set<string>;
 }) {
   const [exiting, setExiting] = useState<{ id: string; direction: "left" | "right" } | null>(null);
 
@@ -373,6 +393,8 @@ function TinderCardStack({
               onOpen={onOpen}
               onSave={onSave}
               savedIdSet={savedIdSet}
+              onTrack={onTrack}
+              trackedIdSet={trackedIdSet}
               isTop={stackIndex === 0}
               stackIndex={stackIndex}
               exitDirection={exiting?.id === job.id ? exiting.direction : null}
@@ -578,6 +600,43 @@ const MyJobs = () => {
   }, [user, navigate, savedJobs, jobs]);
 
   const savedIdSet = useMemo(() => new Set(savedJobs.map((j) => j.id)), [savedJobs]);
+
+  const { isTracked: isJobTracked, addItem: addTrackerItem } = useJobTracker();
+  const trackedIdSet = useMemo(() => {
+    const set = new Set<string>();
+    jobs.forEach((j) => { if (isJobTracked(j.id)) set.add(j.id); });
+    return set;
+  }, [jobs, isJobTracked]);
+
+  const trackJob = useCallback(async (jobId: string) => {
+    if (!user) { navigate("/auth"); return; }
+    if (isJobTracked(jobId)) {
+      toast({ title: "Already in your Job Tracker" });
+      return;
+    }
+    const job = jobs.find((j) => j.id === jobId);
+    if (!job) return;
+    await addTrackerItem({
+      job_id: job.id,
+      company: job.company,
+      title: job.title,
+      url: job.url,
+      location: job.location,
+      salary: job.salary,
+      industry: job.industry,
+    });
+    toast({
+      title: "Added to Job Tracker",
+      action: (
+        <button
+          onClick={() => navigate("/job-tracker")}
+          className="text-xs font-display font-700 underline underline-offset-2"
+        >
+          View board
+        </button>
+      ),
+    } as any);
+  }, [user, navigate, jobs, isJobTracked, addTrackerItem]);
 
   const loadLikedJobs = useCallback(async () => {
     if (!user) return;
@@ -1533,6 +1592,8 @@ const MyJobs = () => {
                 onSave={toggleSaveJob}
                 onOpen={handleOpen}
                 savedIdSet={savedIdSet}
+                onTrack={trackJob}
+                trackedIdSet={trackedIdSet}
               />
             )}
           </TabsContent>

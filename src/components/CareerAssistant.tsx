@@ -156,7 +156,13 @@ const CareerAssistant = () => {
   // open the chat panel via a global event, so we don't need two competing
   // entry points stacked on top of each other.
   useEffect(() => {
-    const handler = () => setOpen(true);
+    // Optional `detail.prefill` lets a caller (e.g. a Job Tracker card) open
+    // Howdy with a relevant message already typed in, without auto-sending it.
+    const handler = (e: Event) => {
+      const prefill = (e as CustomEvent<{ prefill?: string }>).detail?.prefill;
+      if (prefill) setInput(prefill);
+      setOpen(true);
+    };
     const videoHandler = () => { setOpen(true); setShowVideo(true); };
     window.addEventListener("howdy:open", handler);
     window.addEventListener("howdy:open-video", videoHandler);

@@ -96,6 +96,7 @@ const CareerProfile = lazy(() => import("./pages/CareerProfile.tsx"));
 const MyProfile = lazy(() => import("./pages/MyProfile.tsx"));
 const BriefingsSample = lazy(() => import("./pages/BriefingsSample.tsx"));
 const MyJobs = lazy(() => import("./pages/MyJobs.tsx"));
+const JobTracker = lazy(() => import("./pages/JobTracker.tsx"));
 const MyJobsDemo = lazy(() => import("./pages/MyJobsDemo.tsx"));
 const MyProfileDemo = lazy(() => import("./pages/MyProfileDemo.tsx"));
 const Onboarding = lazy(() => import("./pages/Onboarding.tsx"));
@@ -335,6 +336,7 @@ const App = () => (
           <Route path="/my-jobs-demo" element={<MyJobsDemo />} />
           <Route path="/briefings" element={<BriefingsSample />} />
           <Route path="/my-jobs" element={<MyJobs />} />
+          <Route path="/job-tracker" element={<JobTracker />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/admin/adzuna-runs" element={<AdminAdzunaRuns />} />
           <Route path="/admin/industry-health" element={<AdminIndustryHealth />} />

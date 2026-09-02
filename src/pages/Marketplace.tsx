@@ -33,6 +33,8 @@ import {
   ArrowUpDown,
   ChevronDown,
   Share2,
+  ListPlus,
+  ListChecks,
 } from "lucide-react";
 import { ShareJobDialog } from "@/components/ShareJobDialog";
 import { Input } from "@/components/ui/input";
@@ -55,6 +57,8 @@ import { toEmbeddableVideo } from "@/lib/video-embed";
 import { getCompanyExternalUrl } from "@/lib/company-external-links";
 import { trackInteraction } from "@/hooks/useTrackInteraction";
 import { useSavedJobs } from "@/hooks/useSavedJobs";
+import { useJobTracker } from "@/hooks/useJobTracker";
+import { toast } from "sonner";
 import SourceAttribution, { SourceAttributionFooter, detectJobSource } from "@/components/AdzunaAttribution";
 import SignUpPopup, { useSignUpPopup } from "@/components/SignUpPopup";
 import { roles as ROLE_DEFINITIONS } from "@/data/roles";
@@ -1146,6 +1150,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     return () => { cancelled = true; };
   }, [industry]);
   const { isSaved: isJobSaved, toggle: toggleSavedJob } = useSavedJobs();
+  const { isTracked, addItem: addTrackerItem } = useJobTracker();
   const { open: signupOpen, close: closeSignup, openPopup: openSignup } = useSignUpPopup(0, false);
   const [showSortFilter, setShowSortFilter] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("smart");
@@ -1697,6 +1702,26 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     if (!user) { openSignup(); return; }
     if (!job.dbId) return;
     toggleSavedJob(job.dbId);
+  };
+
+  const trackJob = async (job: Job) => {
+    if (!user) { openSignup(); return; }
+    if (isTracked(job.dbId)) {
+      toast.info("Already in your Job Tracker");
+      return;
+    }
+    await addTrackerItem({
+      job_id: job.dbId ?? null,
+      company: job.company,
+      title: job.title,
+      url: job.url ?? null,
+      location: job.location,
+      salary: job.salary,
+      industry: job.industry,
+    });
+    toast.success("Added to Job Tracker", {
+      action: { label: "View board", onClick: () => { window.location.href = "/job-tracker"; } },
+    });
   };
 
   const activeFilterCount = [industry, location, jobType, salary, workMode, careerLevel].filter(
@@ -2522,6 +2547,18 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
               <BookmarkCheck className="w-5 h-5 text-primary" />
             ) : (
               <Bookmark className="w-5 h-5" />
+            )}
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); trackJob(job); }}
+            className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
+            aria-label={isTracked(job.dbId) ? "In Job Tracker" : "Track this job"}
+            title={isTracked(job.dbId) ? "In Job Tracker" : "Track this job"}
+          >
+            {isTracked(job.dbId) ? (
+              <ListChecks className="w-5 h-5 text-primary" />
+            ) : (
+              <ListPlus className="w-5 h-5" />
             )}
           </button>
           <button

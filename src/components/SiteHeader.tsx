@@ -413,6 +413,7 @@ const LEVEL_UP_GROUPS: NavGroup[] = [
 
 const JOBS: DropdownItem[] = [
   { label: "Jobs Marketplace", to: "/marketplace", description: "Browse all live roles" },
+  { label: "Job Tracker", to: "/job-tracker", description: "Track every application in one board", badge: "New" },
   { label: "Howdy Jobs", to: "/my-jobs?tab=jobs", description: "Roles matched to your profile" },
   { label: "CV Builder", to: "/cv-builder", description: "Build a profile that stands out" },
   { label: "Help Me Apply", to: "/help-me-apply", description: "AI cover letters & applications", badge: "New" },
@@ -581,6 +582,13 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
                       className="block px-4 py-3 font-display font-900 text-sm uppercase tracking-wide text-foreground hover:bg-primary transition-colors border-t-2 border-foreground/10"
                     >
                       Take the Quiz
+                    </Link>
+                    <Link
+                      to="/job-tracker"
+                      onClick={() => setAccountOpen(false)}
+                      className="block px-4 py-3 font-display font-900 text-sm uppercase tracking-wide text-foreground hover:bg-primary transition-colors border-t-2 border-foreground/10"
+                    >
+                      Job Tracker
                     </Link>
                     <Link
                       to="/my-profile"
