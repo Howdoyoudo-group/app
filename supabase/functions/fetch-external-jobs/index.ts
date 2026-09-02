@@ -5775,6 +5775,8 @@ const GREENHOUSE_TENANTS: GreenhouseTenant[] = [
   { board: "greeneking",       company: "Greene King",      industry: "beer",        allUk: true  },
   // Footwear
   { board: "onrunning",        company: "On Running",       industry: "footwear",    allUk: false },
+  // Health
+  { board: "heliosx",          company: "HeliosX",          industry: "health",      allUk: false },
 ];
 
 async function fetchGreenhouseJobs(tenant: GreenhouseTenant) {

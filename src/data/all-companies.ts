@@ -400,6 +400,7 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "GSK", url: "https://www.gsk.com/en-gb/careers/", industry: "Health" },
     { name: "AstraZeneca", url: "https://careers.astrazeneca.com", industry: "Health" },
     { name: "Babylon / eMed", url: "https://www.emed.com/uk/careers", industry: "Health" },
+    { name: "HeliosX", url: "https://www.heliosx.com/#jobs", industry: "Health" },
     { name: "Smith+Nephew", url: "https://www.smith-nephew.com/en/careers", industry: "Health" },
     { name: "GE HealthCare", url: "https://www.gehealthcare.com/about/careers", industry: "Health" },
     { name: "NICE (National Institute for Health and Care Excellence)", url: "https://www.nice.org.uk/about/who-we-are/jobs", industry: "Health" },
