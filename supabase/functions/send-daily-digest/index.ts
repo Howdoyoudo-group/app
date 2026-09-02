@@ -2200,6 +2200,43 @@ Deno.serve(async (req) => {
 
     const RESTRICT_TO_EMAIL = "";
 
+    // SAFETY: don't send the full subscriber list twice in one day. A stray
+    // double cron fire or a manual re-trigger while debugging should no-op,
+    // not re-email everyone. Test/restricted sends are exempt - only the
+    // real full-list path is guarded. Pass ?force_resend=true to override
+    // (e.g. today's run genuinely failed partway and needs a manual redo).
+    const forceResend = url.searchParams.get("force_resend") === "true";
+    const runDate = new Date().toISOString().slice(0, 10);
+    if (isFullSend) {
+      const { data: existingRun } = await supabase
+        .from("daily_digest_runs")
+        .select("status, started_at")
+        .eq("run_date", runDate)
+        .maybeSingle();
+
+      const startedMinutesAgo = existingRun
+        ? (Date.now() - new Date(existingRun.started_at).getTime()) / 60000
+        : Infinity;
+
+      const isBlocking = existingRun?.status === "completed" || (existingRun?.status === "running" && startedMinutesAgo < 20);
+      if (existingRun && !forceResend && isBlocking) {
+        const reason = existingRun.status === "completed" ? "already completed today" : "already running (started " + Math.round(startedMinutesAgo) + " min ago)";
+        console.warn(`[digest] BLOCKED: full-list send refused - ${reason}. Pass force_resend=true to override.`);
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: `Today's digest is ${reason}. Pass ?force_resend=true to send again anyway.`,
+          }),
+          { status: 409, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      await supabase.from("daily_digest_runs").upsert(
+        { run_date: runDate, started_at: new Date().toISOString(), status: "running", completed_at: null, subscribers_count: null },
+        { onConflict: "run_date" }
+      );
+    }
+
   // Run the entire digest build in the background so cron/HTTP triggers don't time out.
   // The function returns 202 immediately; work continues until completion.
   // @ts-ignore - EdgeRuntime is available in Supabase Edge Runtime
@@ -2761,8 +2798,16 @@ Deno.serve(async (req) => {
     }
 
     console.log(`[digest] DONE: enqueued ${enqueued} consolidated emails for ${subscribers.length} subscribers (refreshed ${thinIndustries.length} thin industries) ${ms()}`);
+    if (isFullSend) {
+      await supabase.from("daily_digest_runs").update({
+        status: "completed", completed_at: new Date().toISOString(), subscribers_count: subscribers.length,
+      }).eq("run_date", runDate);
+    }
   } catch (err) {
     console.error(`[digest] ERROR ${ms()}:`, err);
+    if (isFullSend) {
+      await supabase.from("daily_digest_runs").update({ status: "failed" }).eq("run_date", runDate);
+    }
   }
   };
 
