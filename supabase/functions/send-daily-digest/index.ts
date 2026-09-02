@@ -32,6 +32,21 @@ function last48hAgo(): string {
   return d.toISOString();
 }
 
+// Digest now sends Monday and Friday only (was daily). The content window
+// has to cover the actual gap since the last send, not a fixed 48h:
+// - Monday's send covers since Friday (weekend included) -> ~3 days back
+// - Friday's send covers since Monday (the working week) -> ~4 days back
+// A small buffer is added so a cron landing a few hours late doesn't clip
+// the edge of the previous window. Any other trigger day (manual test runs)
+// falls back to the wider 4-day window.
+function digestLookbackHoursAgo(): string {
+  const dayOfWeek = new Date().getUTCDay(); // 0=Sun, 1=Mon, ..., 5=Fri
+  const hoursBack = dayOfWeek === 1 ? 24 * 3 + 6 : 24 * 4 + 6;
+  const d = new Date();
+  d.setHours(d.getHours() - hoursBack);
+  return d.toISOString();
+}
+
 const INDUSTRY_NAMES: Record<string, string> = {
   beer: "Beer",
   cinema: "Film and TV",
@@ -1683,6 +1698,343 @@ function buildEmailHtmlTabloid(
 </html>`;
 }
 
+// ============================================================
+// CONSOLIDATED DIGEST - one email per subscriber covering every
+// industry they follow, instead of one full email per industry.
+// Sent Mon/Fri only (see digestLookbackHoursAgo). Headlines + a
+// couple of jobs per industry, "read more" links out to the site
+// rather than the full AI-written briefing inline.
+// ============================================================
+interface DigestModule {
+  industry: string;
+  news: NewsItem[];
+  articles: NewsItem[];
+  jobs: JobItem[];
+  jobCount: number;
+  briefing: BriefingSection | null;
+}
+
+function stripHtml(html: string): string {
+  return html.replace(/<[^>]+>/g, "").trim();
+}
+
+function buildIndustryModuleHtml(mod: DigestModule, subscriberEmail: string): string {
+  const { industry, news, articles, jobs, jobCount, briefing } = mod;
+  const fontStack = `'Helvetica Neue', Helvetica, Arial, sans-serif`;
+  const displayFont = `'Arial Black', 'Helvetica Neue', Impact, sans-serif`;
+  const industryTitle = formatIndustryName(industry);
+  const industryIconUrl = INDUSTRY_ICONS[industry.toLowerCase()] || "";
+  const marketplaceUrl = `https://www.howdoyoudo.co.uk/marketplace?industry=${encodeURIComponent(industryTitle)}&ref=email`;
+  const industryPageUrl = `https://www.howdoyoudo.co.uk/${industry}?ref=email#learn`;
+
+  const headlines = [...news, ...articles].slice(0, 3);
+  const headlinesHtml = headlines.map((n) => `
+    <tr>
+      <td style="padding:10px 0; border-bottom:1px dotted #cfcfc7;">
+        <a href="${trackUrl(n.url, { kind: "news", sub: subscriberEmail, ind: industry })}" style="color:#1a1a1a; text-decoration:none; font-weight:700; font-size:14px; line-height:1.3; font-family:${fontStack};">${n.title}</a>
+        <div style="color:#888; font-size:10px; text-transform:uppercase; letter-spacing:1.5px; margin-top:3px; font-weight:700; font-family:${fontStack};">${n.source}</div>
+      </td>
+    </tr>`).join("");
+
+  const topJobs = jobs.slice(0, 3);
+  const jobsRemaining = Math.max(0, jobCount - topJobs.length);
+  const jobsHtml = topJobs.map((j) => `
+    <tr>
+      <td style="padding:8px 0; border-bottom:1px dotted #cfcfc7;">
+        <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+          <tr>
+            <td width="32" valign="top" style="width:32px; padding-right:10px;">
+              ${companyLogoCell(j.company, industry).replace(/width="48"/g, 'width="32"').replace(/height="48"/g, 'height="32"').replace(/width:48px/g, "width:32px").replace(/height:48px/g, "height:32px").replace(/font-size:14px/g, "font-size:11px")}
+            </td>
+            <td valign="top">
+              <a href="${trackUrl(j.url, { kind: "job", sub: subscriberEmail, ind: industry, jid: (j as any).id, co: (j as any).company })}" style="color:#1a1a1a; text-decoration:none; font-weight:700; font-size:13px; line-height:1.3; font-family:${fontStack};">${j.title}</a>
+              <div style="color:#666; font-size:11px; margin-top:2px; font-family:${fontStack};">${j.company}${j.location ? ` · ${j.location}` : ""}</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>`).join("");
+
+  const takeawayText = briefing ? stripHtml(briefing.takeaway).slice(0, 160) : "";
+
+  return `
+          <tr><td style="padding:0 28px;"><div style="height:1px; background-color:#1a1a1a; margin:26px 0 18px 0;"></div></td></tr>
+          <tr>
+            <td style="padding:0 28px 6px 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td valign="middle">
+                    <h2 style="margin:0; font-family:${displayFont}; font-size:19px; font-weight:900; color:#1a1a1a; letter-spacing:-0.5px;">${industryTitle}<span style="color:#00e600;">.</span></h2>
+                  </td>
+                  ${industryIconUrl ? `<td align="right" valign="middle" width="32" style="width:32px;"><img src="${industryIconUrl}?v=2" alt="" width="28" height="28" style="display:block; width:28px; height:28px; border-radius:50%; border:1.5px solid #1a1a1a;" /></td>` : ""}
+                </tr>
+              </table>
+            </td>
+          </tr>
+          ${headlinesHtml ? `
+          <tr>
+            <td style="padding:6px 28px 0 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${headlinesHtml}</table>
+            </td>
+          </tr>` : ""}
+          ${takeawayText ? `
+          <tr>
+            <td style="padding:12px 28px 0 28px;">
+              <p style="margin:0; font-family:Georgia, 'Times New Roman', serif; font-size:13px; color:#444; line-height:1.5; font-style:italic;">${takeawayText}${takeawayText.length >= 160 ? "…" : ""}</p>
+              <a href="${industryPageUrl}" style="font-family:${fontStack}; font-size:11px; font-weight:700; color:#00a300; text-decoration:none; text-transform:uppercase; letter-spacing:1px;">Read the full briefing →</a>
+            </td>
+          </tr>` : ""}
+          ${jobsHtml ? `
+          <tr>
+            <td style="padding:14px 28px 0 28px;">
+              <p style="margin:0 0 4px 0; font-family:${displayFont}; font-size:11px; color:#1a1a1a; text-transform:uppercase; letter-spacing:2px; font-weight:900;">${jobCount.toLocaleString()} live jobs</p>
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${jobsHtml}</table>
+              <p style="margin:8px 0 0 0;"><a href="${marketplaceUrl}" style="font-family:${fontStack}; font-size:12px; font-weight:700; color:#1a1a1a; text-decoration:none;">${jobsRemaining > 0 ? `+${jobsRemaining} more ${industryTitle} jobs` : `Browse all ${industryTitle} jobs`} →</a></p>
+            </td>
+          </tr>` : ""}`;
+}
+
+function buildConsolidatedEmailHtml(
+  subscriberName: string,
+  modules: DigestModule[],
+  unsubscribeUrl: string,
+  personalised: boolean,
+  nudgeSignup: boolean,
+  subscriberEmail: string,
+): string {
+  const rawFirst = subscriberName.split(" ")[0] || subscriberName;
+  const firstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const editionStr = now.toLocaleDateString("en-GB", { day: "2-digit", month: "2-digit", year: "2-digit" }).replace(/\//g, ".");
+
+  const fontStack = `'Helvetica Neue', Helvetica, Arial, sans-serif`;
+  const displayFont = `'Arial Black', 'Helvetica Neue', Impact, sans-serif`;
+  const handFont = `'Bradley Hand', 'Comic Sans MS', cursive`;
+
+  const totalHeadlines = modules.reduce((sum, m) => sum + m.news.length + m.articles.length, 0);
+  const totalJobs = modules.reduce((sum, m) => sum + m.jobCount, 0);
+  const industryList = modules.map((m) => formatIndustryName(m.industry)).join(" · ");
+  const modulesHtml = modules.map((m) => buildIndustryModuleHtml(m, subscriberEmail)).join("");
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0; padding:0; background-color:#e8e8e0; font-family:${fontStack};">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#e8e8e0;">
+    <tr>
+      <td align="center" style="padding:24px 12px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px; width:100%; background-color:#ffffff; box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+
+          <tr>
+            <td style="background-color:#00e600; padding:10px 20px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-family:${displayFont}; font-size:11px; font-weight:900; color:#1a1a1a; letter-spacing:1.5px; text-transform:uppercase;">
+                    How do you do? · Unpacking the industries we love and live in
+                  </td>
+                  <td align="right" style="font-family:${displayFont}; font-size:11px; font-weight:900; color:#1a1a1a; letter-spacing:1.5px; text-transform:uppercase; white-space:nowrap;">
+                    Ed. ${editionStr}
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:36px 28px 20px 28px;">
+              <p style="margin:0 0 14px 0; font-size:11px; color:#1a1a1a; text-transform:uppercase; letter-spacing:3px; font-weight:900; font-family:${displayFont};">
+                Your Daily Brief
+              </p>
+              <img src="${ASSET_BASE}/howdoyoudo-wordmark.png" alt="How do you do?" width="360" height="155" style="display:block; width:360px; height:auto; max-width:100%; margin:0;" />
+              <p style="margin:18px 0 0 0; font-family:${displayFont}; font-size:22px; font-weight:900; color:#1a1a1a; letter-spacing:-0.5px; line-height:1.15;">
+                Good morning ${firstName}<span style="color:#00e600;">.</span>
+              </p>
+              <p style="margin:8px 0 0 0; font-family:${fontStack}; font-size:14px; color:#1a1a1a; line-height:1.5;">
+                What's happening across ${industryList} - who's moved, where to work next. ${dateStr}.
+              </p>
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:18px;">
+                <tr>
+                  <td style="border:2px solid #1a1a1a; padding:7px 12px; font-family:${displayFont}; font-size:10px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; color:#1a1a1a;">${totalHeadlines} Headlines</td>
+                  <td style="width:8px;"></td>
+                  <td style="border:2px solid #1a1a1a; padding:7px 12px; font-family:${displayFont}; font-size:10px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; color:#1a1a1a;">${totalJobs.toLocaleString()} Jobs Live</td>
+                  <td style="width:8px;"></td>
+                  <td style="border:2px solid #1a1a1a; padding:7px 12px; font-family:${displayFont}; font-size:10px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; color:#1a1a1a;">${modules.length} Industr${modules.length === 1 ? "y" : "ies"}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <tr><td style="padding:0 28px;"><div style="height:6px; background-color:#00e600;"></div></td></tr>
+
+          <!-- HOWDY JOBS PROMO -->
+          <tr>
+            <td style="padding:24px 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#1a1a1a;">
+                <tr>
+                  <td style="padding:22px;">
+                    <p style="margin:0 0 6px 0; font-family:${handFont}; font-size:16px; color:#00e600; font-style:italic;">howdy jobs.</p>
+                    <p style="margin:0 0 8px 0; font-family:${displayFont}; font-size:20px; font-weight:900; color:#ffffff; letter-spacing:-0.5px; line-height:1.1;">
+                      Personalised jobs waiting for you<span style="color:#00e600;">.</span>
+                    </p>
+                    <p style="margin:0 0 14px 0; font-family:${fontStack}; font-size:13px; color:#e8e8e0; line-height:1.5;">
+                      Swipe through jobs picked for your profile and interests - like, save or skip in seconds.
+                    </p>
+                    <a href="https://www.howdoyoudo.co.uk/my-jobs?ref=email-howdy-jobs" style="background-color:#00e600; color:#1a1a1a; text-decoration:none; font-family:${displayFont}; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:2px; padding:12px 24px; display:inline-block;">
+                      Open Howdy Jobs →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          ${modulesHtml}
+
+          <!-- HDYD FEATURES PROMO -->
+          <tr>
+            <td style="padding:32px 28px 24px 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:3px solid #1a1a1a;">
+                <tr>
+                  <td style="padding:18px 0 10px 0;">
+                    <p style="margin:0 0 4px 0; font-family:${displayFont}; font-size:11px; color:#1a1a1a; text-transform:uppercase; letter-spacing:3px; font-weight:900;">
+                      More on howdoyoudo<span style="color:#00e600;">?</span>
+                    </p>
+                    <p style="margin:0 0 14px 0; font-family:${fontStack}; font-size:13px; color:#444; line-height:1.5;">
+                      Beyond the bulletin - tools and resources to help you actually move.
+                    </p>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                      ${[
+                        { letter: "F", title: "The Feed", desc: "Get all your news and analysis in one place.", href: "https://www.howdoyoudo.co.uk/my-jobs?ref=email-features", isNew: true },
+                        { letter: "P", title: "Profile Builder", desc: "A CV like you have never seen before - tailored, industry-specific and built in minutes.", href: "https://www.howdoyoudo.co.uk/cv-builder?ref=email-features", isNew: false },
+                        { letter: "R", title: "Resources", desc: "Courses, books, podcasts and tools - everything you need to grow, in one place.", href: "https://www.howdoyoudo.co.uk/learning?ref=email-features", isNew: false },
+                        { letter: "U", title: "Unpacking every industry", desc: "36 industry hubs - career maps, salaries, who's hiring, podcasts, courses and more.", href: "https://www.howdoyoudo.co.uk/marketplace?ref=email-features", isNew: false },
+                      ].map((f, idx, arr) => `
+                        <tr>
+                          <td style="padding:12px 0; ${idx < arr.length - 1 ? "border-bottom:1px solid #e5e5e5;" : ""}">
+                            <a href="${f.href}" style="text-decoration:none; color:#1a1a1a; display:block;">
+                              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="border-collapse:collapse;">
+                                <tr>
+                                  <td valign="top" style="width:44px; padding-right:12px;">
+                                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="36" height="36" style="border-collapse:collapse; background-color:#1a1a1a;">
+                                      <tr><td align="center" valign="middle" style="width:36px; height:36px; color:#ffffff; font-family:${displayFont}; font-size:16px; font-weight:900; line-height:36px;">${f.letter}<span style="color:#00e600;">.</span></td></tr>
+                                    </table>
+                                  </td>
+                                  <td valign="top">
+                                    <span style="display:block; font-family:${displayFont}; font-size:14px; font-weight:900; color:#1a1a1a;">${f.title}<span style="color:#00e600;">.</span>${f.isNew ? ` <span style="display:inline-block; margin-left:6px; padding:2px 7px; background-color:#00e600; color:#1a1a1a; font-family:${displayFont}; font-size:9px; font-weight:900; letter-spacing:1.5px; text-transform:uppercase; vertical-align:middle;">New</span>` : ""}</span>
+                                    <span style="display:block; margin-top:2px; font-family:${fontStack}; font-size:12px; color:#666; line-height:1.4;">${f.desc}</span>
+                                  </td>
+                                </tr>
+                              </table>
+                            </a>
+                          </td>
+                        </tr>
+                      `).join("")}
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          ${nudgeSignup ? `
+          <tr>
+            <td style="padding:0 28px 24px 28px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#1a1a1a;">
+                <tr>
+                  <td style="padding:24px 22px;">
+                    <p style="margin:0 0 8px 0; font-family:${displayFont}; font-size:22px; font-weight:900; color:#ffffff; letter-spacing:-0.5px; line-height:1;">
+                      Get jobs matched to <span style="color:#00e600;">you</span><span style="color:#00e600;">.</span>
+                    </p>
+                    <p style="margin:0 0 14px 0; font-family:${fontStack}; font-size:13px; color:#e8e8e0; line-height:1.5;">
+                      Tell us your roles, level and location - we'll personalise your bulletin and unlock your private Jobs Inbox.
+                    </p>
+                    <a href="https://www.howdoyoudo.co.uk/auth?ref=newsletter" style="background-color:#00e600; color:#1a1a1a; text-decoration:none; font-family:${displayFont}; font-size:12px; font-weight:900; text-transform:uppercase; letter-spacing:2px; padding:12px 24px; display:inline-block;">
+                      Create your free profile →
+                    </a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          ` : ""}
+
+          <tr>
+            <td style="padding:0 28px 28px 28px;">
+              <div style="border-top:3px solid #1a1a1a; padding-top:16px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="font-family:${displayFont}; font-size:11px; font-weight:900; color:#1a1a1a; letter-spacing:1.5px; text-transform:uppercase;">
+                      <span style="background-color:#1a1a1a; color:#ffffff; padding:4px 10px;">HOWDOYOUDO<span style="color:#00e600;">.CO.UK</span></span>
+                    </td>
+                    <td align="right" style="font-family:${handFont}; font-size:14px; color:#1a1a1a; font-style:italic;">
+                      no jargon. no boring job boards.
+                    </td>
+                  </tr>
+                </table>
+                <p style="font-size:10px; color:#888; margin:18px 0 0 0; line-height:1.5; font-family:${fontStack};">
+                  You're receiving this because you joined the How do you do<span style="color:#00e600;">?</span> community. Sent Mondays and Fridays.
+                  <a href="${unsubscribeUrl}" style="color:#888; text-decoration:underline;">Unsubscribe</a>
+                </p>
+              </div>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+function buildConsolidatedPlainText(
+  subscriberName: string,
+  modules: DigestModule[],
+  unsubscribeUrl: string,
+): string {
+  const firstName = subscriberName.split(" ")[0] || subscriberName;
+  const dateStr = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+  const lines: string[] = [
+    `HOW DO YOU DO? — YOUR DAILY BRIEF`,
+    `Good morning ${firstName}. ${dateStr}.`,
+    ``,
+    `PERSONALISED JOBS WAITING FOR YOU`,
+    `Open Howdy Jobs: https://www.howdoyoudo.co.uk/my-jobs?ref=email-howdy-jobs`,
+    ``,
+  ];
+  for (const m of modules) {
+    const title = formatIndustryName(m.industry);
+    lines.push(`— ${title.toUpperCase()} —`);
+    for (const n of [...m.news, ...m.articles].slice(0, 3)) {
+      lines.push(`• ${n.title} (${n.source})`);
+      lines.push(`  ${n.url}`);
+    }
+    if (m.briefing) {
+      lines.push(`  ${stripHtml(m.briefing.takeaway).slice(0, 160)}`);
+    }
+    for (const j of m.jobs.slice(0, 3)) {
+      lines.push(`• JOB: ${j.title} - ${j.company}${j.location ? ` (${j.location})` : ""}`);
+      lines.push(`  ${j.url}`);
+    }
+    lines.push(`  Browse all ${title} jobs: https://www.howdoyoudo.co.uk/marketplace?industry=${encodeURIComponent(title)}&ref=email`);
+    lines.push(``);
+  }
+  lines.push(`---`);
+  lines.push(`Unsubscribe: ${unsubscribeUrl}`);
+  return lines.join("\n");
+}
+
 function buildEmailHtml(
   industry: string,
   news: NewsItem[],
@@ -2143,14 +2495,15 @@ Deno.serve(async (req) => {
   const lovableApiKey = Deno.env.get("GEMINI_API_KEY");
   const supabase = createClient(supabaseUrl, supabaseKey);
 
-  // Widened to 48h: some industry fetches only run once every ~24h, so a strict
-  // 24h window leaves cinema/beer/music empty when the cron lands a few hours late.
-  // The published_at floor (48h) still prevents truly stale stories.
-  const since = last48hAgo();
-  const publishedSince = last48hAgo(); // guard against stale published_at
-  // Dedup against headlines we sent in the last 36h so today's lead can't repeat
-  // yesterday's. (Kept short so genuinely fresh follow-up stories aren't suppressed.)
-  const yesterdayCutoff = new Date(Date.now() - 36 * 60 * 60 * 1000).toISOString();
+  // Content window now matches the Mon/Fri send cadence (see digestLookbackHoursAgo)
+  // instead of a fixed 48h, so Monday's edition covers the weekend and Friday's
+  // covers the working week rather than missing 1-2 days of news each time.
+  const since = digestLookbackHoursAgo();
+  const publishedSince = digestLookbackHoursAgo(); // guard against stale published_at
+  // Dedup against headlines sent in the previous edition so this one can't repeat
+  // it - same window as the content lookback, since that's exactly the gap
+  // between sends now.
+  const yesterdayCutoff = digestLookbackHoursAgo();
 
     const url = new URL(req.url);
     const testEmail = url.searchParams.get("test_email");
@@ -2679,9 +3032,14 @@ Deno.serve(async (req) => {
       const personalised = !!subProfile;
       const nudgeSignup = !subProfile;
 
-      let sentForThisSub = 0;
+      // Alphabetical by display name, per the agreed ordering.
+      const sortedInterests = [...interests].sort((a, b) =>
+        formatIndustryName(a).localeCompare(formatIndustryName(b))
+      );
 
-      for (const ind of interests) {
+      const modules: DigestModule[] = [];
+
+      for (const ind of sortedInterests) {
         const assets = industryAssets.get(ind);
         if (!assets) continue;
         const news: NewsItem[] = assets.news;
@@ -2735,64 +3093,60 @@ Deno.serve(async (req) => {
 
         const briefing: BriefingSection | null = assets.briefing;
         const totalJobCount = jobCountByIndustry[ind] || 0;
-        // Show signup nudge only on the very first email this subscriber
-        // receives in this run.
-        const sectionNudge = nudgeSignup && sentForThisSub === 0;
 
-        // One unsubscribe token per email.
-        const token = crypto.randomUUID();
-        await supabase.from("email_unsubscribe_tokens").insert({
-          email: sub.email,
-          token,
-        });
-        const unsubscribeUrl = `https://howdoyoudo.group/unsubscribe?token=${token}`;
+        modules.push({ industry: ind, news, articles, jobs, jobCount: totalJobCount, briefing });
+      }
 
-        const html = (useTabloidTemplate ? buildEmailHtmlTabloid : buildEmailHtml)(
-          ind, news, articles, jobs, unsubscribeUrl, sub.name, totalJobCount, briefing, personalised, sectionNudge, sub.email
-        );
-        const text = buildPlainText(
-          ind, news, articles, jobs, unsubscribeUrl, sub.name, totalJobCount, briefing, personalised, sectionNudge
-        );
+      if (!modules.length) continue;
 
-        const indLabel = formatIndustryName(ind);
-        const subject = useTabloidTemplate
-          ? `Your bulletin · ${indLabel} · ${dateLabel}`
-          : `☀️ Your Daily - ${indLabel} - ${dateLabel}`;
+      // One unsubscribe token per email.
+      const token = crypto.randomUUID();
+      await supabase.from("email_unsubscribe_tokens").insert({
+        email: sub.email,
+        token,
+      });
+      const unsubscribeUrl = `https://www.howdoyoudo.co.uk/unsubscribe?token=${token}`;
 
-        const messageId = crypto.randomUUID();
+      const html = buildConsolidatedEmailHtml(sub.name, modules, unsubscribeUrl, personalised, nudgeSignup, sub.email);
+      const text = buildConsolidatedPlainText(sub.name, modules, unsubscribeUrl);
+      const subject = `Your Daily Brief · ${dateLabel}`;
+      const messageId = crypto.randomUUID();
 
-        const sendRes = await sendViaResend({
-          message_id: messageId,
-          to: sub.email,
-          from: `${FROM_NAME} <${FROM_EMAIL}>`,
-          sender_domain: SENDER_DOMAIN,
-          subject,
-          html,
-          text,
-        });
-        const enqErr = sendRes.error ? { message: sendRes.error } : null;
+      const sendRes = await sendViaResend({
+        message_id: messageId,
+        to: sub.email,
+        from: `${FROM_NAME} <${FROM_EMAIL}>`,
+        sender_domain: SENDER_DOMAIN,
+        subject,
+        html,
+        text,
+      });
+      const enqErr = sendRes.error ? { message: sendRes.error } : null;
 
-        if (enqErr) {
-          console.error("Failed to enqueue digest for", sub.email, ind, enqErr);
-        } else {
-          enqueued++;
-          sentForThisSub++;
-          try {
-            await supabase
-              .from("sent_newsletters")
-              .upsert(
-                {
-                  recipient_email: sub.email,
-                  industry: ind,
-                  subject,
-                  html,
-                  briefing_date: todayKey,
-                },
-                { onConflict: "recipient_email,industry,briefing_date" },
-              );
-          } catch (archiveErr) {
-            console.error("Failed to archive newsletter for", sub.email, ind, archiveErr);
-          }
+      if (enqErr) {
+        console.error("Failed to enqueue digest for", sub.email, enqErr);
+        continue;
+      }
+
+      enqueued++;
+      // Archive one row per industry included, same table/shape as before,
+      // just no longer one email per row - all rows here came from a single send.
+      for (const mod of modules) {
+        try {
+          await supabase
+            .from("sent_newsletters")
+            .upsert(
+              {
+                recipient_email: sub.email,
+                industry: mod.industry,
+                subject,
+                html,
+                briefing_date: todayKey,
+              },
+              { onConflict: "recipient_email,industry,briefing_date" },
+            );
+        } catch (archiveErr) {
+          console.error("Failed to archive newsletter for", sub.email, mod.industry, archiveErr);
         }
       }
     }
