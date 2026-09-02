@@ -72,6 +72,30 @@ New Supabase projects auto-inject `SUPABASE_SERVICE_ROLE_KEY` in `sb_*` format w
 - Adzuna has a **day-of-week schedule** — only runs for certain industries each day to stay under free quota
 - Dedup by URL only (`jobs_url_unique_idx`) — title/company/location constraint was dropped
 
+### ⚠️ New ATS tenants (Greenhouse/Lever/Workable/Ashby) must save EARLY
+`fetch-external-jobs` processes one industry at a time and only writes most
+sources to the DB in one batch at the *end* of that industry's pass. For
+heavy industries (`money`, `health`, `wellness` — thousands of existing
+jobs, deep Adzuna/Reed keyword sweeps) that end-of-pass save can get killed
+by `WORKER_RESOURCE_LIMIT` before it's reached, silently dropping every
+`GREENHOUSE_TENANTS`/`LEVER_TENANTS`/`WORKABLE_TENANTS`/`ASHBY_TENANTS`
+entry for that industry even though the ATS API itself returns real jobs
+when checked in isolation. Found live 2026-09-02: Tide, GoCardless, Zopa,
+Thought Machine, Marshmallow, ZOE, ClassPass and Numan all silently failed
+to land until fixed.
+**Fix applied:** a "Priority Greenhouse/Lever/Workable/Ashby tenants" block
+now runs early in the per-industry loop (right after Priority
+OracleHCM/TalentFunnel, before the Adzuna sweep) and saves immediately via
+`safeUpsertJobs`, mirroring the existing early-save pattern for
+horse-racing/F1/football direct scrapers. **When adding a new tenant to any
+of the four `*_TENANTS` arrays, it's automatically covered by this priority
+pass — no extra work needed.** The old late passes are left in place as a
+harmless redundant safety net (deduped by URL).
+- Lever has an EU data-residency variant (`api.eu.lever.co`) some UK/EU
+  companies use instead of the default `api.lever.co` (which 404s for
+  them) — set `euRegion: true` on the `LeverTenant` entry if the default
+  host 404s (e.g. Numan).
+
 ## Content Pipeline
 - `refresh-all-content` → `fetch-rss-news` + `scrape-articles` per industry (6am weekdays)
 - `generate-daily-briefings` — 5am weekdays, all 30 industries
