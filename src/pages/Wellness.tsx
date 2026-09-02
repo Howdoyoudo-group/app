@@ -95,14 +95,17 @@ const wellnessCompanies = [
   { name: "Third Space", url: "https://www.thirdspace.london/careers/", founded: "2001", hq: "London", glassdoor: 3.9, trustpilot: 4.5, overview: "A premium fitness club.", valueChainStage: "Gyms & Fitness" },
   { name: "Myprotein", url: "https://www.thg.com/jobs", founded: "2004", hq: "Manchester", glassdoor: 3.3, overview: "Europe's largest online sports nutrition brand.", valueChainStage: "Supplements & Nutrition" },
   { name: "Huel", url: "https://uk.huel.com/pages/careers", founded: "2015", hq: "Tring", glassdoor: 3.8, trustpilot: 4.0, overview: "A complete nutrition brand.", valueChainStage: "Supplements & Nutrition" },
+  { name: "ZOE", url: "https://zoe.com/careers", founded: "2017", hq: "London", overview: "Nutrition science company built on the world's largest gut-health study - personalised nutrition scoring from at-home tests and an app.", valueChainStage: "Supplements & Nutrition" },
   { name: "Gymshark", url: "https://careers.gymshark.com", founded: "2012", hq: "Solihull", glassdoor: 3.8, overview: "Fitness apparel brand built on social media.", valueChainStage: "Activewear & Apparel" },
   { name: "Lululemon", url: "https://info.lululemon.com/careers", founded: "1998", hq: "Vancouver (UK: London)", glassdoor: 4.0, overview: "Premium activewear brand.", valueChainStage: "Activewear & Apparel" },
   { name: "Tala", url: "https://www.wearetala.com/pages/careers", founded: "2019", hq: "London", overview: "Sustainable activewear brand.", valueChainStage: "Activewear & Apparel" },
   { name: "Boots", url: "https://www.boots.jobs", founded: "1849", hq: "Nottingham", glassdoor: 3.5, trustpilot: 1.9, overview: "The UK's largest health and beauty retailer.", valueChainStage: "Retail & Wellness" },
   { name: "Holland & Barrett", url: "https://careers.hollandandbarrett.com", founded: "1870", hq: "Nuneaton", glassdoor: 3.3, trustpilot: 1.8, overview: "Europe's largest health food retailer.", valueChainStage: "Retail & Wellness" },
   { name: "Superdrug", url: "https://www.superdrug.jobs", founded: "1966", hq: "Croydon", glassdoor: 3.4, trustpilot: 1.6, overview: "Health and beauty retailer.", valueChainStage: "Retail & Wellness" },
+  { name: "NEOM Wellbeing", url: "https://www.neomwellbeing.com/pages/careers", founded: "2005", hq: "Surrey", overview: "Certified B Corp scent-led wellbeing brand - natural-fragrance candles, skincare and home fragrance designed to improve sleep, stress and mood.", valueChainStage: "Retail & Wellness" },
   { name: "GLL (Better)", url: "https://www.gll.org/careers", founded: "1993", hq: "London", glassdoor: 3.4, overview: "The UK's largest charitable social enterprise running leisure centres and gyms - operates 270+ Better-branded sites.", valueChainStage: "Gyms & Fitness" },
   { name: "JD Gyms", url: "https://careers.jdgyms.co.uk", founded: "2014", hq: "Bury", glassdoor: 3.5, overview: "Premium-value gym chain owned by JD Sports - one of the UK's fastest-growing operators.", valueChainStage: "Gyms & Fitness" },
+  { name: "ClassPass", url: "https://classpass.com/careers", founded: "2013", hq: "New York (UK team: London)", overview: "Fitness and wellness subscription marketplace giving members access to gyms, studios and wellness experiences worldwide.", valueChainStage: "Gyms & Fitness" },
 ];
 
 const Wellness = () => {

@@ -102,6 +102,7 @@ const fixingCompanies = [
   { name: "KCOM", founded: "1904", hq: "Hull", overview: "Telecoms and IT services business employing field engineers and network technicians across the UK.", url: "https://www.kcom.com/careers", glassdoor: 3.7, valueChainStage: "IT & Tech Support" },
   { name: "Geek Squad (Currys)", founded: "1994 (US)", hq: "London", overview: "Currys' tech support service offering in-store, home, and remote repair for consumer electronics.", url: "https://www.currys.co.uk/careers", glassdoor: 3.4, valueChainStage: "Appliance & Device Repair" },
   { name: "Uswitch / Go.Compare", founded: "2000/2006", hq: "London", overview: "Comparison platforms that drive large volumes of trade enquiries to independent plumbers, electricians, and gas engineers.", url: "https://www.zoopla.co.uk/careers", valueChainStage: "Management & Training" },
+  { name: "Checkatrade", founded: "1998", hq: "Portsmouth", overview: "The UK's largest vetted-tradesperson marketplace, connecting homeowners with approved local builders, plumbers and electricians for home improvement work.", url: "https://www.checkatrade.com/careers", valueChainStage: "Management & Training" },
 ];
 
 const Fixing = () => {
