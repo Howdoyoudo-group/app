@@ -39,6 +39,9 @@ export type NewTrackerItem = {
   salary?: string | null;
   industry?: string | null;
   status?: TrackerStatus;
+  notes?: string | null;
+  next_action?: string | null;
+  follow_up_date?: string | null;
 };
 
 /**
@@ -90,6 +93,9 @@ export function useJobTracker() {
           industry: item.industry ?? null,
           status,
           sort_order: siblingCount,
+          notes: item.notes ?? null,
+          next_action: item.next_action ?? null,
+          follow_up_date: item.follow_up_date ?? null,
         })
         .select("*")
         .single();

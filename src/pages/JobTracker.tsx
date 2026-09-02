@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import JobApplicationHelper, { type JobForHelper } from "@/components/JobApplicationHelper";
 import {
   DndContext, DragOverlay, closestCorners, PointerSensor, TouchSensor, useSensor, useSensors,
   type DragEndEvent, type DragOverEvent, type DragStartEvent,
@@ -10,7 +12,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-
 import { CSS } from "@dnd-kit/utilities";
 import {
   Plus, Loader2, MapPin, Banknote, Pencil, Trash2, Building2, Sparkles,
-  Calendar, BookOpen, Users, Compass, Search, ExternalLink, Kanban, X,
+  Calendar, BookOpen, Users, Compass, Search, ExternalLink, Kanban, X, AlertCircle,
 } from "lucide-react";
 import { useJobTracker, TRACKER_STATUSES, type TrackerItem, type TrackerStatus, type NewTrackerItem } from "@/hooks/useJobTracker";
 import { getCompanyProfilePath } from "@/lib/company-profiles";
@@ -51,26 +53,34 @@ const helpMeApplyLink = (item: TrackerItem) => {
 
 /** Company profile if we have a real culture page, otherwise fall back to
  * the company's own careers/website link (same source used for the "Most
- * Wanted" chips elsewhere) - only omitted if we genuinely have neither. */
-const companyInfoLink = (item: TrackerItem): { label: string; to: string } | null => {
+ * Wanted" chips elsewhere), and failing that a pre-filled search - a card
+ * should never be left with no way to look the company up. */
+const companyInfoLink = (item: TrackerItem): { label: string; to: string } => {
   const profilePath = getCompanyProfilePath(item.company);
   if (profilePath) return { label: "Company profile", to: profilePath };
   const external = getCompanyExternalUrl(item.company);
   if (external) return { label: "Company website", to: external };
-  return null;
+  return {
+    label: "Search company",
+    to: `https://www.google.com/search?q=${encodeURIComponent(`${item.company} careers`)}`,
+  };
 };
 
-/** Contextual next-step links, tailored to where the card sits in the pipeline. */
-const suggestedActions = (item: TrackerItem) => {
+/** Contextual next-step links, tailored to where the card sits in the pipeline.
+ * `onHelpMeApply` opens the same Howdy-tailored cover-letter helper used on
+ * job cards elsewhere on the site (falls back to the plain form when we
+ * don't have enough job detail to tailor against). */
+const suggestedActions = (item: TrackerItem, onHelpMeApply: (item: TrackerItem) => void) => {
   const actions: { label: string; icon: typeof Building2; to?: string; onClick?: () => void }[] = [];
   const companyInfo = companyInfoLink(item);
 
   if (item.status === "wishlist") {
-    if (companyInfo) actions.push({ label: companyInfo.label, icon: Building2, to: companyInfo.to });
-    actions.push({ label: "Help me apply", icon: Sparkles, to: helpMeApplyLink(item) });
+    actions.push({ label: companyInfo.label, icon: Building2, to: companyInfo.to });
+    actions.push({ label: "Howdy can help", icon: Sparkles, onClick: () => onHelpMeApply(item) });
     if (item.industry) actions.push({ label: "Explore industry", icon: Compass, to: `/${item.industry}` });
   } else if (item.status === "applied") {
-    actions.push({ label: "Help me apply", icon: Sparkles, to: helpMeApplyLink(item) });
+    actions.push({ label: companyInfo.label, icon: Building2, to: companyInfo.to });
+    actions.push({ label: "Howdy can help", icon: Sparkles, onClick: () => onHelpMeApply(item) });
     actions.push({ label: "Find a mentor", icon: Users, to: "/mentoring" });
     actions.push({
       label: "Ask Howdy",
@@ -78,7 +88,7 @@ const suggestedActions = (item: TrackerItem) => {
       onClick: () => openHowdy(`Help me follow up on my application to ${item.company} for ${item.title}.`),
     });
   } else if (item.status === "interviewing") {
-    if (companyInfo) actions.push({ label: companyInfo.label, icon: Building2, to: companyInfo.to });
+    actions.push({ label: companyInfo.label, icon: Building2, to: companyInfo.to });
     actions.push({ label: "Find a mentor", icon: Users, to: "/mentoring" });
     actions.push({
       label: "Ask Howdy",
@@ -132,6 +142,7 @@ const TrackerCard = ({
   onEdit,
   onRemove,
   onStatusChange,
+  onHelpMeApply,
   dragHandleProps,
   isDragging,
 }: {
@@ -139,6 +150,7 @@ const TrackerCard = ({
   onEdit: () => void;
   onRemove: () => void;
   onStatusChange: (status: TrackerStatus) => void;
+  onHelpMeApply: (item: TrackerItem) => void;
   dragHandleProps?: Record<string, unknown>;
   isDragging?: boolean;
 }) => (
@@ -212,7 +224,7 @@ const TrackerCard = ({
     )}
 
     <div className="flex flex-wrap gap-1.5 mt-3">
-      {suggestedActions(item).map((a) => (
+      {suggestedActions(item, onHelpMeApply).map((a) => (
         <ActionChip key={a.label} {...a} />
       ))}
     </div>
@@ -237,11 +249,13 @@ const SortableCard = ({
   onEdit,
   onRemove,
   onStatusChange,
+  onHelpMeApply,
 }: {
   item: TrackerItem;
   onEdit: () => void;
   onRemove: () => void;
   onStatusChange: (status: TrackerStatus) => void;
+  onHelpMeApply: (item: TrackerItem) => void;
 }) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id });
   const style = { transform: CSS.Transform.toString(transform), transition };
@@ -252,6 +266,7 @@ const SortableCard = ({
         onEdit={onEdit}
         onRemove={onRemove}
         onStatusChange={onStatusChange}
+        onHelpMeApply={onHelpMeApply}
         dragHandleProps={{ ...attributes, ...listeners }}
         isDragging={isDragging}
       />
@@ -292,6 +307,41 @@ export default function JobTracker() {
   const [saving, setSaving] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
 
+  // "Howdy can help" - the same tailored cover-letter/CV-tips helper used on
+  // job cards in the Marketplace. It needs the full job description, which
+  // tracker items don't store, so for job-board items we fetch the source
+  // row from `jobs` on demand; for manually-added items (or if the source
+  // listing has since expired) we fall back to the plain Help Me Apply form.
+  const [helperJob, setHelperJob] = useState<JobForHelper | null>(null);
+  const [helperLoading, setHelperLoading] = useState(false);
+  const openHelper = async (item: TrackerItem) => {
+    if (!item.job_id) {
+      window.location.assign(helpMeApplyLink(item));
+      return;
+    }
+    setHelperLoading(true);
+    const { data } = await supabase
+      .from("jobs")
+      .select("title, company, industry, location, salary, description, tags, type")
+      .eq("id", item.job_id)
+      .maybeSingle();
+    setHelperLoading(false);
+    if (!data || !data.description) {
+      window.location.assign(helpMeApplyLink(item));
+      return;
+    }
+    setHelperJob({
+      title: data.title,
+      company: data.company,
+      industry: data.industry || item.industry || "",
+      location: data.location || item.location || "",
+      salary: data.salary || item.salary || "",
+      description: data.description,
+      tags: data.tags || [],
+      type: data.type || "",
+    });
+  };
+
   const byStatus = useMemo(() => {
     const map = new Map<TrackerStatus, TrackerItem[]>();
     TRACKER_STATUSES.forEach((s) => map.set(s.value, []));
@@ -301,6 +351,50 @@ export default function JobTracker() {
     });
     map.forEach((list) => list.sort((a, b) => a.sort_order - b.sort_order));
     return map;
+  }, [items]);
+
+  // "Needs attention" - the actual point of a tracker: surface what's due
+  // (a follow-up or closing date) and what's gone quiet (sitting in the
+  // same active stage for a while with nothing scheduled), so nothing
+  // slips through unnoticed. Resolved cards (offer/rejected/withdrawn)
+  // are excluded - there's nothing left to act on there.
+  const ACTIVE_STATUSES: TrackerStatus[] = ["wishlist", "applied", "interviewing"];
+  const STALE_AFTER_DAYS = 14;
+  const attentionItems = useMemo(() => {
+    const now = Date.now();
+    const dayMs = 86400000;
+    const active = items.filter((i) => ACTIVE_STATUSES.includes(i.status));
+
+    const due = active
+      .filter((i) => !!i.follow_up_date)
+      .map((i) => ({
+        item: i,
+        daysUntil: Math.round((new Date(i.follow_up_date as string).getTime() - now) / dayMs),
+      }))
+      .filter((x) => x.daysUntil <= 2)
+      .sort((a, b) => a.daysUntil - b.daysUntil)
+      .map((x) => ({
+        item: x.item,
+        reason:
+          x.daysUntil < 0
+            ? `Overdue by ${Math.abs(x.daysUntil)}d`
+            : x.daysUntil === 0
+              ? "Due today"
+              : `Due in ${x.daysUntil}d`,
+      }));
+
+    const dueIds = new Set(due.map((x) => x.item.id));
+    const stale = active
+      .filter((i) => !i.follow_up_date && !dueIds.has(i.id))
+      .map((i) => ({
+        item: i,
+        daysSince: Math.floor((now - new Date(i.updated_at || i.created_at).getTime()) / dayMs),
+      }))
+      .filter((x) => x.daysSince >= STALE_AFTER_DAYS)
+      .sort((a, b) => b.daysSince - a.daysSince)
+      .map((x) => ({ item: x.item, reason: `No activity in ${x.daysSince}d` }));
+
+    return [...due, ...stale];
   }, [items]);
 
   const findContainer = (id: string): TrackerStatus | undefined => {
@@ -382,6 +476,7 @@ export default function JobTracker() {
         salary: draft.salary.trim() || null,
         industry: draft.industry || null,
         status: draft.status,
+        follow_up_date: draft.follow_up_date || null,
       };
       await addItem(payload);
     }
@@ -450,7 +545,7 @@ export default function JobTracker() {
             <h2 className="font-display font-900 text-sm uppercase tracking-wide mb-3 pr-6">
               How Job Tracker works
             </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[
                 {
                   step: "1",
@@ -466,9 +561,15 @@ export default function JobTracker() {
                 },
                 {
                   step: "3",
+                  icon: AlertCircle,
+                  label: "Set a follow-up date",
+                  desc: "Edit a card to add a closing date or reminder - it'll surface under Needs Your Attention when it's due, or if the card's gone quiet.",
+                },
+                {
+                  step: "4",
                   icon: Sparkles,
                   label: "Follow the suggestions",
-                  desc: "Every card links to Help Me Apply, Company Profiles, Mentoring, Events and more for that stage.",
+                  desc: "Every card links to Howdy's tailored cover letter, Company Profiles, Mentoring, Events and more for that stage.",
                 },
               ].map((s) => (
                 <div key={s.step} className="border-2 border-foreground/20 rounded-2xl p-3 flex gap-2.5 bg-background">
@@ -480,6 +581,34 @@ export default function JobTracker() {
                     <p className="font-body text-[11px] text-muted-foreground leading-snug">{s.desc}</p>
                   </div>
                 </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {attentionItems.length > 0 && (
+          <div className="border-2 border-foreground rounded-2xl p-4 sm:p-5 mb-6">
+            <h2 className="font-display font-900 text-sm uppercase tracking-wide mb-3 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-primary" /> Needs your attention
+            </h2>
+            <div className="space-y-2">
+              {attentionItems.map(({ item, reason }) => (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => openEdit(item)}
+                  className="w-full flex items-center gap-3 border border-foreground/20 rounded-xl px-3 py-2 hover:border-foreground transition-colors text-left"
+                >
+                  <CompanyLogo company={item.company} size={28} className="shrink-0" />
+                  <div className="min-w-0 flex-1">
+                    <p className="font-display font-700 text-xs text-foreground truncate">
+                      {item.title} <span className="text-muted-foreground font-body font-400">· {item.company}</span>
+                    </p>
+                  </div>
+                  <span className="shrink-0 text-[10px] font-display font-700 uppercase tracking-wide px-2 py-0.5 rounded-full bg-primary/15 text-foreground">
+                    {reason}
+                  </span>
+                </button>
               ))}
             </div>
           </div>
@@ -536,6 +665,7 @@ export default function JobTracker() {
                                 onEdit={() => openEdit(item)}
                                 onRemove={() => remove(item.id)}
                                 onStatusChange={(status) => updateStatus(item.id, status, 0)}
+                                onHelpMeApply={openHelper}
                               />
                             ))}
                           </div>
@@ -546,7 +676,7 @@ export default function JobTracker() {
                 </div>
                 <DragOverlay>
                   {activeItem ? (
-                    <TrackerCard item={activeItem} onEdit={() => {}} onRemove={() => {}} onStatusChange={() => {}} />
+                    <TrackerCard item={activeItem} onEdit={() => {}} onRemove={() => {}} onStatusChange={() => {}} onHelpMeApply={() => {}} />
                   ) : null}
                 </DragOverlay>
               </DndContext>
@@ -570,6 +700,7 @@ export default function JobTracker() {
                           onEdit={() => openEdit(item)}
                           onRemove={() => remove(item.id)}
                           onStatusChange={(status) => updateStatus(item.id, status, 0)}
+                          onHelpMeApply={openHelper}
                         />
                       ))}
                     </div>
@@ -580,6 +711,18 @@ export default function JobTracker() {
           </>
         )}
       </div>
+
+      {helperLoading && (
+        <div className="fixed inset-0 z-50 bg-background/70 flex items-center justify-center">
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        </div>
+      )}
+
+      <Dialog open={!!helperJob} onOpenChange={(open) => { if (!open) setHelperJob(null); }}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          {helperJob && <JobApplicationHelper job={helperJob} onBack={() => setHelperJob(null)} />}
+        </DialogContent>
+      </Dialog>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
@@ -663,6 +806,18 @@ export default function JobTracker() {
                 />
               </div>
             </div>
+            <div className="space-y-1">
+              <Label htmlFor="jt-followup">Follow-up / closing date</Label>
+              <Input
+                id="jt-followup"
+                type="date"
+                value={draft.follow_up_date}
+                onChange={(e) => setDraft((d) => ({ ...d, follow_up_date: e.target.value }))}
+              />
+              <p className="text-xs text-muted-foreground">
+                Shows up under "Needs your attention" when it's due or overdue.
+              </p>
+            </div>
             {draft.id && (
               <>
                 <div className="space-y-1">
@@ -672,15 +827,6 @@ export default function JobTracker() {
                     value={draft.next_action}
                     onChange={(e) => setDraft((d) => ({ ...d, next_action: e.target.value }))}
                     placeholder="e.g. Message Jane on LinkedIn"
-                  />
-                </div>
-                <div className="space-y-1">
-                  <Label htmlFor="jt-followup">Follow-up date</Label>
-                  <Input
-                    id="jt-followup"
-                    type="date"
-                    value={draft.follow_up_date}
-                    onChange={(e) => setDraft((d) => ({ ...d, follow_up_date: e.target.value }))}
                   />
                 </div>
                 <div className="space-y-1">
