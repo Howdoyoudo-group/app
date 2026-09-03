@@ -111,6 +111,7 @@ place as a harmless redundant safety net (deduped by URL).
 - `fetch-external-jobs` — 6am + 6pm daily
 - `fetch-cvlibrary-jobs` — 3am daily (affiliate XML feed)
 - `score-new-jobs` — 6:30am + 6:30pm
+- `compute-curiosity-scores` — 4am daily (composite candidate engagement score, `profiles.curiosity_score` — see below)
 - `generate-daily-briefings` — 5am Mon/Thu
 - `send-daily-digest` — 7am Mon/Fri (was weekdays until 2026-09-02; also restructured to one consolidated email per subscriber covering all their industries, instead of one full email per industry — see the function's own comments)
 - `audit-job-links` — 2am nightly
@@ -143,6 +144,11 @@ where created > now() - interval '6 hours' group by status_code;
 - Many have empty `industry_interests` and `role_preferences` — they never completed onboarding on the old site. Their job feeds will be blank until they go to /onboarding
 - Multiple duplicate Andrew Harrison accounts exist (harmless)
 
+## Candidate Curiosity Score (Employer Talent Pool)
+- `profiles.curiosity_score` (0-100, percentile rank) + `curiosity_breadth` (0-5) — a composite engagement signal blending `user_interactions`, `saved_jobs`/`liked_jobs`, `job_tracker_items` pipeline depth, `saved_feed_items`, and `skill_course_progress`/`earned_badges`, each with its own recency decay. Computed daily by `compute-curiosity-scores` for every profile (not just employer-visibility-opted-in ones — a privacy toggle shouldn't silently shift everyone else's percentile; RLS still fully protects who can *read* it).
+- Surfaced to employers in `EmployerDashboard.tsx` as a `"{score}% curious"` badge and folded into `computeMatch()` (up to +18 pts).
+- **Found and fixed 2026-09-03**: `user_interactions_interaction_type_check` only allowed 4 of the 10 interaction types the app actually logs (`save_company`, `save_role`, `save_industry`, `marketplace_search`, `career_map_role_link`, `career_map_ncs_link` were silently failing every insert since they were added — the error is deliberately swallowed in `trackInteraction()`). Confirmed live via `select interaction_type, count(*) from user_interactions group by interaction_type` returning zero rows for all six before the fix. Widened the constraint; this also means the pre-existing `brand_interactions`/`industry_interactions` counts on `EmployerDashboard.tsx` were undercounting real engagement the whole time, not just the new curiosity score.
+
 ## Known Issues / TODOs
 1. **Add `A @ 216.198.79.1`** in 123-reg DNS Records — fixes bare domain hitting Lovable
 2. **Voxpops video** — currently served from Lovable CDN (`About.tsx`). Needs upload to Supabase Storage
@@ -150,6 +156,7 @@ where created > now() - interval '6 hours' group by status_code;
 4. **Email users** — rewrite `send-account-migration` for two approaches: Google users (just sign in) vs email users (reset password)
 5. **Onboarding empty profiles** — many migrated users need to complete /onboarding
 6. **Harden cron auth against Supabase's legacy-JWT deprecation** — on 2026-09-01 found Supabase silently started rejecting the project's original auto-generated `anon` key (issued May 2025) for any function with `verify_jwt: true`. Broke 6 crons (`ops-health-alert`, `industry-health-monitor`, `generate-daily-briefings`, `fetch-industry-events`, `refresh-all-content-daily`, `whatsapp-daily-digest`) for ~11 days, silently — pg_cron reported "succeeded" throughout because `net.http_post` only queues the call, it doesn't check the actual HTTP result. Patched by swapping those crons' Authorization headers to `HDYD_SERVICE_JWT` (works today, but is still a JWT that could face the same deprecation later). The durable fix Supabase itself recommends: set `verify_jwt = false` on every cron-triggered function and do the auth check in code instead — see the new pattern below. Not yet applied to the 6 patched functions.
+7. **`score-new-jobs-morning`'s Authorization header doesn't match the current `HDYD_SERVICE_JWT`** — found 2026-09-03 while wiring up `compute-curiosity-scores` (same technique as item 6: a manual `net.http_post` test using that cron's stored header got `401 Unauthorized` from a fresh function that checks `HDYD_SERVICE_JWT` in code, while `industry-health-monitor-6h`'s header worked correctly). Not yet confirmed whether `score-new-jobs` itself is actually broken (it may not do its own bearer check at all, per item 6's "not yet applied to the 6 patched functions" note — a mismatched header would only matter if the function checks it) — needs investigation, not assumed. Check `net._http_response` for `score-new-jobs`'s actual status codes before concluding anything is silently failing.
 
 ## Important Patterns
 
