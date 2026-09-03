@@ -1166,6 +1166,100 @@ export type Database = {
           },
         ]
       }
+      job_tracker_actions: {
+        Row: {
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          description: string
+          due_date: string | null
+          id: string
+          tracker_item_id: string
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          description: string
+          due_date?: string | null
+          id?: string
+          tracker_item_id: string
+          user_id: string
+        }
+        Update: {
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          description?: string
+          due_date?: string | null
+          id?: string
+          tracker_item_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_tracker_actions_tracker_item_id_fkey"
+            columns: ["tracker_item_id"]
+            isOneToOne: false
+            referencedRelation: "job_tracker_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_tracker_contacts: {
+        Row: {
+          company: string | null
+          contact_info: string | null
+          created_at: string
+          id: string
+          name: string
+          notes: string | null
+          relationship: string | null
+          role: string | null
+          status: string
+          tracker_item_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company?: string | null
+          contact_info?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          notes?: string | null
+          relationship?: string | null
+          role?: string | null
+          status?: string
+          tracker_item_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company?: string | null
+          contact_info?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          notes?: string | null
+          relationship?: string | null
+          role?: string | null
+          status?: string
+          tracker_item_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_tracker_contacts_tracker_item_id_fkey"
+            columns: ["tracker_item_id"]
+            isOneToOne: false
+            referencedRelation: "job_tracker_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       job_tracker_items: {
         Row: {
           company: string
@@ -1177,10 +1271,11 @@ export type Database = {
           location: string | null
           next_action: string | null
           notes: string | null
+          opportunity_type: string
           salary: string | null
           sort_order: number
           status: string
-          title: string
+          title: string | null
           updated_at: string
           url: string | null
           user_id: string
@@ -1195,10 +1290,11 @@ export type Database = {
           location?: string | null
           next_action?: string | null
           notes?: string | null
+          opportunity_type?: string
           salary?: string | null
           sort_order?: number
           status?: string
-          title: string
+          title?: string | null
           updated_at?: string
           url?: string | null
           user_id: string
@@ -1213,10 +1309,11 @@ export type Database = {
           location?: string | null
           next_action?: string | null
           notes?: string | null
+          opportunity_type?: string
           salary?: string | null
           sort_order?: number
           status?: string
-          title?: string
+          title?: string | null
           updated_at?: string
           url?: string | null
           user_id?: string

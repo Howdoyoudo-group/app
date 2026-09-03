@@ -3,6 +3,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
 export type TrackerStatus = "wishlist" | "applied" | "interviewing" | "offer" | "rejected" | "withdrawn";
+export type OpportunityType = "job" | "company";
+export type ContactStatus = "not_contacted" | "messaged" | "responded" | "met";
 
 export const TRACKER_STATUSES: { value: TrackerStatus; label: string }[] = [
   { value: "wishlist", label: "Wishlist" },
@@ -12,11 +14,19 @@ export const TRACKER_STATUSES: { value: TrackerStatus; label: string }[] = [
   { value: "rejected", label: "Rejected" },
 ];
 
+export const CONTACT_STATUSES: { value: ContactStatus; label: string }[] = [
+  { value: "not_contacted", label: "Not contacted" },
+  { value: "messaged", label: "Messaged" },
+  { value: "responded", label: "Responded" },
+  { value: "met", label: "Met" },
+];
+
 export interface TrackerItem {
   id: string;
   job_id: string | null;
   company: string;
-  title: string;
+  title: string | null;
+  opportunity_type: OpportunityType;
   url: string | null;
   location: string | null;
   salary: string | null;
@@ -33,7 +43,8 @@ export interface TrackerItem {
 export type NewTrackerItem = {
   job_id?: string | null;
   company: string;
-  title: string;
+  title?: string | null;
+  opportunity_type?: OpportunityType;
   url?: string | null;
   location?: string | null;
   salary?: string | null;
@@ -44,30 +55,87 @@ export type NewTrackerItem = {
   follow_up_date?: string | null;
 };
 
+export interface TrackerAction {
+  id: string;
+  tracker_item_id: string;
+  description: string;
+  due_date: string | null;
+  completed: boolean;
+  completed_at: string | null;
+  created_at: string;
+}
+
+export interface TrackerContact {
+  id: string;
+  tracker_item_id: string | null;
+  company: string | null;
+  name: string;
+  role: string | null;
+  relationship: string | null;
+  contact_info: string | null;
+  notes: string | null;
+  status: ContactStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export type NewTrackerContact = {
+  tracker_item_id?: string | null;
+  company?: string | null;
+  name: string;
+  role?: string | null;
+  relationship?: string | null;
+  contact_info?: string | null;
+  notes?: string | null;
+  status?: ContactStatus;
+};
+
 /**
- * Job Tracker hook - full CRUD over `job_tracker_items`. Signed-in only;
- * unlike useSavedJobs there's no guest/localStorage mode since the tracker
- * is a proper multi-field record, not a togglable boolean.
+ * Job Tracker hook - full CRUD over `job_tracker_items` plus the two
+ * satellite tables that hang off it: `job_tracker_actions` (multiple
+ * time-based to-dos per opportunity) and `job_tracker_contacts` (people to
+ * approach for advice - optionally scoped to a company and/or a specific
+ * opportunity, or fully standalone). Signed-in only; unlike useSavedJobs
+ * there's no guest/localStorage mode since these are proper multi-field
+ * records, not a togglable boolean.
  */
 export function useJobTracker() {
   const { user } = useAuth();
   const [items, setItems] = useState<TrackerItem[]>([]);
+  const [actions, setActions] = useState<TrackerAction[]>([]);
+  const [contacts, setContacts] = useState<TrackerContact[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!user) {
       setItems([]);
+      setActions([]);
+      setContacts([]);
       setLoading(false);
       return;
     }
     setLoading(true);
-    const { data } = await supabase
-      .from("job_tracker_items")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("status", { ascending: true })
-      .order("sort_order", { ascending: true });
-    setItems((data ?? []) as TrackerItem[]);
+    const [itemsRes, actionsRes, contactsRes] = await Promise.all([
+      supabase
+        .from("job_tracker_items")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("status", { ascending: true })
+        .order("sort_order", { ascending: true }),
+      supabase
+        .from("job_tracker_actions")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("due_date", { ascending: true, nullsFirst: false }),
+      supabase
+        .from("job_tracker_contacts")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false }),
+    ]);
+    setItems((itemsRes.data ?? []) as TrackerItem[]);
+    setActions((actionsRes.data ?? []) as TrackerAction[]);
+    setContacts((contactsRes.data ?? []) as TrackerContact[]);
     setLoading(false);
   }, [user?.id]);
 
@@ -86,7 +154,8 @@ export function useJobTracker() {
           user_id: user.id,
           job_id: item.job_id ?? null,
           company: item.company,
-          title: item.title,
+          title: item.title ?? null,
+          opportunity_type: item.opportunity_type ?? "job",
           url: item.url ?? null,
           location: item.location ?? null,
           salary: item.salary ?? null,
@@ -125,7 +194,7 @@ export function useJobTracker() {
   const updateItem = useCallback(
     async (
       id: string,
-      patch: Partial<Pick<TrackerItem, "notes" | "next_action" | "follow_up_date" | "salary" | "location">>
+      patch: Partial<Pick<TrackerItem, "title" | "opportunity_type" | "notes" | "next_action" | "follow_up_date" | "salary" | "location">>
     ) => {
       if (!user) return;
       const withTimestamp = { ...patch, updated_at: new Date().toISOString() };
@@ -139,6 +208,7 @@ export function useJobTracker() {
     async (id: string) => {
       if (!user) return;
       setItems((prev) => prev.filter((i) => i.id !== id));
+      setActions((prev) => prev.filter((a) => a.tracker_item_id !== id));
       await supabase.from("job_tracker_items").delete().eq("id", id).eq("user_id", user.id);
     },
     [user]
@@ -149,5 +219,112 @@ export function useJobTracker() {
     [items]
   );
 
-  return { items, loading, addItem, updateStatus, updateItem, removeItem, isTracked, reload: load };
+  // ── Actions (multiple time-based to-dos per opportunity) ──────────────
+  const addAction = useCallback(
+    async (trackerItemId: string, description: string, dueDate: string | null) => {
+      if (!user || !description.trim()) return null;
+      const { data, error } = await supabase
+        .from("job_tracker_actions")
+        .insert({
+          user_id: user.id,
+          tracker_item_id: trackerItemId,
+          description: description.trim(),
+          due_date: dueDate || null,
+        })
+        .select("*")
+        .single();
+      if (error || !data) return null;
+      setActions((prev) => [...prev, data as TrackerAction]);
+      return data as TrackerAction;
+    },
+    [user]
+  );
+
+  const toggleActionComplete = useCallback(
+    async (id: string) => {
+      if (!user) return;
+      const current = actions.find((a) => a.id === id);
+      if (!current) return;
+      const completed = !current.completed;
+      const patch = { completed, completed_at: completed ? new Date().toISOString() : null };
+      setActions((prev) => prev.map((a) => (a.id === id ? { ...a, ...patch } : a)));
+      await supabase.from("job_tracker_actions").update(patch).eq("id", id).eq("user_id", user.id);
+    },
+    [user, actions]
+  );
+
+  const removeAction = useCallback(
+    async (id: string) => {
+      if (!user) return;
+      setActions((prev) => prev.filter((a) => a.id !== id));
+      await supabase.from("job_tracker_actions").delete().eq("id", id).eq("user_id", user.id);
+    },
+    [user]
+  );
+
+  const actionsForItem = useCallback(
+    (trackerItemId: string) => actions.filter((a) => a.tracker_item_id === trackerItemId),
+    [actions]
+  );
+
+  // ── Contacts (people to approach - by company, by opportunity, or standalone) ──
+  const addContact = useCallback(
+    async (contact: NewTrackerContact) => {
+      if (!user || !contact.name.trim()) return null;
+      const { data, error } = await supabase
+        .from("job_tracker_contacts")
+        .insert({
+          user_id: user.id,
+          tracker_item_id: contact.tracker_item_id ?? null,
+          company: contact.company?.trim() || null,
+          name: contact.name.trim(),
+          role: contact.role?.trim() || null,
+          relationship: contact.relationship?.trim() || null,
+          contact_info: contact.contact_info?.trim() || null,
+          notes: contact.notes?.trim() || null,
+          status: contact.status ?? "not_contacted",
+        })
+        .select("*")
+        .single();
+      if (error || !data) return null;
+      setContacts((prev) => [data as TrackerContact, ...prev]);
+      return data as TrackerContact;
+    },
+    [user]
+  );
+
+  const updateContact = useCallback(
+    async (id: string, patch: Partial<Omit<TrackerContact, "id" | "created_at" | "updated_at">>) => {
+      if (!user) return;
+      const withTimestamp = { ...patch, updated_at: new Date().toISOString() };
+      setContacts((prev) => prev.map((c) => (c.id === id ? { ...c, ...withTimestamp } : c)));
+      await supabase.from("job_tracker_contacts").update(withTimestamp).eq("id", id).eq("user_id", user.id);
+    },
+    [user]
+  );
+
+  const removeContact = useCallback(
+    async (id: string) => {
+      if (!user) return;
+      setContacts((prev) => prev.filter((c) => c.id !== id));
+      await supabase.from("job_tracker_contacts").delete().eq("id", id).eq("user_id", user.id);
+    },
+    [user]
+  );
+
+  const contactsForItem = useCallback(
+    (trackerItemId: string) => contacts.filter((c) => c.tracker_item_id === trackerItemId),
+    [contacts]
+  );
+
+  const contactsForCompany = useCallback(
+    (company: string) => contacts.filter((c) => c.company?.toLowerCase() === company.toLowerCase()),
+    [contacts]
+  );
+
+  return {
+    items, loading, addItem, updateStatus, updateItem, removeItem, isTracked, reload: load,
+    actions, addAction, toggleActionComplete, removeAction, actionsForItem,
+    contacts, addContact, updateContact, removeContact, contactsForItem, contactsForCompany,
+  };
 }
