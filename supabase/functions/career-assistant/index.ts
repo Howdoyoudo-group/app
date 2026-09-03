@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { renderSiteMapForPrompt, renderSiteSearchResults, searchSiteIndex, buildRoutingDirective } from "../_shared/site-map.ts";
+import { renderSiteMapForPrompt, renderSiteSearchResults, searchSiteIndex, buildRoutingDirective, buildJobIntentDirective } from "../_shared/site-map.ts";
 import { resolveRoleTitleToSlug } from "../_shared/role-slugs.ts";
 import { buildTargetRolesContext } from "../_shared/coach-context.ts";
 
@@ -619,15 +619,25 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
     // High-priority routing directive — inserted right before the latest user
     // turn so the model can't ignore it. Generic across ANY topic that maps
     // strongly to a canonical Howdy page.
+    //
+    // buildJobIntentDirective fires independently of a page match — a
+    // generic "can you check for jobs?" scores nothing in the site index
+    // (buildRoutingDirective alone returns null for it), so without this
+    // second, unconditional check the model was relying solely on the
+    // AGENT_INSTRUCTIONS bullet buried in a long system prompt, which
+    // wasn't reliable enough on its own — reported live as Howdy flatly
+    // claiming she has no access to job listings for exactly this phrasing.
     if (mode === "candidate") {
       const directive = buildRoutingDirective(latestUserMessage);
-      if (directive) {
+      const jobDirective = buildJobIntentDirective(latestUserMessage);
+      const combined = [directive, jobDirective].filter(Boolean).join("\n\n");
+      if (combined) {
         // Insert as system message right before the final user message
         const lastUserIdx = convo.length - 1 - [...convo].reverse().findIndex((m) => m.role === "user");
         if (lastUserIdx >= 0) {
-          convo.splice(lastUserIdx, 0, { role: "system", content: directive });
+          convo.splice(lastUserIdx, 0, { role: "system", content: combined });
         } else {
-          convo.push({ role: "system", content: directive });
+          convo.push({ role: "system", content: combined });
         }
       }
     }

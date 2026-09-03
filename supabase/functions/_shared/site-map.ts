@@ -245,6 +245,29 @@ export function buildRoutingDirective(query: string): string | null {
   ].filter(Boolean).join("\n");
 }
 
+/**
+ * Standalone job-intent directive - fires independently of buildRoutingDirective,
+ * which only adds its search_jobs reminder when the query ALSO strongly
+ * matches a specific page (score >= 60). A generic "can you check for
+ * jobs?"/"any openings?" with no industry/company keyword scores nothing in
+ * the site index, so buildRoutingDirective returns null and the model was
+ * left relying solely on the AGENT_INSTRUCTIONS bullet buried deep in a long
+ * system prompt - not reliable enough on its own; reported live as Howdy
+ * flatly claiming "I don't have direct access to real-time job listings"
+ * for exactly this kind of message. This is a second, unconditional
+ * reinforcement of the same rule, injected as its own high-priority system
+ * message regardless of whether a page also matched.
+ */
+export function buildJobIntentDirective(query: string): string | null {
+  if (!JOB_INTENT_RE.test(query)) return null;
+  return [
+    `PRIORITY: the user is asking about job listings, vacancies, roles or openings.`,
+    `You MUST call the search_jobs tool now, before replying, and show real results as clickable markdown links using the exact url the tool returns - never invent titles or companies.`,
+    `Never say you don't have access to job listings, real-time jobs, or live vacancies - you do, via search_jobs, right now, in this turn.`,
+    `If search_jobs genuinely returns zero matches, say so plainly and suggest broadening the search (fewer filters, a different keyword) - do not claim you lack the capability at all.`,
+  ].join(" ");
+}
+
 /** Plain-text version for WhatsApp. */
 export function buildRoutingDirectiveWhatsApp(query: string): string | null {
   const scored = searchSiteIndexScored(query, 3);
