@@ -5,6 +5,28 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 (later) — Andrew (main branch) — Employer Spotlight video tile: desktop sizing + badge overlap
+
+### What was done THIS SESSION
+Andrew reported two visual bugs on the Employer Spotlight video tile: the video is "massive" on desktop, and the spotlight banner "goes over the YouTube heading."
+
+Reproduced both directly on the live production site (`/footwear`, real Dr. Martens video spotlight) before touching code. Confirmed via a JS bounding-rect check that the iframe rendered at 1180×664px on a 1280px-wide viewport (`w-full aspect-video` has no height cap, so height scales directly with card width). Screenshotting the tile also revealed the actual "YouTube heading" bug: the absolutely-positioned "EMPLOYER SPOTLIGHT" pill badge (`top-3 left-3`) sits directly on top of YouTube's own on-screen video title text, obscuring it — not a same-page tab-overlap as first suspected (ruled that out by reading `IndustryPageLayout.tsx`, which only ever mounts one tab's content at a time).
+
+Fixed in both near-duplicate spotlight components — `EmployerSpotlightTile` in [CompanyProfileCard.tsx](src/components/CompanyProfileCard.tsx) and `EmployerSpotlight` in [Marketplace.tsx](src/pages/Marketplace.tsx):
+- Added `md:aspect-auto md:h-56 lg:h-64` to the iframe/video classes so desktop height is capped (664px → 256px on a 1280px viewport) while mobile keeps its full 16:9 `aspect-video`.
+- For the video case only, moved the "Employer spotlight" badge out of its absolute overlay position into a normal-flow label bar rendered above the video, so it can no longer sit on top of YouTube's own title overlay. The image-fallback case (no video) is unchanged — the badge overlay works fine there since we control the image.
+
+Verified against the real Dr. Martens data via the local dev server: badge/iframe rects confirmed stacked with no overlap on desktop, mobile viewport confirmed still renders full-width 16:9 (323×182px on a 375px viewport), `npm run typecheck` clean.
+
+### Commits
+`4a2b3da` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Both bugs fixed and live. No further action needed unless a third spotlight-tile issue turns up.
+
+### Left for next session
+Nothing outstanding from this task.
+
 ## 2026-09-03 (end of session) — Andrew (main branch) — July/August founder update email
 
 ### What was done THIS SESSION
