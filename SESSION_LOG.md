@@ -5,6 +5,33 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 (absolute final) — Andrew (main branch) — Gate Howdy AI + admin Site Stats dashboard
+
+### What was done THIS SESSION
+Two follow-ons agreed after the apply-click investigation earlier today, run through Plan Mode (2 parallel Explore agents + a Plan agent for the dashboard's data layer).
+
+**Part 1 — gate Howdy's AI features behind sign-in:**
+- `JobApplicationHelper.tsx` ("Howdy can help apply", opened from Marketplace/Job Tracker) had **no gate at all** — fired its AI call on mount for anyone, and an anonymous click ran the full "Analysing the role…" loading state before failing server-side with a confusing "Your session has expired" message. Now shows a clean sign-in prompt instantly, no wasted network call.
+- `CareerAssistant.tsx` (Howdy chat widget) already blocked *sending* a message for guests, but the composer let them type freely before finding out via a chat bubble. Now swaps the composer for a sign-in CTA up front — while keeping the floating button, welcome panel and intro video open for guests (real discovery/marketing value, no AI cost).
+- Deliberately **not** touched: `expand-role` (used on ~90 public role/industry pages), `explain-riasec` (used on the public `/u/:handle` profile page built earlier today — gating it would break that), and the badge quiz (guests are allowed there by an existing, explicit code comment). Each would be its own separate decision.
+
+**Part 2 — new `/admin/site-stats` dashboard**, linked from the `/admin` index page's card grid:
+- Core is a burst-collapse filter for `job_click` events, designed from the earlier finding that an email-security scanner pre-fetching every link in the daily digest produces 5-10 different-job clicks from the same user within the same second, repeating ~10s later. Rows within 3 seconds of a same-user neighbour are **discarded, not collapsed to one** — a cluster of different jobs opened simultaneously carries no signal about which job a human actually wanted. Shown transparently on the page: raw count, real count, and a plain-English reason, plus a source breakdown of what got discarded.
+- Also shows: active signed-in users (7d/30d, with an explicit "anonymous browsing isn't tracked" caveat), new signups, total live jobs + jobs-by-industry (via the existing `get_live_job_counts_by_industry` RPC), saved/liked/Job-Tracker/feed-save engagement counts, and the curiosity score built earlier today (average + % of accounts scored).
+- **One small new migration**: `saved_jobs`/`liked_jobs`/`job_tracker_items`/`saved_feed_items` only have owner-row RLS (verified directly in their migrations, no admin bypass existed) — added `admin_get_engagement_counts()`, a read-only `SECURITY DEFINER` counting RPC, same pattern already used elsewhere in this codebase (e.g. `admin_list_users`).
+- Two `recharts` charts (real-vs-burst clicks over 14 days; jobs by industry) — first use of `recharts` anywhere in the app, though it was already a dependency with a themed wrapper (`src/components/ui/chart.tsx`) sitting unused.
+- Verified via the QA-bypass pattern with a hand-built dataset run through the *real* `splitRealVsBurst` function (not pre-computed fake numbers) — correctly separated 3 genuinely-spaced clicks from 9 rapid-fire burst clicks in the live render, both charts rendered correctly.
+
+### Commits
+`5cb0b6b` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Both parts live. Guest job-application-help and Howdy chat now clearly ask for sign-in instead of failing silently/confusingly. Admin Site Stats dashboard is live at `/admin/site-stats` with real data (verified the new RPC and underlying counts directly against production before building the page).
+
+### Left for next session
+- Andrew should do a real pass over `/admin/site-stats` with his own admin session to sanity-check the real (non-mocked) numbers, since this session verified the mechanism/rendering but not the live production output end-to-end.
+- Dashboard is v1 scope (6 sections) — more can be layered on if useful.
+
 ## 2026-09-03 (truly final) — Andrew (main branch) — Fix Howdy claiming "no access to jobs"
 
 ### What was done THIS SESSION
