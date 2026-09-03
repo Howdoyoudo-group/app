@@ -15,9 +15,9 @@ export const TRACKER_STATUSES: { value: TrackerStatus; label: string }[] = [
 ];
 
 export const CONTACT_STATUSES: { value: ContactStatus; label: string }[] = [
-  { value: "not_contacted", label: "Not contacted" },
-  { value: "messaged", label: "Messaged" },
-  { value: "responded", label: "Responded" },
+  { value: "not_contacted", label: "Contact" },
+  { value: "messaged", label: "Contacted" },
+  { value: "responded", label: "Spoken" },
   { value: "met", label: "Met" },
 ];
 

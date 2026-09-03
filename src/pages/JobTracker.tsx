@@ -1,19 +1,19 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import JobApplicationHelper, { type JobForHelper } from "@/components/JobApplicationHelper";
 import {
-  DndContext, DragOverlay, closestCorners, PointerSensor, TouchSensor, useSensor, useSensors,
-  type DragEndEvent, type DragOverEvent, type DragStartEvent,
+  DndContext, DragOverlay, closestCorners, PointerSensor, TouchSensor, useSensor, useSensors, useDroppable, useDraggable,
+  type DragEndEvent, type DragStartEvent,
 } from "@dnd-kit/core";
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
   Plus, Loader2, MapPin, Banknote, Pencil, Trash2, Building2, Sparkles,
   Calendar, BookOpen, Users, Compass, Search, ExternalLink, Kanban, X, AlertCircle,
-  CheckCircle2, Circle, UserPlus, Briefcase,
+  CheckCircle2, Circle, UserPlus, Briefcase, ChevronDown, ChevronUp,
 } from "lucide-react";
 import {
   useJobTracker, TRACKER_STATUSES, CONTACT_STATUSES,
@@ -147,6 +147,8 @@ const ActionChip = ({ label, icon: Icon, to, onClick }: ReturnType<typeof sugges
 const TrackerCard = ({
   item,
   contactCount,
+  collapsed,
+  onToggleCollapse,
   onEdit,
   onRemove,
   onStatusChange,
@@ -156,6 +158,8 @@ const TrackerCard = ({
 }: {
   item: TrackerItem;
   contactCount: number;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
   onEdit: () => void;
   onRemove: () => void;
   onStatusChange: (status: TrackerStatus) => void;
@@ -169,7 +173,7 @@ const TrackerCard = ({
     }`}
   >
     <div className="flex items-start justify-between gap-2">
-      <div {...dragHandleProps} className="flex items-start gap-2 min-w-0 cursor-grab active:cursor-grabbing">
+      <div {...dragHandleProps} className="flex items-start gap-2 min-w-0 cursor-grab active:cursor-grabbing flex-1">
         <CompanyLogo company={item.company} size={32} className="shrink-0 mt-0.5" />
         <div className="min-w-0">
           <h4 className="font-display font-700 text-sm text-foreground truncate">
@@ -178,10 +182,23 @@ const TrackerCard = ({
           <p className="font-body text-xs text-muted-foreground truncate flex items-center gap-1">
             {item.opportunity_type === "company" && <Building2 className="w-3 h-3 shrink-0" />}
             {item.title ? item.company : "Speculative interest"}
+            {collapsed && (
+              <span className="ml-1 text-foreground/60">
+                · {TRACKER_STATUSES.find((s) => s.value === item.status)?.label}
+              </span>
+            )}
           </p>
         </div>
       </div>
       <div className="flex items-center gap-1 shrink-0">
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); onToggleCollapse(); }}
+          className="p-1 text-muted-foreground hover:text-primary transition-colors"
+          aria-label={collapsed ? "Expand" : "Collapse"}
+        >
+          {collapsed ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronUp className="w-3.5 h-3.5" />}
+        </button>
         <button
           type="button"
           onClick={(e) => { e.stopPropagation(); onEdit(); }}
@@ -201,65 +218,87 @@ const TrackerCard = ({
       </div>
     </div>
 
-    {/* Explicit status control - always available, doesn't rely on drag-and-drop
-        being discovered (desktop board still supports dragging too). */}
-    <div className="mt-2.5" onPointerDown={(e) => e.stopPropagation()}>
-      <Select value={item.status} onValueChange={(v) => onStatusChange(v as TrackerStatus)}>
-        <SelectTrigger className="h-7 text-[11px] rounded-full border-foreground/30 px-2.5">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent position="item-aligned">
-          {TRACKER_STATUSES.map((opt) => (
-            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+    {!collapsed && (
+      <>
+        {/* Explicit status control - always available, doesn't rely on drag-and-drop
+            being discovered (desktop board still supports dragging too). */}
+        <div className="mt-2.5" onPointerDown={(e) => e.stopPropagation()}>
+          <Select value={item.status} onValueChange={(v) => onStatusChange(v as TrackerStatus)}>
+            <SelectTrigger className="h-7 text-[11px] rounded-full border-foreground/30 px-2.5">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent position="item-aligned">
+              {TRACKER_STATUSES.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {(item.location || item.salary) && (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[11px] text-muted-foreground font-body">
+            {item.location && (
+              <span className="inline-flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> {item.location}
+              </span>
+            )}
+            {item.salary && (
+              <span className="inline-flex items-center gap-1">
+                <Banknote className="w-3 h-3" /> {item.salary}
+              </span>
+            )}
+            {contactCount > 0 && (
+              <span className="inline-flex items-center gap-1">
+                <Users className="w-3 h-3" /> {contactCount} contact{contactCount === 1 ? "" : "s"}
+              </span>
+            )}
+          </div>
+        )}
+
+        <div className="flex flex-wrap gap-1.5 mt-3">
+          {suggestedActions(item, onHelpMeApply).map((a) => (
+            <ActionChip key={a.label} {...a} />
           ))}
-        </SelectContent>
-      </Select>
-    </div>
+        </div>
 
-    {(item.location || item.salary) && (
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[11px] text-muted-foreground font-body">
-        {item.location && (
-          <span className="inline-flex items-center gap-1">
-            <MapPin className="w-3 h-3" /> {item.location}
-          </span>
+        {item.url && (
+          <a
+            href={item.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="mt-2 inline-flex items-center gap-1 text-[11px] font-body text-primary hover:underline"
+          >
+            View listing <ExternalLink className="w-3 h-3" />
+          </a>
         )}
-        {item.salary && (
-          <span className="inline-flex items-center gap-1">
-            <Banknote className="w-3 h-3" /> {item.salary}
-          </span>
-        )}
-        {contactCount > 0 && (
-          <span className="inline-flex items-center gap-1">
-            <Users className="w-3 h-3" /> {contactCount} contact{contactCount === 1 ? "" : "s"}
-          </span>
-        )}
-      </div>
-    )}
-
-    <div className="flex flex-wrap gap-1.5 mt-3">
-      {suggestedActions(item, onHelpMeApply).map((a) => (
-        <ActionChip key={a.label} {...a} />
-      ))}
-    </div>
-
-    {item.url && (
-      <a
-        href={item.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={(e) => e.stopPropagation()}
-        className="mt-2 inline-flex items-center gap-1 text-[11px] font-body text-primary hover:underline"
-      >
-        View listing <ExternalLink className="w-3 h-3" />
-      </a>
+      </>
     )}
   </div>
 );
+
+/** Column drop target (desktop board only). A plain HTML `id` on a `div` is
+ * not a dnd-kit droppable - without an explicit `useDroppable` registration
+ * here, dropping on an empty column (or the empty space below the last card)
+ * never resolves to an `over`, so the drag silently does nothing. */
+const Column = ({ status, children }: { status: TrackerStatus; children: ReactNode }) => {
+  const { setNodeRef, isOver } = useDroppable({ id: status });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`space-y-3 min-h-[80px] rounded-2xl transition-colors ${isOver ? "bg-primary/10" : ""}`}
+    >
+      {children}
+    </div>
+  );
+};
 
 /** Draggable wrapper (desktop board only). */
 const SortableCard = ({
   item,
   contactCount,
+  collapsed,
+  onToggleCollapse,
   onEdit,
   onRemove,
   onStatusChange,
@@ -267,6 +306,8 @@ const SortableCard = ({
 }: {
   item: TrackerItem;
   contactCount: number;
+  collapsed: boolean;
+  onToggleCollapse: () => void;
   onEdit: () => void;
   onRemove: () => void;
   onStatusChange: (status: TrackerStatus) => void;
@@ -279,10 +320,141 @@ const SortableCard = ({
       <TrackerCard
         item={item}
         contactCount={contactCount}
+        collapsed={collapsed}
+        onToggleCollapse={onToggleCollapse}
         onEdit={onEdit}
         onRemove={onRemove}
         onStatusChange={onStatusChange}
         onHelpMeApply={onHelpMeApply}
+        dragHandleProps={{ ...attributes, ...listeners }}
+        isDragging={isDragging}
+      />
+    </div>
+  );
+};
+
+const ContactCard = ({
+  contact,
+  linkedItem,
+  onEdit,
+  onRemove,
+  onStatusChange,
+  onJumpToItem,
+  dragHandleProps,
+  isDragging,
+}: {
+  contact: TrackerContact;
+  linkedItem: TrackerItem | null;
+  onEdit: () => void;
+  onRemove: () => void;
+  onStatusChange: (status: ContactStatus) => void;
+  onJumpToItem: () => void;
+  dragHandleProps?: Record<string, unknown>;
+  isDragging?: boolean;
+}) => (
+  <div
+    className={`border-2 border-foreground bg-card rounded-2xl p-3.5 shadow-[3px_3px_0_0_hsl(var(--foreground))] transition-opacity ${
+      isDragging ? "opacity-40" : ""
+    }`}
+  >
+    <div className="flex items-start justify-between gap-2">
+      <div {...dragHandleProps} className="min-w-0 flex-1 cursor-grab active:cursor-grabbing">
+        <h4 className="font-display font-700 text-sm text-foreground truncate">{contact.name}</h4>
+        {(contact.role || contact.company) && (
+          <p className="font-body text-xs text-muted-foreground truncate">
+            {[contact.role, contact.company].filter(Boolean).join(" · ")}
+          </p>
+        )}
+      </div>
+      <div className="flex items-center gap-1 shrink-0">
+        <button type="button" onClick={(e) => { e.stopPropagation(); onEdit(); }} className="p-1 text-muted-foreground hover:text-primary transition-colors" aria-label="Edit contact">
+          <Pencil className="w-3.5 h-3.5" />
+        </button>
+        <button type="button" onClick={(e) => { e.stopPropagation(); onRemove(); }} className="p-1 text-muted-foreground hover:text-destructive transition-colors" aria-label="Remove contact">
+          <Trash2 className="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+
+    {/* Explicit status control - always available, doesn't rely on drag-and-drop
+        being discovered (desktop board still supports dragging too). */}
+    <div className="mt-2.5" onPointerDown={(e) => e.stopPropagation()}>
+      <Select value={contact.status} onValueChange={(v) => onStatusChange(v as ContactStatus)}>
+        <SelectTrigger className="h-7 text-[11px] rounded-full border-foreground/30 px-2.5">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent position="item-aligned">
+          {CONTACT_STATUSES.map((opt) => (
+            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+
+    {contact.relationship && (
+      <p className="mt-2 text-[11px] font-body text-foreground/70">{contact.relationship}</p>
+    )}
+    {contact.contact_info && (
+      <p className="mt-1 text-[11px] font-body text-primary">{contact.contact_info}</p>
+    )}
+    {contact.notes && (
+      <p className="mt-1.5 text-[11px] font-body text-muted-foreground border-l-2 border-primary/40 pl-2">{contact.notes}</p>
+    )}
+    {linkedItem && (
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); onJumpToItem(); }}
+        className="mt-3 inline-flex items-center gap-1 text-[10px] font-body text-muted-foreground hover:text-primary transition-colors"
+      >
+        <Briefcase className="w-3 h-3" /> {linkedItem.title || linkedItem.company}
+      </button>
+    )}
+  </div>
+);
+
+/** Column drop target for the Contacts funnel (desktop board only). */
+const ContactColumn = ({ status, children }: { status: ContactStatus; children: ReactNode }) => {
+  const { setNodeRef, isOver } = useDroppable({ id: status });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`space-y-3 min-h-[80px] rounded-2xl transition-colors ${isOver ? "bg-primary/10" : ""}`}
+    >
+      {children}
+    </div>
+  );
+};
+
+/** Draggable wrapper (desktop board only). No persisted ordering for
+ * contacts (no sort_order column), so this uses plain useDraggable rather
+ * than the sortable variant used for job cards - dragging only ever changes
+ * which funnel stage a contact sits in. */
+const DraggableContactCard = ({
+  contact,
+  linkedItem,
+  onEdit,
+  onRemove,
+  onStatusChange,
+  onJumpToItem,
+}: {
+  contact: TrackerContact;
+  linkedItem: TrackerItem | null;
+  onEdit: () => void;
+  onRemove: () => void;
+  onStatusChange: (status: ContactStatus) => void;
+  onJumpToItem: () => void;
+}) => {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({ id: contact.id });
+  const style = transform ? { transform: `translate3d(${transform.x}px, ${transform.y}px, 0)` } : undefined;
+  return (
+    <div ref={setNodeRef} style={style}>
+      <ContactCard
+        contact={contact}
+        linkedItem={linkedItem}
+        onEdit={onEdit}
+        onRemove={onRemove}
+        onStatusChange={onStatusChange}
+        onJumpToItem={onJumpToItem}
         dragHandleProps={{ ...attributes, ...listeners }}
         isDragging={isDragging}
       />
@@ -338,12 +510,38 @@ export default function JobTracker() {
   const [draft, setDraft] = useState(emptyDraft);
   const [saving, setSaving] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeContactId, setActiveContactId] = useState<string | null>(null);
   const [newActionText, setNewActionText] = useState("");
   const [newActionDate, setNewActionDate] = useState("");
 
   const [contactDialogOpen, setContactDialogOpen] = useState(false);
   const [contactDraft, setContactDraft] = useState(emptyContactDraft);
   const [savingContact, setSavingContact] = useState(false);
+
+  // Card collapse - lets a busy column show more opportunities at once
+  // without scrolling as far. Remembered per-visit via localStorage, same
+  // pattern as the intro banner's dismissed state.
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(() => {
+    try {
+      const raw = localStorage.getItem("job-tracker-collapsed-ids");
+      return raw ? new Set(JSON.parse(raw)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+  const persistCollapsed = (next: Set<string>) => {
+    setCollapsedIds(next);
+    try { localStorage.setItem("job-tracker-collapsed-ids", JSON.stringify([...next])); } catch {}
+  };
+  const toggleCollapse = (id: string) => {
+    const next = new Set(collapsedIds);
+    if (next.has(id)) next.delete(id); else next.add(id);
+    persistCollapsed(next);
+  };
+  const allCollapsed = items.length > 0 && items.every((i) => collapsedIds.has(i.id));
+  const toggleCollapseAll = () => {
+    persistCollapsed(allCollapsed ? new Set() : new Set(items.map((i) => i.id)));
+  };
 
   // "Howdy can help" - the same tailored cover-letter/CV-tips helper used on
   // job cards in the Marketplace. It needs the full job description, which
@@ -463,26 +661,56 @@ export default function JobTracker() {
 
   const handleDragStart = (e: DragStartEvent) => setActiveId(String(e.active.id));
 
-  const handleDragOver = (e: DragOverEvent) => {
-    const { active, over } = e;
-    if (!over) return;
-    const activeContainer = findContainer(String(active.id));
-    const overContainer = findContainer(String(over.id));
-    if (!activeContainer || !overContainer || activeContainer === overContainer) return;
-    // Local-only preview move; the real persist happens in handleDragEnd.
-    updateStatus(String(active.id), overContainer);
-  };
-
+  // Status change (and reorder within a column) is resolved once, on drop -
+  // not mid-drag - so the app's own state and dnd-kit's drag session never
+  // fight each other. `over.id` is either a column's status (dropped on the
+  // column itself, including empty space) or another card's id.
   const handleDragEnd = async (e: DragEndEvent) => {
     setActiveId(null);
     const { active, over } = e;
     if (!over) return;
+    const activeContainer = findContainer(String(active.id));
     const destContainer = findContainer(String(over.id));
-    if (!destContainer) return;
-    const destItems = byStatus.get(destContainer) ?? [];
+    if (!activeContainer || !destContainer) return;
+    const destItems = (byStatus.get(destContainer) ?? []).filter((i) => i.id !== active.id);
     const overIndex = destItems.findIndex((i) => i.id === over.id);
     const newIndex = overIndex >= 0 ? overIndex : destItems.length;
+    if (destContainer === activeContainer) {
+      const currentIndex = (byStatus.get(activeContainer) ?? []).findIndex((i) => i.id === active.id);
+      if (currentIndex === newIndex) return;
+    }
     await updateStatus(String(active.id), destContainer, newIndex);
+  };
+
+  // Contacts funnel - same drag-to-advance idea as the job board, but no
+  // persisted ordering (job_tracker_contacts has no sort_order), so a drop
+  // only ever changes which stage a contact sits in.
+  const contactsByStatus = useMemo(() => {
+    const map = new Map<ContactStatus, TrackerContact[]>();
+    CONTACT_STATUSES.forEach((s) => map.set(s.value, []));
+    contacts.forEach((c) => {
+      if (!map.has(c.status)) map.set(c.status, []);
+      map.get(c.status)!.push(c);
+    });
+    return map;
+  }, [contacts]);
+
+  const findContactContainer = (id: string): ContactStatus | undefined => {
+    if (CONTACT_STATUSES.some((s) => s.value === id)) return id as ContactStatus;
+    return contacts.find((c) => c.id === id)?.status;
+  };
+
+  const handleContactDragStart = (e: DragStartEvent) => setActiveContactId(String(e.active.id));
+
+  const handleContactDragEnd = async (e: DragEndEvent) => {
+    setActiveContactId(null);
+    const { active, over } = e;
+    if (!over) return;
+    const destStatus = findContactContainer(String(over.id));
+    if (!destStatus) return;
+    const contact = contacts.find((c) => c.id === active.id);
+    if (!contact || contact.status === destStatus) return;
+    await updateContact(String(active.id), { status: destStatus });
   };
 
   const openNew = () => {
@@ -634,6 +862,7 @@ export default function JobTracker() {
   }
 
   const activeItem = activeId ? items.find((i) => i.id === activeId) : null;
+  const activeContact = activeContactId ? contacts.find((c) => c.id === activeContactId) : null;
   const draftActions = draft.id ? actionsForItem(draft.id) : [];
   const draftContacts = draft.id
     ? [...contactsForItem(draft.id), ...contactsForCompany(draft.company)].filter(
@@ -759,7 +988,17 @@ export default function JobTracker() {
           </div>
 
           <TabsContent value="board" className="mt-0 focus-visible:outline-none">
-            <div className="flex justify-end mb-5">
+            <div className="flex justify-end gap-2 mb-5">
+              {items.length > 0 && (
+                <Button
+                  variant="outline"
+                  onClick={toggleCollapseAll}
+                  className="rounded-2xl font-display font-700 text-xs uppercase tracking-wider"
+                >
+                  {allCollapsed ? <ChevronDown className="w-4 h-4 mr-1.5" /> : <ChevronUp className="w-4 h-4 mr-1.5" />}
+                  {allCollapsed ? "Expand all" : "Collapse all"}
+                </Button>
+              )}
               <Button onClick={openNew} className="rounded-2xl font-display font-700 text-xs uppercase tracking-wider">
                 <Plus className="w-4 h-4 mr-1.5" /> Add opportunity
               </Button>
@@ -787,7 +1026,6 @@ export default function JobTracker() {
                     sensors={sensors}
                     collisionDetection={closestCorners}
                     onDragStart={handleDragStart}
-                    onDragOver={handleDragOver}
                     onDragEnd={handleDragEnd}
                   >
                     <div className="grid grid-cols-5 gap-4">
@@ -801,20 +1039,22 @@ export default function JobTracker() {
                               </h3>
                               <span className="font-body text-[11px] text-muted-foreground">{list.length}</span>
                             </div>
-                            <SortableContext items={[s.value, ...list.map((i) => i.id)]} strategy={verticalListSortingStrategy}>
-                              <div id={s.value} className="space-y-3 min-h-[80px]">
+                            <SortableContext items={list.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+                              <Column status={s.value}>
                                 {list.map((item) => (
                                   <SortableCard
                                     key={item.id}
                                     item={item}
                                     contactCount={contactCountByItem.get(item.id) ?? 0}
+                                    collapsed={collapsedIds.has(item.id)}
+                                    onToggleCollapse={() => toggleCollapse(item.id)}
                                     onEdit={() => openEdit(item)}
                                     onRemove={() => remove(item.id)}
                                     onStatusChange={(status) => updateStatus(item.id, status, 0)}
                                     onHelpMeApply={openHelper}
                                   />
                                 ))}
-                              </div>
+                              </Column>
                             </SortableContext>
                           </div>
                         );
@@ -825,6 +1065,8 @@ export default function JobTracker() {
                         <TrackerCard
                           item={activeItem}
                           contactCount={contactCountByItem.get(activeItem.id) ?? 0}
+                          collapsed={collapsedIds.has(activeItem.id)}
+                          onToggleCollapse={() => {}}
                           onEdit={() => {}}
                           onRemove={() => {}}
                           onStatusChange={() => {}}
@@ -851,6 +1093,8 @@ export default function JobTracker() {
                               key={item.id}
                               item={item}
                               contactCount={contactCountByItem.get(item.id) ?? 0}
+                              collapsed={collapsedIds.has(item.id)}
+                              onToggleCollapse={() => toggleCollapse(item.id)}
                               onEdit={() => openEdit(item)}
                               onRemove={() => remove(item.id)}
                               onStatusChange={(status) => updateStatus(item.id, status, 0)}
@@ -883,56 +1127,92 @@ export default function JobTracker() {
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {contacts.map((c) => {
-                  const linkedItem = c.tracker_item_id ? items.find((i) => i.id === c.tracker_item_id) : null;
-                  return (
-                    <div key={c.id} className="border-2 border-foreground bg-card rounded-2xl p-3.5 shadow-[3px_3px_0_0_hsl(var(--foreground))]">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
-                          <h4 className="font-display font-700 text-sm text-foreground truncate">{c.name}</h4>
-                          {(c.role || c.company) && (
-                            <p className="font-body text-xs text-muted-foreground truncate">
-                              {[c.role, c.company].filter(Boolean).join(" · ")}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <button type="button" onClick={() => openEditContact(c)} className="p-1 text-muted-foreground hover:text-primary transition-colors" aria-label="Edit contact">
-                            <Pencil className="w-3.5 h-3.5" />
-                          </button>
-                          <button type="button" onClick={() => removeContactConfirm(c.id)} className="p-1 text-muted-foreground hover:text-destructive transition-colors" aria-label="Remove contact">
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                      {c.relationship && (
-                        <p className="mt-2 text-[11px] font-body text-foreground/70">{c.relationship}</p>
-                      )}
-                      {c.contact_info && (
-                        <p className="mt-1 text-[11px] font-body text-primary">{c.contact_info}</p>
-                      )}
-                      {c.notes && (
-                        <p className="mt-1.5 text-[11px] font-body text-muted-foreground border-l-2 border-primary/40 pl-2">{c.notes}</p>
-                      )}
-                      <div className="flex items-center justify-between mt-3">
-                        <span className="text-[10px] font-display font-700 uppercase tracking-wide px-2 py-0.5 rounded-full bg-primary/15 text-foreground">
-                          {CONTACT_STATUSES.find((s) => s.value === c.status)?.label}
-                        </span>
-                        {linkedItem && (
-                          <button
-                            type="button"
-                            onClick={() => { setActiveTab("board"); openEdit(linkedItem); }}
-                            className="inline-flex items-center gap-1 text-[10px] font-body text-muted-foreground hover:text-primary transition-colors"
-                          >
-                            <Briefcase className="w-3 h-3" /> {linkedItem.title || linkedItem.company}
-                          </button>
-                        )}
-                      </div>
+              <>
+                {/* Desktop: kanban funnel, same drag-to-advance interaction as the job board */}
+                <div className="hidden md:block">
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCorners}
+                    onDragStart={handleContactDragStart}
+                    onDragEnd={handleContactDragEnd}
+                  >
+                    <div className="grid grid-cols-4 gap-4">
+                      {CONTACT_STATUSES.map((s) => {
+                        const list = contactsByStatus.get(s.value) ?? [];
+                        return (
+                          <div key={s.value} className="min-w-0">
+                            <div className="flex items-center justify-between mb-3">
+                              <h3 className="font-display font-700 text-xs uppercase tracking-wider text-foreground">
+                                {s.label}
+                              </h3>
+                              <span className="font-body text-[11px] text-muted-foreground">{list.length}</span>
+                            </div>
+                            <ContactColumn status={s.value}>
+                              {list.map((c) => (
+                                <DraggableContactCard
+                                  key={c.id}
+                                  contact={c}
+                                  linkedItem={c.tracker_item_id ? items.find((i) => i.id === c.tracker_item_id) ?? null : null}
+                                  onEdit={() => openEditContact(c)}
+                                  onRemove={() => removeContactConfirm(c.id)}
+                                  onStatusChange={(status) => updateContact(c.id, { status })}
+                                  onJumpToItem={() => {
+                                    const linked = c.tracker_item_id ? items.find((i) => i.id === c.tracker_item_id) : null;
+                                    if (linked) { setActiveTab("board"); openEdit(linked); }
+                                  }}
+                                />
+                              ))}
+                            </ContactColumn>
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })}
-              </div>
+                    <DragOverlay>
+                      {activeContact ? (
+                        <ContactCard
+                          contact={activeContact}
+                          linkedItem={activeContact.tracker_item_id ? items.find((i) => i.id === activeContact.tracker_item_id) ?? null : null}
+                          onEdit={() => {}}
+                          onRemove={() => {}}
+                          onStatusChange={() => {}}
+                          onJumpToItem={() => {}}
+                        />
+                      ) : null}
+                    </DragOverlay>
+                  </DndContext>
+                </div>
+
+                {/* Mobile: stacked list, same explicit status control as desktop */}
+                <div className="md:hidden space-y-6">
+                  {CONTACT_STATUSES.map((s) => {
+                    const list = contactsByStatus.get(s.value) ?? [];
+                    if (list.length === 0) return null;
+                    return (
+                      <div key={s.value}>
+                        <h3 className="font-display font-700 text-xs uppercase tracking-wider text-foreground mb-3">
+                          {s.label} <span className="text-muted-foreground">({list.length})</span>
+                        </h3>
+                        <div className="space-y-3">
+                          {list.map((c) => (
+                            <ContactCard
+                              key={c.id}
+                              contact={c}
+                              linkedItem={c.tracker_item_id ? items.find((i) => i.id === c.tracker_item_id) ?? null : null}
+                              onEdit={() => openEditContact(c)}
+                              onRemove={() => removeContactConfirm(c.id)}
+                              onStatusChange={(status) => updateContact(c.id, { status })}
+                              onJumpToItem={() => {
+                                const linked = c.tracker_item_id ? items.find((i) => i.id === c.tracker_item_id) : null;
+                                if (linked) { setActiveTab("board"); openEdit(linked); }
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
             )}
           </TabsContent>
         </Tabs>
