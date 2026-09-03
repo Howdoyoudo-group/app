@@ -5,6 +5,25 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 (yet later) — Andrew (main branch) — Job Tracker: closing-date capture
+
+### What was done THIS SESSION
+Andrew asked whether Job Tracker captures an application closing date, as a helpful action point while a job isn't yet applied to. It didn't. Checked whether `jobs.expires_at` (on scraped listings) could be reused for this - it can't reliably: for most sources it's just an internal "assume stale after N days" freshness heuristic set at ingestion (typically `now + 30/60 days`), not the employer's real deadline. NHS listings are the one exception where it genuinely is a real `closingDate`. Auto-filling from it would show a specific, confident-looking date that's usually wrong, so this is manual instead.
+
+- New `closing_date` column on `job_tracker_items` (nullable, user-entered).
+- New "Applications close" date field in the Add/Edit opportunity dialog (job-type opportunities only).
+- **Learned from the actions-visibility bug fixed earlier this session** - added a closing-date badge directly on the card face immediately, not just inside the dialog, so this doesn't repeat that mistake. Highlighted (green, alert icon) once within 5 days and the job is still Wishlist; muted once applied or further out.
+- Extended "Needs your attention" to surface an approaching closing date while status is Wishlist - a wider 5-day window than the 2-day one used for regular actions, since a missed closing date is unrecoverable (the opportunity is just gone), unlike a generic action which can slip a day or two.
+- Verified via the QA-bypass pattern: a job closing in 3 days (Wishlist) showed urgent styling and appeared in Needs Your Attention; one closing in 20 days (Wishlist) showed plain styling and didn't; one closing in 1 day but already Applied showed plain styling and didn't appear (closing dates stop being an action point once you've actually applied). `npm run typecheck` clean.
+
+### Commits
+`d4466a9` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Closing-date capture is live. No prefill from `jobs.expires_at` on "Track this job" - deliberately not done, see reasoning above; worth reconsidering per-source (e.g. NHS specifically) if it comes up again.
+
+---
+
 ## 2026-09-03 (even later) — Andrew (main branch) — Job Tracker: fix invisible actions
 
 ### What was done THIS SESSION
