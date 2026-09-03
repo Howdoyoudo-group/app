@@ -5,6 +5,33 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 — Andrew (main branch) — Job Tracker: companies-to-approach, contacts, multiple actions per opportunity
+
+### What was done THIS SESSION
+Built and shipped a brand-new Job Tracker feature (`/job-tracker`) across five rounds of iteration, ending with a 4-part expansion request from Andrew:
+
+- **Original build**: brutalist-styled kanban board (Wishlist → Applied → Interviewing → Offer/Rejected), desktop drag-and-drop via new `@dnd-kit` dependency, mobile stacked list with status `<Select>`, manual + "Track this job" entry points from Marketplace/MyJobs, suggested-action chips linking to Help Me Apply/Company Profiles/Mentoring/Learning Hub/Events/Howdy (with a new `howdy:open` prefill event), nav wiring in `SiteHeader.tsx` + `GlobalMobileMenu.tsx`.
+- **Round 2**: clarified the track-symbol tooltip, added a "how it works" intro banner, fixed missing stage-advance controls on cards, added a date-driven "Needs your attention" panel.
+- **Round 3**: fixed Help Me Apply deep-link to carry real job context, added a 4-tier company-link fallback (`getCompanyProfilePath` → new `getCompanyUrlFromWhoData()` in `all-companies.ts` → `getCompanyExternalUrl` → Google search), added company logos to cards, fixed the Learning Hub tab-anchor link.
+- **Round 4 (this session's main work)**: extended the schema so the tracker covers more than live postings —
+  - `opportunity_type` ('job'/'company') + nullable `title` on `job_tracker_items`, so users can track speculative interest in a company with no posting yet.
+  - New `job_tracker_actions` table — multiple time-based to-dos per opportunity, replacing the old single `next_action`/`follow_up_date` pair (columns left in place, unused, harmless).
+  - New `job_tracker_contacts` table — people to approach for advice, independently optional-scoped to an opportunity, a company, or fully standalone (covers "key contacts at each company" and "people I want to approach who don't work for a specific org with a job").
+  - Rewrote `useJobTracker.ts` and `JobTracker.tsx` in full: Board/Contacts tabs, per-opportunity actions list (add/complete/remove), Key Contacts section in the edit dialog, global Contacts tab with linked-opportunity jump button, contact-count badge on cards, company-type card rendering.
+  - Verified end-to-end via the QA-bypass-then-revert pattern (mock data covering every edge case), `npm run typecheck` clean throughout.
+
+### Commits
+`b19e2ef` (round 4, this session's final commit) plus several earlier commits from rounds 1–3 of this same session (`32b12f2`, `640c415`, `60ecc5b`, `e92d0c8`) — all pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Job Tracker is fully live end-to-end: board + contacts UI, migration applied live via the Supabase Management API, `types.ts` regenerated and committed.
+
+### Left for next session
+- No outstanding bugs known. Possible nice-to-haves not requested yet: bulk-import from `saved_jobs`/`targetCompanies` into the tracker, reminders/notifications for due actions (currently surfaced only in-app via the "Needs your attention" panel, no email/push).
+- Note for whoever picks this up: Andrew is on the `main` branch (not `andrew` as CLAUDE.md's People section describes) — check `git log` author/timestamps rather than assuming branch-based separation.
+
+---
+
 ## 2026-08-21 (later) — Andrew (main branch) — All 20 Premier League clubs added to Football + new Teamtailor scraper
 
 ### What was done THIS SESSION
