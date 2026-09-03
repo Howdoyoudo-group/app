@@ -5,6 +5,37 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 (final) — Andrew (main branch) — Composite curiosity score for employer Talent Pool
+
+### What was done THIS SESSION
+Andrew asked what user engagement data we track and whether we could build a composite "curiosity score" so employers can target genuinely curious candidates in the match score, rather than everyone showing up equally "engaged." Ran this through Plan Mode (2 parallel Explore agents auditing engagement-tracking tables and the existing employer-facing match-score logic, then a Plan agent to design the algorithm).
+
+**Audit findings** (answered directly first, per Andrew choosing "audit first, then decide"):
+- Watches and reads are **not tracked at all** — no video/article view events, only saves.
+- "Applies" has **no ground truth** — only self-reported Job Tracker status.
+- Follows are current-state only, no history.
+- Saves (jobs), course/badge completions, and page-view-grade interactions ARE tracked with `user_id` + timestamp.
+- **Found and fixed a real, confirmed-live bug**: `user_interactions`' CHECK constraint only allowed 4 of the 10 interaction types the app actually logs (`save_company`, `save_role`, `save_industry`, `marketplace_search`, `career_map_role_link`, `career_map_ncs_link` were silently failing every insert since added — the error is deliberately swallowed in `trackInteraction()`). Confirmed via a live query returning zero rows for any of the six before the fix. This also means the existing `brand_interactions`/`industry_interactions` counts already shown to employers have been undercounting the whole time.
+- There was already a half-built prototype of this exact idea: `useBehavioralAffinity()` in `useTrackInteraction.ts` — weighted, recency-decayed, but ephemeral (recomputed client-side per page load, never persisted, never shown to employers).
+
+**Built:**
+- Widened the CHECK constraint (Phase 0 fix).
+- New `profiles.curiosity_score` (0-100 **percentile rank**, not a fixed-weight cap — self-calibrating as the user base grows, and directly matches Andrew's own framing of "a cohort that stands out from the crowd") + `curiosity_score_raw`/`curiosity_breadth`, computed daily by a new `compute-curiosity-scores` edge function from 5 recency-decayed signal categories (interaction log, job saves/likes, Job Tracker pipeline depth weighted by status, feed saves, course/badge completions), each capped so no single category dominates.
+- Deployed the function, backfilled all 74 existing profiles (Andrew's own account scored highest — 100th percentile — which checks out given all the Job Tracker activity from earlier today), scheduled a 4am daily cron.
+- Folded into `EmployerDashboard.tsx`'s `computeMatch()` (up to +18 pts, previously 100% static-profile-completeness and never read the engagement counts sitting right next to it) and surfaced as a distinct yellow "% curious" badge, separate from the existing green `fit_score` badge.
+- **Along the way, found a second smaller issue** (documented in `CLAUDE.md` item 7, not yet investigated): `score-new-jobs-morning`'s stored cron Authorization header doesn't match the current `HDYD_SERVICE_JWT` — surfaced while testing the new function's own auth check via the same "extract header from an existing cron, reuse server-side" technique used for `industry-health-monitor-6h` (which worked). Not confirmed as an actual failure yet — needs its own investigation.
+
+### Commits
+`c751f2c` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Live end-to-end: migrations applied, edge function deployed and cron-scheduled, all profiles backfilled, `EmployerDashboard.tsx` verified via the QA-bypass pattern (couldn't test with real employer credentials — none available this session).
+
+### Left for next session
+- Investigate the `score-new-jobs-morning` cron auth mismatch noted above (CLAUDE.md item 7) — confirm via `net._http_response` whether it's actually failing before doing anything about it.
+- Consider whether to eventually close the reads/watches/event-attendance tracking gap (explicitly deferred this pass) — would let the curiosity score capture genuinely curious "readers"/"watchers" who don't currently register at all.
+- No other outstanding bugs known from today's session.
+
 ## 2026-09-03 (last) — Andrew (main branch) — Job Tracker: clickable contact info
 
 ### What was done THIS SESSION
