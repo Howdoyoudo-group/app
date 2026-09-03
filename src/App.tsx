@@ -48,9 +48,11 @@ const Jobs = lazy(() => import("./pages/Jobs.tsx"));
 const Coffee = lazy(() => import("./pages/Coffee.tsx"));
 const Cinema = lazy(() => import("./pages/Cinema.tsx"));
 const Music = lazy(() => import("./pages/Music.tsx"));
+const MusicBadge = lazy(() => import("./pages/MusicBadge.tsx"));
 const Books = lazy(() => import("./pages/Books.tsx"));
 const Grocery = lazy(() => import("./pages/Grocery.tsx"));
 const Fashion = lazy(() => import("./pages/Fashion.tsx"));
+const FashionBadge = lazy(() => import("./pages/FashionBadge.tsx"));
 const Hospitality = lazy(() => import("./pages/Hospitality.tsx"));
 const Football = lazy(() => import("./pages/Football.tsx"));
 const FootballBadge = lazy(() => import("./pages/FootballBadge.tsx"));
@@ -67,6 +69,7 @@ const Wellness = lazy(() => import("./pages/Wellness.tsx"));
 const Gaming = lazy(() => import("./pages/Gaming.tsx"));
 const Influencing = lazy(() => import("./pages/Influencing.tsx"));
 const Journalism = lazy(() => import("./pages/Journalism.tsx"));
+const JournalismBadge = lazy(() => import("./pages/JournalismBadge.tsx"));
 const Jewellery = lazy(() => import("./pages/Jewellery.tsx"));
 const Pets = lazy(() => import("./pages/Pets.tsx"));
 const Travel = lazy(() => import("./pages/Travel.tsx"));
@@ -287,9 +290,11 @@ const App = () => (
           <Route path="/coffee" element={<Coffee />} />
           <Route path="/cinema" element={<Cinema />} />
           <Route path="/music" element={<Music />} />
+          <Route path="/music/badge" element={<MusicBadge />} />
           <Route path="/books" element={<Books />} />
           <Route path="/grocery" element={<Grocery />} />
           <Route path="/fashion" element={<Fashion />} />
+          <Route path="/fashion/badge" element={<FashionBadge />} />
           <Route path="/hospitality" element={<Hospitality />} />
           <Route path="/football" element={<Football />} />
           <Route path="/football/badge" element={<FootballBadge />} />
@@ -306,6 +311,7 @@ const App = () => (
           <Route path="/gaming" element={<Gaming />} />
           <Route path="/influencing" element={<Influencing />} />
           <Route path="/journalism" element={<Journalism />} />
+          <Route path="/journalism/badge" element={<JournalismBadge />} />
           <Route path="/jewellery" element={<Jewellery />} />
           <Route path="/pets" element={<Pets />} />
           <Route path="/travel" element={<Travel />} />

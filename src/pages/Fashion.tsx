@@ -102,6 +102,12 @@ const Fashion = () => {
     { id: "attend", label: "Attend", content: <EventsSection industry="Fashion" searchQuery="fashion industry" /> },
     { id: "learn", label: "Learn", content: (
         <>
+          <Link to="/fashion/badge" className="block border-2 border-foreground bg-primary/10 p-6 mb-8 hover:bg-primary/20 transition-colors">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary mb-2">New · Earn your badge</p>
+            <h2 className="font-display text-2xl md:text-3xl mb-2">Fashion Fundamentals<span className="text-primary">.</span></h2>
+            <p className="text-sm text-muted-foreground mb-3">Four short lessons + a quiz. About 15 minutes. Earn the badge and show employers on Howdy that you know the industry.</p>
+            <span className="inline-flex items-center gap-2 font-display text-sm uppercase tracking-wide text-primary">Start learning →</span>
+          </Link>
           <TheDownload industry="Fashion" slug="fashion" />
           <CoursesSection industry="fashion" />
         </>

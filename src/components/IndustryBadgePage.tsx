@@ -147,7 +147,7 @@ const IndustryBadgePage = ({ industry, industryDisplayName, parentHref }: Indust
 
   if (lessons.length === 0) {
     return (
-      <div className="min-h-screen px-6 py-12 max-w-2xl mx-auto">
+      <div className="min-h-screen bg-white px-6 py-12 max-w-2xl mx-auto" style={{ backgroundImage: "none" }}>
         <SEO title={`${industryDisplayName} Fundamentals — Coming soon`} description={`Earn your ${industryDisplayName} Fundamentals badge on Howdy.`} />
         <Link to={parentHref} className="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-wider mb-6">
           <ArrowLeft className="h-4 w-4" /> Back to {industryDisplayName}
@@ -159,7 +159,7 @@ const IndustryBadgePage = ({ industry, industryDisplayName, parentHref }: Indust
   }
 
   return (
-    <div className="min-h-screen px-4 sm:px-6 py-8 max-w-3xl mx-auto">
+    <div className="min-h-screen bg-white px-4 sm:px-6 py-8 max-w-3xl mx-auto" style={{ backgroundImage: "none" }}>
       <SEO
         title={`${industryDisplayName} Fundamentals badge — Howdy`}
         description={`Learn the ${industryDisplayName} industry in 15 minutes and earn the Fundamentals badge to show employers you're serious.`}
