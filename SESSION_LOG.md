@@ -5,6 +5,24 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 (really truly final) — Andrew (main branch) — Howdy still claimed no job access (round 2)
+
+### What was done THIS SESSION
+Andrew tried Howdy again after the earlier fix and got the exact same class of failure, verbatim: *"I'm an AI and I don't have direct access to real-time job listings on the site."* Traced it further — the earlier fix (`buildRoutingDirective`'s job-intent rider) only reinforces the search_jobs rule when the query ALSO strongly matches a specific Howdy page (e.g. "football jobs" → `/football`). A generic request with no industry/company keyword - "can you check for jobs", "any job listings" - scores nothing in the site index, so `buildRoutingDirective` returns `null` and injects nothing at all. The model was left relying solely on the `AGENT_INSTRUCTIONS` bullet buried deep in a long system prompt, which evidently isn't reliable enough alone.
+
+Added `buildJobIntentDirective()` (`supabase/functions/_shared/site-map.ts`) - a second, unconditional check that fires independently of any page match whenever the message contains job-search language, injecting its own forceful system message before the model's turn. Verified directly against the exact previously-broken case ("any job listings" → routing directive `null`, job-intent directive now fires). Deployed to `career-assistant` (and `whatsapp-inbound`, which shares the file but has no `search_jobs` tool so isn't actually affected either way).
+
+Noted for next time if this recurs: Gemini's OpenAI-compatible endpoint likely supports `tool_choice` to *force* a specific tool call rather than relying on prompt persuasion - a stronger hardening step (force `search_jobs` on the first agent-loop round when job-intent is detected) not implemented this pass since the prompt-based fix should cover the reported case; worth reaching for if a third recurrence happens.
+
+### Commits
+`888bf06` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Deployed. Could not test live end-to-end (no login credentials this session, same caveat as the first Howdy fix) - verified the routing/directive logic directly and thoroughly instead. Worth Andrew trying Howdy again to confirm.
+
+### Left for next session
+- If Howdy still claims no job access after this, the `tool_choice` forcing approach above is the next escalation - prompt-based instructions alone may not be 100% reliable with an LLM regardless of how strongly worded.
+
 ## 2026-09-03 (absolute final) — Andrew (main branch) — Gate Howdy AI + admin Site Stats dashboard
 
 ### What was done THIS SESSION
