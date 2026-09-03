@@ -5,6 +5,22 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 (final) — Andrew (main branch) — Public profile share button; nav rename
+
+### What was done THIS SESSION
+Two quick follow-ups on today's earlier work:
+
+- **Share button on `/u/:handle` itself.** Copying the link previously only existed in the owner's My Profile settings (built earlier today) - the public page a visitor actually lands on had no way to share it onward. Added a "Share" button next to the back link, using `navigator.share()` (native OS share sheet) where available, falling back to clipboard copy with a "Copied" confirmation state on desktop. Verified the button renders and calls the right API; the actual clipboard write couldn't be confirmed working in this sandboxed browser session specifically (it throws "Write permission denied" even calling `navigator.clipboard.writeText` directly outside any of my code, confirmed a sandbox limitation not a bug) - should work normally for real users.
+- **Renamed "Edit Profile" → "My Profile"** in both nav locations that had it: the account dropdown (`SiteHeader.tsx`) and the mobile menu (`GlobalMobileMenu.tsx`). Left the separate "Account Settings" mobile-menu entry alone (also points to `/my-profile`, but wasn't the one Andrew named).
+
+### Commits
+`8a692e9` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+All Job Tracker and public-profile work from today (round 4/5 Job Tracker expansion, DnD/collapse/contacts-funnel fixes, actions-visibility fix, closing-date capture, public profile page + settings, and these two follow-ups) is live on `main`. Nothing known outstanding from today's session.
+
+---
+
 ## 2026-09-03 (yet later) — Andrew (main branch) — Job Tracker: closing-date capture
 
 ### What was done THIS SESSION
