@@ -237,7 +237,7 @@ const TrackerCard = ({
           </Select>
         </div>
 
-        {(item.location || item.salary || contactCount > 0 || (actionSummary?.pending ?? 0) > 0) && (
+        {(item.location || item.salary || contactCount > 0 || (actionSummary?.pending ?? 0) > 0 || item.closing_date) && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[11px] text-muted-foreground font-body">
             {item.location && (
               <span className="inline-flex items-center gap-1">
@@ -249,6 +249,20 @@ const TrackerCard = ({
                 <Banknote className="w-3 h-3" /> {item.salary}
               </span>
             )}
+            {item.closing_date && (() => {
+              const daysUntil = Math.round((new Date(item.closing_date as string).getTime() - Date.now()) / 86400000);
+              const urgent = item.status === "wishlist" && daysUntil <= 5;
+              return (
+                <span className={`inline-flex items-center gap-1 ${urgent ? "text-primary font-700" : ""}`}>
+                  {urgent ? <AlertCircle className="w-3 h-3" /> : <Calendar className="w-3 h-3" />}
+                  {daysUntil < 0
+                    ? `Closed ${Math.abs(daysUntil)}d ago`
+                    : daysUntil === 0
+                      ? "Closes today"
+                      : `Closes in ${daysUntil}d`}
+                </span>
+              );
+            })()}
             {contactCount > 0 && (
               <span className="inline-flex items-center gap-1">
                 <Users className="w-3 h-3" /> {contactCount} contact{contactCount === 1 ? "" : "s"}
@@ -502,6 +516,7 @@ const emptyDraft = {
   industry: "",
   status: "wishlist" as TrackerStatus,
   notes: "",
+  closingDate: "",
 };
 
 const emptyContactDraft = {
@@ -679,6 +694,35 @@ export default function JobTracker() {
       }));
   }, [items, actions]);
 
+  // Closing dates matter more than a generic nudge - once missed, the
+  // opportunity is gone for good - so this gets a wider window than the
+  // 2-day one used for regular actions, and only fires while still
+  // wishlist (i.e. not applied yet - once applied there's nothing left to
+  // "close" on).
+  const CLOSING_DATE_ATTENTION_DAYS = 5;
+  const closingDateRows = useMemo(() => {
+    const now = Date.now();
+    const dayMs = 86400000;
+    return items
+      .filter((i) => i.status === "wishlist" && !!i.closing_date)
+      .map((i) => ({
+        item: i,
+        daysUntil: Math.round((new Date(i.closing_date as string).getTime() - now) / dayMs),
+      }))
+      .filter((x) => x.daysUntil <= CLOSING_DATE_ATTENTION_DAYS)
+      .sort((a, b) => a.daysUntil - b.daysUntil)
+      .map((x) => ({
+        item: x.item,
+        label: "Applications close",
+        reason:
+          x.daysUntil < 0
+            ? `Closed ${Math.abs(x.daysUntil)}d ago`
+            : x.daysUntil === 0
+              ? "Closes today"
+              : `Closes in ${x.daysUntil}d`,
+      }));
+  }, [items]);
+
   const staleItems = useMemo(() => {
     const now = Date.now();
     const dayMs = 86400000;
@@ -697,7 +741,7 @@ export default function JobTracker() {
       .map((x) => ({ item: x.item, label: x.label, reason: `No activity in ${x.daysSince}d` }));
   }, [items, actions]);
 
-  const attentionRows = [...dueActions, ...staleItems];
+  const attentionRows = [...closingDateRows, ...dueActions, ...staleItems];
 
   const findContainer = (id: string): TrackerStatus | undefined => {
     if (TRACKER_STATUSES.some((s) => s.value === id)) return id as TrackerStatus;
@@ -782,6 +826,7 @@ export default function JobTracker() {
       industry: item.industry ?? "",
       status: item.status,
       notes: item.notes ?? "",
+      closingDate: item.closing_date ?? "",
     });
     setNewActionText("");
     setNewActionDate("");
@@ -804,6 +849,7 @@ export default function JobTracker() {
         notes: draft.notes.trim() || null,
         location: draft.location.trim() || null,
         salary: draft.salary.trim() || null,
+        closing_date: draft.closingDate || null,
       });
     } else {
       const payload: NewTrackerItem = {
@@ -815,6 +861,7 @@ export default function JobTracker() {
         salary: draft.salary.trim() || null,
         industry: draft.industry || null,
         status: draft.status,
+        closing_date: draft.closingDate || null,
       };
       await addItem(payload);
     }
@@ -1400,6 +1447,22 @@ export default function JobTracker() {
                 </div>
               )}
             </div>
+
+            {draft.opportunity_type === "job" && (
+              <div className="space-y-1">
+                <Label htmlFor="jt-closing-date">Applications close</Label>
+                <Input
+                  id="jt-closing-date"
+                  type="date"
+                  value={draft.closingDate}
+                  onChange={(e) => setDraft((d) => ({ ...d, closingDate: e.target.value }))}
+                />
+                <p className="text-xs text-muted-foreground">
+                  If the listing shows a closing date, add it here - it'll surface under "Needs your
+                  attention" if you haven't applied yet.
+                </p>
+              </div>
+            )}
 
             {draft.id && (
               <>

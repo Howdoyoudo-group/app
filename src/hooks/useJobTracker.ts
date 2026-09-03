@@ -35,6 +35,7 @@ export interface TrackerItem {
   notes: string | null;
   next_action: string | null;
   follow_up_date: string | null;
+  closing_date: string | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -53,6 +54,7 @@ export type NewTrackerItem = {
   notes?: string | null;
   next_action?: string | null;
   follow_up_date?: string | null;
+  closing_date?: string | null;
 };
 
 export interface TrackerAction {
@@ -165,6 +167,7 @@ export function useJobTracker() {
           notes: item.notes ?? null,
           next_action: item.next_action ?? null,
           follow_up_date: item.follow_up_date ?? null,
+          closing_date: item.closing_date ?? null,
         })
         .select("*")
         .single();
@@ -194,7 +197,7 @@ export function useJobTracker() {
   const updateItem = useCallback(
     async (
       id: string,
-      patch: Partial<Pick<TrackerItem, "title" | "opportunity_type" | "notes" | "next_action" | "follow_up_date" | "salary" | "location">>
+      patch: Partial<Pick<TrackerItem, "title" | "opportunity_type" | "notes" | "next_action" | "follow_up_date" | "closing_date" | "salary" | "location">>
     ) => {
       if (!user) return;
       const withTimestamp = { ...patch, updated_at: new Date().toISOString() };
