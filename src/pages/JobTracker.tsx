@@ -43,6 +43,21 @@ const openHowdy = (prefill: string) => {
   window.dispatchEvent(new CustomEvent("howdy:open", { detail: { prefill } }));
 };
 
+/** Contact info is free text ("Email, LinkedIn URL, phone…"), so this
+ * detects which kind it is and builds the right clickable href - a LinkedIn
+ * URL/domain opens in a new tab, an email opens the user's mail client, a
+ * phone number dials. Plain text (e.g. "ask Jane in reception") stays
+ * unclickable rather than turning into a broken link. */
+const contactInfoHref = (value: string): string | null => {
+  const v = value.trim();
+  if (!v) return null;
+  if (/^https?:\/\//i.test(v)) return v;
+  if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) return `mailto:${v}`;
+  if (/^[+()\d][\d\s()-]{5,}\d$/.test(v)) return `tel:${v.replace(/[^\d+]/g, "")}`;
+  if (/^[a-z0-9-]+(\.[a-z0-9-]+)+(\/\S*)?$/i.test(v)) return `https://${v}`;
+  return null;
+};
+
 /** `/help-me-apply` reads these to prefill, so the chip actually references
  * the tracked job instead of dropping the user on a blank form. */
 const helpMeApplyLink = (item: TrackerItem) => {
@@ -437,9 +452,22 @@ const ContactCard = ({
     {contact.relationship && (
       <p className="mt-2 text-[11px] font-body text-foreground/70">{contact.relationship}</p>
     )}
-    {contact.contact_info && (
-      <p className="mt-1 text-[11px] font-body text-primary">{contact.contact_info}</p>
-    )}
+    {contact.contact_info && (() => {
+      const href = contactInfoHref(contact.contact_info);
+      return href ? (
+        <a
+          href={href}
+          target={href.startsWith("http") ? "_blank" : undefined}
+          rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+          onClick={(e) => e.stopPropagation()}
+          className="mt-1 block text-[11px] font-body text-primary hover:underline truncate"
+        >
+          {contact.contact_info}
+        </a>
+      ) : (
+        <p className="mt-1 text-[11px] font-body text-primary">{contact.contact_info}</p>
+      );
+    })()}
     {contact.notes && (
       <p className="mt-1.5 text-[11px] font-body text-muted-foreground border-l-2 border-primary/40 pl-2">{contact.notes}</p>
     )}
