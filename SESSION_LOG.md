@@ -5,6 +5,16 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 (last) — Andrew (main branch) — Job Tracker: clickable contact info
+
+### What was done THIS SESSION
+Andrew asked for a contact's LinkedIn link in Job Tracker's Contacts tab to be clickable - it was rendered in link-coloured text but wasn't an actual link. `contact_info` is a single free-text field ("Email, LinkedIn URL, phone…"), so added a small detector (`contactInfoHref` in `JobTracker.tsx`) that classifies the value and builds the right href: a full URL or bare domain (e.g. `linkedin.com/in/x`) opens in a new tab, an email becomes `mailto:`, a phone number becomes `tel:`. Plain text (e.g. "ask Jane in reception") is deliberately left as non-clickable text rather than becoming a broken link. Verified all four cases render correctly (checked actual `href`/`target` via JS, not just visual styling) and that plain text stays a `<p>`, not an `<a>`. `npm run typecheck` clean.
+
+### Commits
+`9845374` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+---
+
 ## 2026-09-03 (final) — Andrew (main branch) — Public profile share button; nav rename
 
 ### What was done THIS SESSION
