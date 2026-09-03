@@ -5,6 +5,26 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 (even later) — Andrew (main branch) — Fundamentals badge for Music/Journalism/Fashion + quiz background fix
+
+### What was done THIS SESSION
+Andrew asked to "copy the football passport and badge" onto Music, Journalism and Fashion, plus reported the football quiz was hard to see because of a background problem.
+
+Investigated first (Explore agent) rather than assuming: the "badge" is the existing `IndustryBadgePage` component (`src/components/IndustryBadgePage.tsx`) - a 4-lesson + 15-question quiz that awards a "Fundamentals" badge, currently only wired up for Football (`/football/badge`). It was already fully generic and data-driven (content lives in `badge_lessons`/`badge_questions` keyed by `industry`, populated by the existing admin-only `generate-badge-content` edge function) - no component code needed duplicating, just plumbing. The generic "Career passport" button (`/skills-passport`) already exists on every industry page and wasn't part of this - "passport and badge" together just meant the Football-only Fundamentals badge.
+
+Added `MusicBadge.tsx`, `JournalismBadge.tsx`, `FashionBadge.tsx` (7-line wrappers, same shape as `FootballBadge.tsx`), registered `/music/badge`, `/journalism/badge`, `/fashion/badge` in `App.tsx`, and added the same "New · Earn your badge" CTA card to each industry's Learn tab. Verified the CTA renders and navigates correctly on Music via the dev server. Also added "(Re)generate ... badge" buttons for the three new industries on `/admin/industry-health` (previously only Football had one) - confirmed via direct DB query that all three already have well over the minimum source content (briefings/articles/career_profiles/videos) the generator needs, so it should succeed once clicked, but didn't trigger it myself since it's an admin-gated, AI-cost-incurring action tied to a real account - **someone needs to click "(Re)generate" for Music, Journalism and Fashion on that page before those three badges show real lessons/quiz instead of "being prepared."**
+
+Found and fixed the actual cause of the football "can't see the quiz" report: `IndustryBadgePage.tsx`'s root container had no background class, so the site's tiled fixed body doodle pattern (`body` in `index.css`) showed straight through the whole page, badly hurting contrast around the quiz CTA and lesson list - not a same-tab overlap or anything quiz-specific. Added `bg-white` + `backgroundImage: none` to both the loaded and empty-state root containers, matching the same pattern already used on `SkillCoursePage.tsx`. This fix applies automatically to all four industries (Football included), not just the three new ones.
+
+### Commits
+`b6974d4` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Routes, wrapper pages, Learn-tab CTAs and the background fix are all live. Music/Journalism/Fashion badge pages currently show "The badge for this industry is being prepared" until content is generated.
+
+### Left for next session
+**Action needed from Andrew or Woody**: visit `/admin/industry-health` and click "(Re)generate Music badge" / "(Re)generate Journalism badge" / "(Re)generate Fashion badge" (one-off, a few seconds each) to populate real lessons + quiz questions for those three industries.
+
 ## 2026-09-03 (later) — Andrew (main branch) — Employer Spotlight video tile: desktop sizing + badge overlap
 
 ### What was done THIS SESSION
