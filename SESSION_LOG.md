@@ -19,15 +19,21 @@ Built and shipped a brand-new Job Tracker feature (`/job-tracker`) across five r
   - New `job_tracker_contacts` table — people to approach for advice, independently optional-scoped to an opportunity, a company, or fully standalone (covers "key contacts at each company" and "people I want to approach who don't work for a specific org with a job").
   - Rewrote `useJobTracker.ts` and `JobTracker.tsx` in full: Board/Contacts tabs, per-opportunity actions list (add/complete/remove), Key Contacts section in the edit dialog, global Contacts tab with linked-opportunity jump button, contact-count badge on cards, company-type card rendering.
   - Verified end-to-end via the QA-bypass-then-revert pattern (mock data covering every edge case), `npm run typecheck` clean throughout.
+- **Round 5**: real bug fixes + two more feature requests, found via a live QA-bypass session against real production data (queried `job_tracker_items` directly to see what was actually stored):
+  - **Bug**: Brighton & Man City company links fell back to "Search company" even though both are in the Who-tab data — the DB stores raw listing names like "Brighton & Hove Albion Football Club" / "Manchester City Women", which didn't exact-match the curated "Brighton & Hove Albion" / "Manchester City". `getCompanyUrlFromWhoData()` in `all-companies.ts` now normalizes (strips legal suffixes, `&`→`and`) and falls back to a longest-leading-phrase match, so real-world variants resolve correctly instead of dropping to a Google search.
+  - **Bug**: desktop drag-and-drop did nothing, confirmed live — a plain HTML `id` on a column `<div>` isn't a real dnd-kit droppable (so empty columns, and the gap below the last card, never resolved a drop target), and the old code also mutated status live inside `onDragOver`, which raced with `onDragEnd`'s own logic and silently reverted the move. Columns now use `useDroppable`; the status change is resolved once, on drop.
+  - **Feature**: cards can now be collapsed — a per-card chevron, plus a "Collapse all / Expand all" toggle in the header (remembered via localStorage) — so a busy column shows far more opportunities without scrolling.
+  - **Feature**: Contacts got their own drag-to-advance funnel mirroring the job board's kanban interaction, with stages relabeled **Contact → Contacted → Spoken → Met** (DB enum values unchanged, label-only rename) instead of the old Not contacted/Messaged/Responded/Met.
+  - Answered a separate question (not a build): HDYD has no public shareable profile URL like LinkedIn today — the closest is the downloadable/printable "magazine" profile export on My Profile (`PrintableProfileGenerator`/`ExportProfileDialog`). Flagged as a possible future feature, not built.
 
 ### Commits
-`b19e2ef` (round 4, this session's final commit) plus several earlier commits from rounds 1–3 of this same session (`32b12f2`, `640c415`, `60ecc5b`, `e92d0c8`) — all pushed to both remotes (`howdoyoudo` + `origin`) ✅
+`b19e2ef` (round 4) then `4e661c2` (round 5) — plus several earlier commits from rounds 1–3 of this same session (`32b12f2`, `640c415`, `60ecc5b`, `e92d0c8`) — all pushed to both remotes (`howdoyoudo` + `origin`) ✅
 
 ### Current state
-Job Tracker is fully live end-to-end: board + contacts UI, migration applied live via the Supabase Management API, `types.ts` regenerated and committed.
+Job Tracker is fully live end-to-end: board + contacts UI (both now with working drag-and-drop), migration applied live via the Supabase Management API, `types.ts` regenerated and committed. Company-link resolution and card density were real live bugs, now fixed and verified against a browser QA-bypass session, not just typecheck.
 
 ### Left for next session
-- No outstanding bugs known. Possible nice-to-haves not requested yet: bulk-import from `saved_jobs`/`targetCompanies` into the tracker, reminders/notifications for due actions (currently surfaced only in-app via the "Needs your attention" panel, no email/push).
+- No outstanding bugs known. Possible nice-to-haves not requested yet: bulk-import from `saved_jobs`/`targetCompanies` into the tracker, reminders/notifications for due actions (currently surfaced only in-app via the "Needs your attention" panel, no email/push), a public shareable profile page (see round 5 note above — Andrew asked, nothing built yet).
 - Note for whoever picks this up: Andrew is on the `main` branch (not `andrew` as CLAUDE.md's People section describes) — check `git log` author/timestamps rather than assuming branch-based separation.
 
 ---
