@@ -5,6 +5,19 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 (even later) — Andrew (main branch) — Job Tracker: fix invisible actions
+
+### What was done THIS SESSION
+Andrew reported no actions showing for any of his tracked jobs. Checked the live DB directly - `job_tracker_actions` had exactly 1 row, correctly tied to his EFL "Commercial Manager" card (`user_id`/`tracker_item_id` both correct) - so the save path worked. The real bug: **no card on the board showed any indicator that an action existed at all**. An action only ever became visible inside that job's edit dialog, or in the "Needs your attention" panel once within 2 days of its due date - his one action was due 4 days out, so it was invisible everywhere. Fixed by adding a pending-action count badge to each card (mirroring the existing contact-count badge), highlighted when something's due within 2 days. Also fixed a related bug found in the same spot: the info row (location/salary/contacts) was hidden entirely on cards with neither location nor salary set, which silently suppressed the contact count too on those cards. Verified via the QA-bypass pattern using his real card/action IDs from the DB (one action 4 days out rendering plain, one 1 day out rendering highlighted, matching "Needs your attention"); `npm run typecheck` clean.
+
+### Commits
+`f49aac4` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Andrew's existing EFL action should now be visible on that card as "1 action" without needing to open the edit dialog. No DB/migration changes - this was a pure rendering fix.
+
+---
+
 ## 2026-09-03 (later) — Andrew (main branch) — Public shareable profile page (`/u/:handle`)
 
 ### What was done THIS SESSION
