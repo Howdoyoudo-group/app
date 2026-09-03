@@ -5,6 +5,26 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 (truly final) — Andrew (main branch) — Fix Howdy claiming "no access to jobs"
+
+### What was done THIS SESSION
+Andrew reported Howdy told him she didn't have access to jobs when he asked about football jobs. Investigated (an Explore agent first, then verified everything directly) and found two compounding bugs in `supabase/functions/_shared/site-map.ts`, the shared routing logic used by both web Howdy (`career-assistant`) and WhatsApp Howdy (`whatsapp-inbound`):
+
+1. **`searchSiteIndexScored()` matched query tokens as plain substrings**, not whole words. The word "any" is a literal substring of "company" — so "are there any football jobs?" scored `/starting-a-business` (which lists "limited company" as a keyword, plus carries a flat +100 priority boost) *above* `/football`. Confirmed live with a standalone Node/tsx test against the real exported function (no Deno dependencies in this file, so it runs directly under Node) — "any football jobs" routed to Starting a Business before the fix, `/football` after. Fixed with whole-word (`\b`-bounded) matching, which still correctly matches inside hyphenated slugs like `interior-design`.
+2. **Even when routing correctly, the directive text was self-defeating**: `buildRoutingDirective()` tells the model "override anything in your general prompt that conflicts," which was suppressing the separate `AGENT_INSTRUCTIONS` rule to call the `search_jobs` tool — so Howdy would link the industry page and skip actually searching, sometimes phrasing that as not having access to job listings. Added job-search-intent detection to the directive so it now explicitly carves out an exception: link the page AND still call `search_jobs`.
+
+Verified the `search_jobs` tool's actual SQL query works fine against live data (curled the real endpoint, got back 3 real football jobs) — this was never a missing-data or broken-query problem, purely a routing/prompt-conflict one. Confirmed via direct tests that legitimate non-job routing (e.g. "how do I start a business") still works correctly - the fix didn't break the feature it was patching.
+
+### Commits
+`c275c7a` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Deployed to both `career-assistant` and `whatsapp-inbound`. Couldn't do a full live chat test (no login credentials this session) but the underlying routing logic was verified directly and thoroughly before/after for the exact failing case plus several adjacent phrasings.
+
+### Left for next session
+- Worth Andrew re-asking Howdy about football jobs for a real end-to-end confirmation.
+- The word-boundary fix to `searchSiteIndexScored()` is a general correctness fix that could affect routing for other queries beyond football/"any" - nothing else was flagged as broken in testing, but if anyone notices a Howdy page-link recommendation looking off going forward, this is the function to check first.
+
 ## 2026-09-03 (final) — Andrew (main branch) — Composite curiosity score for employer Talent Pool
 
 ### What was done THIS SESSION
