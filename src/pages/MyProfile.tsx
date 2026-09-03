@@ -13,6 +13,7 @@ import {
   Pin, PinOff, Share2, Download, Printer, Phone, Home, Star,
 } from "lucide-react";
 import { INDUSTRIES as CANONICAL_INDUSTRIES } from "@/data/industries";
+import { SECTION_KEYS } from "@/lib/profileSections";
 import PrintableProfileGenerator from "@/components/profile/PrintableProfileGenerator";
 import LovesGallery, { LovePhoto } from "@/components/profile/LovesGallery";
 import FamilyPetsGallery, { FamilyPhoto } from "@/components/profile/FamilyPetsGallery";
@@ -207,6 +208,10 @@ const MyProfile = () => {
   const [rolePreferences, setRolePreferences] = useState<string[]>([]);
   const [employerVisibilityOptIn, setEmployerVisibilityOptIn] = useState(false);
   const [memberDirectoryOptIn, setMemberDirectoryOptIn] = useState(true);
+  const [publicProfileOptIn, setPublicProfileOptIn] = useState(false);
+  const [publicHandle, setPublicHandle] = useState("");
+  const [savedPublicHandle, setSavedPublicHandle] = useState("");
+  const [handleAvailability, setHandleAvailability] = useState<"idle" | "checking" | "available" | "taken" | "invalid">("idle");
   const [acceptMessages, setAcceptMessages] = useState(true);
   const [shareDetailsDefault, setShareDetailsDefault] = useState(false);
   const [mentorOptIn, setMentorOptIn] = useState(false);
@@ -256,26 +261,9 @@ const MyProfile = () => {
   }, [user]);
 
 
-  // Pin/unpin sections to control what shows on the shareable PDF / printable profile
-  const SECTION_LABELS: Record<string, string> = {
-    riasec: "How you're wired (RIASEC)",
-    values: "What you want from work",
-    loves: "Things I'm obsessed with",
-    qa: "Things you don't know about me",
-    family: "Family & pets",
-    skills: "What I love doing",
-    industries: "Industries I follow",
-    story: "Your story",
-    prompts: "In your words",
-    hitlist: "Most wanted",
-    employment: "Where I've worked",
-    education: "Education",
-    qualifications: "Qualifications, Awards, Prizes",
-    video: "Intro video",
-    about: "About you, by us",
-    roles: "Top role matches",
-  };
-  const SECTION_KEYS = Object.keys(SECTION_LABELS);
+  // Pin/unpin sections to control what shows on the public profile page (and
+  // the shareable PDF export). Labels/keys live in src/lib/profileSections.ts
+  // so the public page reads the exact same list.
   const [visibleSections, setVisibleSections] = useState<Record<string, boolean>>(
     Object.fromEntries(SECTION_KEYS.map((k) => [k, true]))
   );
@@ -289,8 +277,8 @@ const MyProfile = () => {
       <button
         type="button"
         onClick={() => togglePin(k)}
-        title={on ? "Pinned - included in your shareable profile. Click to hide." : "Hidden from shareable profile. Click to pin."}
-        aria-label={on ? "Hide section from shareable profile" : "Pin section to shareable profile"}
+        title={on ? "Pinned - visible on your public profile page and any exports. Click to hide." : "Hidden from your public profile page. Click to pin."}
+        aria-label={on ? "Hide section from public profile" : "Pin section to public profile"}
         className={`no-print absolute top-2 right-2 z-10 inline-flex items-center justify-center w-8 h-8 rounded-full border-2 transition-colors ${on ? "bg-primary text-primary-foreground border-primary" : "bg-background text-muted-foreground border-border hover:border-foreground"}`}
       >
         {on ? <Pin className="w-3.5 h-3.5" /> : <PinOff className="w-3.5 h-3.5" />}
@@ -539,6 +527,9 @@ const MyProfile = () => {
         setRolePreferences((data as any).role_preferences || []);
         setEmployerVisibilityOptIn(Boolean((data as any).employer_visibility_opt_in));
         setMemberDirectoryOptIn((data as any).member_directory_opt_in !== false);
+        setPublicProfileOptIn(Boolean((data as any).public_profile_opt_in));
+        setPublicHandle((data as any).public_handle || "");
+        setSavedPublicHandle((data as any).public_handle || "");
         setAcceptMessages((data as any).accept_messages !== false);
         setShareDetailsDefault(Boolean((data as any).share_details_default));
         setMentorOptIn(Boolean((data as any).mentor_opt_in));
@@ -677,6 +668,16 @@ const MyProfile = () => {
 
   const handleSave = async () => {
     if (!user) return;
+    if (publicProfileOptIn) {
+      if (!publicHandle.trim()) {
+        toast.error("Pick a handle for your public profile first.");
+        return;
+      }
+      if (!/^[a-z][a-z0-9-]{2,29}$/.test(publicHandle.trim())) {
+        toast.error("Handles must be 3-30 characters: lowercase letters, numbers and hyphens, starting with a letter.");
+        return;
+      }
+    }
     setSaving(true);
     const { data: existing } = await supabase
       .from("profiles")
@@ -734,6 +735,8 @@ const MyProfile = () => {
         role_preferences: rolePreferences,
         employer_visibility_opt_in: employerVisibilityOptIn,
         member_directory_opt_in: memberDirectoryOptIn,
+        public_profile_opt_in: publicProfileOptIn,
+        public_handle: publicHandle.trim() ? publicHandle.trim().toLowerCase() : null,
         accept_messages: acceptMessages,
         share_details_default: shareDetailsDefault,
         mentor_opt_in: mentorOptIn,
@@ -756,10 +759,64 @@ const MyProfile = () => {
     }
 
     setSaving(false);
-    if (error) toast.error("Failed to save profile.");
-    else {
+    if (error) {
+      if (error.message?.includes("profiles_public_handle_unique_idx")) {
+        toast.error("That handle is already taken - try another.");
+      } else {
+        toast.error("Failed to save profile.");
+      }
+    } else {
       toast.success("Profile saved!");
+      setSavedPublicHandle(publicHandle.trim().toLowerCase());
       setEditMode(false);
+    }
+  };
+
+  const slugifyHandle = (name: string) => {
+    const base = name
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 30)
+      .replace(/-+$/g, "");
+    // Handles must start with a letter - a name starting with a digit (or
+    // one that slugifies to nothing) needs a safe prefix instead.
+    return /^[a-z]/.test(base) && base.length >= 3 ? base : `member-${base}`.slice(0, 30).replace(/-+$/g, "");
+  };
+
+  const handleTogglePublicProfile = (on: boolean) => {
+    setPublicProfileOptIn(on);
+    if (on && !publicHandle.trim()) {
+      setPublicHandle(slugifyHandle(fullName || "member"));
+    }
+  };
+
+  // Debounced availability check as the user edits their handle.
+  useEffect(() => {
+    const candidate = publicHandle.trim().toLowerCase();
+    if (!candidate) { setHandleAvailability("idle"); return; }
+    if (!/^[a-z][a-z0-9-]{2,29}$/.test(candidate)) { setHandleAvailability("invalid"); return; }
+    if (candidate === savedPublicHandle.toLowerCase()) { setHandleAvailability("available"); return; }
+    setHandleAvailability("checking");
+    const timer = setTimeout(async () => {
+      const { data, error } = await supabase.rpc("is_public_handle_available", {
+        _handle: candidate,
+        _exclude_user_id: user?.id,
+      } as never);
+      if (error) { setHandleAvailability("idle"); return; }
+      setHandleAvailability(data ? "available" : "taken");
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [publicHandle, savedPublicHandle, user?.id]);
+
+  const copyPublicProfileLink = async () => {
+    const url = `https://www.howdoyoudo.co.uk/u/${savedPublicHandle}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copied!");
+    } catch {
+      toast.error("Couldn't copy - copy it from the address bar instead.");
     }
   };
 
@@ -1132,6 +1189,75 @@ const MyProfile = () => {
                     </p>
                   </div>
                 </label>
+              </CollapsibleEdit>
+
+              <CollapsibleEdit title="🔗 Public profile">
+                <label className="flex items-start gap-3 cursor-pointer p-4 rounded-2xl border border-border hover:border-primary/50">
+                  <input
+                    type="checkbox"
+                    checked={publicProfileOptIn}
+                    onChange={(e) => handleTogglePublicProfile(e.target.checked)}
+                    className="mt-0.5 w-5 h-5 rounded border-border text-primary focus:ring-2 focus:ring-primary/30"
+                  />
+                  <div className="flex-1">
+                    <p className="font-display font-700 text-sm">Make my profile public</p>
+                    <p className="font-body text-xs text-muted-foreground mt-1">
+                      Get a shareable link anyone can view, like a LinkedIn profile - only the sections you've
+                      pinned below show up. Off by default; your address, phone and other private details are
+                      never included.
+                    </p>
+                  </div>
+                </label>
+
+                {publicProfileOptIn && (
+                  <div className="mt-3 p-4 rounded-2xl border border-border space-y-3">
+                    <div>
+                      <label className="font-display font-700 text-xs uppercase tracking-wide text-muted-foreground">
+                        Your link
+                      </label>
+                      <div className="mt-1.5 flex items-center gap-2">
+                        <span className="font-body text-sm text-muted-foreground shrink-0">howdoyoudo.co.uk/u/</span>
+                        <input
+                          type="text"
+                          value={publicHandle}
+                          onChange={(e) => setPublicHandle(e.target.value.toLowerCase())}
+                          placeholder="your-name"
+                          className="flex-1 min-w-0 border border-border rounded-xl px-3 py-1.5 font-body text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
+                        />
+                      </div>
+                      <p className="mt-1.5 font-body text-xs">
+                        {handleAvailability === "checking" && <span className="text-muted-foreground">Checking availability…</span>}
+                        {handleAvailability === "available" && <span className="text-primary">✓ Available</span>}
+                        {handleAvailability === "taken" && <span className="text-destructive">Already taken - try another.</span>}
+                        {handleAvailability === "invalid" && <span className="text-destructive">3-30 characters: lowercase letters, numbers, hyphens, starting with a letter.</span>}
+                        {handleAvailability === "idle" && <span className="text-muted-foreground">Lowercase letters, numbers and hyphens only.</span>}
+                      </p>
+                    </div>
+
+                    {savedPublicHandle && (
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={copyPublicProfileLink}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border-2 border-foreground font-display font-700 text-xs uppercase tracking-wider hover:bg-foreground hover:text-background transition-colors rounded-xl"
+                        >
+                          <Share2 className="w-3.5 h-3.5" /> Copy link
+                        </button>
+                        <a
+                          href={`/u/${savedPublicHandle}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 border-2 border-border font-display font-700 text-xs uppercase tracking-wider hover:border-foreground transition-colors rounded-xl"
+                        >
+                          <Eye className="w-3.5 h-3.5" /> Preview
+                        </a>
+                      </div>
+                    )}
+                    {publicHandle.trim().toLowerCase() !== savedPublicHandle.toLowerCase() && (
+                      <p className="font-body text-xs text-muted-foreground">Save changes to update your link.</p>
+                    )}
+                  </div>
+                )}
               </CollapsibleEdit>
 
               <CollapsibleEdit title="🤝 Offer mentoring">

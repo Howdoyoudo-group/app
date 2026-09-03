@@ -1759,6 +1759,8 @@ export type Database = {
           photo_url: string | null
           preference_embedded_at: string | null
           preference_embedding: string | null
+          public_handle: string | null
+          public_profile_opt_in: boolean
           riasec_scores: Json | null
           role_preferences: string[] | null
           salary_expectation: string | null
@@ -1800,6 +1802,8 @@ export type Database = {
           photo_url?: string | null
           preference_embedded_at?: string | null
           preference_embedding?: string | null
+          public_handle?: string | null
+          public_profile_opt_in?: boolean
           riasec_scores?: Json | null
           role_preferences?: string[] | null
           salary_expectation?: string | null
@@ -1841,6 +1845,8 @@ export type Database = {
           photo_url?: string | null
           preference_embedded_at?: string | null
           preference_embedding?: string | null
+          public_handle?: string | null
+          public_profile_opt_in?: boolean
           riasec_scores?: Json | null
           role_preferences?: string[] | null
           salary_expectation?: string | null
@@ -2847,6 +2853,24 @@ export type Database = {
           photo_url: string
         }[]
       }
+      get_public_profile: {
+        Args: { _handle: string }
+        Returns: {
+          career_level: string
+          full_name: string
+          home_town: string
+          home_town_blurb: string
+          id: string
+          industry_interests: string[]
+          job_preferences: Json
+          location_preference: string
+          photo_url: string
+          riasec_scores: Json
+          role_preferences: string[]
+          understand_me_results: Json
+          work_values: Json
+        }[]
+      }
       get_replied_candidate_email: {
         Args: { _candidate_id: string }
         Returns: string
@@ -2857,6 +2881,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_public_handle_available: {
+        Args: { _exclude_user_id?: string; _handle: string }
         Returns: boolean
       }
       match_jobs_semantic: {

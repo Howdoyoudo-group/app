@@ -93,6 +93,7 @@ const SkillCoursePage = lazy(() => import("./pages/SkillCoursePage.tsx"));
 const Articles = lazy(() => import("./pages/Articles.tsx"));
 const UsingOurSite = lazy(() => import("./pages/UsingOurSite.tsx"));
 const CareerProfile = lazy(() => import("./pages/CareerProfile.tsx"));
+const PublicProfile = lazy(() => import("./pages/PublicProfile.tsx"));
 const MyProfile = lazy(() => import("./pages/MyProfile.tsx"));
 const BriefingsSample = lazy(() => import("./pages/BriefingsSample.tsx"));
 const MyJobs = lazy(() => import("./pages/MyJobs.tsx"));
@@ -331,6 +332,7 @@ const App = () => (
           <Route path="/articles" element={<Articles />} />
           <Route path="/using-our-site" element={<UsingOurSite />} />
           <Route path="/profile/:id" element={<CareerProfile />} />
+          <Route path="/u/:handle" element={<PublicProfile />} />
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/my-profile-demo" element={<MyProfileDemo />} />
           <Route path="/my-jobs-demo" element={<MyJobsDemo />} />
