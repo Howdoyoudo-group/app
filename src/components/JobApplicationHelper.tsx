@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,6 +16,7 @@ import {
   RefreshCw,
   ChevronLeft,
   Tag,
+  LogIn,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -59,7 +61,7 @@ const JobApplicationHelper = ({
   job: JobForHelper;
   onBack: () => void;
 }) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [result, setResult] = useState<ApplicationHelp | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -134,9 +136,11 @@ const JobApplicationHelper = ({
   };
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) { setLoading(false); return; }
     fetchHelp();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user, authLoading]);
 
   const copyLetter = async () => {
     if (!result?.coverLetter) return;
@@ -186,6 +190,22 @@ const JobApplicationHelper = ({
         </div>
       </div>
 
+      {!authLoading && !user ? (
+        <div className="border border-border p-6 text-center space-y-3">
+          <LogIn className="w-6 h-6 text-primary mx-auto" />
+          <p className="font-display font-700 text-sm text-foreground">Sign in for Howdy's help</p>
+          <p className="font-body text-xs text-muted-foreground">
+            Create a free account so Howdy can tailor your CV tips and cover letter to this job.
+          </p>
+          <Link
+            to="/auth"
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 font-display font-700 text-xs tracking-wider uppercase hover:bg-primary/90 transition-colors"
+          >
+            <LogIn className="w-3.5 h-3.5" /> Sign in
+          </Link>
+        </div>
+      ) : (
+      <>
       {/* Loading state */}
       {loading && (
         <div className="space-y-6">
@@ -332,6 +352,8 @@ const JobApplicationHelper = ({
             </Button>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );

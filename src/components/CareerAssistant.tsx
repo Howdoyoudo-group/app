@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, HelpCircle, Compass, Play } from "lucide-react";
+import { MessageCircle, X, Send, HelpCircle, Compass, Play, LogIn } from "lucide-react";
 import { launchHowdyTour } from "@/components/HowdyTour";
 import { HowdyVoiceButtonWrapped as HowdyVoiceButton } from "@/components/HowdyVoiceButton";
 import howdyMascot from "@/assets/howdy-mascot.png";
@@ -613,33 +613,45 @@ const CareerAssistant = () => {
             </div>
 
             {/* Composer */}
-            <form
-              onSubmit={(e) => { e.preventDefault(); send(); }}
-              className="flex items-end gap-2 border-t-2 border-foreground bg-background px-3 py-2"
-            >
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-                placeholder={user ? "Ask Howdy anything..." : "Sign in to chat with Howdy"}
-                rows={1}
-                className="flex-1 resize-none rounded-xl border-2 border-foreground bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary max-h-32"
-              />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                className="rounded-full bg-foreground text-background p-2 disabled:opacity-40 hover:opacity-90 transition-opacity"
-                aria-label="Send"
+            {user ? (
+              <form
+                onSubmit={(e) => { e.preventDefault(); send(); }}
+                className="flex items-end gap-2 border-t-2 border-foreground bg-background px-3 py-2"
               >
-                <Send className="h-4 w-4" />
-              </button>
-            </form>
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      send();
+                    }
+                  }}
+                  placeholder="Ask Howdy anything..."
+                  rows={1}
+                  className="flex-1 resize-none rounded-xl border-2 border-foreground bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary max-h-32"
+                />
+                <button
+                  type="submit"
+                  disabled={loading || !input.trim()}
+                  className="rounded-full bg-foreground text-background p-2 disabled:opacity-40 hover:opacity-90 transition-opacity"
+                  aria-label="Send"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </form>
+            ) : (
+              <div className="flex items-center justify-between gap-2 border-t-2 border-foreground bg-background px-3 py-2.5">
+                <span className="text-sm text-muted-foreground">Sign in to chat with Howdy</span>
+                <Link
+                  to="/auth"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-1.5 text-xs font-display font-700 uppercase tracking-wider hover:opacity-90 transition-opacity shrink-0"
+                >
+                  <LogIn className="h-3.5 w-3.5" /> Sign in
+                </Link>
+              </div>
+            )}
 
           </motion.div>
         )}

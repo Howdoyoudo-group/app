@@ -2735,6 +2735,15 @@ export type Database = {
     }
     Functions: {
       admin_delete_user: { Args: { _user_id: string }; Returns: undefined }
+      admin_get_engagement_counts: {
+        Args: never
+        Returns: {
+          job_tracker_items: number
+          liked_jobs: number
+          saved_feed_items: number
+          saved_jobs: number
+        }[]
+      }
       admin_list_users: {
         Args: { _limit?: number; _offset?: number; _search?: string }
         Returns: {
