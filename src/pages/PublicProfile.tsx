@@ -9,7 +9,7 @@ import type { FamilyPhoto } from "@/components/profile/FamilyPetsGallery";
 import { SECTION_KEYS, isSectionVisible } from "@/lib/profileSections";
 import {
   Loader2, User, Quote, Sparkles, MapPin, Briefcase, GraduationCap, Award,
-  Video, Heart, Building2, ArrowLeft,
+  Video, Heart, Building2, ArrowLeft, Share2, Check,
 } from "lucide-react";
 
 interface PublicProfileRow {
@@ -40,6 +40,7 @@ export default function PublicProfile() {
   const { handle } = useParams<{ handle: string }>();
   const [profile, setProfile] = useState<PublicProfileRow | null>(null);
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -98,18 +99,47 @@ export default function PublicProfile() {
   const description = profile.career_level
     ? `${displayName} - ${profile.career_level}${profile.home_town ? `, ${profile.home_town}` : ""} - see their profile on How do you do?`
     : `${displayName}'s profile on How do you do?`;
+  const shareUrl = `https://www.howdoyoudo.co.uk/u/${handle}`;
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `${displayName} on How do you do?`, url: shareUrl });
+      } catch {
+        // Cancelled or unsupported mid-call - nothing to do.
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard unavailable - the URL is already visible in the address bar.
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <SEO title={displayName} description={description} path={`/u/${handle}`} />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-16">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-body text-sm mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" /> howdoyoudo.co.uk
-        </Link>
+        <div className="flex items-center justify-between gap-3 mb-6">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors font-body text-sm"
+          >
+            <ArrowLeft className="w-4 h-4" /> howdoyoudo.co.uk
+          </Link>
+          <button
+            type="button"
+            onClick={handleShare}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 border-2 border-foreground font-display font-700 text-xs uppercase tracking-wider rounded-xl hover:bg-foreground hover:text-background transition-colors shrink-0"
+          >
+            {copied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+            {copied ? "Copied" : "Share"}
+          </button>
+        </div>
 
         {/* Header */}
         <div className={`${cardBase} flex flex-col sm:flex-row items-start gap-5 mb-6`}>

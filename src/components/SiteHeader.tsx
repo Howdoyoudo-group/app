@@ -574,7 +574,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
                       onClick={() => setAccountOpen(false)}
                       className="block px-4 py-3 font-display font-900 text-sm uppercase tracking-wide text-foreground hover:bg-primary transition-colors"
                     >
-                      Edit Profile
+                      My Profile
                     </Link>
                     <Link
                       to="/onboarding"

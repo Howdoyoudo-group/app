@@ -137,7 +137,7 @@ const NAV_SECTIONS: NavSection[] = [
 ];
 
 const PROFILE_ITEMS: NavItem[] = [
-  { label: "Edit Profile", to: "/my-profile" },
+  { label: "My Profile", to: "/my-profile" },
   { label: "Take the Quiz", to: "/onboarding" },
   { label: "Account Settings", to: "/my-profile" },
   { label: "Privacy & Terms", to: "/terms" },
