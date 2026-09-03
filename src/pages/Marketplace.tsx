@@ -2747,37 +2747,47 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
       >
         {hasCustomMedia ? (
           <div className="relative">
-            <div
-              className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-0.5 border bg-card/90"
-              style={{ borderColor: "hsl(var(--foreground))" }}
-            >
-              <Sparkles className="w-3 h-3" /> Employer spotlight
-            </div>
             {emp.mediaType === "video" && embed ? (
-              embed.kind === "iframe" ? (
-                <iframe
-                  src={embed.src}
-                  title={`${emp.company} video`}
-                  className="w-full aspect-video border-0 block"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <video
-                  src={embed.src}
-                  controls
-                  muted
-                  loop
-                  playsInline
-                  className="w-full aspect-video object-cover block"
-                />
-              )
+              <>
+                <div
+                  className="flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-1 border-b-2 bg-card"
+                  style={{ borderColor: "hsl(var(--foreground))" }}
+                >
+                  <Sparkles className="w-3 h-3" /> Employer spotlight
+                </div>
+                {embed.kind === "iframe" ? (
+                  <iframe
+                    src={embed.src}
+                    title={`${emp.company} video`}
+                    className="w-full aspect-video md:aspect-auto md:h-56 lg:h-64 border-0 block"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video
+                    src={embed.src}
+                    controls
+                    muted
+                    loop
+                    playsInline
+                    className="w-full aspect-video md:aspect-auto md:h-56 lg:h-64 object-cover block"
+                  />
+                )}
+              </>
             ) : (
-              <img
-                src={emp.mediaUrl!}
-                alt={`${emp.company} banner`}
-                className="w-full aspect-[21/9] object-cover block"
-              />
+              <>
+                <div
+                  className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-0.5 border bg-card/90"
+                  style={{ borderColor: "hsl(var(--foreground))" }}
+                >
+                  <Sparkles className="w-3 h-3" /> Employer spotlight
+                </div>
+                <img
+                  src={emp.mediaUrl!}
+                  alt={`${emp.company} banner`}
+                  className="w-full aspect-[21/9] object-cover block"
+                />
+              </>
             )}
           </div>
         ) : (
