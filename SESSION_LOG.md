@@ -5,6 +5,30 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-03 (later) — Andrew (main branch) — Public shareable profile page (`/u/:handle`)
+
+### What was done THIS SESSION
+Andrew asked if HDYD has a LinkedIn-style shareable profile link — it didn't (the closest thing, a "magazine" PDF export, is dead/unreachable code). Scoped this out via Plan Mode (3 parallel Explore agents + a Plan agent), then built it:
+
+- **New columns on `profiles`**: `public_handle` (unique, format-checked `^[a-z][a-z0-9-]{2,29}$`) and `public_profile_opt_in` (defaults **false** — unlike `member_directory_opt_in`'s default-true, since a public indexable URL is materially higher exposure than the internal member directory).
+- **New RPC `get_public_profile(_handle)`**: `SECURITY DEFINER`, explicit `RETURNS TABLE(...)` allowlist, granted to `anon, authenticated` — mirrors the existing `get_public_member_preview()` pattern. `home_address`, `phone`, `whatsapp_number`, `date_of_birth`, `salary_expectation` are **structurally absent** from the return signature — not a client-side hide, a DB-level guarantee no caller can extract them regardless of arguments. Also `is_public_handle_available()` for the handle editor's live availability check.
+- **`visibleSections` gating is now real**: the pin/unpin toggles in `MyProfile.tsx` (`SectionPin`, 16 sections) have existed and persisted to `job_preferences.profileBuilder.visibleSections` for a while but were never consumed by anything — this is the first real consumer. Decided (with reasoning, see the plan file) to filter client-side rather than per-section in SQL, since section keys don't map 1:1 onto jsonb paths and the actual safety boundary (sensitive columns) is already enforced server-side in the RPC signature. Extracted `SECTION_LABELS`/`SECTION_KEYS` out of `MyProfile.tsx` into a new shared `src/lib/profileSections.ts` so both pages read one source of truth.
+- **New page `src/pages/PublicProfile.tsx`**, route `/u/:handle` in `App.tsx` — public, no auth gate (matches the existing `CareerProfile.tsx`/`CompanyProfilePage.tsx` pattern), indexable (`SEO` without `noIndex`) when found, `noIndex` on the not-found state. Own lightweight responsive layout (not the print-oriented `magazine/` components) rendering every pinned section: story, RIASEC, work values, skills, industries, hit list, top role matches, prompts, fun facts, experience, education, qualifications, intro video, loves/family photo galleries.
+- **New "🔗 Public profile" settings block in `MyProfile.tsx`**: opt-in toggle (auto-suggests a handle by slugifying the user's name on first enable), handle editor with debounced availability check, "Copy link" (repurposes the `Share2` icon that had sat unused in that file's imports since the file's original commit), "Preview" link. `SectionPin` tooltip copy updated to reference the real public page.
+- Verified via the QA-bypass-then-revert pattern: mocked `get_public_profile`'s response in `PublicProfile.tsx` covering every section (including one deliberately unpinned section, to prove the gate actually hides it) and the not-found path (confirmed `noindex, nofollow` meta tag present there and absent on the found page); separately bypassed just the auth gate in `MyProfile.tsx` to confirm the new settings UI renders and the handle input/toggle work. `npm run typecheck` clean throughout. Could not test the real end-to-end save→view round trip live (no login credentials available in this session) — worth Andrew doing a real opt-in test himself next time he's signed in.
+
+### Commits
+`3b71a49` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Public profile feature is live end-to-end in code: migration applied via the Supabase Management API, `types.ts` regenerated. Nobody has actually opted in yet (feature is brand new and defaults off).
+
+### Left for next session
+- **Do a real opt-in test as an actual signed-in user** (Andrew or Woody) — toggle on in My Profile, set a handle, save, then view `/u/<handle>` logged out to confirm the full round trip works against production data, not just the QA-bypass mock. This was the one verification step not possible without real credentials this session.
+- Nice-to-haves explicitly deferred (see the plan file `zany-rolling-dahl.md` if still present): OG image generation, QR codes, view analytics, custom domains. Also didn't attempt to fix/unify the still-dead `PrintableProfileGenerator`/`ExportProfileDialog` PDF export mechanisms — separate, larger cleanup.
+
+---
+
 ## 2026-09-03 — Andrew (main branch) — Job Tracker: companies-to-approach, contacts, multiple actions per opportunity
 
 ### What was done THIS SESSION
