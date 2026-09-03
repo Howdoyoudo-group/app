@@ -180,14 +180,27 @@ export default function AdminEmployerSpotlight() {
     setDialogOpen(true);
   };
 
+  // Switching company on an existing spotlight (or mid-way through adding
+  // one) previously only updated company_name - the tagline, bullets, logo
+  // and media stayed exactly as they were for whichever company was there
+  // before, so the visible name up top would change but everything below it
+  // kept describing the old company. Content is company-specific, so any
+  // company switch starts it fresh; id/industry/active (the slot itself)
+  // are untouched.
+  const clearedForNewCompany = (d: typeof emptyDraft, name: string, url = "") => ({
+    ...d,
+    company_name: name,
+    url,
+    tagline: "",
+    why_work_here: [] as string[],
+    logo_url: "",
+    media_url: "",
+    media_type: "image" as "image" | "video",
+  });
+
   const selectCompanyCandidate = (name: string) => {
     const match = companyCandidates.find((c) => c.name === name);
-    setDraft((d) => ({
-      ...d,
-      company_name: name,
-      // Only fill the URL if the admin hasn't already typed one.
-      url: d.url || match?.url || "",
-    }));
+    setDraft((d) => (name === d.company_name ? d : clearedForNewCompany(d, name, match?.url || "")));
   };
 
   const [uploadingMedia, setUploadingMedia] = useState(false);
@@ -376,17 +389,19 @@ export default function AdminEmployerSpotlight() {
           <div className="space-y-8">
             {allIndustryGroups.map(({ slug, name, list }) => (
               <div key={slug}>
-                <h2 className="text-lg font-semibold mb-3">{name}</h2>
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <h2 className="text-lg font-semibold">{name}</h2>
+                  {/* Always visible, even once this industry already has spotlights -
+                      previously this button only existed in the empty state, so the
+                      only way to add another option once one existed was the generic
+                      top-of-page button, which doesn't default to this industry. */}
+                  <Button size="sm" variant="outline" onClick={() => openNew(slug)}>
+                    <Plus className="h-4 w-4" /> Add spotlight
+                  </Button>
+                </div>
                 {list.length === 0 ? (
-                  <Card className="p-4 flex items-center justify-between gap-4">
+                  <Card className="p-4">
                     <p className="text-sm text-muted-foreground">No spotlight set for {name} yet.</p>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => openNew(slug)}
-                    >
-                      <Plus className="h-4 w-4" /> Add spotlight
-                    </Button>
                   </Card>
                 ) : (
                 <div className="grid gap-3">
@@ -473,7 +488,7 @@ export default function AdminEmployerSpotlight() {
                   <Select
                     value={draft.company_name || undefined}
                     onValueChange={(v) => {
-                      if (v === "__other__") { setManualCompany(true); setDraft((d) => ({ ...d, company_name: "" })); }
+                      if (v === "__other__") { setManualCompany(true); setDraft((d) => clearedForNewCompany(d, "")); }
                       else selectCompanyCandidate(v);
                     }}
                   >
