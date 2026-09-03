@@ -147,6 +147,7 @@ const ActionChip = ({ label, icon: Icon, to, onClick }: ReturnType<typeof sugges
 const TrackerCard = ({
   item,
   contactCount,
+  actionSummary,
   collapsed,
   onToggleCollapse,
   onEdit,
@@ -158,6 +159,7 @@ const TrackerCard = ({
 }: {
   item: TrackerItem;
   contactCount: number;
+  actionSummary?: { pending: number; soonest: number | null };
   collapsed: boolean;
   onToggleCollapse: () => void;
   onEdit: () => void;
@@ -235,7 +237,7 @@ const TrackerCard = ({
           </Select>
         </div>
 
-        {(item.location || item.salary) && (
+        {(item.location || item.salary || contactCount > 0 || (actionSummary?.pending ?? 0) > 0) && (
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-[11px] text-muted-foreground font-body">
             {item.location && (
               <span className="inline-flex items-center gap-1">
@@ -250,6 +252,30 @@ const TrackerCard = ({
             {contactCount > 0 && (
               <span className="inline-flex items-center gap-1">
                 <Users className="w-3 h-3" /> {contactCount} contact{contactCount === 1 ? "" : "s"}
+              </span>
+            )}
+            {actionSummary && actionSummary.pending > 0 && (
+              <span
+                className={`inline-flex items-center gap-1 ${
+                  actionSummary.soonest !== null && actionSummary.soonest <= 2 ? "text-primary font-700" : ""
+                }`}
+              >
+                {actionSummary.soonest !== null && actionSummary.soonest <= 2 ? (
+                  <AlertCircle className="w-3 h-3" />
+                ) : (
+                  <Calendar className="w-3 h-3" />
+                )}
+                {actionSummary.pending} action{actionSummary.pending === 1 ? "" : "s"}
+                {actionSummary.soonest !== null && actionSummary.soonest <= 2 && (
+                  <span>
+                    {" "}
+                    · {actionSummary.soonest < 0
+                      ? `overdue ${Math.abs(actionSummary.soonest)}d`
+                      : actionSummary.soonest === 0
+                        ? "due today"
+                        : `due in ${actionSummary.soonest}d`}
+                  </span>
+                )}
               </span>
             )}
           </div>
@@ -297,6 +323,7 @@ const Column = ({ status, children }: { status: TrackerStatus; children: ReactNo
 const SortableCard = ({
   item,
   contactCount,
+  actionSummary,
   collapsed,
   onToggleCollapse,
   onEdit,
@@ -306,6 +333,7 @@ const SortableCard = ({
 }: {
   item: TrackerItem;
   contactCount: number;
+  actionSummary?: { pending: number; soonest: number | null };
   collapsed: boolean;
   onToggleCollapse: () => void;
   onEdit: () => void;
@@ -320,6 +348,7 @@ const SortableCard = ({
       <TrackerCard
         item={item}
         contactCount={contactCount}
+        actionSummary={actionSummary}
         collapsed={collapsed}
         onToggleCollapse={onToggleCollapse}
         onEdit={onEdit}
@@ -596,6 +625,27 @@ export default function JobTracker() {
     });
     return map;
   }, [contacts]);
+
+  // Pending-action summary per card - without this, an action only ever
+  // becomes visible inside the edit dialog, or in "Needs your attention"
+  // once it's within 2 days of its due date. Cards need their own always-on
+  // indicator so an added action doesn't just disappear from view.
+  const actionSummaryByItem = useMemo(() => {
+    const now = Date.now();
+    const dayMs = 86400000;
+    const map = new Map<string, { pending: number; soonest: number | null }>();
+    actions.forEach((a) => {
+      if (a.completed) return;
+      const existing = map.get(a.tracker_item_id) ?? { pending: 0, soonest: null };
+      existing.pending += 1;
+      if (a.due_date) {
+        const daysUntil = Math.round((new Date(a.due_date).getTime() - now) / dayMs);
+        if (existing.soonest === null || daysUntil < existing.soonest) existing.soonest = daysUntil;
+      }
+      map.set(a.tracker_item_id, existing);
+    });
+    return map;
+  }, [actions]);
 
   // "Needs attention" - the actual point of a tracker: surface what's due
   // (any of an opportunity's scheduled actions) and what's gone quiet (an
@@ -1046,6 +1096,7 @@ export default function JobTracker() {
                                     key={item.id}
                                     item={item}
                                     contactCount={contactCountByItem.get(item.id) ?? 0}
+                                    actionSummary={actionSummaryByItem.get(item.id)}
                                     collapsed={collapsedIds.has(item.id)}
                                     onToggleCollapse={() => toggleCollapse(item.id)}
                                     onEdit={() => openEdit(item)}
@@ -1065,6 +1116,7 @@ export default function JobTracker() {
                         <TrackerCard
                           item={activeItem}
                           contactCount={contactCountByItem.get(activeItem.id) ?? 0}
+                          actionSummary={actionSummaryByItem.get(activeItem.id)}
                           collapsed={collapsedIds.has(activeItem.id)}
                           onToggleCollapse={() => {}}
                           onEdit={() => {}}
@@ -1093,6 +1145,7 @@ export default function JobTracker() {
                               key={item.id}
                               item={item}
                               contactCount={contactCountByItem.get(item.id) ?? 0}
+                              actionSummary={actionSummaryByItem.get(item.id)}
                               collapsed={collapsedIds.has(item.id)}
                               onToggleCollapse={() => toggleCollapse(item.id)}
                               onEdit={() => openEdit(item)}
