@@ -151,9 +151,18 @@ export const SITE_SEARCH_INDEX: SiteIndexEntry[] = [
   })),
 ];
 
-const STOP_WORDS = new Set(["about", "after", "again", "also", "because", "being", "could", "does", "find", "from", "get", "have", "help", "how", "into", "know", "like", "make", "need", "page", "please", "ready", "show", "some", "that", "their", "there", "these", "thing", "this", "want", "what", "when", "where", "which", "with", "would", "your"]);
+const STOP_WORDS = new Set(["about", "after", "again", "also", "any", "are", "because", "being", "could", "does", "find", "from", "get", "have", "help", "how", "into", "know", "like", "make", "need", "page", "please", "ready", "show", "some", "that", "their", "there", "these", "thing", "this", "want", "what", "when", "where", "which", "with", "would", "your"]);
 
 export type ScoredSiteEntry = { entry: SiteIndexEntry; score: number };
+
+// Whole-word match, not substring - a short token like "any" or "car" must
+// not accidentally match inside an unrelated longer word (found live: "any"
+// is a substring of "company", so "any football jobs" was scoring
+// /starting-a-business - which lists "limited company" as a keyword - above
+// the actual /football match). \b treats hyphens as boundaries too, so this
+// still matches tokens inside hyphenated slugs like "interior-design".
+const hasWord = (haystack: string, token: string): boolean =>
+  new RegExp(`\\b${token.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(haystack);
 
 export function searchSiteIndexScored(query: string, limit = 6): ScoredSiteEntry[] {
   const normalised = query.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -166,10 +175,10 @@ export function searchSiteIndexScored(query: string, limit = 6): ScoredSiteEntry
       let score = 0;
       if (haystack.includes(normalised)) score += 80;
       for (const token of tokens) {
-        if (entry.path.toLowerCase().includes(token)) score += 10;
-        if (entry.title.toLowerCase().includes(token)) score += 16;
-        if (entry.keywords.some((k) => k.toLowerCase() === token || k.toLowerCase().includes(token))) score += 14;
-        if (entry.description.toLowerCase().includes(token)) score += 5;
+        if (hasWord(entry.path.toLowerCase(), token)) score += 10;
+        if (hasWord(entry.title.toLowerCase(), token)) score += 16;
+        if (entry.keywords.some((k) => k.toLowerCase() === token || hasWord(k.toLowerCase(), token))) score += 14;
+        if (hasWord(entry.description.toLowerCase(), token)) score += 5;
       }
       if (score > 0) score += entry.priority ?? 0;
       return { entry, score };
@@ -191,6 +200,14 @@ export function renderSiteSearchResults(query: string, limit = 6): string {
     .join("\n");
 }
 
+// A query that's ALSO a job-search request (e.g. "football jobs") must not
+// have that intent suppressed by page-routing below - "override anything in
+// your general prompt that conflicts" was swallowing the separate
+// AGENT_INSTRUCTIONS rule to call search_jobs, so a strong industry-page
+// match (e.g. /football) made the model link the page and skip the tool
+// call entirely, sometimes surfacing as "I don't have access to jobs."
+const JOB_INTENT_RE = /\b(job|jobs|vacanc\w*|hiring|role|roles|opening|openings|apprentice\w*|position|positions|work(?:ing)? at)\b/i;
+
 /**
  * High-priority routing directive when the top match scores strongly.
  * Inject as its own system message — separate from the long site map —
@@ -208,17 +225,22 @@ export function buildRoutingDirective(query: string): string | null {
     .map((s) => `- [${s.entry.title}](${s.entry.path})`)
     .join("\n");
 
+  const isJobIntent = JOB_INTENT_RE.test(query);
+
   return [
     `PRIORITY ROUTING — the user's question matches a canonical Howdy page.`,
     ``,
     `Top match: [${top.entry.title}](${top.entry.path})`,
     `Why: ${top.entry.description}`,
     ``,
-    `Rules for this reply (override anything in your general prompt that conflicts):`,
+    `Rules for this reply (override anything in your general prompt that conflicts, EXCEPT the search_jobs tool rule in rule 5 below if present):`,
     `1. The FIRST sentence or bullet of your reply MUST link to ${top.entry.path} using markdown.`,
     `2. Do NOT bury this link under generic brainstorming, Learning Hub suggestions, or unrelated industry pages.`,
     `3. Do NOT invent off-platform ideas in place of this page.`,
     `4. You MAY add up to 2 supporting Howdy links from the list below if directly relevant.`,
+    isJobIntent
+      ? `5. This question is ALSO a job-search request — you MUST still call the search_jobs tool and show real, live listings (as clickable links) underneath the page link. This routing rule does not replace that — a page link on its own is not a complete answer to a job question, and you must never say you don't have access to job listings.`
+      : ``,
     supporting ? `\nSupporting pages you may also link:\n${supporting}` : ``,
   ].filter(Boolean).join("\n");
 }
