@@ -5,6 +5,26 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-04 (the actual final one) — Andrew (main branch) — Auto-generate Employer Spotlight content
+
+### What was done THIS SESSION
+Andrew asked whether Employer Spotlight brands could be "auto fleshed out" beyond the generic "A notable employer in beer/footwear" fallback he was seeing. Checked the DB directly first rather than guessing scope: all 49 rows in `pinned_industry_employers` have zero `why_work_here` bullets, and roughly half also have no `tagline` - the frontend fallback (`CompanyProfileCard.tsx` / `Marketplace.tsx`: `row.tagline || "A notable employer in {industry}."`) is doing a lot of work across nearly the whole table, not just the two examples he happened to see.
+
+Built a new admin-only edge function `generate-spotlight-content`, same auth pattern as the existing `generate-badge-content` (real user session checked against `user_roles`, not a service-role bypass). Uses Gemini to write a short roles-descriptor tagline (matching the style of the ~24 rows that already have a good hand-written one, e.g. "Crew & operations roles") plus 3-4 genuine "why work here" bullets, with an explicit no-invented-statistics instruction since these are real, well-known UK brands (Nike, British Airways, McDonald's...) and the model has to stick to safe, general, true things rather than fabricate specifics. Supports two modes: given an existing row's `id`, it generates and saves straight to the DB; given just a company name + industry (a spotlight not yet saved in the admin "Add" dialog), it only returns the content for the draft to hold until Save is clicked.
+
+Wired it into `AdminEmployerSpotlight.tsx`: a per-row "Auto-fill with AI" button inside the edit/add dialog, and an "Auto-fill all empty" button on the main list page that loops over every spotlight still missing a tagline or bullets in one pass.
+
+Deployed and confirmed the function is live and correctly gated (`curl` with only the anon key returns a clean 401, no real user session). Couldn't fully exercise the actual AI generation myself - same limitation as `generate-badge-content` earlier this session, this needs a genuine admin browser session, not something I can self-authenticate as.
+
+### Commits
+`08cd32f` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Feature is live but not yet run. All 49 spotlight rows are still showing their current tagline (or the generic fallback) until someone clicks the button.
+
+### Left for next session
+**Action needed from Andrew or Woody**: visit `/admin/employer-spotlight` and click "Auto-fill all empty" (top of the page) to generate real tagline + why-work-here content for every spotlight still missing it - one click, loops through all of them. Individual rows can also be regenerated one at a time via "Auto-fill with AI" inside the edit dialog if the bulk pass produces something worth rewriting.
+
 ## 2026-09-04 (truly final) — Andrew (main branch) — Sustainability Manager Learn tab: only online courses, no FE/vocational routes
 
 ### What was done THIS SESSION
