@@ -5,6 +5,24 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-04 (one more) — Andrew (main branch) — loveholidays added to Travel; Employer Spotlight admin scroll-jump fix
+
+### What was done THIS SESSION
+Two small asks. First, added loveholidays to the Travel industry's Who tab (`src/pages/Travel.tsx`) - verified the real facts first rather than guessing: founded 2012, London HQ, current Glassdoor rating 3.8, and the actual careers URL (`/about-us/careers.html` - the obvious `/careers` guess 404s). Grouped it under "Travel Tech & Platforms" alongside Booking.com/Expedia/Skyscanner since it's an OTA/booking platform by business model, not a vertically-integrated tour operator like TUI.
+
+Second, fixed a real UX bug on `/admin/employer-spotlight`: deleting or reordering (rank up/down) a spotlight was throwing the whole page back to the top every time, forcing a re-scroll to find your place. Root cause was in `loadRows()` - every refresh after an action unconditionally set `loading=true`, which swaps the entire grid out for a small centered spinner and back again, collapsing the page height mid-action (that's what was actually causing the scroll jump, not anything about delete/reorder specifically). Added a `silent` option that skips the spinner for every refresh except the true initial page load, so the grid stays mounted and the scroll position stays put through delete/reorder/toggle/save/auto-fill.
+
+Didn't test the scroll-jump fix against live data - would have meant actually deleting/reordering real production spotlight rows to verify, which isn't worth the risk for a change this contained and easy to verify by reading the diff (a single `setLoading` call now gated behind a flag). Verified loveholidays renders correctly on the live Travel page instead, since that's pure display with no mutation risk.
+
+### Commits
+`175f529` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Both live. loveholidays visible now on `/travel`'s Who tab; the scroll-jump fix is live but not yet exercised against real data - worth a quick manual check next time someone's deleting/reordering a spotlight, though the code path is simple enough that a self-review was reasonable confidence here.
+
+### Left for next session
+Nothing new outstanding from this task. Still pending from earlier today: badge content generation for Music/Journalism/Fashion (`/admin/industry-health`) and Employer Spotlight auto-fill (`/admin/employer-spotlight`, "Auto-fill all empty").
+
 ## 2026-09-04 (this time for real) — Andrew (main branch) — Badge module thumbnails for Music/Journalism/Fashion
 
 ### What was done THIS SESSION
