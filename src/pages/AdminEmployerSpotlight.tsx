@@ -106,14 +106,19 @@ export default function AdminEmployerSpotlight() {
     document.title = "Employer Spotlight · Admin";
   }, []);
 
-  const loadRows = useCallback(async () => {
-    setLoading(true);
+  // `silent` skips the full-page loading spinner - used when refreshing
+  // after an in-place action (delete, reorder, toggle, save) rather than the
+  // initial mount. Swapping the whole grid out for a spinner and back again
+  // collapses the page height mid-action, which is what was throwing the
+  // scroll position back to the top after every delete/reorder.
+  const loadRows = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setLoading(true);
     const { data, error } = await supabase
       .from("pinned_industry_employers")
       .select("id, industry, company_name, rank, tagline, why_work_here, url, logo_url, media_url, media_type, active")
       .order("industry", { ascending: true })
       .order("rank", { ascending: true });
-    setLoading(false);
+    if (!opts?.silent) setLoading(false);
     if (error) {
       toast.error(`Failed to load: ${error.message}`);
       return;
@@ -291,7 +296,7 @@ export default function AdminEmployerSpotlight() {
       if (error || data?.error) failed += 1; else ok += 1;
     }
     setBulkFilling(false);
-    await loadRows();
+    await loadRows({ silent: true });
     if (failed === 0) toast.success(`Filled in ${ok} spotlight${ok === 1 ? "" : "s"}`);
     else toast.error(`Filled in ${ok}, ${failed} failed - try those individually`);
   };
@@ -350,7 +355,7 @@ export default function AdminEmployerSpotlight() {
       toast.success("Spotlight added");
     }
     setDialogOpen(false);
-    await loadRows();
+    await loadRows({ silent: true });
   };
 
   const remove = async (row: SpotlightRow) => {
@@ -360,7 +365,7 @@ export default function AdminEmployerSpotlight() {
     setBusyId(null);
     if (error) { toast.error(`Delete failed: ${error.message}`); return; }
     toast.success("Removed");
-    await loadRows();
+    await loadRows({ silent: true });
   };
 
   const toggleActive = async (row: SpotlightRow) => {
@@ -371,7 +376,7 @@ export default function AdminEmployerSpotlight() {
       .eq("id", row.id);
     setBusyId(null);
     if (error) { toast.error(`Update failed: ${error.message}`); return; }
-    await loadRows();
+    await loadRows({ silent: true });
   };
 
   // Swaps a row with its immediate neighbour in the *currently displayed*
@@ -394,7 +399,7 @@ export default function AdminEmployerSpotlight() {
     ]);
     setBusyIndustry(null);
     if (e1 || e2) { toast.error(`Reorder failed: ${(e1 ?? e2)?.message}`); return; }
-    await loadRows();
+    await loadRows({ silent: true });
   };
 
   if (authLoading || isAdmin === null) {
