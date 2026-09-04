@@ -5,6 +5,26 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-04 (follow-up) — Andrew (main branch) — retrofitted the ~48-company batch into Discover/Companies
+
+### What was done THIS SESSION
+Andrew flagged: "im not sure you have added to Discover/companies" - correct catch. The whole prior session's ~48-company batch (plus the earlier loveholidays add) only ever touched each industry page's own local `Companies` array (e.g. `travelCompanies` in `Travel.tsx`), which feeds that page's own "Who?" tab. It never touched `src/data/all-companies.ts`'s `ALL_COMPANIES_BY_INDUSTRY`, a completely separate, un-synced data source (last bulk-extracted 2026-07-31) that powers the standalone `/companies` Discover page - so none of the new companies were showing up there.
+
+Went through every touched industry section in `all-companies.ts` and appended the same company (same name/URL, extracted from what was already added to the page files rather than re-typed from memory) in that file's lighter `{ name, url, industry }` shape: Bakery, Beauty, Beer, Cars, Charity, Delivery, Estate Agency, Farming, Fashion, Fixing, Football, Footwear, Gaming, Grocery, Health, Home & Design, Food & Drink (Hospitality), Jewellery, Pets, Physiotherapy, Politics, Travel (including loveholidays, which had never made it into this file at all), Wellness.
+
+Also found and fixed a genuinely pre-existing gap while in there: the whole `Tennis` industry section was missing from `all-companies.ts` (all 6 other industries I'd initially thought were missing turned out to just use quoted object keys my first grep pattern missed - only Tennis was truly absent). Rather than leave David Lloyd Clubs with nowhere to go, added a full new `Tennis: [...]` section with all 11 companies from `Tennis.tsx`'s own Who tab, so the file's coverage now matches every industry page 1:1.
+
+### Commits
+Pending commit this session, to be pushed to both remotes (`howdoyoudo` + `origin`).
+
+### Current state
+`npm run typecheck` and `npx eslint src/data/all-companies.ts` both clean. Verified live on dev server: loveholidays shows under Travel, Queensmith under Jewellery, David Lloyd Clubs correctly appears under both Tennis and Wellness (it legitimately belongs in both).
+
+### Left for next session
+Nothing outstanding from this task.
+
+---
+
 ## 2026-09-04 (last one, really) — Andrew (main branch) — ~48 real employers added across 24 industry Who tabs, from job-posting review
 
 ### What was done THIS SESSION
