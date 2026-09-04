@@ -3,10 +3,13 @@
 // already exists (skill gaps, CV, badges, courses); Howdy can also add its
 // own bespoke tasks mid-conversation via the add_coach_task tool.
 
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { CheckCircle2, Circle, ArrowRight, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCoachPlan, type CoachPlanTask, type RolePlan } from "@/hooks/useCoachPlan";
+import { useTargetRoles } from "@/hooks/useTargetRoles";
+import RoleSelector from "@/components/RoleSelector";
 
 const TASK_ICON: Record<string, string> = {
   rate_skills: "⭐",
@@ -129,22 +132,59 @@ function RolePlanCard({ plan, onComplete, onReopen }: {
 export default function CoachPlanPanel({ compact = false }: { compact?: boolean }) {
   const { user } = useAuth();
   const { rolePlans, loading, completeTask, reopenTask } = useCoachPlan(user?.id);
+  const { addTargetRole } = useTargetRoles(user?.id);
+  const [pickedRole, setPickedRole] = useState("");
+  const [settingRole, setSettingRole] = useState(false);
 
   if (!user) return null;
   if (loading) return <div className="h-24 bg-muted/30 rounded-2xl animate-pulse" />;
 
   if (rolePlans.length === 0) {
+    const handleSetTargetRole = async () => {
+      if (!pickedRole) return;
+      setSettingRole(true);
+      await addTargetRole(pickedRole);
+      setSettingRole(false);
+    };
+
+    if (compact) {
+      return (
+        <div className="border-2 border-dashed border-border rounded-2xl p-6 text-center">
+          <p className="font-display font-700 text-sm mb-1">Set a target role to get your plan</p>
+          <p className="font-body text-xs text-muted-foreground mb-3">
+            Pick a role from any role page, or tell Howdy what you're aiming for.
+          </p>
+          <Link
+            to="/roles"
+            className="inline-flex items-center gap-1.5 font-display font-700 text-xs text-primary hover:opacity-80 transition-opacity"
+          >
+            Browse roles <ArrowRight className="w-3 h-3" />
+          </Link>
+        </div>
+      );
+    }
+
     return (
       <div className="border-2 border-dashed border-border rounded-2xl p-6 text-center">
         <p className="font-display font-700 text-sm mb-1">Set a target role to get your plan</p>
-        <p className="font-body text-xs text-muted-foreground mb-3">
-          Pick a role from any role page, or tell Howdy what you're aiming for.
+        <p className="font-body text-xs text-muted-foreground mb-4">
+          Pick the role you're aiming for below and Howdy builds your checklist from it - skill gaps, badges, courses, the lot.
         </p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+          <RoleSelector selected={pickedRole} onChange={(slug) => setPickedRole(slug)} className="w-full sm:w-72" />
+          <button
+            onClick={handleSetTargetRole}
+            disabled={!pickedRole || settingRole}
+            className="w-full sm:w-auto shrink-0 px-4 py-2.5 font-display font-700 text-sm bg-primary text-primary-foreground rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50"
+          >
+            {settingRole ? "Setting…" : "Set as target role"}
+          </button>
+        </div>
         <Link
           to="/roles"
-          className="inline-flex items-center gap-1.5 font-display font-700 text-xs text-primary hover:opacity-80 transition-opacity"
+          className="inline-flex items-center gap-1.5 font-display font-700 text-xs text-primary hover:opacity-80 transition-opacity mt-4"
         >
-          Browse roles <ArrowRight className="w-3 h-3" />
+          Or browse roles <ArrowRight className="w-3 h-3" />
         </Link>
       </div>
     );

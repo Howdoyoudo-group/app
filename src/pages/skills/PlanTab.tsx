@@ -64,7 +64,7 @@ function HowdyTake() {
         </div>
       ) : (
         <p className="font-body text-sm leading-relaxed">
-          {narrative || "Set a target role and I'll give you an honest read on where you stand."}
+          {narrative || "Set a target role below and I'll give you an honest read on where you stand."}
         </p>
       )}
     </div>
