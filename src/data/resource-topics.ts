@@ -210,6 +210,7 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
       { name: "FT Work & Careers", description: "UK-led careers journalism and trend pieces.", url: "https://www.ft.com/work-careers" },
     ],
     help: [
+      { name: "Youth Employment UK - Career Guides", description: "Sector-by-sector career guides across 18 industries - what the jobs involve, the skills and qualifications you need, and how to get in via traineeships, apprenticeships or college.", url: "https://www.youthemployment.org.uk/careers-hub/", tags: ["Sectors", "Free"] },
       { name: "National Careers Service", description: "Free government careers advice for adults and young people in England.", url: "https://nationalcareers.service.gov.uk", tags: ["Government"] },
       { name: "Prospects", description: "Graduate careers advice - job profiles and planning tools.", url: "https://www.prospects.ac.uk", tags: ["Graduate"] },
       { name: "UCAS Career Finder", description: "Explore careers and the qualifications you need.", url: "https://www.ucas.com/explore", tags: ["Education"] },
@@ -363,6 +364,8 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
       { name: "ACAS - Disability at Work", description: "Workplace rights, reasonable adjustments and what you're entitled to as a disabled employee.", url: "https://www.acas.org.uk/disability-discrimination" },
     ],
     help: [
+      { name: "Youth Employment UK - Opportunity Finder", description: "Searchable UK-wide database of entry-level jobs, apprenticeships, training and events - filter by location and type.", url: "https://www.youthemployment.org.uk/opportunity-finder-database/", tags: ["Jobs", "Free"] },
+      { name: "Youth Employment UK - Overcoming Barriers", description: "A genuinely comprehensive hub covering mental health, disability, young carers, young parents, substance abuse, digital access and more - each with practical next steps.", url: "https://www.youthemployment.org.uk/overcoming-barriers-to-life-and-employment/", tags: ["Free", "Wide-ranging"] },
       { name: "Individual Placement Support (IPS)", description: "Evidence-based employment support for people with mental health conditions - personalized job search, placement and ongoing support.", url: "https://ipsgrow.org.uk/about/what-is-ips/", tags: ["Mental Health", "Funded"] },
       { name: "Shaw Trust", description: "UK-wide disability employment support provider - job coaching, workplace assessments, and ongoing support to help disabled people find and keep work.", url: "https://www.shawtrust.org.uk", tags: ["Disability", "Job Coaching"] },
       { name: "Access to Work Scheme", description: "Government grants for disabled people - funding for equipment, transport, support workers and interpreters.", url: "https://www.gov.uk/access-to-work", tags: ["Disability", "Funding"] },
@@ -421,6 +424,7 @@ export const RESOURCE_TOPICS: ResourceTopic[] = [
       { name: "Reed Courses", description: "The UK's biggest online courses marketplace - filter by free, CPD-accredited and career path.", url: "https://www.reed.co.uk/courses" },
     ],
     help: [
+      { name: "Youth Employment UK - Young Professional Training", description: "Free membership training built specifically for young people - practical skills like self-management, alongside events and a youth advice hub, not just video lessons.", url: "https://www.youthemployment.org.uk/young-professional-training/", tags: ["Free", "Youth-specific"] },
       { name: "Coursera", description: "Courses, professional certificates and degrees from 350+ universities and companies including Google, IBM, Meta and Yale. Many courses free to audit.", url: "https://www.coursera.org", tags: ["Free option", "Certificates"] },
       { name: "The Open University", description: "The UK's largest university - flexible distance-learning degrees, micro-credentials and free OpenLearn courses you can fit around work.", url: "https://www.open.ac.uk", tags: ["UK", "Degrees", "Flexible"] },
       { name: "learndirect", description: "UK online learning provider offering A Levels, GCSEs, Access to HE diplomas and CPD-accredited career courses you can study from home.", url: "https://www.learndirect.com", tags: ["UK", "A Levels", "CPD"] },
