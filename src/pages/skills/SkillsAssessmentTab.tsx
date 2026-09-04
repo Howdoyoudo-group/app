@@ -289,7 +289,7 @@ export default function SkillsAssessmentTab() {
   return (
     <div className="max-w-3xl">
       <div className="mb-6">
-        <h2 className="font-display font-900 text-xl md:text-2xl uppercase tracking-wide mb-1">Skills Assessment</h2>
+        <h2 className="font-display font-700 text-sm uppercase tracking-widest text-muted-foreground mb-1">Skills Assessment</h2>
         <p className="font-body text-sm text-muted-foreground">
           Pick a role, rate each skill 1–5. We'll show your gaps and suggest learning to close them.
         </p>

@@ -7,6 +7,7 @@ import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import heroBg from "@/assets/hero-bg-industries.jpg";
 import howdyMascot from "@/assets/howdy-mascot.png";
+import HowdyIntro from "@/components/HowdyIntro";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -48,6 +49,11 @@ export default function MatchMe() {
         </section>
 
         <div className="px-4 sm:px-6 lg:px-10 max-w-5xl mx-auto py-12">
+          <motion.div {...fadeUp} className="mb-8">
+            <HowdyIntro>
+              This is your big picture - everything you've told me, plus what I've spotted from your CV, all in one place. Tap a tile below to see your matched roles, industries, and a few surprises I don't think you've considered yet.
+            </HowdyIntro>
+          </motion.div>
           {!user ? (
             <motion.div {...fadeUp} className="text-center py-16 border-2 border-dashed border-foreground/20 rounded-3xl">
               <User className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -59,7 +65,6 @@ export default function MatchMe() {
             </motion.div>
           ) : (
             <motion.div {...fadeUp}>
-              <p className="font-body text-sm text-muted-foreground mb-6">Pick a section to explore your personalised matches.</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 md:gap-4">
                 {TILES.map((tile) => (
                   <Link

@@ -3,12 +3,24 @@
 
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { TrendingUp, ArrowRight, AlertCircle, BookOpen, CheckCircle2, Loader2, ExternalLink } from "lucide-react";
+import { TrendingUp, ArrowRight, AlertCircle, BookOpen, CheckCircle2, Loader2, ExternalLink, Trophy } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSkillGap, type SkillWithGap } from "@/hooks/useSkillGap";
 import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { buildOnlineProviders } from "@/data/online-providers";
+
+// HDYD badge modules — rolePatterns are substrings matched against the role slug
+const HDYD_BADGES = [
+  { slug: "football", label: "Football Industry", href: "/football/badge", rolePatterns: ["football", "sport", "stadium", "groundskeeper", "physiotherap", "scout"] },
+  { slug: "music", label: "Music Industry", href: "/music/badge", rolePatterns: ["music", "sound engineer", "producer", "a&r", "tour"] },
+  { slug: "journalism", label: "Journalism Industry", href: "/journalism/badge", rolePatterns: ["journalis", "report", "editor", "news"] },
+  { slug: "fashion", label: "Fashion Industry", href: "/fashion/badge", rolePatterns: ["fashion", "stylist", "buyer", "designer", "merchandis"] },
+];
+
+function badgesForRole(roleSlug: string): typeof HDYD_BADGES {
+  return HDYD_BADGES.filter((b) => b.rolePatterns.some((p) => roleSlug.includes(p)));
+}
 
 // ── Real online course providers (Reed, Coursera, etc.) ──────────────────────
 function roleTitleFromSlug(slug: string): string {
@@ -234,6 +246,33 @@ function RoleGapCard({ slug, isActiveRole }: { slug: string; isActiveRole?: bool
             </Link>
           </div>
 
+          {/* HDYD badge recommendations (free, always first) */}
+          {badgesForRole(slug).length > 0 && (
+            <div className="pt-2">
+              <p className="font-display font-700 text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
+                Free HDYD badges
+              </p>
+              <div className="space-y-1.5">
+                {badgesForRole(slug).map((b) => (
+                  <Link
+                    key={b.slug}
+                    to={b.href}
+                    className="flex items-center gap-2.5 p-2 border-2 border-primary/20 bg-primary/5 rounded-lg hover:border-primary/40 hover:bg-primary/10 transition-colors group"
+                  >
+                    <Trophy className="w-3.5 h-3.5 text-primary shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <p className="font-display font-700 text-xs truncate group-hover:text-primary transition-colors">{b.label} Badge</p>
+                      <p className="font-body text-[10px] text-muted-foreground">4 lessons · quiz · earns badge for your profile</p>
+                    </div>
+                    <span className="px-1.5 py-0.5 font-display font-700 text-[9px] uppercase tracking-wide bg-green-100 text-green-700 border border-green-200 rounded-full shrink-0">
+                      Free
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
           <OnlineCourseLinks slug={slug} />
 
           {user && <SkillsPathway slug={slug} userId={user.id} />}
@@ -321,7 +360,7 @@ export default function SkillGapsTab() {
   return (
     <div className="max-w-2xl">
       <div className="mb-6">
-        <h2 className="font-display font-900 text-xl md:text-2xl uppercase tracking-wide mb-1">Skill Gaps</h2>
+        <h2 className="font-display font-700 text-sm uppercase tracking-widest text-muted-foreground mb-1">Skill Gaps</h2>
         <p className="font-body text-sm text-muted-foreground">
           Your readiness for {ratedRoles.length} role{ratedRoles.length !== 1 ? "s" : ""}. Click a role to see which skills need the most work.
         </p>
@@ -340,6 +379,17 @@ export default function SkillGapsTab() {
         </p>
         <p className="font-body text-xs text-muted-foreground">
           Your readiness score rises as you rate more skills and earn industry badges. Expand a role above to see your Skills Pathway.
+        </p>
+      </div>
+
+      {/* SE Attribution */}
+      <div className="mt-6 pt-4 border-t border-border/40 flex items-center gap-2">
+        <svg width="16" height="16" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="32" height="32" rx="4" fill="#003078"/>
+          <text x="4" y="22" fontFamily="sans-serif" fontSize="14" fontWeight="bold" fill="#ffffff">SE</text>
+        </svg>
+        <p className="font-body text-[10px] text-muted-foreground/60">
+          Skills data provided by Skills England. <a href="https://occupational-maps.skillsengland.education.gov.uk/" target="_blank" rel="noopener noreferrer" className="underline hover:text-muted-foreground">Skills England</a>
         </p>
       </div>
     </div>

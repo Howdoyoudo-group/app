@@ -358,6 +358,8 @@ const LEVEL_UP_GROUPS: NavGroup[] = [
       { label: "Suggested Roles", to: "/match-me/suggested-roles", description: "Roles matched to who you are" },
       { label: "Suggested Industries", to: "/match-me/suggested-industries", description: "Industries that fit your profile" },
       { label: "Worlds Collide", to: "/match-me/worlds-collide", description: "Unexpected combinations worth exploring" },
+      { label: "What If Machine", to: "/match-me/what-if-machine", description: "Collide two industries, discover 10 unexpected roles" },
+      { label: "Side Hustle Ideas", to: "/match-me/side-hustles", description: "Flexible ways to earn, matched to your skills" },
       { label: "Most Wanted", to: "/most-wanted", description: "Your saved roles and companies" },
     ],
   },
