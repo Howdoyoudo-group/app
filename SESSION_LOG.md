@@ -5,6 +5,24 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-04 (this time for real) — Andrew (main branch) — Badge module thumbnails for Music/Journalism/Fashion
+
+### What was done THIS SESSION
+Andrew noticed the new Skills Passport badge modules (Music/Journalism/Fashion, added earlier today) had no thumbnail image on the Badges tab, unlike Football - fell back to a plain BookOpen icon since `image: null` was set for all three when they were created. Asked to reuse the images already used under Discover Industries rather than sourcing anything new.
+
+Confirmed `src/assets/series-music.jpg`, `series-journalism.jpg`, `series-fashion.jpg` already exist and are the exact same assets `SeriesGrid.tsx` uses for the Discover Industries grid - imported and wired them into `BadgesTab.tsx`'s `MODULES` array in place of the `null`s. Also added Hospitality's and Beauty's series images to their "Coming Soon" entries while there, ready for whenever those badges launch (the locked-card view doesn't render an image today, so this is just data sitting ready, not a visible change for those two yet).
+
+Verified live on the dev server: all four available modules (Football, Music, Journalism, Fashion) now show matching illustrated thumbnails.
+
+### Commits
+`3f69ba9` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Live. `/skills-passport?tab=badges` now shows real thumbnails for every available badge module.
+
+### Left for next session
+Nothing outstanding from this task. Still pending from earlier today: someone needs to click "(Re)generate ... badge" on `/admin/industry-health` for Music/Journalism/Fashion to populate real lesson content (currently "being prepared"), and "Auto-fill all empty" on `/admin/employer-spotlight` to generate real Employer Spotlight content.
+
 ## 2026-09-04 (the actual final one) — Andrew (main branch) — Auto-generate Employer Spotlight content
 
 ### What was done THIS SESSION
