@@ -5,6 +5,24 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-04 (later) — Andrew (main branch) — Plan tab: no way to actually set a target role
+
+### What was done THIS SESSION
+Andrew reported that Howdy's message on "Your Plan" says to set a target role but gives no way to do so. Traced it: `CoachPlanPanel.tsx`'s empty state (shown whenever a user has zero target roles) only linked out to `/roles` in prose - no in-page picker anywhere. Found 4 other scattered entry points elsewhere in the app (role detail pages' "Save to Most Wanted" button, Skills Assessment's "Make this a target role" star, CareerMap tile toggle, My Profile's chip list), none surfaced from the Plan tab itself.
+
+Extracted the role search/picker already built inline for `SkillsAssessmentTab.tsx` into a shared `src/components/RoleSelector.tsx` (same component, now reusable). Added it directly into `CoachPlanPanel.tsx`'s empty state (full-page mode only - the `compact` variant used inside the Howdy chat widget keeps its simpler "Browse roles" link, since a full search dropdown would be cramped there). Picking a role and clicking "Set as target role" calls the existing `addTargetRole` from `useTargetRoles` - confirmed `useCoachPlan` already listens for the `howdy:target-roles-changed` event that fires, so the plan checklist appears immediately with zero extra wiring. Updated the Howdy fallback message in `PlanTab.tsx` to say "below" instead of leaving it vague.
+
+Verified with the QA-bypass pattern (mock `useAuth` in `PlanTab.tsx`/`CoachPlanPanel.tsx`, confirmed removed before commit via `grep TEMP-QA-BYPASS`): picker opens, search filters correctly, selecting a role enables the "Set as target role" button. `npm run typecheck` and `eslint` both clean.
+
+### Commits
+`41f2245` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Fixed and live. Setting a target role now works directly from `/skills-passport?tab=plan` with no detour.
+
+### Left for next session
+Nothing outstanding from this task.
+
 ## 2026-09-04 — Andrew (main branch) — Redesign About You + Skills (Level Up)
 
 ### What was done THIS SESSION
