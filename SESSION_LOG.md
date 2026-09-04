@@ -5,6 +5,28 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-04 (even later) — Andrew (main branch) — Simplify Level Up nav: About You + Skills down to one link each
+
+### What was done THIS SESSION
+Andrew asked to drop the individual dropdown items under "About You" (since they're all reachable via tiles on the "Your Matches" hub already) and wanted "Skills" restructured the same way - one holding page, tabs in a specific logical order: Skills Assessment, Skill Gaps, Your Plan, Industry Badges.
+
+Reduced both `LEVEL_UP_GROUPS` (desktop, `SiteHeader.tsx`) and the matching mobile `NAV_SECTIONS` entry (`GlobalMobileMenu.tsx`) from 8 items (About You) and 4 items (Skills) down to one each - "Your Matches" and "Skills Passport." Along the way, noticed the existing dropdown always required an extra expand/collapse click even for a group with just one item (confirmed this was already true for the pre-existing "Checklist" group) - added a "single-item group is just a link" case to both `GroupedNavDropdown` (desktop) and the mobile drill-down, so this is fixed everywhere at once, not just for the two groups being collapsed today.
+
+`/skills-passport` didn't have a holding page the way `/match-me` does - it defaulted straight into the "Plan" tab, so removing the nav links to Assessment/Gaps/Badges would have made those 3 unreachable without a bookmark. Rebuilt `SkillsPassport.tsx` to follow the same pattern as `MatchMe.tsx`: landing with no `?tab=` shows a tile grid in the order Andrew specified, and picking a tile drops into that tab with a "Skills Passport" back-link (mirroring `MatchMeSectionPage.tsx`'s existing "About You" back-link). Found and fixed one internal link that broke from this change - `CoachPlanPanel.tsx`'s "See all N tasks" strip (shown in the Howdy chat widget) linked to bare `/skills-passport`, which now lands on the tile grid instead of the Plan tab it's actually surfacing tasks from - pointed it at `?tab=plan` explicitly.
+
+Also caught a related gap while doing this: `/most-wanted` was only ever reachable via the About You nav dropdown being removed today, not from `MatchMe.tsx`'s own tile grid - added it as an 8th tile so it doesn't become orphaned now that the dropdown item is gone.
+
+Verified via the QA-bypass pattern (mocked `useAuth` in `MatchMe.tsx`, confirmed removed via `grep TEMP-QA-BYPASS` before commit): both nav groups now navigate in one click on desktop, the Skills Passport tile grid renders in the correct order with a working back-link, and the Most Wanted tile shows up correctly in the full 8-tile grid. Mobile drill-down collapse uses the identical logic to the desktop version (which was interactively verified) but wasn't itself click-tested live - the Browser pane got stuck refusing click input mid-session (screenshots kept working, clicks kept timing out) - flagged as a tooling issue, not a code concern, since the change is structurally identical to the verified desktop path and passed typecheck. `npm run typecheck` and `eslint` both clean throughout.
+
+### Commits
+`6c22bf8` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Nav simplified and live. Worth a quick manual check of the mobile hamburger menu next time someone's on a phone, given the live-interaction gap noted above (low risk - same code path as the verified desktop version, just not re-confirmed by hand).
+
+### Left for next session
+Nothing outstanding from this task besides the optional mobile-menu spot-check noted above.
+
 ## 2026-09-04 (later) — Andrew (main branch) — Plan tab: no way to actually set a target role
 
 ### What was done THIS SESSION
