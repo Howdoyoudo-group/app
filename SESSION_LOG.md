@@ -5,6 +5,30 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-04 (last one, really) — Andrew (main branch) — ~48 real employers added across 24 industry Who tabs, from job-posting review
+
+### What was done THIS SESSION
+Direct follow-up to earlier today's job-posting-volume review (which found companies posting real jobs on the platform but missing from the industry "Who" sections). Andrew confirmed "let's do it" - add every finding, scrape where possible, add logos.
+
+Given the scale (~48 companies across 24 industries), dispatched 6 parallel research agents to verify real facts for every company before adding anything - founding year, HQ, a live careers URL (visited, not guessed), current Glassdoor rating where findable, a factual one-line overview, and ATS detection (checked whether the careers page runs on Greenhouse/Lever/Workable/Ashby/Teamtailor, so we could add automated scraping too). Two companies were excluded on the agents' own findings rather than being force-fit: Upstream Rehabilitation (confirmed US-only, no UK operations) and one low-confidence psychotherapy candidate (Cygnet) that didn't cleanly fit any of that industry's existing categories.
+
+Added all ~48 companies to their correct industry's Who tab array, matched to each page's existing `valueChainStage` category taxonomy (checked real precedent per industry rather than guessing - e.g. confirmed poultry processors already sit under Farming's "Livestock & Dairy", DTC jewellery brands under Jewellery's "Marketing & Brand"). Highlights: ASDA and Morrisons (grocery's "big four" had a real gap), Clarks, Superdrug/L'Oréal/Lush, Tesla, Barchester Healthcare, British Heart Foundation, Chanel/Mango, Travelodge/Hilton, and 5 Championship/EFL clubs (Southampton, Birmingham City, Norwich City, Burnley, Sheffield United) not previously in Football's Who tab.
+
+Added `CompanyLogo.tsx` curated domain entries for every new company - typecheck caught 16 that turned out to already be curated elsewhere in that large file (duplicate object keys are a hard TS error), removed the redundant copies and kept the originals rather than guessing which was more correct.
+
+6 of the ~48 companies run on a supported ATS - added them to `fetch-external-jobs`'s `GREENHOUSE_TENANTS`/`WORKABLE_TENANTS`/`TEAMTAILOR_TENANTS` arrays: Mejuri (Greenhouse), Queensmith/Lighthouse Games/Rebellion Developments (Workable), Thérapie Clinic/Sureserve Group (Teamtailor). Deployed and triggered scoped `{"industry": ...}` refreshes for jewellery/gaming/beauty/fixing rather than waiting for the next cron - confirmed 417 real job postings landed from these 6 tenants alone (Sureserve Group 188, Thérapie Clinic 100, Lighthouse Games 79, Queensmith 19, Rebellion Developments 17, Mejuri 14).
+
+Verified live on the dev server: ASDA/Morrisons render with real resolved logos (via logo.dev) on Grocery's Who tab, Sheffield United FC renders correctly on Football's.
+
+### Commits
+`e028040` — pushed to both remotes (`howdoyoudo` + `origin`) ✅ (follows `7eb2251`, the loveholidays logo + scraping fix from earlier this session)
+
+### Current state
+Live. 24 industry Who tabs enriched, 6 new companies actively scraped for real jobs going forward.
+
+### Left for next session
+Nothing outstanding from this task. Still pending from earlier today (unrelated): badge content generation for Music/Journalism/Fashion (`/admin/industry-health`) and Employer Spotlight auto-fill (`/admin/employer-spotlight`, "Auto-fill all empty").
+
 ## 2026-09-04 (one more) — Andrew (main branch) — loveholidays added to Travel; Employer Spotlight admin scroll-jump fix
 
 ### What was done THIS SESSION
