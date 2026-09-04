@@ -564,6 +564,7 @@ const CURATED_DOMAINS: Record<string, string> = {
   "uber": "uber.com",
   "trainline": "thetrainline.com",
   "skyscanner": "skyscanner.net",
+  "loveholidays": "loveholidays.com",
   "tui": "tui.co.uk",
   "lner": "lner.co.uk",
   "transport for london": "tfl.gov.uk",

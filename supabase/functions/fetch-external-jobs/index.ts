@@ -6077,6 +6077,7 @@ const ASHBY_TENANTS: AshbyTenant[] = [
   { board: "MUBI", company: "MUBI", industry: "cinema", allUk: false },
   { board: "joor", company: "JOOR", industry: "fashion", allUk: false },
   { board: "trainline", company: "Trainline", industry: "travel", allUk: false },
+  { board: "loveholidays", company: "loveholidays", industry: "travel", allUk: false },
   // Money
   { board: "thought-machine", company: "Thought Machine", industry: "money", allUk: true },
   { board: "marshmallow",     company: "Marshmallow",     industry: "money", allUk: true },
