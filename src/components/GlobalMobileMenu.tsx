@@ -50,23 +50,13 @@ const NAV_SECTIONS: NavSection[] = [
       {
         label: "About You",
         items: [
-          { label: "Your Matches", to: "/match-me", description: "Your personality, CV and where it could take you" },
-          { label: "What We Know", to: "/match-me/what-we-know", description: "Your traits, values and passions" },
-          { label: "Suggested Roles", to: "/match-me/suggested-roles", description: "Roles matched to who you are" },
-          { label: "Suggested Industries", to: "/match-me/suggested-industries", description: "Industries that fit your profile" },
-          { label: "Worlds Collide", to: "/match-me/worlds-collide", description: "Unexpected combinations worth exploring" },
-          { label: "What If Machine", to: "/match-me/what-if-machine", description: "Collide two industries, discover 10 unexpected roles" },
-          { label: "Side Hustle Ideas", to: "/match-me/side-hustles", description: "Flexible ways to earn, matched to your skills" },
-          { label: "Most Wanted", to: "/most-wanted", description: "Your saved roles and companies" },
+          { label: "Your Matches", to: "/match-me", description: "Your personality, CV, saved roles - and where it could take you" },
         ],
       },
       {
         label: "Skills",
         items: [
-          { label: "Your Plan", to: "/skills-passport", description: "Howdy's honest checklist for your target role" },
-          { label: "Skills Assessment", to: "/skills-passport?tab=assessment", description: "Rate your skills for any role" },
-          { label: "Skill Gaps", to: "/skills-passport?tab=gaps", description: "See where you need to develop" },
-          { label: "Industry Badges", to: "/skills-passport?tab=badges", description: "Industry modules, badges & more" },
+          { label: "Skills Passport", to: "/skills-passport", description: "Rate your skills, see your gaps, build your plan, earn badges" },
         ],
       },
       {
@@ -432,22 +422,58 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                       {activeSection.label}
                     </div>
 
-                    {activeSection.subSections.map((sub) => (
-                      <button
-                        key={sub.label}
-                        type="button"
-                        onClick={() => setOpenSubSection(sub.label)}
-                        className="flex items-center justify-between w-full px-3 py-3 rounded-xl font-display font-900 text-base uppercase tracking-wide text-foreground hover:bg-primary transition-colors text-left border-2 border-transparent hover:border-foreground"
-                      >
-                        <span>
-                          {sub.label}
-                          <span className="block font-body font-400 text-xs text-foreground/50 normal-case tracking-normal mt-0.5">
-                            {sub.items.length} topics
+                    {activeSection.subSections.map((sub) => {
+                      // A single-item subsection is just a link - no need to
+                      // drill into a 1-row list first.
+                      if (sub.items.length === 1) {
+                        const item = sub.items[0];
+                        const rowClass = "flex items-center justify-between w-full px-3 py-3 rounded-xl font-display font-900 text-base uppercase tracking-wide text-foreground hover:bg-primary transition-colors text-left border-2 border-transparent hover:border-foreground";
+                        const rowInner = (
+                          <span>
+                            {sub.label}
+                            {item.description && (
+                              <span className="block font-body font-400 text-xs text-foreground/50 normal-case tracking-normal mt-0.5">
+                                {item.description}
+                              </span>
+                            )}
                           </span>
-                        </span>
-                        <ChevronRight size={18} strokeWidth={2.5} className="text-foreground/40 shrink-0" />
-                      </button>
-                    ))}
+                        );
+                        return item.to ? (
+                          <Link key={sub.label} to={item.to} onClick={closeMenu} className={rowClass}>
+                            {rowInner}
+                            <ChevronRight size={18} strokeWidth={2.5} className="text-foreground/40 shrink-0" />
+                          </Link>
+                        ) : (
+                          <a
+                            key={sub.label}
+                            href={item.href}
+                            target={item.href?.startsWith("http") ? "_blank" : undefined}
+                            rel={item.href?.startsWith("http") ? "noopener noreferrer" : undefined}
+                            onClick={closeMenu}
+                            className={rowClass}
+                          >
+                            {rowInner}
+                            <ChevronRight size={18} strokeWidth={2.5} className="text-foreground/40 shrink-0" />
+                          </a>
+                        );
+                      }
+                      return (
+                        <button
+                          key={sub.label}
+                          type="button"
+                          onClick={() => setOpenSubSection(sub.label)}
+                          className="flex items-center justify-between w-full px-3 py-3 rounded-xl font-display font-900 text-base uppercase tracking-wide text-foreground hover:bg-primary transition-colors text-left border-2 border-transparent hover:border-foreground"
+                        >
+                          <span>
+                            {sub.label}
+                            <span className="block font-body font-400 text-xs text-foreground/50 normal-case tracking-normal mt-0.5">
+                              {sub.items.length} topics
+                            </span>
+                          </span>
+                          <ChevronRight size={18} strokeWidth={2.5} className="text-foreground/40 shrink-0" />
+                        </button>
+                      );
+                    })}
                   </motion.div>
                 )}
 

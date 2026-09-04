@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Sparkles, ArrowRight, User, Briefcase, Building2, Shuffle, Brain, Wallet, Layers } from "lucide-react";
+import { Sparkles, ArrowRight, User, Briefcase, Building2, Shuffle, Brain, Wallet, Layers, Star } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import SEO from "@/components/SEO";
@@ -18,6 +18,7 @@ const TILES: Array<{ title: string; href: string; Icon: React.ElementType; img?:
   { title: "Worlds Collide",       href: "/match-me/worlds-collide",           Icon: Shuffle },
   { title: "What If Machine",      href: "/match-me/what-if-machine",          Icon: Brain },
   { title: "Side Hustles",         href: "/match-me/side-hustles",             Icon: Wallet },
+  { title: "Most Wanted",          href: "/most-wanted",                       Icon: Star },
   { title: "Howdy Jobs",           href: "/my-jobs?tab=jobs",                  Icon: Briefcase, img: howdyMascot },
 ];
 

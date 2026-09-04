@@ -240,7 +240,7 @@ export default function CoachPlanPanel({ compact = false }: { compact?: boolean 
 
       {allOpen.length > 3 && (
         <Link
-          to="/skills-passport"
+          to="/skills-passport?tab=plan"
           className="inline-flex items-center gap-1 font-display font-700 text-xs text-primary hover:opacity-80 transition-opacity mt-2"
         >
           See all {allOpen.length} tasks <ArrowRight className="w-3 h-3" />
