@@ -5,6 +5,26 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-04 (final) — Andrew (main branch) — Rescued Sustainability Manager content before Guardian Jobs closed
+
+### What was done THIS SESSION
+Guardian Jobs (jobs.theguardian.com) shut down today - Andrew asked if their careers content had anything worth keeping before it disappeared, initially thinking it was video (it wasn't - confirmed via direct browsing that jobs.theguardian.com/careers is 85 text articles, no embedded video anywhere despite one URL slug literally containing "video"). He was explicit it shouldn't just be links, since those would go dead with the site.
+
+Pulled the full list of all 85 article titles across all 5 pages of jobs.theguardian.com/careers and cross-referenced every "How to become X" / "What does X do" one against HDYD's role coverage. Most matches (Mortgage Advisor, Financial Advisor, Project Manager, Teaching Assistant, etc.) already have rich, bespoke HDYD role pages that are already better/more specific than the Guardian pieces - not worth touching. One genuine gap stood out: **Sustainability Manager** is one of 14 generic cross-industry business roles (spans 11 industries per `roles.ts`) but was the only one of the 14 with no bespoke page at all - it fell through to the generic `RoleGeneric.tsx` template, and had no BBC Bitesize story either (confirmed absent from `ROLE_BBC_STORIES` in `role-bbc-careers.ts`), so its Watch tab was empty too.
+
+Read Guardian's two sustainability pieces in full ("How I became a sustainability manager" - a real interview with the Guardian's own Ben Murray, and "How do I get a role in sustainability?") while the site was still live, and used the facts from them - not reproduced or closely paraphrased text - to write original day-to-day/skills/traits/entry-tip content for a new `src/pages/roles/Sustainability.tsx`, following the exact pattern of the other 13 business-role pages (career ladder, podcasts, read articles, RoleOverview). Also pulled in the existing CareerPilot data already sitting unused in `role_metadata` for this slug. Verified every cited external resource (ISEP, BusinessGreen, Sustainability Magazine, Cleaning Up, A Sustainable Mind podcasts) was real and live before using it - caught along the way that IEMA has rebranded to ISEP and that edie.net is now paywalled, so used the correct current URLs rather than what would've been dead links on day one. Registered the route in `App.tsx` ahead of the `/roles/:slug` catch-all, matching every other bespoke role page.
+
+Verified live on the dev server: Plan/Read/Listen tabs all render correctly with working links, typecheck and lint clean.
+
+### Commits
+`8f66152` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Live at `/roles/sustainability`. This closes the one real content gap found across Guardian Jobs' full article catalogue - nothing else from that site needed rescuing given HDYD's existing role pages already cover the same ground better.
+
+### Left for next session
+Nothing outstanding from this task.
+
 ## 2026-09-04 (latest) — Andrew (main branch) — Signposting to Youth Employment UK
 
 ### What was done THIS SESSION
