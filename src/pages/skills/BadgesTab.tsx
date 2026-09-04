@@ -1,6 +1,11 @@
 import { Link } from "react-router-dom";
 import { Trophy, Lock, ArrowRight, BookOpen } from "lucide-react";
 import footballBadgeImg from "@/assets/series-football.jpg";
+import musicBadgeImg from "@/assets/series-music.jpg";
+import journalismBadgeImg from "@/assets/series-journalism.jpg";
+import fashionBadgeImg from "@/assets/series-fashion.jpg";
+import hospitalityBadgeImg from "@/assets/series-hospitality.jpg";
+import beautyBadgeImg from "@/assets/series-beauty.jpg";
 
 const MODULES = [
   {
@@ -12,12 +17,12 @@ const MODULES = [
     available: true,
     badge: "New",
   },
-  { slug: "music",       title: "Music",       description: "From streaming economics to live events — how the music industry really works and how to build a career in it.", href: "/music/badge", image: null, available: true, badge: "New" },
-  { slug: "journalism",  title: "Journalism",  description: "Newsrooms, media ownership and the routes in — how journalism actually works and how to build a career in it.", href: "/journalism/badge", image: null, available: true, badge: "New" },
-  { slug: "fashion",     title: "Fashion",     description: "Design, buying, marketing and more — the full picture of how fashion employs people you'd never expect.", href: "/fashion/badge", image: null, available: true, badge: "New" },
+  { slug: "music",       title: "Music",       description: "From streaming economics to live events — how the music industry really works and how to build a career in it.", href: "/music/badge", image: musicBadgeImg, available: true, badge: "New" },
+  { slug: "journalism",  title: "Journalism",  description: "Newsrooms, media ownership and the routes in — how journalism actually works and how to build a career in it.", href: "/journalism/badge", image: journalismBadgeImg, available: true, badge: "New" },
+  { slug: "fashion",     title: "Fashion",     description: "Design, buying, marketing and more — the full picture of how fashion employs people you'd never expect.", href: "/fashion/badge", image: fashionBadgeImg, available: true, badge: "New" },
   { slug: "technology",  title: "Technology",  description: "Understand the tech industry from product to engineering to go-to-market — and where you fit in.", href: null, image: null, available: false },
-  { slug: "hospitality", title: "Hospitality", description: "Operations, events, front of house and beyond — a real look at careers in hospitality.", href: null, image: null, available: false },
-  { slug: "beauty",      title: "Beauty",      description: "Brand, retail, education and media — the many ways to build a career in the beauty industry.", href: null, image: null, available: false },
+  { slug: "hospitality", title: "Hospitality", description: "Operations, events, front of house and beyond — a real look at careers in hospitality.", href: null, image: hospitalityBadgeImg, available: false },
+  { slug: "beauty",      title: "Beauty",      description: "Brand, retail, education and media — the many ways to build a career in the beauty industry.", href: null, image: beautyBadgeImg, available: false },
 ];
 
 export default function BadgesTab() {
