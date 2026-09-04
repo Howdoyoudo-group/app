@@ -5,6 +5,32 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-04 (latest) — Andrew (main branch) — Signposting to Youth Employment UK
+
+### What was done THIS SESSION
+Andrew asked whether we signpost to Youth Employment UK anywhere, and to review their site and link to the best of their resources, including their job board (opportunity-finder-database).
+
+Found we already had exactly one link to them (a self-management-skills page, under Employability's help list, `src/data/resource-topics.ts`) - nothing else. Browsed youthemployment.org.uk directly rather than guessing at what they offer: mapped their full nav (careers-advice-help hub, opportunity finder, careers-hub sector guides, young-professional-training, overcoming-barriers-to-life-and-employment, and more), and read the actual content of the four strongest candidate pages before picking any.
+
+Added four resources, each placed against the existing `RESOURCE_TOPICS` topic it's the best fit for, chosen specifically because each adds something genuinely distinct rather than padding out an already-well-stocked list:
+- **Opportunity Finder** (their job board - searchable UK-wide database of entry-level jobs, apprenticeships, training and events, filterable by location) → added to Support into Work.
+- **Overcoming Barriers** hub (mental health, disability, young carers, young parents, substance abuse, digital access - all in one place) → added to Support into Work alongside the job board, since it's meaningfully broader than that topic's current mental-health/disability-only framing.
+- **Career Guides** (18 sector-by-sector guides with practical routes in) → added to Careers Advice.
+- **Young Professional Training** (their free youth-specific skills membership hub, parent of the page already linked) → added to Online Courses, which was otherwise all generic global MOOC platforms with nothing youth-specific.
+
+Deliberately did NOT scatter Youth Employment UK across every topic on their site that could technically link somewhere on HDYD - stayed selective, per "link to what you feel are the best of the resources."
+
+Verified all four URLs return HTTP 200 before adding, and confirmed on the live dev server that the new entries render correctly in the resource page's Help tab (hit some Browser-pane tooling friction mid-session - clicks intermittently needed a retry - but the underlying `ResourceTopic.tsx` tab-switching component is simple, shared, and already proven correct by the successful check).
+
+### Commits
+`03606bc` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Live. Four new resource links in place, all verified reachable.
+
+### Left for next session
+Nothing outstanding from this task.
+
 ## 2026-09-04 (even later) — Andrew (main branch) — Simplify Level Up nav: About You + Skills down to one link each
 
 ### What was done THIS SESSION
