@@ -104,6 +104,8 @@ const travelCompanies = [
   { name: "Accor", url: "https://careers.accor.com", founded: "1967", hq: "London (UK)", glassdoor: 3.7, overview: "Global hospitality group - Ibis, Novotel, Sofitel, Fairmont, and more.", valueChainStage: "Hotels & Accommodation" },
   { name: "Marriott International", url: "https://careers.marriott.com", founded: "1927", hq: "London (UK)", glassdoor: 3.8, overview: "World's largest hotel company - Marriott, Sheraton, W Hotels, The Ritz-Carlton.", valueChainStage: "Hotels & Accommodation" },
   { name: "Expedia Group", url: "https://lifeatexpediagroup.com/jobs", founded: "1996", hq: "London (UK)", glassdoor: 3.8, overview: "Travel tech giant - Expedia, Hotels.com, Vrbo, and Trivago.", valueChainStage: "Travel Tech & Platforms" },
+  { name: "Travelodge", url: "https://www.travelodge.co.uk/vacancies/", founded: "1985", hq: "Thame", glassdoor: 3.7, overview: "UK budget hotel chain with several hundred hotels nationwide, offering value accommodation for business and leisure travellers.", valueChainStage: "Hotels & Accommodation" },
+  { name: "Hilton", url: "https://jobs.hilton.com/emea/en/uk-ireland-jobs", founded: "1919", hq: "Watford (UK)", glassdoor: 3.8, overview: "US-headquartered global hotel group operating multiple brands, with hotels across the UK and a European regional office in Watford.", valueChainStage: "Hotels & Accommodation" },
 ];
 
 const Travel = () => {

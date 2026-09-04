@@ -89,6 +89,9 @@ const farmingCompanies = [
   { name: "LEAF (Linking Environment And Farming)", url: "https://leaf.eco/about/careers", founded: "1991", hq: "Stoneleigh", overview: "Charity promoting sustainable farming through Integrated Farm Management and LEAF Marque.", valueChainStage: "Business & Estate" },
   { name: "Soil Association", url: "https://www.soilassociation.org/about-us/jobs/", founded: "1946", hq: "Bristol", overview: "Charity & certifier behind the UK's leading organic standard - farming, food and forestry.", valueChainStage: "Business & Estate" },
   { name: "ABP UK", url: "https://www.abpfoodgroup.com/careers/", founded: "1954", hq: "Shrewsbury", overview: "One of the UK's largest beef and lamb processors - supplies major retailers and foodservice.", valueChainStage: "Livestock & Dairy" },
+  { name: "Avara Foods", url: "https://careers.avarafoods.co.uk/", founded: "2018", hq: "Brackley", glassdoor: 3.2, overview: "A major UK poultry producer operating an integrated supply chain from agriculture through processing and distribution for UK supermarkets and restaurants.", valueChainStage: "Livestock & Dairy" },
+  { name: "Chesterfield Poultry", url: "https://cplfoods.co.uk/latest-vacancies/", founded: "2002", hq: "Doncaster", overview: "Trading as CPL Foods, a UK poultry processor and wholesaler based in Thorne, South Yorkshire, supplying chicken products to UK businesses.", valueChainStage: "Livestock & Dairy" },
+  { name: "Pilgrim's Europe", url: "https://pilgrimseurope.current-vacancies.com/Careers/PilgrimsEurope-Vacancy-Search-Page1-1899", founded: "1943", hq: "Craigavon", glassdoor: 3.5, overview: "Formerly Moy Park, a major UK and Irish poultry and meat processing company owned by US-based Pilgrim's Pride, operating dozens of facilities across the UK, Ireland, France and the Netherlands.", valueChainStage: "Livestock & Dairy" },
 ];
 
 const Farming = () => {

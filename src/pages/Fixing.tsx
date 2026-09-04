@@ -104,6 +104,7 @@ const fixingCompanies = [
   { name: "Uswitch / Go.Compare", founded: "2000/2006", hq: "London", overview: "Comparison platforms that drive large volumes of trade enquiries to independent plumbers, electricians, and gas engineers.", url: "https://www.zoopla.co.uk/careers", valueChainStage: "Management & Training" },
   { name: "Checkatrade", founded: "1998", hq: "Portsmouth", overview: "The UK's largest vetted-tradesperson marketplace, connecting homeowners with approved local builders, plumbers and electricians for home improvement work.", url: "https://www.checkatrade.com/careers", valueChainStage: "Management & Training" },
   { name: "Elyos AI", founded: "2023", hq: "London", overview: "AI voice and chat agents that automate customer service, scheduling and sales follow-up for trades and field-service businesses - plumbing, heating and electrical.", url: "https://elyos.ai/careers", valueChainStage: "IT & Tech Support" },
+  { name: "Sureserve Group", founded: "1988", hq: "Dartford", glassdoor: 2.6, overview: "A UK provider of compliance, heating and energy services to the social housing sector, operating across multiple regional businesses.", url: "https://careers.sureservegroup.co.uk/", valueChainStage: "Building Maintenance" },
 ];
 
 const Fixing = () => {

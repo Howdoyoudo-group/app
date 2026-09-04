@@ -82,6 +82,11 @@ const footballCompanies = [
   { name: "Ipswich Town", url: "https://www.itfc.co.uk/club/careers/", founded: "1878", hq: "Ipswich", glassdoor: 3.7, overview: "Suffolk club bouncing straight back to the Premier League after a single season down, rebuilding at Portman Road.", valueChainStage: "Club Operations" },
   { name: "Coventry City", url: "https://coventrycityfootballclub.teamtailor.com/jobs", founded: "1883", hq: "Coventry", glassdoor: 3.6, overview: "The Sky Blues return to the top flight after a 25-year absence, playing at the Coventry Building Society Arena.", valueChainStage: "Club Operations" },
   { name: "Hull City", url: "https://www.wearehullcity.co.uk/club/vacancies/", founded: "1904", hq: "Kingston upon Hull", glassdoor: 3.7, overview: "Yorkshire club returning to the Premier League after a nine-year absence.", valueChainStage: "Club Operations" },
+  { name: "Southampton FC", url: "https://www.southamptonfc.com/en/working-for-us", founded: "1885", hq: "Southampton", glassdoor: 4.0, overview: "Sport Republic-owned Championship club based at St Mary's Stadium in Southampton.", valueChainStage: "Club Operations" },
+  { name: "Birmingham City FC", url: "https://www.bcfc.com/pages/en/vacancies", founded: "1875", hq: "Birmingham", glassdoor: 3.5, overview: "Knighthead Capital-owned Championship club based at St Andrew's in Birmingham, with NFL legend Tom Brady among its investors.", valueChainStage: "Club Operations" },
+  { name: "Norwich City FC", url: "https://careers.canaries.co.uk/", founded: "1902", hq: "Norwich", glassdoor: 3.5, overview: "Championship club based at Carrow Road in Norwich, majority-owned by US businessman Mark Attanasio.", valueChainStage: "Club Operations" },
+  { name: "Burnley FC", url: "https://careers.burnleyfootballclub.com/", founded: "1882", hq: "Burnley", glassdoor: 3.6, overview: "ALK Capital-owned club based at Turf Moor in Burnley, playing in the Championship after relegation from the Premier League.", valueChainStage: "Club Operations" },
+  { name: "Sheffield United FC", url: "https://www.sufc.co.uk/club/vacancies/", founded: "1889", hq: "Sheffield", glassdoor: 4.0, overview: "Championship club based at Bramall Lane in Sheffield.", valueChainStage: "Club Operations" },
 ];
 
 const Football = () => {

@@ -103,6 +103,8 @@ const politicsCompanies = [
   { name: "Centre for Policy Studies", founded: "1974", hq: "London", overview: "Free-market, right-leaning think tank founded by Keith Joseph and Margaret Thatcher.", url: "https://cps.org.uk/about/jobs/", valueChainStage: "Think Tanks & Policy Research" },
   { name: "Electoral Commission", founded: "2000", hq: "London", overview: "Independent regulator of UK elections, referendums and political party finance.", url: "https://www.electoralcommission.org.uk/who-we-are/jobs", valueChainStage: "Local Government" },
   { name: "FGS Global", founded: "2021", hq: "London", overview: "One of the largest global public affairs and strategic communications firms, with a structured UK graduate programme — a common route from Westminster into the private sector.", url: "https://fgsglobal.com/join-us/", valueChainStage: "Public Affairs & Government Relations" },
+  { name: "Department for Work and Pensions", founded: "2001", hq: "London", glassdoor: 3.8, overview: "The UK's largest public service department, administering the State Pension and working-age, disability and ill-health benefits.", url: "https://www.civil-service-careers.gov.uk/dwp-our-careers/", valueChainStage: "Civil Service" },
+  { name: "Ofgem", founded: "2000", hq: "London", glassdoor: 3.6, overview: "The UK government regulator for the electricity and gas markets in Great Britain, based at Canary Wharf.", url: "https://www.ofgem.gov.uk/about-us/join-ofgem/work-ofgem", valueChainStage: "Civil Service" },
 ];
 
 const Politics = () => {

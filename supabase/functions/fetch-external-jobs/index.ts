@@ -3073,6 +3073,8 @@ const TEAMTAILOR_TENANTS: Array<{ domain: string; company: string; industry: str
   { domain: "coventrycityfootballclub.teamtailor.com", company: "Coventry City FC", industry: "football" },
   { domain: "careers.nottinghamforest.co.uk", company: "Nottingham Forest FC", industry: "football" },
   { domain: "careers.castore.com", company: "Castore", industry: "football" },
+  { domain: "therapieclinic.teamtailor.com", company: "Thérapie Clinic", industry: "beauty" },
+  { domain: "sureservegroup.teamtailor.com", company: "Sureserve Group", industry: "fixing" },
 ];
 
 async function fetchTeamtailorJobs(tenant: { domain: string; company: string; industry: string }) {
@@ -5733,6 +5735,7 @@ type GreenhouseTenant = {
 };
 
 const GREENHOUSE_TENANTS: GreenhouseTenant[] = [
+  { board: "mejuri",          company: "Mejuri",         industry: "jewellery",   allUk: false },
   { board: "monzo",           company: "Monzo",          industry: "money",       allUk: true },
   { board: "sothebys",        company: "Sotheby's",      industry: "fashion",     allUk: false },
   { board: "butternutbox",    company: "Butternut Box",   industry: "pets",        allUk: true },
@@ -5870,6 +5873,9 @@ type WorkableTenant = {
 
 const WORKABLE_TENANTS: WorkableTenant[] = [
   { slug: "charlotte-tilbury",    company: "Charlotte Tilbury",    industry: "beauty",        allUk: false },
+  { slug: "queensmith",           company: "Queensmith",           industry: "jewellery",     allUk: true },
+  { slug: "lighthousegames",      company: "Lighthouse Games",     industry: "gaming",        allUk: true },
+  { slug: "rebellion",            company: "Rebellion Developments", industry: "gaming",      allUk: true },
   { slug: "zoopla",               company: "Zoopla",               industry: "estate-agency", allUk: true },
   { slug: "tomorrow-2",           company: "Tomorrow London",      industry: "fashion",       allUk: true },
   { slug: "motabilityfoundation", company: "Motability Foundation", industry: "charity",       allUk: true },

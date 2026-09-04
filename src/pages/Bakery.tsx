@@ -100,6 +100,7 @@ const bakeryCompanies = [
   { name: "Paul UK", founded: "1889", hq: "London", overview: "French-inspired artisan bakery and café chain.", url: "https://careers.paul-uk.com/jobs.aspx", glassdoor: 3.4, trustpilot: 2.8, valueChainStage: "Retail & Shopfront" },
   { name: "Shipton Mill", founded: "1981", hq: "Gloucestershire", overview: "Organic and stoneground flour supplier to top UK bakeries.", url: "https://www.shipton-mill.com", trustpilot: 4.7, valueChainStage: "Ingredients & Sourcing" },
   { name: "Warburtons", founded: "1876", hq: "Bolton", overview: "The UK's largest family-owned bakery, producing 2 million loaves daily.", url: "https://careers.warburtons.co.uk/", glassdoor: 3.7, valueChainStage: "Production & Manufacturing" },
+  { name: "The Bread Factory", founded: "Historic (30+ years trading)", hq: "London", glassdoor: 3.4, overview: "A London-based wholesale craft bakery holding a Royal Warrant, supplying bread, pastries and morning goods to restaurants, hotels and cafes across the UK.", url: "https://jobs.thebreadfactory.co.uk", valueChainStage: "Production & Manufacturing" },
 ];
 
 const Bakery = () => {

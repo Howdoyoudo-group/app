@@ -94,6 +94,11 @@ const beautyCompanies = [
   { name: "Trinny London", url: "https://www.trinnylondon.com/uk/careers", founded: "2017", hq: "London", overview: "Direct-to-consumer beauty brand by Trinny Woodall - clip-together cream makeup 'stacks' and skincare, matched via a personalised digital profiling tool.", valueChainStage: "Brand & Marketing" },
   { name: "Glossier", url: "https://life.glossier.com/", founded: "2014", hq: "New York (UK team: London)", overview: "Direct-to-consumer beauty brand built from a beauty blog - skin-first makeup and skincare sold online and through its own retail stores.", valueChainStage: "Brand & Marketing" },
   { name: "Skin + Me", url: "https://apply.workable.com/skinandme", founded: "2020", hq: "London", overview: "Personalised prescription skincare - dermatologist-designed, monthly-adjusted topical treatments for acne and skin-ageing, delivered direct to the door.", valueChainStage: "Product Development" },
+  { name: "Superdrug", url: "https://www.superdrug.jobs", founded: "1964", hq: "Croydon", glassdoor: 3.3, overview: "A UK health and beauty retailer with stores nationwide, including in-store pharmacies.", valueChainStage: "Retail & Sales" },
+  { name: "L'Oréal", url: "https://careers.loreal.com/en_US/content/UK", founded: "1909", hq: "Clichy, France", glassdoor: 3.8, overview: "A global cosmetics and beauty company with a significant presence across UK retail, luxury and consumer brands.", valueChainStage: "Manufacturing & Supply" },
+  { name: "Lush", url: "https://lush.pinpointhq.com", founded: "1995", hq: "Poole, Dorset", glassdoor: 3.7, overview: "A British cosmetics retailer known for handmade bath and beauty products, with manufacturing based in Poole.", valueChainStage: "Brand & Marketing" },
+  { name: "RUSH Hair & Beauty", url: "https://www.rush.co.uk/careers", founded: "1994", hq: "Croydon", glassdoor: 4.7, overview: "A UK hair and beauty salon chain operating over 50 salons.", valueChainStage: "Professional Services" },
+  { name: "Thérapie Clinic", url: "https://careers.therapieclinic.com/", founded: "2004", hq: "Dublin, Ireland", glassdoor: 3.6, overview: "An aesthetics clinic chain operating laser and cosmetic treatment clinics across the UK and Ireland.", valueChainStage: "Professional Services" },
 ];
 
 const Beauty = () => {

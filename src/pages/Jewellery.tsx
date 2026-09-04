@@ -91,6 +91,9 @@ const jewelleryCompanies = [
   { name: "Astley Clarke", url: "https://www.astleyclarke.com/join-us", founded: "2006", hq: "London", overview: "British fine jewellery brand - engagement rings, everyday pieces, and digital-first retail.", valueChainStage: "Marketing & Brand" },
   { name: "Christie's (Jewellery Dept)", url: "https://www.christies.com/en/careers", founded: "1766", hq: "London", overview: "World-leading auction house - specialist jewellery department handling record-breaking sales.", valueChainStage: "Business & Operations" },
   { name: "Sotheby's (Jewellery Dept)", url: "https://www.sothebys.com/en/about/careers", founded: "1744", hq: "London", overview: "Global auction house with a prestigious jewellery department - valuations, sales, and private deals.", valueChainStage: "Business & Operations" },
+  { name: "Goldsmiths", url: "https://ukcareers.thewosgroup.com/jobs/divisions/goldsmiths/", founded: "1778", hq: "Leicester", glassdoor: 3.2, overview: "The UK's largest jewellery retailer, trading under Watches of Switzerland Group, selling fine jewellery, diamonds and watches from stores across the country.", valueChainStage: "Retail & Client Experience" },
+  { name: "Queensmith", url: "https://www.queensmith.co.uk/about-us/join-the-team", founded: "2016", hq: "London", glassdoor: 3.9, overview: "A London-based retailer specialising in made-to-order diamond engagement and wedding rings, with a flagship showroom and workshop in Hatton Garden.", valueChainStage: "Retail & Client Experience" },
+  { name: "Mejuri", url: "https://www.mejuri.com/careers", founded: "2015", hq: "Toronto", glassdoor: 3.1, overview: "A Toronto-founded direct-to-consumer fine jewellery brand selling everyday luxury pieces online and through stores, including a London presence.", valueChainStage: "Marketing & Brand" },
 ];
 
 const Jewellery = () => {

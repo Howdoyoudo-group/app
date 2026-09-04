@@ -106,6 +106,8 @@ const wellnessCompanies = [
   { name: "GLL (Better)", url: "https://www.gll.org/careers", founded: "1993", hq: "London", glassdoor: 3.4, overview: "The UK's largest charitable social enterprise running leisure centres and gyms - operates 270+ Better-branded sites.", valueChainStage: "Gyms & Fitness" },
   { name: "JD Gyms", url: "https://careers.jdgyms.co.uk", founded: "2014", hq: "Bury", glassdoor: 3.5, overview: "Premium-value gym chain owned by JD Sports - one of the UK's fastest-growing operators.", valueChainStage: "Gyms & Fitness" },
   { name: "ClassPass", url: "https://classpass.com/careers", founded: "2013", hq: "New York (UK team: London)", overview: "Fitness and wellness subscription marketplace giving members access to gyms, studios and wellness experiences worldwide.", valueChainStage: "Gyms & Fitness" },
+  { name: "Fitness First", url: "https://www.fitnessfirstcareers.co.uk/", founded: "1993", hq: "Wigan", glassdoor: 3.4, overview: "A long-established UK gym chain, now operating as DW Fitness First, offering gym facilities, classes and personal training across the country.", valueChainStage: "Gyms & Fitness" },
+  { name: "Everlast Gyms", url: "https://www.frasers.group/careers/jobs", founded: "2020", hq: "Shirebrook", glassdoor: 2.6, overview: "A UK budget gym chain owned by Frasers Group, operating dozens of clubs across the UK and Ireland under the Everlast boxing brand licence.", valueChainStage: "Gyms & Fitness" },
 ];
 
 const Wellness = () => {
