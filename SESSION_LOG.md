@@ -5,6 +5,24 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-04 (truly final) — Andrew (main branch) — Sustainability Manager Learn tab: only online courses, no FE/vocational routes
+
+### What was done THIS SESSION
+Straight after building the new Sustainability Manager role page, Andrew noticed its Learn tab only showed generic online course platforms - no further education or vocational qualifications. Traced it to `RoleLearnSection.tsx`, which deliberately skips its "Courses & Qualifications" block for every business-category role (Sales, Marketing, Sustainability Manager, etc.) - cross-referencing them against `coursesByIndustry` (keyed by industry, e.g. Beauty, Cars) surfaces irrelevant industry trade courses for a role that happens to span many unrelated industries, so the code was written to skip that entirely rather than show noise.
+
+Added `coursesByRole` to `courses.ts` - real FE/vocational qualifications keyed by role slug instead of industry, so a business-function role CAN get genuinely relevant vocational content without the cross-referencing problem. Populated it for `sustainability` with three real, verified, currently-live routes: ISEP's Foundation Certificate in Sustainability and Environmental Management (entry-level, no prerequisites), NEBOSH's Environmental Management Certificate (practical/compliance-focused), and the Sustainability Business Specialist Level 7 degree apprenticeship - linked to the official Skills England standard page rather than a single training provider, and stated the funding caveat accurately (government funding for new starts is now restricted to under-22s / care-experienced apprentices from Jan 2026, not open to everyone as it might first appear).
+
+`RoleLearnSection.tsx` now checks `coursesByRole` first, before falling back to the existing industry cross-reference/skip logic - verified no regression on Sales and Marketing (Marketing already has its own fully bespoke Learn tab that bypasses this component entirely; Sales still renders exactly as before, just Online Learning).
+
+### Commits
+`757214e` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Live at `/roles/sustainability` → Learn tab. The `coursesByRole` data structure is ready to extend to other business-category roles later if the same gap is noticed there, but only `sustainability` is populated for now, matching what was actually asked.
+
+### Left for next session
+Nothing outstanding from this task.
+
 ## 2026-09-04 (final) — Andrew (main branch) — Rescued Sustainability Manager content before Guardian Jobs closed
 
 ### What was done THIS SESSION
