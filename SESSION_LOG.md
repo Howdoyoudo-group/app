@@ -5,6 +5,28 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-04 — Andrew (main branch) — Redesign About You + Skills (Level Up)
+
+### What was done THIS SESSION
+Andrew asked for a full redesign of "About You" and "Skills" under Level Up: too many headings, no direction for a first-time visitor, no introductions - wanted a "Howdy Intro" like the one on "How to use this site," and the flow/design pulled tighter together in each section.
+
+Went through plan mode given the scope (8+ files, real IA decisions). Two Explore passes mapped the current state before any design work: "About You" turned out to span 3 loosely-connected files (`MatchMe.tsx` hub, `MatchMeSectionPage.tsx` for 6 dynamic sections, `MostWanted.tsx`) with zero orientation copy anywhere; "Skills" is one hub (`SkillsPassport.tsx`) with 5 tabs, each independently redeclaring its own page-title `<h2>` redundant with the parent hero, plus a fully-built "Career Passport" tab that wasn't linked from any nav and mostly duplicated the Skill Gaps tab. Confirmed two decisions with Andrew before writing the plan: build a lightweight static "Howdy Intro" (mascot + 2-3 sentences, no video/AI call - deliberately distinct from `HowdyTake()` in `PlanTab.tsx`, which calls the AI), and use the pass to also clean up the structural loose ends rather than just paint over them.
+
+Built `src/components/HowdyIntro.tsx` - genuinely reusable (`{ eyebrow?, children: string, size?, className? }`), modelled on the clean prop API of `HowdyReadAloud.tsx`. Placed it at the top of `MatchMe.tsx`, all 6 `MatchMeSectionPage.tsx` sections (extended `SECTION_META` with per-section `intro` copy), `MostWanted.tsx`, and the `SkillsPassport.tsx` hub. Converted three uppercase-label pseudo-headings in the "what-we-know" section ("From your CV" / "You told us" / "Your personality") to real `<h3>`s. Added the two nav items (`What If Machine`, `Side Hustle Ideas`) that `MatchMe.tsx`'s own tile grid already had but both nav dropdowns (`SiteHeader.tsx` desktop + `GlobalMobileMenu.tsx` mobile) were missing - labelled "Side Hustle Ideas" rather than reusing "Side Hustles" since that label already exists under Discover for a different, non-personalised page.
+
+For Skills: extracted the inline `BadgesTab` out of `SkillsPassport.tsx` into its own file (matching the other 4 tabs' convention) and refreshed its module list while there - Music, Journalism and Fashion badges (built earlier today) were still marked "Coming Soon," now correctly live. Demoted each remaining tab's redundant page-title `<h2>` to a smaller tab-label style rather than deleting it outright, so a direct link like `?tab=gaps` doesn't land headless. Deleted `CareerPassportTab.tsx` after folding its two genuinely unique pieces into `SkillGapsTab.tsx`: the HDYD free-badge recommendations (extended to cover all four badge industries now, not just football) and the Skills England attribution footer. Confirmed via `grep` no other file referenced it before deleting.
+
+Verified in the browser (no QA-bypass/test-account pattern exists in this codebase for these auth-gated pages, confirmed via search, so this was signed-out-state verification): HowdyIntro renders correctly on `/match-me`, `/match-me/what-we-know` (with section-specific copy), and `/skills-passport`; nav dropdown confirmed showing all 7 About You links including the two new ones; Badges tab confirmed showing Music/Journalism/Fashion as live modules; an old `?tab=passport` link confirmed falling through gracefully (hero + intro render, no crash, no orphaned tab content). `npm run typecheck` clean throughout.
+
+### Commits
+`b1d1fd0` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Redesign fully live. About You and Skills both now open with a Howdy Intro card explaining what the page is for, heading hierarchy is tightened, and the nav/tab inconsistencies found during research are resolved.
+
+### Left for next session
+Nothing outstanding from this task. (Reminder still carried over from earlier today: Music/Journalism/Fashion badge lesson content still needs generating via the "(Re)generate ... badge" buttons on `/admin/industry-health` before those three badge pages show real lessons instead of "being prepared" - unrelated to this redesign, just still pending.)
+
 ## 2026-09-03 (even later) — Andrew (main branch) — Fundamentals badge for Music/Journalism/Fashion + quiz background fix
 
 ### What was done THIS SESSION
