@@ -5,6 +5,26 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-05 — Andrew (main branch) — "Take the Tour" promoted to a hero CTA
+
+### What was done THIS SESSION
+Andrew asked to make "Take the tour" (the Howdy guided walkthrough, previously only reachable by opening the Howdy chat widget and finding it in the header) into its own button on the homepage hero, styled and placed like the existing "About You" / "About Us" pills.
+
+Added a third `SketchCta` (ghost variant, matching "About Us") to the hero CTA row in `src/components/Hero.tsx`, calling the existing `launchHowdyTour()` export from `src/components/HowdyTour.tsx` - no new tour logic needed, `HowdyTour` is already mounted globally in `App.tsx` so the launcher works from any page. Left the existing tour entry points (Howdy chat header, `/using-our-site`, end of onboarding) as they are - this is additive, not a replacement.
+
+Verified live on the dev server: "About You", "About Us", "Take the Tour" now render as three matching hand-drawn pill buttons in the hero row, and clicking "Take the Tour" correctly opens the guided walkthrough at Stop 1 of 18.
+
+### Commits
+`91d97ff` — pushed to both remotes (`howdoyoudo` + `origin`) ✅
+
+### Current state
+Live. Hero now has a visible, one-click way into the guided tour without needing to discover it inside the Howdy chat widget first.
+
+### Left for next session
+Nothing outstanding from this task.
+
+---
+
 ## 2026-09-04 (follow-up) — Andrew (main branch) — retrofitted the ~48-company batch into Discover/Companies
 
 ### What was done THIS SESSION
