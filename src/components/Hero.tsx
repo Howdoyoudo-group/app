@@ -5,6 +5,7 @@ import { Menu, X, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SiteHeader from "./SiteHeader";
 import { supabase } from "@/integrations/supabase/client";
+import { launchHowdyTour } from "@/components/HowdyTour";
 import { INDUSTRIES } from "@/data/industries";
 import heroBg from "@/assets/hero-bg-industries.jpg";
 import brandQuestionMark from "@/assets/brand/logo-question-mark.png";
@@ -418,6 +419,13 @@ const Hero = () => {
             <a href="#about" className="hover:opacity-90 transition-opacity">
               <SketchCta variant="ghost">About Us</SketchCta>
             </a>
+            <button
+              type="button"
+              onClick={() => launchHowdyTour()}
+              className="hover:opacity-90 transition-opacity"
+            >
+              <SketchCta variant="ghost">Take the tour</SketchCta>
+            </button>
           </div>
 
         </motion.div>
