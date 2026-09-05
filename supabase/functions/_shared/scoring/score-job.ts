@@ -92,6 +92,28 @@ export interface ScoreResult {
   score: number;
   matches: string[];
   riasecMatch?: number;
+  /** Ordered, human-readable contribution list — additive/optional, not read
+   *  by any existing caller. Populated so UI can explain *why* a job scored
+   *  the way it did, ranked by actual weight rather than declaration order. */
+  breakdown?: ScoreBreakdownItem[];
+}
+
+export interface ScoreBreakdownItem {
+  /** Plain-English description of this factor, safe to show verbatim. */
+  label: string;
+  /** Points this factor actually contributed (0 when it didn't hit). */
+  weight: number;
+  hit: boolean;
+}
+
+/** Ranks a scoreJob() breakdown by actual weight contributed (descending),
+ *  keeping only the factors that hit — for "here's why this matched". */
+export function summarizeBreakdown(breakdown: ScoreBreakdownItem[], max = 3): string[] {
+  return breakdown
+    .filter((b) => b.hit && b.weight > 0)
+    .sort((a, b) => b.weight - a.weight)
+    .slice(0, max)
+    .map((b) => b.label);
 }
 
 // ───── Behavioural affinity (browsing-derived industry interest) ────────────
@@ -553,6 +575,28 @@ export function shouldExcludeJob(job: Job, profile: UserProfile, roleTitleToSlug
   return false;
 }
 
+/** For a job that scored in a middling band, name the single biggest reason
+ *  it's a "stretch" rather than a clean match — reuses the same signal
+ *  functions scoreJob() itself uses, so it can never disagree with the score.
+ *  Returns null when there's no clear stretch reason (i.e. it's just a
+ *  generically average match, not worth narrating as a reach). */
+export function getExclusionOrMismatchReason(
+  job: Job,
+  profile: UserProfile,
+  roleTitleToSlug?: Record<string, string>,
+): string | null {
+  const effectiveIndustries = getEffectiveIndustries(profile);
+  const effectiveRoles = getEffectiveRoles(profile);
+  const industryOk = effectiveIndustries.length === 0 || hasIndustryMatch(job, profile);
+  const roleOk = effectiveRoles.length === 0 || hasRoleMatch(job, profile, roleTitleToSlug);
+  const levelOk = isCareerLevelCompatible(job, profile);
+
+  if (industryOk && !roleOk) return "the role's a bit different from what you've been targeting, but the industry fits";
+  if (!levelOk) return "it's a stretch on career level";
+  if (!industryOk && roleOk) return "it's outside your usual industries, but the role itself is a strong fit";
+  return null;
+}
+
 export function passesSalaryFilter(job: Job, minSalary: number): boolean {
   if (minSalary <= 0) return true;
   const jobMax = parseSalaryMax(job.salary);
@@ -747,6 +791,7 @@ export function scoreJob(
 ): ScoreResult {
   const { roleProfiles, learned, roleTitleToSlug } = ctx;
   const matches: string[] = [];
+  const breakdown: ScoreBreakdownItem[] = [];
   const effectiveRoles = getEffectiveRoles(profile);
   const effectiveIndustries = getEffectiveIndustries(profile);
   const effectiveCareerLevel = getEffectiveCareerLevel(profile);
@@ -763,15 +808,17 @@ export function scoreJob(
   // Industry – 40%
   if (effectiveIndustries.length > 0) {
     totalWeight += 40;
-    if (job.industry && expandIndustrySlugs(effectiveIndustries).includes(toSlug(job.industry))) {
-      weightedScore += 40; matches.push("Industry");
-    }
+    const hit = !!(job.industry && expandIndustrySlugs(effectiveIndustries).includes(toSlug(job.industry)));
+    if (hit) { weightedScore += 40; matches.push("Industry"); }
+    breakdown.push({ label: "Matches an industry you're interested in", weight: hit ? 40 : 0, hit });
   }
 
   // Role – 20%
   if (effectiveRoles.length > 0) {
+    const hit = hasRoleMatch(job, profile, roleTitleToSlug);
     totalWeight += 20;
-    if (hasRoleMatch(job, profile, roleTitleToSlug)) { weightedScore += 20; matches.push("Role"); }
+    if (hit) { weightedScore += 20; matches.push("Role"); }
+    breakdown.push({ label: "Fits a role you're targeting", weight: hit ? 20 : 0, hit });
   }
 
   // Target companies +30
@@ -782,7 +829,10 @@ export function scoreJob(
       const t = c.toLowerCase().trim();
       return jobCompany === t || jobCompany.includes(t) || t.includes(jobCompany);
     });
-    if (matchedCo) { weightedScore += 30; matches.push(`Wanted · ${matchedCo}`); }
+    if (matchedCo) {
+      weightedScore += 30; matches.push(`Wanted · ${matchedCo}`);
+      breakdown.push({ label: `${matchedCo} is one of your dream companies`, weight: 30, hit: true });
+    }
   }
 
   // Target roles +25
@@ -790,7 +840,10 @@ export function scoreJob(
   if (targetRoles.length > 0 && job.title) {
     const jobTitle = job.title.toLowerCase();
     const matchedRole = targetRoles.find((r) => jobTitle.includes(r.toLowerCase().trim()));
-    if (matchedRole) { weightedScore += 25; matches.push(`Wanted · ${matchedRole}`); }
+    if (matchedRole) {
+      weightedScore += 25; matches.push(`Wanted · ${matchedRole}`);
+      breakdown.push({ label: `You've said you want a ${matchedRole} role`, weight: 25, hit: true });
+    }
   }
 
   // Passions – 25%
@@ -813,6 +866,7 @@ export function scoreJob(
         return mapped?.includes(matchedKw || "");
       });
       matches.push(friendly ? `Passion post · ${friendly}` : "Passion post");
+      breakdown.push({ label: friendly ? `Connects to your passion for ${friendly}` : "Connects to one of your passions", weight: 25, hit: true });
     }
   }
 
@@ -828,6 +882,7 @@ export function scoreJob(
             (PASSION_INDUSTRY_MAP[p.toLowerCase()] || []).some((i) => i.toLowerCase() === job.industry!.toLowerCase()),
           );
           matches.push(driver ? `Passion post · ${driver}` : "Passion post");
+          breakdown.push({ label: driver ? `In an industry linked to your passion for ${driver}` : "In an industry linked to one of your passions", weight: 10, hit: true });
         }
       }
     }
@@ -836,17 +891,21 @@ export function scoreJob(
   // Career Level – 15%
   if (effectiveCareerLevel) {
     totalWeight += 15;
-    if (job.career_level && job.career_level.toLowerCase() === effectiveCareerLevel) {
-      weightedScore += 15; matches.push("Level");
-    }
+    const hit = !!(job.career_level && job.career_level.toLowerCase() === effectiveCareerLevel);
+    if (hit) { weightedScore += 15; matches.push("Level"); }
+    breakdown.push({ label: "Matches your career level", weight: hit ? 15 : 0, hit });
   }
 
   // Location – 10%
   if (profile.location_preference) {
     totalWeight += 10;
     const pref = profile.location_preference.toLowerCase();
-    if (job.location && job.location.toLowerCase().includes(pref)) { weightedScore += 10; matches.push("Location"); }
-    else if (job.work_mode?.toLowerCase() === "remote" && pref === "remote") { weightedScore += 10; matches.push("Location"); }
+    const hit = !!(
+      (job.location && job.location.toLowerCase().includes(pref)) ||
+      (job.work_mode?.toLowerCase() === "remote" && pref === "remote")
+    );
+    if (hit) { weightedScore += 10; matches.push("Location"); }
+    breakdown.push({ label: "In your preferred location", weight: hit ? 10 : 0, hit });
   }
 
   // RIASEC – 5%
@@ -863,7 +922,9 @@ export function scoreJob(
       const cosine = magU && magR ? dot / (Math.sqrt(magU) * Math.sqrt(magR)) : 0;
       const riasecScore = Math.max(0, (cosine - 0.5) * 2);
       weightedScore += riasecScore * 5;
-      if (riasecScore > 0.3) matches.push("Personality");
+      const hit = riasecScore > 0.3;
+      if (hit) matches.push("Personality");
+      breakdown.push({ label: "Fits your personality profile", weight: Math.round(riasecScore * 5), hit });
     }
   }
 
@@ -882,7 +943,9 @@ export function scoreJob(
         }
         const valScore = sum / keys.length;
         weightedScore += valScore * 5;
-        if (valScore > 0.6) matches.push("Values");
+        const hit = valScore > 0.6;
+        if (hit) matches.push("Values");
+        breakdown.push({ label: "Aligns with what matters to you at work", weight: Math.round(valScore * 5), hit });
       }
     }
   }
@@ -900,8 +963,11 @@ export function scoreJob(
   // populated from job_matches.semantic_score, never computed client-side)
   if (ctx.semanticSimilarity !== undefined) {
     totalWeight += 20;
-    weightedScore += Math.max(0, Math.min(1, ctx.semanticSimilarity)) * 20;
-    if (ctx.semanticSimilarity >= 0.62) matches.push("Strong fit");
+    const semanticWeight = Math.max(0, Math.min(1, ctx.semanticSimilarity)) * 20;
+    weightedScore += semanticWeight;
+    const hit = ctx.semanticSimilarity >= 0.62;
+    if (hit) matches.push("Strong fit");
+    breakdown.push({ label: "Reads like a strong overall fit", weight: Math.round(semanticWeight), hit });
   }
 
   // Intersection boost (+20 pts flat): job title matches a known cross-industry
@@ -919,6 +985,7 @@ export function scoreJob(
       if (matched) {
         weightedScore += 20;
         matches.push("Intersection match");
+        breakdown.push({ label: "A rare crossover between your interests", weight: 20, hit: true });
       }
     }
   }
@@ -928,23 +995,28 @@ export function scoreJob(
   if (learned) {
     const adj = learningAdjustment(job, learned);
     score = Math.max(0, Math.min(100, score + adj));
-    if (adj > 3) matches.push("✓ Learned");
+    if (adj > 3) { matches.push("✓ Learned"); breakdown.push({ label: "Similar to jobs you've liked before", weight: adj, hit: true }); }
     if (adj < -3) matches.push("↓ Learned");
   }
 
   const industryBoost = getIndustryRankBoost(job.industry, job.title, job.company);
   if (industryBoost !== 0) {
     score = Math.max(0, Math.min(100, score + industryBoost * 3));
-    if (industryBoost >= 3) matches.push("Top employer");
+    if (industryBoost >= 3) { matches.push("Top employer"); breakdown.push({ label: "A well-known name in this industry", weight: industryBoost * 3, hit: true }); }
     else if (industryBoost <= -3) matches.push("↓ Generic role");
   }
 
   if (isPassionTaggedJob) score = Math.min(100, score + 20);
 
-  score = Math.min(100, score + getFreshnessBoost(job.created_at));
+  const freshnessBoost = getFreshnessBoost(job.created_at);
+  score = Math.min(100, score + freshnessBoost);
+  if (freshnessBoost >= 10) breakdown.push({ label: "Just posted", weight: freshnessBoost, hit: true });
 
   // Behavioural affinity boost - soft nudge based on what the user actually browses.
+  const preBehavioralScore = score;
   score = applyBehavioralBoost(score, matches, job, ctx.behavioralAffinity ?? null);
+  const behavioralBoost = score - preBehavioralScore;
+  if (behavioralBoost >= 3) breakdown.push({ label: "You've been browsing jobs like this", weight: behavioralBoost, hit: true });
 
-  return { score, matches };
+  return { score, matches, breakdown };
 }

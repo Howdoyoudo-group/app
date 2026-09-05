@@ -1750,6 +1750,7 @@ export type Database = {
           home_address: string | null
           home_town: string | null
           home_town_blurb: string | null
+          howdy_jobs_last_seen_at: string | null
           howdy_memory: string[]
           howdy_tour_completed_at: string | null
           id: string
@@ -1797,6 +1798,7 @@ export type Database = {
           home_address?: string | null
           home_town?: string | null
           home_town_blurb?: string | null
+          howdy_jobs_last_seen_at?: string | null
           howdy_memory?: string[]
           howdy_tour_completed_at?: string | null
           id: string
@@ -1844,6 +1846,7 @@ export type Database = {
           home_address?: string | null
           home_town?: string | null
           home_town_blurb?: string | null
+          howdy_jobs_last_seen_at?: string | null
           howdy_memory?: string[]
           howdy_tour_completed_at?: string | null
           id?: string
