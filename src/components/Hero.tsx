@@ -400,7 +400,7 @@ const Hero = () => {
             Start with what you <span style={{ color: LIME }}>love,</span> and see where it takes you.
           </p>
 
-          <div className="mt-5 md:mt-8 flex flex-nowrap items-center gap-2 sm:gap-3 md:gap-4 overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="mt-5 md:mt-8 flex flex-wrap md:flex-nowrap items-center gap-2 sm:gap-3 md:gap-4 md:overflow-x-auto md:whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {user ? (
               <Link
                 to="/my-profile"
@@ -422,9 +422,12 @@ const Hero = () => {
             <button
               type="button"
               onClick={() => launchHowdyTour()}
-              className="hover:opacity-90 transition-opacity"
+              className="hover:opacity-90 transition-opacity basis-full md:basis-auto flex justify-start"
             >
-              <SketchCta variant="ghost">Take the tour</SketchCta>
+              <SketchCta variant="ghost">
+                <span className="md:hidden">Tour</span>
+                <span className="hidden md:inline">Take the tour</span>
+              </SketchCta>
             </button>
           </div>
 
