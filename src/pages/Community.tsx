@@ -17,7 +17,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 import { ReportUserDialog } from "@/components/ReportUserDialog";
 import { useAuth } from "@/contexts/AuthContext";
-import howdyMascot from "@/assets/howdy-mascot.png";
+import HowdyHeaderButton from "@/components/HowdyHeaderButton";
 
 import { getIndustryImage } from "@/components/feed/feedUtils";
 import CourseOfTheDay from "@/components/community/CourseOfTheDay";
@@ -510,13 +510,7 @@ const Community = () => {
               >
                 <Inbox className="w-[20px] h-[20px]" />
               </Link>
-              <Link
-                to="/howdy"
-                aria-label="Open Howdy"
-                className="relative w-11 h-11 rounded-full flex items-center justify-center shrink-0 mt-1 bg-[#00E600] ring-2 ring-foreground/10 hover:ring-foreground/30 transition overflow-hidden"
-              >
-                <img src={howdyMascot} alt="" className="w-8 h-8 object-contain" />
-              </Link>
+              <HowdyHeaderButton />
             </header>
 
           </>

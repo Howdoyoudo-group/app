@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import HowdyIntro from "@/components/HowdyIntro";
 import {
   Plus,
   Trash2,
@@ -1891,6 +1892,10 @@ ${passionMerged.length ? sect("Interests", `<p>${passionMerged.join("  ·  ")}</
 
   return (
     <div className="space-y-6">
+      <HowdyIntro className="print:hidden">
+        This is where I turn your story into something an employer can actually judge you on. Fill in what you can - I'll use it to tailor cover letters and CV tips for jobs you go for.
+      </HowdyIntro>
+
       {/* Mobile Edit / Preview tabs — only visible below lg */}
       <div className="flex lg:hidden print:hidden rounded-2xl border border-border bg-card p-1 gap-1">
         <button

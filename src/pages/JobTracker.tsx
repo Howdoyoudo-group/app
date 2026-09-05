@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
+import HowdyHeaderButton from "@/components/HowdyHeaderButton";
 import howdyMascot from "@/assets/howdy-mascot.png";
 
 const openHowdy = (prefill: string) => {
@@ -1008,13 +1009,7 @@ export default function JobTracker() {
               Every opportunity, one board. Jobs, companies to approach, and the people who can help.
             </p>
           </div>
-          <Link
-            to="/howdy"
-            aria-label="Open Howdy"
-            className="relative w-11 h-11 rounded-full flex items-center justify-center shrink-0 mt-1 bg-primary ring-2 ring-foreground/10 hover:ring-foreground/30 transition overflow-hidden"
-          >
-            <img src={howdyMascot} alt="" className="w-8 h-8 object-contain" />
-          </Link>
+          <HowdyHeaderButton />
         </header>
 
         {showIntro && (
@@ -1027,9 +1022,19 @@ export default function JobTracker() {
             >
               <X className="w-4 h-4" />
             </button>
-            <h2 className="font-display font-900 text-sm uppercase tracking-wide mb-3 pr-6">
-              How Job Tracker works
-            </h2>
+            <div className="flex items-start gap-3 mb-4 pr-6">
+              <img
+                src={howdyMascot}
+                alt="Howdy"
+                className="w-10 h-10 rounded-full border-2 border-foreground shrink-0 object-cover"
+              />
+              <div>
+                <p className="font-display font-700 text-[11px] uppercase tracking-widest text-primary mb-1">Howdy says</p>
+                <p className="font-body text-sm text-foreground/90 leading-relaxed">
+                  Track every opportunity in one board - I'll nudge you when something needs attention. Here's how it works.
+                </p>
+              </div>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[
                 {

@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import SEO from "@/components/SEO";
 import SiteNav from "@/components/SiteNav";
+import HowdyIntro from "@/components/HowdyIntro";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useTargetRoles } from "@/hooks/useTargetRoles";
@@ -954,6 +955,10 @@ const MyProfile = () => {
             <LogOut className="w-3 h-3" /> Sign out
           </button>
         </div>
+
+        <HowdyIntro className="mb-6 export-hidden">
+          The more I know here, the sharper your matches get - your industries, your career level, what you've done, and what you're after. Fill in what you can; I'll do the rest.
+        </HowdyIntro>
 
         {/* ============================ ACCOUNT MANAGEMENT ============================ */}
         <section className="mb-6 export-hidden">

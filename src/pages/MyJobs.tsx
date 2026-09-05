@@ -47,6 +47,7 @@ import SavedTabContent from "@/components/SavedTabContent";
 import MembersArea from "@/components/MembersArea";
 import MentorRequestsInbox from "@/components/MentorRequestsInbox";
 import howdyMascot from "@/assets/howdy-mascot.png";
+import HowdyHeaderButton from "@/components/HowdyHeaderButton";
 import { matchesToReasons } from "@/lib/profile-matching";
 import { useJobTracker } from "@/hooks/useJobTracker";
 import { Kanban } from "lucide-react";
@@ -1500,13 +1501,7 @@ const MyJobs = () => {
               </span>
             )}
           </button>
-          <Link
-            to="/howdy"
-            aria-label="Open Howdy"
-            className="relative w-11 h-11 rounded-full flex items-center justify-center shrink-0 mt-1 bg-[#00E600] ring-2 ring-foreground/10 hover:ring-foreground/30 transition overflow-hidden"
-          >
-            <img src={howdyMascot} alt="" className="w-8 h-8 object-contain" />
-          </Link>
+          <HowdyHeaderButton showDot={!!howdyJobsMeta.lastSeenAt && newJobsSinceLastSeen > 0} />
         </header>
 
 

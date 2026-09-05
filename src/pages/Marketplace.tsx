@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getCached, setCached } from "@/lib/ttlCache";
 import { useAuth } from "@/contexts/AuthContext";
 import howdyMascot from "@/assets/howdy-mascot.png";
+import HowdyIntro from "@/components/HowdyIntro";
 import {
   ArrowLeft,
   Search,
@@ -3007,6 +3008,9 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
             <h1 className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-900 leading-[0.9] tracking-tight text-foreground mb-4 md:mb-6 whitespace-nowrap">
               Howdoyoudo<span className="text-primary">?</span> Jobs
             </h1>
+            <HowdyIntro className="mb-6">
+              I've picked the roles most likely to fit you first. Search, filter, or ask me to find something specific - and tap "Howdy can help" on any listing when you're ready to apply.
+            </HowdyIntro>
           </motion.div>
         )}
 
