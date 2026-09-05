@@ -5,6 +5,34 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-05 (later) — Andrew (main branch) — Howdy vs. Indeed Career Scout review; made Howdy proactive and more visible
+
+### What was done THIS SESSION
+Andrew asked for a comparison against Indeed's "Career Scout" AI feature, an honest assessment of how good our matching/learning algorithm actually is, whether Howdy could narrate matches ("I've found 14 jobs, 3 are interesting, here's why..."), and whether auto-apply is realistic. Researched thoroughly before answering: `scoreJob()` (`supabase/functions/_shared/scoring/score-job.ts`) already does real behavioural learning (dismissed jobs hard-excluded 21 days, likes/opens/dismissals shift future scoring, a 30-day browsing-affinity boost) that Career Scout's own docs don't claim to do - but all of that rich data was being computed and never explained to the user, and `curiosity_score` was visible to employers but never to the candidate it's about. Confirmed via `fetch-external-jobs/index.ts` that jobs come from ~50+ distinct sources across a dozen different ATS platforms with no submission API for most of them, so true multi-platform auto-apply isn't realistic (even Indeed's own Career Scout stops at "track + draft," not submit) - Andrew agreed to build the honest middle ground instead: a one-click "prepared, ready to send" flow rather than real auto-submission. Wrote up the full analysis plus a build plan, reviewed with Andrew via clarifying questions, then implemented all three approved workstreams:
+
+**A - "Here's why" reasoning on Howdy Jobs (without touching the swipe mechanic).** Extended `scoreJob()`'s return with an optional structured `breakdown` (every scoring contribution, industry/role/RIASEC/values/freshness/learned-adjustment/etc.), populated additively alongside the existing flat `matches` tags so no existing caller changes behaviour. The match-band pill on each swipe card (`MyJobs.tsx`) is now tappable to reveal the top reasons via a new `summarizeBreakdown()` formatter. Added a genuine "new since you last checked" watermark (`profiles.howdy_jobs_last_seen_at`, new migration) driving the Howdy Jobs nav badge and a one-time toast per session - which also surfaces the candidate's own `curiosity_score` for the first time ("Howdy's noticed you've been curious about X lately"). Added one AI-polished "stretch pick" a day: a new `stretchPickNarrative` mode on `career-assistant` (deployed), gated by the same 50-calls/day quota plus a client-side once-a-day limit, using a new `getExclusionOrMismatchReason()` helper (reuses existing `hasIndustryMatch`/`hasRoleMatch`/`isCareerLevelCompatible` rather than duplicating the exclusion cascade) to pick a genuine reach job.
+
+**B - One-click "prepared application" that logs to Job Tracker.** New shared `useApplyAndTrack` hook wraps `useJobTracker().addItem()` with `status: "applied"` plus opening the real outbound apply URL. Wired into both existing AI apply-helper surfaces - `JobApplicationHelper.tsx` (Marketplace's "Howdy can help", via `tailor-application`) and `HelpMeApply.tsx` (Job Tracker's chips, via `help-me-apply`) - as a "Mark as applied & save" button; neither previously wrote anything back to `job_tracker_items` at all.
+
+**C - Visual prominence.** Hero.tsx had zero Howdy presence - added a small mascot badge on the speech-bubble frame linking to `/howdy`. Extracted the three independently hand-rolled round "open Howdy" header buttons (MyJobs, JobTracker, Community) into one shared `HowdyHeaderButton` with an optional notification dot, and added the same dot to the global floating chat button (`CareerAssistant.tsx`) so it's the site-wide home for "Howdy has something to say." Added `HowdyIntro` orientation blocks (the existing static component already proven on Skills Passport/Most Wanted/Match Me) to pages that had none - Marketplace, MyProfile, CVBuilder, the Onboarding completion screen - and retrofitted Job Tracker's generic "How it works" card to actually speak as Howdy.
+
+Mid-session, Andrew flagged a live bug from the previous session's Hero CTA change: the new "Take the Tour" pill was clipped behind the floating Howdy button on mobile (flex-nowrap + horizontal scroll). Fixed immediately - it now wraps to its own line under "About You"/"About Us" on mobile and reads just "Tour"; desktop unchanged.
+
+**Limitation**: no test account credentials were available in this session, so the signed-in swipe-deck flow, the new toast/stretch-pick banner, and the gated pages (Job Tracker, MyProfile, CVBuilder, Onboarding completion) could only be verified via typecheck + code review + confirming no console errors on page load - not a full logged-in click-through. Worth a manual pass next session.
+
+### Commits
+`798a3dc` (mobile Tour fix) · `a509d4a` (match reasoning + new-batch toast + stretch pick) · `e129641` (apply & track) · `81aa305` (visual prominence) - all pushed to both remotes (`howdoyoudo` + `origin`) ✅. `career-assistant` edge function redeployed for the new `stretchPickNarrative` mode. New migration `20260905100000_howdy_jobs_last_seen.sql` applied directly to the linked DB and Supabase types regenerated.
+
+### Current state
+Live. Howdy Jobs' match pill now explains itself on tap; a "new matches" toast + curiosity insight fires once per session; a daily stretch-pick banner appears when a genuine reach job exists; both apply-helper flows can log an application to Job Tracker in one click; Howdy has a visible presence on the homepage and a consistent notification dot across the floating button and three page header buttons.
+
+### Left for next session
+- Manual signed-in QA pass on everything flagged in the limitation above.
+- Two parallel AI apply-helper flows (`tailor-application`/`JobApplicationHelper` vs `help-me-apply`/`HelpMeApply`) were deliberately left un-unified - flagged as an optional follow-up, not done this session.
+- Low-priority: `compute-curiosity-scores` still weights two interaction types (`save_industry`, `help_apply`) that no UI action actually fires - noticed in passing, not fixed.
+
+---
+
 ## 2026-09-05 — Andrew (main branch) — "Take the Tour" promoted to a hero CTA
 
 ### What was done THIS SESSION
