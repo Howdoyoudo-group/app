@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Copy, Download, Loader2, FileText, ArrowRight, ExternalLink } from "lucide-react";
+import { Sparkles, Copy, Download, Loader2, FileText, ArrowRight, ExternalLink, Send } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,6 +9,7 @@ import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useApplyAndTrack } from "@/hooks/useApplyAndTrack";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -25,6 +26,19 @@ export default function HelpMeApply() {
   const [tone, setTone] = useState<"formal" | "friendly">("friendly");
   const [coverLetter, setCoverLetter] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [applied, setApplied] = useState(false);
+  const { applyAndTrack } = useApplyAndTrack();
+
+  const markApplied = async () => {
+    if (!prefillUrl) return;
+    await applyAndTrack({
+      company: prefillCompany || "Unknown",
+      title: prefillTitle || "Untitled role",
+      url: prefillUrl,
+    });
+    setApplied(true);
+    toast.success("Saved to your Job Tracker as applied");
+  };
 
   const generate = async () => {
     if (!user) { toast.error("Sign in to use this feature."); return; }
@@ -228,6 +242,16 @@ export default function HelpMeApply() {
                     <Button asChild variant="outline" size="sm" className="rounded-full border-2 border-foreground font-display font-700 text-xs uppercase">
                       <Link to="/cv-builder">Also build my CV →</Link>
                     </Button>
+                    {prefillUrl && (
+                      <Button
+                        onClick={markApplied}
+                        disabled={applied}
+                        size="sm"
+                        className="rounded-full gap-1.5 font-display font-700 text-xs uppercase"
+                      >
+                        <Send className="w-3.5 h-3.5" /> {applied ? "Marked as applied" : "Mark as applied & save"}
+                      </Button>
+                    )}
                   </div>
                 </motion.div>
               )}

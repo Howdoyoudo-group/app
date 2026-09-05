@@ -22,8 +22,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { useApplyAndTrack } from "@/hooks/useApplyAndTrack";
+import { Send } from "lucide-react";
 
 export interface JobForHelper {
+  id?: string;
   title: string;
   company: string;
   industry: string;
@@ -32,6 +35,7 @@ export interface JobForHelper {
   description: string;
   tags: string[];
   type: string;
+  url?: string;
 }
 
 interface CvTip {
@@ -66,6 +70,23 @@ const JobApplicationHelper = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [applied, setApplied] = useState(false);
+  const { applyAndTrack } = useApplyAndTrack();
+
+  const markApplied = async () => {
+    if (!job.url) { toast.error("No apply link found for this job"); return; }
+    await applyAndTrack({
+      job_id: job.id ?? undefined,
+      company: job.company,
+      title: job.title,
+      url: job.url,
+      location: job.location,
+      salary: job.salary,
+      industry: job.industry,
+    });
+    setApplied(true);
+    toast.success("Saved to your Job Tracker as applied");
+  };
 
   const fetchHelp = async () => {
     setLoading(true);
@@ -339,8 +360,8 @@ const JobApplicationHelper = ({
             </div>
           </motion.div>
 
-          {/* Regenerate */}
-          <div className="flex justify-center">
+          {/* Regenerate + mark as applied */}
+          <div className="flex flex-wrap justify-center gap-2">
             <Button
               size="sm"
               variant="outline"
@@ -349,6 +370,15 @@ const JobApplicationHelper = ({
             >
               <RefreshCw className="w-3 h-3" />
               Regenerate
+            </Button>
+            <Button
+              size="sm"
+              onClick={markApplied}
+              disabled={applied || !job.url}
+              className="font-body text-xs gap-1.5"
+            >
+              <Send className="w-3 h-3" />
+              {applied ? "Marked as applied" : "Mark as applied & save"}
             </Button>
           </div>
         </div>
