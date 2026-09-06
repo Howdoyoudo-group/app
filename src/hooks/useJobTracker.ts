@@ -21,6 +21,18 @@ export const CONTACT_STATUSES: { value: ContactStatus; label: string }[] = [
   { value: "met", label: "Met" },
 ];
 
+/** Whatever Howdy generated for this application - cached so reopening a
+ * saved/applied job doesn't regenerate it. Either flow's shape fits: the
+ * richer tailor-application result, or help-me-apply's plain cover letter
+ * (plus the job description it was generated from, so Regenerate still works). */
+export type ApplicationHelperCache = {
+  coverLetter?: string;
+  jobDescription?: string;
+  cvTips?: { category: string; tip: string }[];
+  keySkills?: string[];
+  companyInsight?: string;
+};
+
 export interface TrackerItem {
   id: string;
   job_id: string | null;
@@ -36,6 +48,7 @@ export interface TrackerItem {
   next_action: string | null;
   follow_up_date: string | null;
   closing_date: string | null;
+  application_helper: ApplicationHelperCache | null;
   sort_order: number;
   created_at: string;
   updated_at: string;
@@ -55,6 +68,7 @@ export type NewTrackerItem = {
   next_action?: string | null;
   follow_up_date?: string | null;
   closing_date?: string | null;
+  application_helper?: ApplicationHelperCache | null;
 };
 
 export interface TrackerAction {
@@ -168,6 +182,7 @@ export function useJobTracker() {
           next_action: item.next_action ?? null,
           follow_up_date: item.follow_up_date ?? null,
           closing_date: item.closing_date ?? null,
+          application_helper: item.application_helper ?? null,
         })
         .select("*")
         .single();
@@ -197,7 +212,7 @@ export function useJobTracker() {
   const updateItem = useCallback(
     async (
       id: string,
-      patch: Partial<Pick<TrackerItem, "title" | "opportunity_type" | "notes" | "next_action" | "follow_up_date" | "closing_date" | "salary" | "location">>
+      patch: Partial<Pick<TrackerItem, "title" | "opportunity_type" | "notes" | "next_action" | "follow_up_date" | "closing_date" | "salary" | "location" | "application_helper">>
     ) => {
       if (!user) return;
       const withTimestamp = { ...patch, updated_at: new Date().toISOString() };

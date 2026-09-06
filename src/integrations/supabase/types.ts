@@ -1262,6 +1262,7 @@ export type Database = {
       }
       job_tracker_items: {
         Row: {
+          application_helper: Json | null
           closing_date: string | null
           company: string
           created_at: string
@@ -1282,6 +1283,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          application_helper?: Json | null
           closing_date?: string | null
           company: string
           created_at?: string
@@ -1302,6 +1304,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          application_helper?: Json | null
           closing_date?: string | null
           company?: string
           created_at?: string

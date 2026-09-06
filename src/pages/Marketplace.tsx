@@ -2660,7 +2660,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
           className="font-body text-sm gap-2 bg-foreground text-background hover:bg-foreground/90 border-2 border-foreground"
           onClick={() => {
             setHelperJob({
-              id: String(job.id),
+              id: job.dbId,
               title: job.title,
               company: job.company,
               industry: job.industry,
@@ -2669,7 +2669,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
               description: job.description,
               tags: job.tags,
               type: job.type,
-              url: job.url,
+              url: job.url || getCompanyUrl(job.company),
             });
             setActiveTab("cv-builder");
             setTimeout(() => tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
