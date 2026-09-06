@@ -2339,6 +2339,16 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // No incoming auth previously - anyone with the URL could burn Firecrawl
+  // quota. verify_jwt is false (see CLAUDE.md's cron-auth pattern), so this
+  // is the only check.
+  if (req.headers.get("Authorization") !== `Bearer ${Deno.env.get("HDYD_SERVICE_JWT")}`) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const apiKey = Deno.env.get('FIRECRAWL_API_KEY');
     if (!apiKey) {

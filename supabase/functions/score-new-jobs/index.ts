@@ -336,7 +336,13 @@ async function scoreForUser(
   await supabase.from("job_matches").upsert(rows, { onConflict: "user_id,job_id" });
 }
 
-Deno.serve(async (_req) => {
+Deno.serve(async (req) => {
+  // No incoming auth previously. verify_jwt is false, so this in-code check
+  // is the only gate against someone repeatedly triggering a full rescore.
+  if (req.headers.get("Authorization") !== `Bearer ${Deno.env.get("HDYD_SERVICE_JWT")}`) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  }
+
   const work = (async () => {
     const supabase = createClient(SUPABASE_URL, SERVICE_KEY) as unknown as Client;
 

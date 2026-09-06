@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { sendViaResend } from "../_shared/send-via-resend.ts";
+import { signClickTrackerUrl } from "../_shared/click-tracker-sign.ts";
 import {
   scoreJob as sharedScoreJob,
   type Job as ScoringJob,
@@ -1247,6 +1248,10 @@ FORMAT RULES:
 // the subscriber + log into user_interactions (employer engagement).
 // ============================================================
 const CLICK_TRACKER_BASE = `${Deno.env.get("SUPABASE_URL") || "https://siqwclmzncubkrwabmvb.supabase.co"}/functions/v1/click-tracker`;
+const CLICK_TRACKER_SECRET = Deno.env.get("CLICK_TRACKER_SECRET") || "";
+// NOTE: unsigned - kept only for the legacy (no-longer-called) per-industry
+// email builders below, so old code paths still typecheck. The live send
+// path uses trackUrlSigned instead - see that function's own comment.
 function trackUrl(
   rawUrl: string,
   opts: { kind: "job" | "news" | "link"; sub?: string; ind?: string; jid?: string; co?: string },
@@ -1256,6 +1261,27 @@ function trackUrl(
   if (!/^https?:\/\//i.test(rawUrl)) return rawUrl;
   const params = new URLSearchParams();
   params.set("u", rawUrl);
+  params.set("kind", opts.kind);
+  if (opts.sub) params.set("sub", opts.sub);
+  if (opts.ind) params.set("ind", opts.ind);
+  if (opts.jid) params.set("jid", opts.jid);
+  if (opts.co) params.set("co", opts.co);
+  return `${CLICK_TRACKER_BASE}?${params.toString()}`;
+}
+
+// Signed version used by the live consolidated-digest send path. click-tracker
+// only follows the redirect if the `u` param's signature checks out (closes
+// the open-redirect risk - see click-tracker/index.ts for the full reasoning).
+async function trackUrlSigned(
+  rawUrl: string,
+  opts: { kind: "job" | "news" | "link"; sub?: string; ind?: string; jid?: string; co?: string },
+): Promise<string> {
+  if (!rawUrl) return rawUrl;
+  if (!/^https?:\/\//i.test(rawUrl)) return rawUrl;
+  const sig = await signClickTrackerUrl(CLICK_TRACKER_SECRET, rawUrl);
+  const params = new URLSearchParams();
+  params.set("u", rawUrl);
+  params.set("sig", sig);
   params.set("kind", opts.kind);
   if (opts.sub) params.set("sub", opts.sub);
   if (opts.ind) params.set("ind", opts.ind);
@@ -1718,7 +1744,7 @@ function stripHtml(html: string): string {
   return html.replace(/<[^>]+>/g, "").trim();
 }
 
-function buildIndustryModuleHtml(mod: DigestModule, subscriberEmail: string): string {
+async function buildIndustryModuleHtml(mod: DigestModule, subscriberEmail: string): Promise<string> {
   const { industry, news, articles, jobs, jobCount, briefing } = mod;
   const fontStack = `'Helvetica Neue', Helvetica, Arial, sans-serif`;
   const displayFont = `'Arial Black', 'Helvetica Neue', Impact, sans-serif`;
@@ -1728,17 +1754,23 @@ function buildIndustryModuleHtml(mod: DigestModule, subscriberEmail: string): st
   const industryPageUrl = `https://www.howdoyoudo.co.uk/${industry}?ref=email#learn`;
 
   const headlines = [...news, ...articles].slice(0, 3);
-  const headlinesHtml = headlines.map((n) => `
+  const headlineUrls = await Promise.all(
+    headlines.map((n) => trackUrlSigned(n.url, { kind: "news", sub: subscriberEmail, ind: industry }))
+  );
+  const headlinesHtml = headlines.map((n, i) => `
     <tr>
       <td style="padding:10px 0; border-bottom:1px dotted #cfcfc7;">
-        <a href="${trackUrl(n.url, { kind: "news", sub: subscriberEmail, ind: industry })}" style="color:#1a1a1a; text-decoration:none; font-weight:700; font-size:14px; line-height:1.3; font-family:${fontStack};">${n.title}</a>
+        <a href="${headlineUrls[i]}" style="color:#1a1a1a; text-decoration:none; font-weight:700; font-size:14px; line-height:1.3; font-family:${fontStack};">${n.title}</a>
         <div style="color:#888; font-size:10px; text-transform:uppercase; letter-spacing:1.5px; margin-top:3px; font-weight:700; font-family:${fontStack};">${n.source}</div>
       </td>
     </tr>`).join("");
 
   const topJobs = jobs.slice(0, 3);
   const jobsRemaining = Math.max(0, jobCount - topJobs.length);
-  const jobsHtml = topJobs.map((j) => `
+  const jobUrls = await Promise.all(
+    topJobs.map((j) => trackUrlSigned(j.url, { kind: "job", sub: subscriberEmail, ind: industry, jid: (j as any).id, co: (j as any).company }))
+  );
+  const jobsHtml = topJobs.map((j, i) => `
     <tr>
       <td style="padding:8px 0; border-bottom:1px dotted #cfcfc7;">
         <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
@@ -1747,7 +1779,7 @@ function buildIndustryModuleHtml(mod: DigestModule, subscriberEmail: string): st
               ${companyLogoCell(j.company, industry).replace(/width="48"/g, 'width="32"').replace(/height="48"/g, 'height="32"').replace(/width:48px/g, "width:32px").replace(/height:48px/g, "height:32px").replace(/font-size:14px/g, "font-size:11px")}
             </td>
             <td valign="top">
-              <a href="${trackUrl(j.url, { kind: "job", sub: subscriberEmail, ind: industry, jid: (j as any).id, co: (j as any).company })}" style="color:#1a1a1a; text-decoration:none; font-weight:700; font-size:13px; line-height:1.3; font-family:${fontStack};">${j.title}</a>
+              <a href="${jobUrls[i]}" style="color:#1a1a1a; text-decoration:none; font-weight:700; font-size:13px; line-height:1.3; font-family:${fontStack};">${j.title}</a>
               <div style="color:#666; font-size:11px; margin-top:2px; font-family:${fontStack};">${j.company}${j.location ? ` · ${j.location}` : ""}</div>
             </td>
           </tr>
@@ -1794,14 +1826,14 @@ function buildIndustryModuleHtml(mod: DigestModule, subscriberEmail: string): st
           </tr>` : ""}`;
 }
 
-function buildConsolidatedEmailHtml(
+async function buildConsolidatedEmailHtml(
   subscriberName: string,
   modules: DigestModule[],
   unsubscribeUrl: string,
   personalised: boolean,
   nudgeSignup: boolean,
   subscriberEmail: string,
-): string {
+): Promise<string> {
   const rawFirst = subscriberName.split(" ")[0] || subscriberName;
   const firstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
   const now = new Date();
@@ -1815,7 +1847,7 @@ function buildConsolidatedEmailHtml(
   const totalHeadlines = modules.reduce((sum, m) => sum + m.news.length + m.articles.length, 0);
   const totalJobs = modules.reduce((sum, m) => sum + m.jobCount, 0);
   const industryList = modules.map((m) => formatIndustryName(m.industry)).join(" · ");
-  const modulesHtml = modules.map((m) => buildIndustryModuleHtml(m, subscriberEmail)).join("");
+  const modulesHtml = (await Promise.all(modules.map((m) => buildIndustryModuleHtml(m, subscriberEmail)))).join("");
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -3096,7 +3128,7 @@ Deno.serve(async (req) => {
       });
       const unsubscribeUrl = `https://www.howdoyoudo.co.uk/unsubscribe?token=${token}`;
 
-      const html = buildConsolidatedEmailHtml(sub.name, modules, unsubscribeUrl, personalised, nudgeSignup, sub.email);
+      const html = await buildConsolidatedEmailHtml(sub.name, modules, unsubscribeUrl, personalised, nudgeSignup, sub.email);
       const text = buildConsolidatedPlainText(sub.name, modules, unsubscribeUrl);
       const subject = `Your Daily Briefing · ${dateLabel}`;
       const messageId = crypto.randomUUID();

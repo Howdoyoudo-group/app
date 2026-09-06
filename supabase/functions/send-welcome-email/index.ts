@@ -145,6 +145,16 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // No caller anywhere in the codebase invokes this today, and it had no
+  // incoming auth - anyone with the URL could spam arbitrary email addresses
+  // via our Resend account. verify_jwt is false, so this is the only gate.
+  if (req.headers.get("Authorization") !== `Bearer ${Deno.env.get("HDYD_SERVICE_JWT")}`) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const { name, email } = await req.json();
 

@@ -5,6 +5,32 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-06 (later) — Woody (main branch) — Security hardening ahead of Omni Cyber Security pentest
+
+### What was done THIS SESSION
+Woody's bringing in Omni Cyber Security to pentest HDYD and asked for a self-audit first, plus help answering their pre-engagement questions (dev/UAT URL, WAF IP allowlisting, grey/black-box preference, legal entity name). Audited the codebase and found two real issues, which Woody approved fixing ("yep lets fix thoes"):
+
+1. **Open redirect in `click-tracker`** (CWE-601) — it validated the `u` query param was a well-formed http/https URL but never that it pointed anywhere trusted. Every job/news/company link in every digest email routes through this endpoint, so a forged link could bounce a phishing URL through our trusted domain. A destination allowlist isn't workable (it legitimately redirects to thousands of distinct employer/publisher domains), so fixed it by HMAC-signing the destination URL at link-build time (`send-daily-digest`, new shared `supabase/functions/_shared/click-tracker-sign.ts`) and verifying the signature on redirect — forged or pre-fix unsigned links now fall back to the homepage instead of following an attacker-controlled URL. New `CLICK_TRACKER_SECRET` secret set.
+
+2. **7 edge functions with zero incoming-request authentication**, despite doing real work or spending real third-party API quota: `fetch-external-jobs`, `scrape-jobs`, `embed-jobs`, `score-new-jobs`, `send-welcome-email`, `weekly-employer-report`, `daily-jobs-report`. Anyone who found the URL could trigger them freely. Added the standard `HDYD_SERVICE_JWT` bearer-token check to each (same pattern as CLAUDE.md's cron-auth section). In the process found 3 crons (`daily-jobs-report`, `fetch-external-jobs-6am`, `fetch-external-jobs-6pm`) were still using the legacy anon-format JWT from the May 2025 key-rotation incident — without fixing those first, adding the new in-code check would have silently broken all 3 crons exactly like that earlier incident. Swapped all 3 to `HDYD_SERVICE_JWT`, matching the 6 crons already fixed earlier this cycle.
+
+Verified live: all 7 gated functions 401 with no/wrong `Authorization` header and succeed with the correct one; click-tracker follows valid signed links and falls back to the homepage for forged/unsigned ones; all 3 fixed crons confirmed no longer reference the legacy anon JWT. Note: verifying the gated endpoints with the real service key triggered a few real side effects (a live `fetch-external-jobs` scrape run outside its normal schedule, one real Gemini embedding call, and two internal ops-report emails to `andrew@stanwoodoffice.com` from `daily-jobs-report`/`weekly-employer-report`) — all low-harm (internal recipient / normal API usage), flagged here for visibility rather than left silent.
+
+Also merged in a large batch of Andrew's work that had landed on `howdoyoudo/main` mid-session (Job Tracker, public profiles, Site Stats dashboard, curiosity scoring, badge pages, etc. — see his own entries below) — no file overlap with the security changes, merged cleanly, `npm run typecheck` clean after.
+
+### Commits
+`b7a8030` (security fixes) + `1fceac6` (merge with Andrew's `howdoyoudo/main`) — pushed to both remotes ✅. Supabase secret `CLICK_TRACKER_SECRET` set; 9 edge functions deployed (`click-tracker`, `send-daily-digest`, `fetch-external-jobs`, `scrape-jobs`, `embed-jobs`, `score-new-jobs`, `send-welcome-email`, `weekly-employer-report`, `daily-jobs-report`); 3 crons (jobid 1, 3, 4) updated via `cron.alter_job`.
+
+### Current state
+Live. The click-tracker open redirect is closed and the 7 previously-open endpoints now require the service JWT. Woody still needs to reply to Omni Cyber Security's Bobbie with: no real UAT/staging environment exists today (his own call whether to spin one up before testing starts), no configurable WAF found in the stack (worth checking Vercel's own Security/Firewall tab directly), greybox testing recommended given the audit already found real issues, and the legal entity name/contact for the authorization form (not derivable from the codebase — Woody needs to supply this).
+
+### Left for next session
+- `whatsapp-inbound` still has no Twilio signature validation — deferred since the feature isn't live (no Twilio keys configured yet), but worth doing before it does go live.
+- The broader 94-file `Access-Control-Allow-Origin: *` CORS-wildcard pattern wasn't reviewed for tightening — flagged, not requested as urgent.
+- Woody still needs to send his answers to Bobbie at Omni Cyber Security (see above).
+
+---
+
 ## 2026-09-06 — Andrew (main branch) — Fixed "Mark as applied" and made Howdy cache its application summary
 
 ### What was done THIS SESSION
