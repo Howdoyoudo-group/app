@@ -5,6 +5,30 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-06 (later still) — Woody (main branch) — Firecrawl 90%-quota investigation; found & fixed a misconfigured cron; set up an Omni pentest test account
+
+### What was done THIS SESSION
+Woody flagged Firecrawl at 90% of its monthly 100k-credit quota with 12 days left in the billing period, and asked what was driving it. Confirmed live via Firecrawl's own `/v1/team/credit-usage` API (called through a temporary service-JWT-gated diagnostic function, deployed and deleted immediately after reading the result — never exposed the raw `FIRECRAWL_API_KEY` value): 90,768 of 100,000 credits used, billing period 2026-08-18 to 2026-09-18.
+
+Root cause: the cron `scrape-jobs-weekly` (jobid 31, triggers `scrape-jobs` — Firecrawl-scrapes a rolling window of the 463-entry `CAREER_SOURCES` company list every run) was actually scheduled `0 * * * *` — every hour, not weekly, ~180x more often than its own name implies. It also wasn't in CLAUDE.md's cron list at all, suggesting it was a leftover test schedule that never got reconciled. At the burn rate this produced (~4,800 credits/day), the remaining 9,232 credits would have run out in ~2 more days, silently halting company-page scraping for the last third of the billing cycle.
+
+Recommended and (with Woody's confirmation) applied a fix: changed the schedule to `30 6,18 * * *` (twice daily, alongside `fetch-external-jobs`'s existing 6am/6pm rhythm) — cuts usage ~12x while still sweeping the full company list roughly once a week, just spread evenly instead of hourly. Documented the incident and the new cadence in CLAUDE.md's Cron Jobs section; also corrected the stale "21 scheduled" count to the real 27 (full reconciliation of the list to all 27 not done this session — flagged as incomplete).
+
+Separately, set up a fresh candidate test account for Omni Cyber Security's upcoming pentest (`omni-pentest-candidate@howdoyoudo.test` / isolated, non-deliverable `.test` domain) with a realistic seeded profile (industry interests, career level, RIASEC/work-values scores) so matching/job-feed logic is genuinely exercised rather than sitting on an empty profile — verified live via the real job feed returning "STRONG MATCH" results tied to the seeded profile.
+
+### Commits
+CLAUDE.md cron-list fix not yet committed as of this log entry — see next entry / commit immediately after. Cron schedule change applied directly via `cron.alter_job` (jobid 31), no migration (crons live in the DB, not migrations, per this file's own note).
+
+### Current state
+Live. `scrape-jobs-weekly` now runs at 6:30am/6:30pm instead of hourly. Firecrawl usage should drop sharply from here for the rest of this billing cycle - worth checking `provider-usage` (or Firecrawl's dashboard directly) again in a few days to confirm the new cadence actually holds at a sane rate before the next reset.
+
+### Left for next session
+- Confirm Firecrawl's daily burn rate has actually dropped as expected under the new cadence.
+- CLAUDE.md's Cron Jobs list is still not fully reconciled to the real 27 jobs in `cron.job` — several daily scrapers (`scrape-apprenticeships-gov-daily`, `scrape-ats-jobs-daily`, `scrape-dwp-jobs-daily`, etc.) aren't individually documented yet.
+- Omni pentest account exists and is ready (`omni-pentest-candidate@howdoyoudo.test`) - delete it once the engagement wraps.
+
+---
+
 ## 2026-09-06 (later) — Woody (main branch) — Security hardening ahead of Omni Cyber Security pentest
 
 ### What was done THIS SESSION
