@@ -5,6 +5,27 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-06 (night) — Andrew (main branch) — First pass at an animated, "notices when you're stuck" Howdy
+
+### What was done THIS SESSION
+Andrew asked about options for making Howdy an animated/interactive character (he'd been looking at LottieFiles) and specifically about Howdy noticing when someone looks lost. Talked through the tradeoff first: a proper custom Lottie rig is a design-asset problem (needs an actual animated file made, not just code), whereas a Framer Motion micro-animation on the existing mascot art is buildable immediately with zero new assets. Andrew agreed to start there.
+
+Shipped: the floating Howdy button now has a continuous subtle bob/tilt loop (Framer Motion `animate` + `repeat: Infinity`) instead of sitting static. Added a new `useLooksLost` hook (`src/hooks/useLooksLost.ts`) detecting two "stuck" patterns - idle ~50s after an initial dwell period, or thrashing back and forth between the same couple of pages within a minute - scoped only to task-oriented routes (Marketplace, My Jobs, Job Tracker, Onboarding, My Profile, CV Builder, Match Me, Skills Passport, Help Me Apply) so it never fires on article/watch pages where sitting still just means reading. Capped at twice a session with a 5-minute cooldown between nudges so it can't nag. When triggered, the floating button wiggles and a small dismissible speech bubble offers "Chat with Howdy" - deliberately does not auto-open the chat panel itself, matching the existing "Howdy never auto-opens" invariant already documented in `CareerAssistant.tsx`.
+
+Hit one non-code snag while verifying: the dev server threw `useLooksLost is not defined` on first load despite a clean typecheck - a stale Vite dependency pre-bundle, not a real bug. Restarting the dev server (`preview_stop` + `preview_start`) resolved it.
+
+### Commits
+`0b38ec2` — pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Howdy's floating button breathes/looks around continuously on every page; on the task-page allowlist he'll wiggle and offer help if someone's genuinely idle or bouncing between pages.
+
+### Left for next session
+- The "looks lost" timing (50s idle, thrash detection) was verified by code review only, not a live timed test (would need multi-minute waits) - worth a real-world check that the thresholds feel right, not too eager or too slow.
+- If Andrew wants to pursue the fuller LottieFiles/custom-rig route later, that's still open - flagged as the natural next step once a real animated asset exists.
+
+---
+
 ## 2026-09-06 (evening) — Andrew (main branch) — Removed Howdy's plan box overlap and a redundant Hero badge
 
 ### What was done THIS SESSION
