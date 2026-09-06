@@ -5,6 +5,24 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-06 (evening) — Andrew (main branch) — Removed Howdy's plan box overlap and a redundant Hero badge
+
+### What was done THIS SESSION
+Two quick visual fixes Andrew flagged: (1) the `CoachPlanPanel` shown at the top of the Howdy chat panel (`CareerAssistant.tsx`) was covering Howdy's face on mobile when the chat opened - removed it entirely, chat now opens straight to the welcome card/messages as before that panel existed. (2) the small Howdy mascot badge added to the homepage speech-bubble in an earlier session (`Hero.tsx`) was redundant now that the floating Howdy button already sits at the bottom of every page - removed it along with the now-unused `howdyMascot` import in that file.
+
+Note: merged with Woody's concurrent security-hardening session (`b7a8030`/`eecce21` - click-tracker open-redirect fix, unauthenticated edge function gating) which landed on `main` while this session was in progress. Merge was clean, no conflicts (unrelated files), typecheck passes after merge.
+
+### Commits
+`f44aca7` (the two removals) + merge commit `952c3e8` reconciling with Woody's security-hardening push - pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Howdy chat opens cleanly on mobile with nothing overlapping his face; homepage hero is back to just the speech bubble + floating Howdy button, no duplicate mascot.
+
+### Left for next session
+Nothing outstanding from this task.
+
+---
+
 ## 2026-09-06 (later) — Woody (main branch) — Security hardening ahead of Omni Cyber Security pentest
 
 ### What was done THIS SESSION
