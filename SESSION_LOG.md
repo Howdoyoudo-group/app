@@ -29,6 +29,45 @@ Live. `scrape-jobs-weekly` now runs at 6:30am/6:30pm instead of hourly. Firecraw
 
 ---
 
+## 2026-09-06 (night) — Andrew (main branch) — First pass at an animated, "notices when you're stuck" Howdy
+
+### What was done THIS SESSION
+Andrew asked about options for making Howdy an animated/interactive character (he'd been looking at LottieFiles) and specifically about Howdy noticing when someone looks lost. Talked through the tradeoff first: a proper custom Lottie rig is a design-asset problem (needs an actual animated file made, not just code), whereas a Framer Motion micro-animation on the existing mascot art is buildable immediately with zero new assets. Andrew agreed to start there.
+
+Shipped: the floating Howdy button now has a continuous subtle bob/tilt loop (Framer Motion `animate` + `repeat: Infinity`) instead of sitting static. Added a new `useLooksLost` hook (`src/hooks/useLooksLost.ts`) detecting two "stuck" patterns - idle ~50s after an initial dwell period, or thrashing back and forth between the same couple of pages within a minute - scoped only to task-oriented routes (Marketplace, My Jobs, Job Tracker, Onboarding, My Profile, CV Builder, Match Me, Skills Passport, Help Me Apply) so it never fires on article/watch pages where sitting still just means reading. Capped at twice a session with a 5-minute cooldown between nudges so it can't nag. When triggered, the floating button wiggles and a small dismissible speech bubble offers "Chat with Howdy" - deliberately does not auto-open the chat panel itself, matching the existing "Howdy never auto-opens" invariant already documented in `CareerAssistant.tsx`.
+
+Hit one non-code snag while verifying: the dev server threw `useLooksLost is not defined` on first load despite a clean typecheck - a stale Vite dependency pre-bundle, not a real bug. Restarting the dev server (`preview_stop` + `preview_start`) resolved it.
+
+### Commits
+`0b38ec2` — pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Howdy's floating button breathes/looks around continuously on every page; on the task-page allowlist he'll wiggle and offer help if someone's genuinely idle or bouncing between pages.
+
+### Left for next session
+- The "looks lost" timing (50s idle, thrash detection) was verified by code review only, not a live timed test (would need multi-minute waits) - worth a real-world check that the thresholds feel right, not too eager or too slow.
+- If Andrew wants to pursue the fuller LottieFiles/custom-rig route later, that's still open - flagged as the natural next step once a real animated asset exists.
+
+---
+
+## 2026-09-06 (evening) — Andrew (main branch) — Removed Howdy's plan box overlap and a redundant Hero badge
+
+### What was done THIS SESSION
+Two quick visual fixes Andrew flagged: (1) the `CoachPlanPanel` shown at the top of the Howdy chat panel (`CareerAssistant.tsx`) was covering Howdy's face on mobile when the chat opened - removed it entirely, chat now opens straight to the welcome card/messages as before that panel existed. (2) the small Howdy mascot badge added to the homepage speech-bubble in an earlier session (`Hero.tsx`) was redundant now that the floating Howdy button already sits at the bottom of every page - removed it along with the now-unused `howdyMascot` import in that file.
+
+Note: merged with Woody's concurrent security-hardening session (`b7a8030`/`eecce21` - click-tracker open-redirect fix, unauthenticated edge function gating) which landed on `main` while this session was in progress. Merge was clean, no conflicts (unrelated files), typecheck passes after merge.
+
+### Commits
+`f44aca7` (the two removals) + merge commit `952c3e8` reconciling with Woody's security-hardening push - pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Howdy chat opens cleanly on mobile with nothing overlapping his face; homepage hero is back to just the speech bubble + floating Howdy button, no duplicate mascot.
+
+### Left for next session
+Nothing outstanding from this task.
+
+---
+
 ## 2026-09-06 (later) — Woody (main branch) — Security hardening ahead of Omni Cyber Security pentest
 
 ### What was done THIS SESSION

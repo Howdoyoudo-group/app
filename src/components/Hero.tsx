@@ -9,7 +9,6 @@ import { launchHowdyTour } from "@/components/HowdyTour";
 import { INDUSTRIES } from "@/data/industries";
 import heroBg from "@/assets/hero-bg-industries.jpg";
 import brandQuestionMark from "@/assets/brand/logo-question-mark.png";
-import howdyMascot from "@/assets/howdy-mascot.png";
 
 // Hand-drawn industry doodles
 import doodleWhisk from "@/assets/bakery-whisk.png";
@@ -357,13 +356,6 @@ const Hero = () => {
                 />
               </span>
             </h1>
-            <Link
-              to="/howdy"
-              aria-label="Meet Howdy"
-              className="absolute bottom-3 sm:bottom-8 md:bottom-12 right-2 sm:right-6 md:right-10 z-20 w-11 h-11 sm:w-14 sm:h-14 rounded-full border-2 border-foreground bg-primary/15 shadow-[3px_3px_0_hsl(var(--foreground))] overflow-hidden hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all"
-            >
-              <img src={howdyMascot} alt="Howdy" className="w-full h-full object-contain p-1" />
-            </Link>
           </div>
           {firstName && (
             <div className="relative -mt-2 md:-mt-4 ml-[10%] sm:ml-[45%] md:ml-[50%] flex items-start gap-2 sm:gap-3 max-w-full pr-2">

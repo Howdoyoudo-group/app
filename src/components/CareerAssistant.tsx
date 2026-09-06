@@ -6,9 +6,9 @@ import howdyMascot from "@/assets/howdy-mascot.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import CoachPlanPanel from "@/components/CoachPlanPanel";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLooksLost } from "@/hooks/useLooksLost";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -215,6 +215,17 @@ const CareerAssistant = () => {
   // On /my-jobs the bottom nav occupies the screen edge; lift the floater
   // so it sits clear of the nav instead of covering the "Howdy" button.
   const onMyJobs = location.pathname.startsWith("/my-jobs");
+
+  // "Looks lost" nudge - only on task pages where getting stuck actually
+  // means something (not article/watch pages, where sitting still just
+  // means someone's reading). Never auto-opens chat, just draws the eye.
+  const isTaskPage = /^\/(marketplace|my-jobs|job-tracker|onboarding|my-profile|cv-builder|match-me|skills-passport|help-me-apply)/i.test(location.pathname);
+  const { looksLost, reason: lostReason, dismiss: dismissLost } = useLooksLost(isTaskPage && !isEmployerArea && !open);
+  useEffect(() => {
+    if (!looksLost) return;
+    const t = setTimeout(dismissLost, 15000);
+    return () => clearTimeout(t);
+  }, [looksLost]);
 
 
   // First-time auto-play of intro video when chat opens — only for
@@ -479,15 +490,55 @@ const CareerAssistant = () => {
             transition={{ type: "spring", stiffness: 260, damping: 20 }}
             className="fixed right-4 bottom-12 md:right-5 md:bottom-5 z-50 flex flex-col items-center gap-1"
           >
+            {/* "Looks lost" nudge - never auto-opens chat, just says hi */}
+            <AnimatePresence>
+              {looksLost && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.9 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute bottom-full right-0 mb-3 w-56 rounded-2xl border-2 border-foreground bg-background p-3 shadow-[3px_3px_0_hsl(var(--foreground))]"
+                  role="status"
+                >
+                  <button
+                    onClick={dismissLost}
+                    aria-label="Dismiss"
+                    className="absolute top-1.5 right-1.5 rounded-full p-1 hover:bg-foreground/10 transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                  <p className="pr-4 font-body text-xs leading-relaxed text-foreground">
+                    {lostReason === "thrash"
+                      ? "Going round in circles? I can help you find it faster."
+                      : "Looks like you might be stuck - want a hand?"}
+                  </p>
+                  <button
+                    onClick={() => { setOpen(true); dismissLost(); }}
+                    className="mt-2 inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[11px] font-bold text-primary-foreground hover:opacity-90"
+                  >
+                    Chat with Howdy
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
             <motion.button
               whileHover={{ scale: 1.05, rotate: -4 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setOpen(true)}
+              animate={looksLost ? { rotate: [0, -6, 6, -6, 6, 0] } : {}}
+              transition={looksLost ? { duration: 0.6, repeat: 2, repeatDelay: 1.2 } : undefined}
               className="relative flex h-[clamp(4rem,18vw,7.5rem)] w-[clamp(4rem,18vw,7.5rem)] items-center justify-center rounded-full bg-background shadow-[4px_4px_0_hsl(var(--foreground))] hover:shadow-none hover:translate-x-[4px] hover:translate-y-[4px] transition-all border-2 border-foreground overflow-hidden p-1"
               aria-label="Open Howdy, your AI sidekick"
             >
               <span className="absolute inset-0 rounded-full bg-primary/10" aria-hidden />
-              <img src={howdyMascot} alt="Howdy" className="relative h-full w-full object-contain" />
+              <motion.img
+                src={howdyMascot}
+                alt="Howdy"
+                className="relative h-full w-full object-contain"
+                animate={{ y: [0, -5, 0], rotate: [0, -2, 0, 2, 0] }}
+                transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
+              />
               {hasNewJobs && (
                 <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[#FF3B30] ring-2 ring-background" aria-hidden />
               )}
@@ -588,12 +639,6 @@ const CareerAssistant = () => {
                 <X className="h-5 w-5" />
               </button>
             </div>
-
-            {mode === "candidate" && (
-              <div className="px-3 pt-3 bg-[#00E600]">
-                <CoachPlanPanel compact />
-              </div>
-            )}
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 flex flex-col" style={{ backgroundColor: "#00E600" }}>
