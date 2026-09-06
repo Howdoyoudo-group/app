@@ -1,37 +1,31 @@
 import { motion } from "framer-motion";
 import { Link, useSearchParams } from "react-router-dom";
-import { Trophy, Lock, ArrowRight, BookOpen } from "lucide-react";
+import { Trophy, Star, TrendingUp, ClipboardList, ArrowLeft } from "lucide-react";
 import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import SiteNav from "@/components/SiteNav";
-import footballBadgeImg from "@/assets/series-football.jpg";
+import HowdyIntro from "@/components/HowdyIntro";
 import SkillsAssessmentTab from "@/pages/skills/SkillsAssessmentTab";
 import SkillGapsTab from "@/pages/skills/SkillGapsTab";
-import CareerPassportTab from "@/pages/skills/CareerPassportTab";
 import PlanTab from "@/pages/skills/PlanTab";
+import BadgesTab from "@/pages/skills/BadgesTab";
 
-const MODULES = [
-  {
-    slug: "football",
-    title: "Football",
-    description: "4 lessons covering how the industry works, where the money is, and what the jobs actually look like. Pass the quiz and earn your badge.",
-    href: "/football/badge",
-    image: footballBadgeImg,
-    available: true,
-    badge: "New",
-  },
-  { slug: "music",        title: "Music",        description: "From streaming economics to live events — how the music industry really works and how to build a career in it.", href: null, image: null, available: false },
-  { slug: "fashion",      title: "Fashion",      description: "Design, buying, marketing and more — the full picture of how fashion employs people you'd never expect.", href: null, image: null, available: false },
-  { slug: "technology",   title: "Technology",   description: "Understand the tech industry from product to engineering to go-to-market — and where you fit in.", href: null, image: null, available: false },
-  { slug: "hospitality",  title: "Hospitality",  description: "Operations, events, front of house and beyond — a real look at careers in hospitality.", href: null, image: null, available: false },
-  { slug: "beauty",       title: "Beauty",       description: "Brand, retail, education and media — the many ways to build a career in the beauty industry.", href: null, image: null, available: false },
+type TabKey = "plan" | "badges" | "assessment" | "gaps";
+
+const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
+
+// Order follows the logic Howdy coaches in: rate yourself, see the gaps,
+// get a plan to close them, then earn the badges that prove it.
+const TILES: Array<{ title: string; tab: TabKey; Icon: React.ElementType }> = [
+  { title: "Skills Assessment", tab: "assessment", Icon: Star },
+  { title: "Skill Gaps",        tab: "gaps",       Icon: TrendingUp },
+  { title: "Your Plan",         tab: "plan",        Icon: ClipboardList },
+  { title: "Industry Badges",   tab: "badges",      Icon: Trophy },
 ];
-
-type TabKey = "plan" | "badges" | "assessment" | "gaps" | "passport";
 
 export default function SkillsPassport() {
   const [searchParams] = useSearchParams();
-  const activeTab = (searchParams.get("tab") ?? "plan") as TabKey;
+  const activeTab = searchParams.get("tab") as TabKey | null;
 
   return (
     <>
@@ -44,13 +38,17 @@ export default function SkillsPassport() {
       <main className="min-h-screen bg-background">
         <section className="px-4 sm:px-6 lg:px-10 pt-8 pb-16 max-w-5xl mx-auto">
 
+          {activeTab && (
+            <Link
+              to="/skills-passport"
+              className="inline-flex items-center gap-1.5 font-display font-700 text-xs uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors mb-8"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Skills Passport
+            </Link>
+          )}
+
           {/* Hero */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8"
-          >
+          <motion.div {...fadeUp} className="mb-8">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border-2 border-foreground/20 bg-background mb-4">
               <Trophy className="w-3.5 h-3.5 text-primary" />
               <span className="font-display font-700 text-xs uppercase tracking-widest">Skills Passport</span>
@@ -63,105 +61,46 @@ export default function SkillsPassport() {
             </p>
           </motion.div>
 
-          {/* Tab content */}
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25 }}
-          >
-            {activeTab === "plan" && <PlanTab />}
-            {activeTab === "badges" && <BadgesTab />}
-            {activeTab === "assessment" && <SkillsAssessmentTab />}
-            {activeTab === "gaps" && <SkillGapsTab />}
-            {activeTab === "passport" && <CareerPassportTab />}
+          <motion.div {...fadeUp} className="mb-8">
+            <HowdyIntro>
+              This is your skills hub. Rate yourself honestly, see exactly where the gaps are, build your plan to close them, and earn free industry badges along the way.
+            </HowdyIntro>
           </motion.div>
+
+          {!activeTab ? (
+            <motion.div {...fadeUp}>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 md:gap-4">
+                {TILES.map((tile) => (
+                  <Link
+                    key={tile.tab}
+                    to={`/skills-passport?tab=${tile.tab}`}
+                    className="group relative aspect-square border-2 border-foreground bg-background p-3 flex flex-col items-center justify-center gap-2 text-center hover:bg-primary hover:-translate-y-0.5 transition-all"
+                  >
+                    <tile.Icon className="w-14 h-14 md:w-16 md:h-16 text-foreground" strokeWidth={1.25} />
+                    <span className="font-display font-700 text-[11px] md:text-xs leading-tight tracking-tight text-foreground">
+                      {tile.title}
+                    </span>
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              {activeTab === "plan" && <PlanTab />}
+              {activeTab === "badges" && <BadgesTab />}
+              {activeTab === "assessment" && <SkillsAssessmentTab />}
+              {activeTab === "gaps" && <SkillGapsTab />}
+            </motion.div>
+          )}
 
         </section>
       </main>
       <Footer />
-    </>
-  );
-}
-
-// ── Badges tab (existing content) ────────────────────────────────────────────
-function BadgesTab() {
-  return (
-    <>
-      {/* How it works */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-12">
-        {[
-          { step: "1", label: "Pick a module", desc: "Choose an industry you're interested in." },
-          { step: "2", label: "Complete the lessons", desc: "4 short lessons. Read at your own pace." },
-          { step: "3", label: "Pass the quiz", desc: "Score 80%+ and your badge is added to your profile." },
-        ].map((s) => (
-          <div key={s.step} className="border-2 border-foreground/20 rounded-2xl p-4 flex gap-3">
-            <div className="w-7 h-7 rounded-full bg-primary border-2 border-foreground flex items-center justify-center shrink-0 font-display font-900 text-xs">
-              {s.step}
-            </div>
-            <div>
-              <p className="font-display font-900 text-sm uppercase tracking-wide mb-0.5">{s.label}</p>
-              <p className="font-body text-xs text-muted-foreground">{s.desc}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Modules grid */}
-      <h2 className="font-display font-900 text-xl md:text-2xl uppercase tracking-wide mb-5">Modules</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {MODULES.map((mod) => {
-          if (mod.available && mod.href) {
-            return (
-              <Link
-                key={mod.slug}
-                to={mod.href}
-                className="group border-2 border-foreground rounded-2xl overflow-hidden hover:shadow-[4px_4px_0_0_hsl(var(--foreground))] transition-shadow"
-              >
-                <div className="aspect-video bg-foreground/5 overflow-hidden">
-                  {mod.image ? (
-                    <img src={mod.image} alt={mod.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <BookOpen className="w-8 h-8 text-foreground/20" />
-                    </div>
-                  )}
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-1">
-                    <p className="font-display font-900 text-base uppercase tracking-wide">{mod.title}</p>
-                    {mod.badge && (
-                      <span className="font-display font-700 text-[9px] uppercase tracking-wide px-1.5 py-0.5 border border-foreground bg-primary rounded-full leading-none">
-                        {mod.badge}
-                      </span>
-                    )}
-                  </div>
-                  <p className="font-body text-xs text-muted-foreground leading-relaxed mb-3">{mod.description}</p>
-                  <span className="inline-flex items-center gap-1 font-display font-700 text-xs uppercase tracking-widest text-primary group-hover:opacity-80 transition-opacity">
-                    Start module <ArrowRight className="w-3 h-3" />
-                  </span>
-                </div>
-              </Link>
-            );
-          }
-          return (
-            <div key={mod.slug} className="border-2 border-foreground/15 rounded-2xl overflow-hidden opacity-60">
-              <div className="aspect-video bg-foreground/5 flex items-center justify-center">
-                <Lock className="w-6 h-6 text-foreground/20" />
-              </div>
-              <div className="p-4">
-                <div className="flex items-center justify-between mb-1">
-                  <p className="font-display font-900 text-base uppercase tracking-wide">{mod.title}</p>
-                  <span className="font-display font-700 text-[9px] uppercase tracking-wide px-1.5 py-0.5 border border-foreground/20 bg-foreground/10 rounded-full leading-none text-foreground/50">
-                    Coming Soon
-                  </span>
-                </div>
-                <p className="font-body text-xs text-muted-foreground leading-relaxed">{mod.description}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
     </>
   );
 }

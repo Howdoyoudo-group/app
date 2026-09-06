@@ -1,5 +1,5 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { renderSiteMapForPrompt, renderSiteSearchResults, searchSiteIndex, buildRoutingDirective } from "../_shared/site-map.ts";
+import { renderSiteMapForPrompt, renderSiteSearchResults, searchSiteIndex, buildRoutingDirective, buildJobIntentDirective } from "../_shared/site-map.ts";
 import { resolveRoleTitleToSlug } from "../_shared/role-slugs.ts";
 import { buildTargetRolesContext } from "../_shared/coach-context.ts";
 
@@ -208,7 +208,7 @@ Deno.serve(async (req) => {
     }
     await svcClient.from("ai_usage_log").insert({ user_id: userId, function_name: "career-assistant" });
 
-    const { messages, mode: requestedMode, planNarrative } = await req.json();
+    const { messages, mode: requestedMode, planNarrative, stretchPickNarrative, stretchPickJob } = await req.json();
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response(JSON.stringify({ error: "Messages required" }), {
         status: 400,
@@ -364,6 +364,36 @@ Deno.serve(async (req) => {
       }
       const narrData = await narrResp.json();
       const narrative = narrData?.choices?.[0]?.message?.content?.trim() || "";
+      return new Response(JSON.stringify({ narrative }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // ---------- Stretch-pick narrative: one honest reach-job pep talk a day ----------
+    // Powers the "Howdy Jobs" stretch-pick banner. The client already decided
+    // which job qualifies (score-job.ts's near-miss heuristic) - this call
+    // only turns that structured reason into 2-3 human sentences.
+    if (mode === "candidate" && stretchPickNarrative && stretchPickJob) {
+      const GEMINI_API_KEY_STRETCH = Deno.env.get("GEMINI_API_KEY");
+      if (!GEMINI_API_KEY_STRETCH) throw new Error("GEMINI_API_KEY not configured");
+      const { title, company, industry, matchReason } = stretchPickJob;
+      const stretchPrompt = `You are Howdy, a warm but honest UK careers coach. A job has come up that's a genuine reach for this person: "${title}" at ${company}${industry ? ` in ${industry}` : ""}. The specific reason it's a stretch: ${matchReason}. Write 2-3 sentences that are honest about the reach but encouraging, ending with why it's worth applying anyway. Do not invent facts beyond what's given. Do not use markdown.`;
+      const stretchResp = await fetch("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${GEMINI_API_KEY_STRETCH}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "gemini-2.5-flash",
+          messages: [{ role: "user", content: stretchPrompt }],
+          temperature: 0.5,
+        }),
+      });
+      if (!stretchResp.ok) {
+        return new Response(JSON.stringify({ error: "Couldn't put that together right now - try again shortly." }), {
+          status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const stretchData = await stretchResp.json();
+      const narrative = stretchData?.choices?.[0]?.message?.content?.trim() || "";
       return new Response(JSON.stringify({ narrative }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -619,15 +649,25 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
     // High-priority routing directive — inserted right before the latest user
     // turn so the model can't ignore it. Generic across ANY topic that maps
     // strongly to a canonical Howdy page.
+    //
+    // buildJobIntentDirective fires independently of a page match — a
+    // generic "can you check for jobs?" scores nothing in the site index
+    // (buildRoutingDirective alone returns null for it), so without this
+    // second, unconditional check the model was relying solely on the
+    // AGENT_INSTRUCTIONS bullet buried in a long system prompt, which
+    // wasn't reliable enough on its own — reported live as Howdy flatly
+    // claiming she has no access to job listings for exactly this phrasing.
     if (mode === "candidate") {
       const directive = buildRoutingDirective(latestUserMessage);
-      if (directive) {
+      const jobDirective = buildJobIntentDirective(latestUserMessage);
+      const combined = [directive, jobDirective].filter(Boolean).join("\n\n");
+      if (combined) {
         // Insert as system message right before the final user message
         const lastUserIdx = convo.length - 1 - [...convo].reverse().findIndex((m) => m.role === "user");
         if (lastUserIdx >= 0) {
-          convo.splice(lastUserIdx, 0, { role: "system", content: directive });
+          convo.splice(lastUserIdx, 0, { role: "system", content: combined });
         } else {
-          convo.push({ role: "system", content: directive });
+          convo.push({ role: "system", content: combined });
         }
       }
     }

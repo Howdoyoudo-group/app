@@ -36,6 +36,8 @@ interface Candidate {
   industry_interactions: number;
   match_score: number;
   fit_score: number | null; // RIASEC + work-values fit (0-100), null when employer is not a partner
+  curiosity_score: number | null; // percentile rank (0-100) of platform-wide engagement breadth, null until computed
+  curiosity_breadth: number | null; // 0-5, how many signal categories were active
   understand_me_summary: string | null;
   cv_skills: string[];
   cv_personality: string | null;
@@ -630,7 +632,7 @@ const EmployerDashboard = () => {
     const ids = Array.from(userIds);
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, full_name, industry_interests, role_preferences, career_level, location_preference, riasec_scores, work_values, understand_me_results")
+      .select("id, full_name, industry_interests, role_preferences, career_level, location_preference, riasec_scores, work_values, understand_me_results, curiosity_score, curiosity_breadth")
       .in("id", ids);
 
     // Fetch visible earned badges for these candidates
@@ -669,6 +671,8 @@ const EmployerDashboard = () => {
         industry_interactions: industryCount.get(p.id) ?? 0,
         match_score: matchScore,
         fit_score: fitScore,
+        curiosity_score: p.curiosity_score ?? null,
+        curiosity_breadth: p.curiosity_breadth ?? null,
         understand_me_summary: um?.summary ?? null,
         cv_skills: Array.isArray(um.transferableSkills) ? um.transferableSkills.slice(0, 12) : [],
         cv_personality: typeof um.personalityInsights === "string" ? um.personalityInsights : null,
@@ -705,7 +709,14 @@ const EmployerDashboard = () => {
     if (profile.understand_me_results) score += 20;
     // For paying partners, RIASEC fit replaces the flat +20 with a weighted signal up to +40.
     if (fitScore !== null) score += Math.round((fitScore - 50) * 0.4); // -20 to +20 around neutral
-    return Math.max(0, score);
+    // Curiosity: percentile rank of platform-wide engagement breadth (see
+    // compute-curiosity-scores). Null for not-yet-computed profiles adds
+    // nothing. Scaled to +18 max - meaningful but doesn't dominate the
+    // static-profile signals above.
+    if (profile.curiosity_score != null) score += Math.round((profile.curiosity_score / 100) * 18);
+    // Clamp to the advertised 0-100 range (the tooltip has always claimed
+    // "0-100"; scores could technically exceed 100 before this).
+    return Math.max(0, Math.min(100, score));
   };
 
   const filteredCandidates = useMemo(() => {
@@ -1473,7 +1484,7 @@ const CandidateRow = ({
               </span>
               <span
                 className="inline-flex items-baseline gap-1 cursor-help"
-                title={`Match score (0–100): how closely this candidate fits your brand based on behaviour and profile.\n\n• ${candidate.brand_interactions} brand interactions (your company page / job clicks)\n• ${candidate.industry_interactions} industry interactions (${companyIndustry ?? "your industry"} content)\n• Profile signals: industry interests, target companies, seniority & location\n\nHigher = stronger intent + fit. Sorted highest first.`}
+                title={`Match score (0–100): how closely this candidate fits your brand based on behaviour and profile.\n\n• ${candidate.brand_interactions} brand interactions (your company page / job clicks)\n• ${candidate.industry_interactions} industry interactions (${companyIndustry ?? "your industry"} content)\n• Curiosity: ${candidate.curiosity_score != null ? `${candidate.curiosity_score}th percentile` : "not yet computed"} platform-wide engagement (up to +18 pts)\n• Profile signals: industry interests, target companies, seniority & location\n\nHigher = stronger intent + fit. Sorted highest first.`}
               >
                 <span className="font-display text-sm leading-none">{candidate.match_score}</span>
                 <span className="text-[10px] text-muted-foreground">match</span>
@@ -1484,6 +1495,14 @@ const CandidateRow = ({
                   title="Fit % (paying partners only): cosine similarity between this candidate's RIASEC + work-values vector and your live job mix. 100% = perfect personality/values match for the kinds of roles you're hiring for."
                 >
                   {candidate.fit_score}% fit
+                </span>
+              )}
+              {candidate.curiosity_score !== null && (
+                <span
+                  className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-display border-2 border-foreground bg-[#FFD400] text-foreground cursor-help"
+                  title={`Curiosity: ${candidate.curiosity_score}th percentile of platform-wide engagement over time — active in ${candidate.curiosity_breadth ?? 0}/5 signal areas (browsing, job saves, application tracking, learning content, saved articles/videos). Distinguishes broad, sustained curiosity from one-off browsing.`}
+                >
+                  {candidate.curiosity_score}% curious
                 </span>
               )}
               <span
@@ -1527,7 +1546,7 @@ const CandidateRow = ({
         {/* Match score with hand-drawn underline */}
         <div
           className="hidden md:flex col-span-2 items-center gap-2 cursor-help"
-          title={`Match score (0–100): how closely this candidate fits your brand based on behaviour and profile.\n\n• ${candidate.brand_interactions} brand interactions (your company page / job clicks)\n• ${candidate.industry_interactions} industry interactions (${companyIndustry ?? "your industry"} content)\n• Profile signals: industry interests, target companies, seniority & location\n\nHigher = stronger intent + fit. Sorted highest first.`}
+          title={`Match score (0–100): how closely this candidate fits your brand based on behaviour and profile.\n\n• ${candidate.brand_interactions} brand interactions (your company page / job clicks)\n• ${candidate.industry_interactions} industry interactions (${companyIndustry ?? "your industry"} content)\n• Curiosity: ${candidate.curiosity_score != null ? `${candidate.curiosity_score}th percentile` : "not yet computed"} platform-wide engagement (up to +18 pts)\n• Profile signals: industry interests, target companies, seniority & location\n\nHigher = stronger intent + fit. Sorted highest first.`}
         >
           <span className="relative inline-block">
             <span className="font-display text-lg">{candidate.match_score}</span>
@@ -1542,6 +1561,14 @@ const CandidateRow = ({
               title="Fit % (paying partners only): cosine similarity between this candidate's RIASEC + work-values vector and your live job mix. 100% = perfect personality/values match for the kinds of roles you're hiring for."
             >
               {candidate.fit_score}% fit
+            </span>
+          )}
+          {candidate.curiosity_score !== null && (
+            <span
+              className="inline-flex items-center px-1.5 py-0.5 text-[10px] font-display border-2 border-foreground bg-[#FFD400] text-foreground"
+              title={`Curiosity: ${candidate.curiosity_score}th percentile of platform-wide engagement over time — active in ${candidate.curiosity_breadth ?? 0}/5 signal areas (browsing, job saves, application tracking, learning content, saved articles/videos). Distinguishes broad, sustained curiosity from one-off browsing.`}
+            >
+              {candidate.curiosity_score}% curious
             </span>
           )}
           {candidate.badges.map((b) => (

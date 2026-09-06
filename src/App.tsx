@@ -48,9 +48,11 @@ const Jobs = lazy(() => import("./pages/Jobs.tsx"));
 const Coffee = lazy(() => import("./pages/Coffee.tsx"));
 const Cinema = lazy(() => import("./pages/Cinema.tsx"));
 const Music = lazy(() => import("./pages/Music.tsx"));
+const MusicBadge = lazy(() => import("./pages/MusicBadge.tsx"));
 const Books = lazy(() => import("./pages/Books.tsx"));
 const Grocery = lazy(() => import("./pages/Grocery.tsx"));
 const Fashion = lazy(() => import("./pages/Fashion.tsx"));
+const FashionBadge = lazy(() => import("./pages/FashionBadge.tsx"));
 const Hospitality = lazy(() => import("./pages/Hospitality.tsx"));
 const Football = lazy(() => import("./pages/Football.tsx"));
 const FootballBadge = lazy(() => import("./pages/FootballBadge.tsx"));
@@ -67,6 +69,7 @@ const Wellness = lazy(() => import("./pages/Wellness.tsx"));
 const Gaming = lazy(() => import("./pages/Gaming.tsx"));
 const Influencing = lazy(() => import("./pages/Influencing.tsx"));
 const Journalism = lazy(() => import("./pages/Journalism.tsx"));
+const JournalismBadge = lazy(() => import("./pages/JournalismBadge.tsx"));
 const Jewellery = lazy(() => import("./pages/Jewellery.tsx"));
 const Pets = lazy(() => import("./pages/Pets.tsx"));
 const Travel = lazy(() => import("./pages/Travel.tsx"));
@@ -93,9 +96,11 @@ const SkillCoursePage = lazy(() => import("./pages/SkillCoursePage.tsx"));
 const Articles = lazy(() => import("./pages/Articles.tsx"));
 const UsingOurSite = lazy(() => import("./pages/UsingOurSite.tsx"));
 const CareerProfile = lazy(() => import("./pages/CareerProfile.tsx"));
+const PublicProfile = lazy(() => import("./pages/PublicProfile.tsx"));
 const MyProfile = lazy(() => import("./pages/MyProfile.tsx"));
 const BriefingsSample = lazy(() => import("./pages/BriefingsSample.tsx"));
 const MyJobs = lazy(() => import("./pages/MyJobs.tsx"));
+const JobTracker = lazy(() => import("./pages/JobTracker.tsx"));
 const MyJobsDemo = lazy(() => import("./pages/MyJobsDemo.tsx"));
 const MyProfileDemo = lazy(() => import("./pages/MyProfileDemo.tsx"));
 const Onboarding = lazy(() => import("./pages/Onboarding.tsx"));
@@ -104,6 +109,7 @@ const AdminIndustryHealth = lazy(() => import("./pages/AdminIndustryHealth.tsx")
 const AdminUsers = lazy(() => import("./pages/AdminUsers.tsx"));
 const AdminAiCosts = lazy(() => import("./pages/AdminAiCosts.tsx"));
 const AdminEmployerSpotlight = lazy(() => import("./pages/AdminEmployerSpotlight.tsx"));
+const AdminSiteStats = lazy(() => import("./pages/AdminSiteStats.tsx"));
 const AdminTeam = lazy(() => import("./pages/AdminTeam.tsx"));
 const CompanyMeEm = lazy(() => import("./pages/CompanyMeEm.tsx"));
 const CompanyGails = lazy(() => import("./pages/CompanyGails.tsx"));
@@ -193,6 +199,7 @@ const RoleHotelManager = lazy(() => import("./pages/roles/HotelManager.tsx"));
 const RoleBartender = lazy(() => import("./pages/roles/Bartender.tsx"));
 const RoleGarmentTechnologist = lazy(() => import("./pages/roles/GarmentTechnologist.tsx"));
 const RoleMortgageAdvisor = lazy(() => import("./pages/roles/MortgageAdvisor.tsx"));
+const RoleSustainability = lazy(() => import("./pages/roles/Sustainability.tsx"));
 const RoleITTechnology = lazy(() => import("./pages/roles/ITTechnology.tsx"));
 const RoleAI = lazy(() => import("./pages/roles/AI.tsx"));
 const RoleFootballAgent = lazy(() => import("./pages/roles/FootballAgent.tsx"));
@@ -284,9 +291,11 @@ const App = () => (
           <Route path="/coffee" element={<Coffee />} />
           <Route path="/cinema" element={<Cinema />} />
           <Route path="/music" element={<Music />} />
+          <Route path="/music/badge" element={<MusicBadge />} />
           <Route path="/books" element={<Books />} />
           <Route path="/grocery" element={<Grocery />} />
           <Route path="/fashion" element={<Fashion />} />
+          <Route path="/fashion/badge" element={<FashionBadge />} />
           <Route path="/hospitality" element={<Hospitality />} />
           <Route path="/football" element={<Football />} />
           <Route path="/football/badge" element={<FootballBadge />} />
@@ -303,6 +312,7 @@ const App = () => (
           <Route path="/gaming" element={<Gaming />} />
           <Route path="/influencing" element={<Influencing />} />
           <Route path="/journalism" element={<Journalism />} />
+          <Route path="/journalism/badge" element={<JournalismBadge />} />
           <Route path="/jewellery" element={<Jewellery />} />
           <Route path="/pets" element={<Pets />} />
           <Route path="/travel" element={<Travel />} />
@@ -330,17 +340,20 @@ const App = () => (
           <Route path="/articles" element={<Articles />} />
           <Route path="/using-our-site" element={<UsingOurSite />} />
           <Route path="/profile/:id" element={<CareerProfile />} />
+          <Route path="/u/:handle" element={<PublicProfile />} />
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="/my-profile-demo" element={<MyProfileDemo />} />
           <Route path="/my-jobs-demo" element={<MyJobsDemo />} />
           <Route path="/briefings" element={<BriefingsSample />} />
           <Route path="/my-jobs" element={<MyJobs />} />
+          <Route path="/job-tracker" element={<JobTracker />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/admin/adzuna-runs" element={<AdminAdzunaRuns />} />
           <Route path="/admin/industry-health" element={<AdminIndustryHealth />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/ai-costs" element={<AdminAiCosts />} />
           <Route path="/admin/employer-spotlight" element={<AdminEmployerSpotlight />} />
+          <Route path="/admin/site-stats" element={<AdminSiteStats />} />
           <Route path="/admin/team" element={<AdminTeam />} />
           <Route path="/admin" element={<AdminTeam />} />
           <Route path="/company/me-em" element={<CompanyMeEm />} />
@@ -410,6 +423,7 @@ const App = () => (
           <Route path="/roles/bartender" element={<RoleBartender />} />
           <Route path="/roles/garment-technologist" element={<RoleGarmentTechnologist />} />
           <Route path="/roles/mortgage-advisor" element={<RoleMortgageAdvisor />} />
+          <Route path="/roles/sustainability" element={<RoleSustainability />} />
           <Route path="/roles/it-technology" element={<RoleITTechnology />} />
           <Route path="/roles/ai" element={<RoleAI />} />
           <Route path="/roles/football-agent" element={<RoleFootballAgent />} />

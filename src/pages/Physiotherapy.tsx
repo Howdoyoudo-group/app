@@ -86,6 +86,7 @@ const physiotherapyCompanies = [
   { name: "Six Physio", url: "https://sixphysio.com/physiotherapy-jobs", founded: "2003", hq: "London", glassdoor: 4.2, trustpilot: 4.8, overview: "A leading private physiotherapy practice in London.", valueChainStage: "Private Practice" },
   { name: "PhysioFirst", url: "https://www.physiofirst.org.uk", founded: "1952", hq: "London", overview: "The professional body for private physiotherapy practitioners.", valueChainStage: "Professional Bodies" },
   { name: "Ramsay Health Care UK", url: "https://www.ramsayhealth.co.uk/Careers", founded: "1964", hq: "Sydney (UK: Surrey)", glassdoor: 3.4, overview: "One of the UK's largest private hospital groups - 30+ facilities running musculoskeletal and rehab services.", valueChainStage: "Private Practice" },
+  { name: "Active Care Group", url: "https://careers.activecaregroup.co.uk/", founded: "1992", hq: "Sevenoaks", glassdoor: 2.8, overview: "A UK provider of neurological rehabilitation and complex care services, operating specialist centres and community-based care across the country.", valueChainStage: "Private Practice" },
 ];
 
 const Physiotherapy = () => {

@@ -95,6 +95,8 @@ const beerCompanies = [
   { name: "JD Wetherspoon", url: "https://www.jdwetherspooncareers.com/", founded: "1979", hq: "Watford", glassdoor: 3.3, overview: "The UK's largest pub chain - 800+ pubs, known for value and heritage buildings.", valueChainStage: "Taproom & Retail" },
   { name: "Diageo (Guinness)", url: "https://www.diageo.com/en/careers", founded: "1997", hq: "London", glassdoor: 4.0, overview: "Global spirits giant and brewer of Guinness - the world's most iconic stout.", valueChainStage: "Brewing & Production" },
   { name: "Toast Ale", url: "https://www.toastale.com", founded: "2016", hq: "London", overview: "Award-winning B-Corp brewery making beer from surplus bread - sustainability-first.", valueChainStage: "Brewing & Production" },
+  { name: "Greene King", url: "https://jobs.greeneking.co.uk/", founded: "1799", hq: "Bury St Edmunds", glassdoor: 3.2, overview: "A British brewer and pub company operating pubs, restaurants and hotels across the UK, including brands such as Hungry Horse and Farmhouse Inns.", valueChainStage: "Taproom & Retail" },
+  { name: "Stonegate Group", url: "https://www.stonegatecareers.co.uk/", founded: "2010", hq: "Solihull", glassdoor: 3.3, overview: "The UK's largest pub company, operating thousands of managed pubs, bars and late-night venues including Slug & Lettuce and Popworld.", valueChainStage: "Taproom & Retail" },
 ];
 
 const Beer = () => {

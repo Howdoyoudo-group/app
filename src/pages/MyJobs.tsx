@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback, lazy, Suspense } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef, lazy, Suspense } from "react";
 import SEO from "@/components/SEO";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,11 +25,14 @@ import {
   shouldRequireRoleMatch,
   getIndustriesFromPassions,
   SALARY_THRESHOLDS,
+  summarizeBreakdown,
+  getExclusionOrMismatchReason,
   type Job,
   type UserProfile,
   type RoleRiasecProfile,
   type LearnedSignals,
   type CareerLevel,
+  type ScoreBreakdownItem,
 } from "@scoring/score-job.ts";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { toast } from "@/hooks/use-toast";
@@ -44,7 +47,11 @@ import SavedTabContent from "@/components/SavedTabContent";
 import MembersArea from "@/components/MembersArea";
 import MentorRequestsInbox from "@/components/MentorRequestsInbox";
 import howdyMascot from "@/assets/howdy-mascot.png";
+import HowdyHeaderButton from "@/components/HowdyHeaderButton";
 import { matchesToReasons } from "@/lib/profile-matching";
+import { useJobTracker } from "@/hooks/useJobTracker";
+import { Kanban } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 
 /* ───── Hand-drawn rounded pill CTA - matches home hero style ───── */
 const LIME = "hsl(120, 100%, 45%)";
@@ -156,16 +163,20 @@ function TinderJobCard({
   onOpen,
   onSave,
   savedIdSet,
+  onTrack,
+  trackedIdSet,
   isTop,
   stackIndex,
   exitDirection,
 }: {
-  job: Job & { score: number; matches: string[] };
+  job: Job & { score: number; matches: string[]; breakdown?: ScoreBreakdownItem[] };
   onDismiss: (id: string) => void;
   onLike: (id: string) => void;
   onOpen: (url: string, id?: string) => void;
   onSave: (id: string) => void;
   savedIdSet: Set<string>;
+  onTrack: (id: string) => void;
+  trackedIdSet: Set<string>;
   isTop: boolean;
   stackIndex: number;
   exitDirection: "left" | "right" | null;
@@ -183,11 +194,14 @@ function TinderJobCard({
   };
 
   const band = getScoreBand(job.score);
+  const [showWhy, setShowWhy] = useState(false);
+  const whyReasons = job.breakdown ? summarizeBreakdown(job.breakdown) : [];
 
   const industryLabel = job.industry ? (INDUSTRY_LABELS[job.industry] ?? job.industry) : null;
   const levelLabel = job.career_level ? (LEVEL_LABELS[job.career_level.toLowerCase()] ?? null) : null;
   const jobTypeLabel = normalizeJobType(job.type);
   const isSaved = savedIdSet.has(job.id);
+  const isTracked = trackedIdSet.has(job.id);
   const source = detectJobSource(job.url);
 
   return (
@@ -225,18 +239,50 @@ function TinderJobCard({
         <div className="flex-1 flex flex-col p-6 pb-4 min-h-0">
           {/* Top row: match badge + bookmark */}
           <div className="flex items-center justify-between mb-5 flex-shrink-0">
-            <span className="inline-flex items-center gap-1.5 pl-1.5 pr-3.5 py-1.5 bg-foreground text-background font-display font-800 text-[11px] tracking-wide uppercase rounded-full">
+            <button
+              type="button"
+              disabled={whyReasons.length === 0}
+              onClick={(e) => { e.stopPropagation(); setShowWhy((v) => !v); }}
+              className="inline-flex items-center gap-1.5 pl-1.5 pr-3.5 py-1.5 bg-foreground text-background font-display font-800 text-[11px] tracking-wide uppercase rounded-full disabled:cursor-default"
+            >
               <img src={howdyMascot} alt="" className="w-5 h-5 object-contain rounded-full bg-background/10" />
               {band.label}
-            </span>
-            <button
-              onClick={(e) => { e.stopPropagation(); onSave(job.id); }}
-              className="w-9 h-9 rounded-full bg-background/50 hover:bg-background/80 flex items-center justify-center transition-colors flex-shrink-0"
-              title="Save for later"
-            >
-              {isSaved ? <BookmarkCheck className="w-[18px] h-[18px]" /> : <Bookmark className="w-[18px] h-[18px]" />}
             </button>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onTrack(job.id); }}
+                    className={`w-9 h-9 rounded-full bg-background/50 hover:bg-background/80 flex items-center justify-center transition-colors ${isTracked ? "text-primary" : ""}`}
+                    aria-label={isTracked ? "In your Job Tracker" : "Add to Job Tracker"}
+                  >
+                    <Kanban className="w-[18px] h-[18px]" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent>{isTracked ? "In your Job Tracker" : "Add to Job Tracker"}</TooltipContent>
+              </Tooltip>
+              <button
+                onClick={(e) => { e.stopPropagation(); onSave(job.id); }}
+                className="w-9 h-9 rounded-full bg-background/50 hover:bg-background/80 flex items-center justify-center transition-colors"
+                title="Save for later"
+              >
+                {isSaved ? <BookmarkCheck className="w-[18px] h-[18px]" /> : <Bookmark className="w-[18px] h-[18px]" />}
+              </button>
+            </div>
           </div>
+
+          {/* Why this matched - tap the band pill to reveal */}
+          {showWhy && whyReasons.length > 0 && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              className="mb-4 flex-shrink-0 rounded-2xl border border-foreground/15 bg-background/60 px-4 py-3 space-y-1"
+            >
+              <p className="font-display font-800 text-[10px] uppercase tracking-widest text-foreground/50 mb-1.5">Why Howdy picked this</p>
+              {whyReasons.map((reason) => (
+                <p key={reason} className="font-body text-xs text-foreground/80 leading-snug">· {reason}</p>
+              ))}
+            </div>
+          )}
 
           {/* Title */}
           <h3 className="font-display font-900 text-2xl leading-[1.1] mb-3 flex-shrink-0">{job.title}</h3>
@@ -295,6 +341,67 @@ function TinderJobCard({
   );
 }
 
+// One AI-polished "stretch pick" a day - modelled on PlanTab's HowdyTake():
+// fetch once, static fallback on failure, respects the same 50-calls/day
+// career-assistant quota (server-side) plus a client-side once-a-day gate.
+function StretchPickCard({ job, reason }: { job: Job & { score: number }; reason: string }) {
+  const [narrative, setNarrative] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData?.session?.access_token;
+        if (!accessToken) { setLoading(false); return; }
+        const resp = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/career-assistant`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+            apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
+          },
+          body: JSON.stringify({
+            mode: "candidate",
+            stretchPickNarrative: true,
+            stretchPickJob: { title: job.title, company: job.company, industry: job.industry, matchReason: reason },
+            messages: [{ role: "user", content: "Tell me about this stretch job." }],
+          }),
+        });
+        if (!resp.ok) { if (!cancelled) setLoading(false); return; }
+        const data = await resp.json();
+        if (!cancelled) setNarrative(data?.narrative || null);
+      } catch {
+        // Silent fail - the static fallback line below still works.
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [job.id, job.title, job.company, job.industry, reason]);
+
+  return (
+    <div className="mb-5 border-2 border-primary/50 bg-primary/5 rounded-2xl px-4 py-3.5">
+      <div className="flex items-center gap-2 mb-1.5">
+        <img src={howdyMascot} alt="" className="w-6 h-6 object-contain rounded-full" />
+        <p className="font-display font-800 text-xs uppercase tracking-widest text-primary">This one's a stretch, but worth a look</p>
+      </div>
+      <p className="font-body text-sm font-700 mb-1">{job.title} · {job.company}</p>
+      {loading ? (
+        <div className="space-y-1.5 mt-1.5">
+          <div className="h-3 bg-foreground/10 rounded animate-pulse w-full" />
+          <div className="h-3 bg-foreground/10 rounded animate-pulse w-3/4" />
+        </div>
+      ) : (
+        <p className="font-body text-xs text-foreground/80 leading-relaxed">
+          {narrative || `Honestly? ${reason.charAt(0).toUpperCase() + reason.slice(1)} — but it's worth a shot anyway.`}
+        </p>
+      )}
+    </div>
+  );
+}
+
 // Card stack + action buttons
 function TinderCardStack({
   jobs,
@@ -304,6 +411,8 @@ function TinderCardStack({
   onSave,
   onOpen,
   savedIdSet,
+  onTrack,
+  trackedIdSet,
 }: {
   jobs: (Job & { score: number; matches: string[] })[];
   isFallback?: boolean;
@@ -312,6 +421,8 @@ function TinderCardStack({
   onSave: (id: string) => void;
   onOpen: (url: string, id?: string) => void;
   savedIdSet: Set<string>;
+  onTrack: (id: string) => void;
+  trackedIdSet: Set<string>;
 }) {
   const [exiting, setExiting] = useState<{ id: string; direction: "left" | "right" } | null>(null);
 
@@ -373,6 +484,8 @@ function TinderCardStack({
               onOpen={onOpen}
               onSave={onSave}
               savedIdSet={savedIdSet}
+              onTrack={onTrack}
+              trackedIdSet={trackedIdSet}
               isTop={stackIndex === 0}
               stackIndex={stackIndex}
               exitDirection={exiting?.id === job.id ? exiting.direction : null}
@@ -425,6 +538,7 @@ const MyJobs = () => {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [roleProfiles, setRoleProfiles] = useState<Map<string, RoleRiasecProfile>>(new Map());
+  const [howdyJobsMeta, setHowdyJobsMeta] = useState<{ lastSeenAt: string | null; curiosityScore: number | null; curiosityBreadth: number | null }>({ lastSeenAt: null, curiosityScore: null, curiosityBreadth: null });
   const minMatch = 60;
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [openedIds, setOpenedIds] = useState<Set<string>>(new Set());
@@ -579,6 +693,43 @@ const MyJobs = () => {
 
   const savedIdSet = useMemo(() => new Set(savedJobs.map((j) => j.id)), [savedJobs]);
 
+  const { isTracked: isJobTracked, addItem: addTrackerItem } = useJobTracker();
+  const trackedIdSet = useMemo(() => {
+    const set = new Set<string>();
+    jobs.forEach((j) => { if (isJobTracked(j.id)) set.add(j.id); });
+    return set;
+  }, [jobs, isJobTracked]);
+
+  const trackJob = useCallback(async (jobId: string) => {
+    if (!user) { navigate("/auth"); return; }
+    if (isJobTracked(jobId)) {
+      toast({ title: "Already in your Job Tracker" });
+      return;
+    }
+    const job = jobs.find((j) => j.id === jobId);
+    if (!job) return;
+    await addTrackerItem({
+      job_id: job.id,
+      company: job.company,
+      title: job.title,
+      url: job.url,
+      location: job.location,
+      salary: job.salary,
+      industry: job.industry,
+    });
+    toast({
+      title: "Added to Job Tracker",
+      action: (
+        <button
+          onClick={() => navigate("/job-tracker")}
+          className="text-xs font-display font-700 underline underline-offset-2"
+        >
+          View board
+        </button>
+      ),
+    } as any);
+  }, [user, navigate, jobs, isJobTracked, addTrackerItem]);
+
   const loadLikedJobs = useCallback(async () => {
     if (!user) return;
     setLikedLoading(true);
@@ -674,7 +825,7 @@ const MyJobs = () => {
       const [profileRes, roleProfilesRes, dismissedRes, requestsRes] = await Promise.all([
         supabase
           .from("profiles")
-          .select("career_level, industry_interests, newsletter_industries, location_preference, role_preferences, salary_expectation, understand_me_results, riasec_scores, work_values, job_preferences, share_details_default, photo_url")
+          .select("career_level, industry_interests, newsletter_industries, location_preference, role_preferences, salary_expectation, understand_me_results, riasec_scores, work_values, job_preferences, share_details_default, photo_url, howdy_jobs_last_seen_at, curiosity_score, curiosity_breadth")
           .eq("id", user.id)
           .maybeSingle(),
         supabase.from("role_riasec_profiles").select("role_category, riasec_scores, work_values"),
@@ -701,6 +852,11 @@ const MyJobs = () => {
       const nextProfile = (profileRes.data as unknown as UserProfile) || null;
       setProfile(nextProfile);
       setPhotoUrl((profileRes.data as any)?.photo_url ?? null);
+      setHowdyJobsMeta({
+        lastSeenAt: (profileRes.data as any)?.howdy_jobs_last_seen_at ?? null,
+        curiosityScore: (profileRes.data as any)?.curiosity_score ?? null,
+        curiosityBreadth: (profileRes.data as any)?.curiosity_breadth ?? null,
+      });
 
       const map = new Map<string, RoleRiasecProfile>();
       for (const rp of roleProfilesRes.data || []) {
@@ -1182,6 +1338,72 @@ const MyJobs = () => {
     [scoredJobs, primaryScoredJobs],
   );
 
+  // "New since you last checked" — falls back to the full queue on a first-
+  // ever visit (no watermark yet), otherwise counts only genuinely new jobs.
+  const jobsQueueForBadge = primaryScoredJobs.length > 0 ? primaryScoredJobs : broaderScoredJobs;
+  const newJobsSinceLastSeen = useMemo(() => {
+    if (!howdyJobsMeta.lastSeenAt) return jobsQueueForBadge.length;
+    const watermark = new Date(howdyJobsMeta.lastSeenAt).getTime();
+    return jobsQueueForBadge.filter((j) => new Date(j.created_at).getTime() > watermark).length;
+  }, [jobsQueueForBadge, howdyJobsMeta.lastSeenAt]);
+
+  // Once per session: when the Jobs tab is opened with genuinely new matches
+  // waiting (not on a first-ever visit, where "new" would just mean "all of
+  // them"), let Howdy say so — and fold in a curiosity-score insight when
+  // there's a broad enough signal to make it feel earned, not generic.
+  const jobsNoticeShownRef = useRef(false);
+  useEffect(() => {
+    if (loading || inboxTab !== "jobs" || !user || jobsNoticeShownRef.current) return;
+    jobsNoticeShownRef.current = true;
+
+    if (howdyJobsMeta.lastSeenAt && newJobsSinceLastSeen > 0) {
+      let description = `${newJobsSinceLastSeen} new match${newJobsSinceLastSeen === 1 ? "" : "es"} since you were last here.`;
+      if ((howdyJobsMeta.curiosityBreadth ?? 0) >= 3 && behavioralAffinity && behavioralAffinity.max > 0) {
+        let topIndustry: string | null = null;
+        let topScore = 0;
+        for (const [industry, score] of behavioralAffinity.scores) {
+          if (score > topScore) { topScore = score; topIndustry = industry; }
+        }
+        if (topIndustry) {
+          description += ` Howdy's noticed you've been curious about ${INDUSTRY_LABELS[topIndustry] ?? topIndustry} lately.`;
+        }
+      }
+      toast({ title: "Howdy Jobs", description });
+    }
+
+    supabase.from("profiles").update({ howdy_jobs_last_seen_at: new Date().toISOString() }).eq("id", user.id).then(() => {});
+  }, [loading, inboxTab, user, newJobsSinceLastSeen, howdyJobsMeta, behavioralAffinity]);
+
+  // The day's "stretch pick" - highest-scoring 45-65 band job whose only
+  // real gap is career-level or target-role (never a hard exclusion, since
+  // shouldExcludeJob() has already filtered those out of these arrays).
+  const stretchPickJob = useMemo(() => {
+    if (!profile) return null;
+    const candidates = (primaryScoredJobs.length > 0 ? primaryScoredJobs : broaderScoredJobs)
+      .filter((j) => j.score >= 45 && j.score <= 65);
+    let best: (typeof candidates[number] & { _stretchReason: string }) | null = null;
+    for (const job of candidates) {
+      const reason = getExclusionOrMismatchReason(job, profile);
+      if (!reason || reason.startsWith("it's outside your usual industries")) continue;
+      if (!best || job.score > best.score) best = { ...job, _stretchReason: reason };
+    }
+    return best;
+  }, [profile, primaryScoredJobs, broaderScoredJobs]);
+
+  // Client-side once-a-day gate, on top of the server-side AI quota.
+  const [showStretchPick, setShowStretchPick] = useState(false);
+  useEffect(() => {
+    if (!stretchPickJob) { setShowStretchPick(false); return; }
+    try {
+      const key = `howdy_stretch_pick_shown:${new Date().toISOString().slice(0, 10)}`;
+      if (localStorage.getItem(key)) { setShowStretchPick(false); return; }
+      localStorage.setItem(key, "1");
+      setShowStretchPick(true);
+    } catch {
+      setShowStretchPick(true);
+    }
+  }, [stretchPickJob?.id]);
+
   // Jobs from the "other" bucket that match the user's role preferences —
   // surfaced separately as "roles you might not have considered".
   const discoverJobs = useMemo(() => {
@@ -1218,7 +1440,7 @@ const MyJobs = () => {
 
   const navItems: { value: typeof inboxTab; label: string; icon: React.ReactNode; badge?: number; highlight?: boolean; to?: string }[] = [
     { value: "search",  label: "Jobs",        icon: <Search className="w-[22px] h-[22px]" />, to: "/marketplace" },
-    { value: "jobs",    label: "Howdy Jobs",  icon: <img src={howdyMascot} alt="" className="w-7 h-7 object-contain" />, badge: primaryScoredJobs.length || broaderScoredJobs.length },
+    { value: "jobs",    label: "Howdy Jobs",  icon: <img src={howdyMascot} alt="" className="w-7 h-7 object-contain" />, badge: newJobsSinceLastSeen || jobsQueueForBadge.length },
     { value: "liked",   label: "Liked",       icon: <Heart className="w-[22px] h-[22px]" />, badge: likedJobs.length || undefined },
     { value: "saved",   label: "Saved",       icon: <Bookmark className="w-[22px] h-[22px]" />, badge: savedJobs.length || undefined },
     { value: "links",   label: "Settings",    icon: <Globe className="w-[22px] h-[22px]" /> },
@@ -1279,13 +1501,7 @@ const MyJobs = () => {
               </span>
             )}
           </button>
-          <Link
-            to="/howdy"
-            aria-label="Open Howdy"
-            className="relative w-11 h-11 rounded-full flex items-center justify-center shrink-0 mt-1 bg-[#00E600] ring-2 ring-foreground/10 hover:ring-foreground/30 transition overflow-hidden"
-          >
-            <img src={howdyMascot} alt="" className="w-8 h-8 object-contain" />
-          </Link>
+          <HowdyHeaderButton showDot={!!howdyJobsMeta.lastSeenAt && newJobsSinceLastSeen > 0} />
         </header>
 
 
@@ -1514,6 +1730,11 @@ const MyJobs = () => {
               </div>
             )}
 
+            {/* Stretch pick — at most one per day, only when a genuine reach exists */}
+            {hasPreferences && showStretchPick && stretchPickJob && (
+              <StretchPickCard job={stretchPickJob} reason={stretchPickJob._stretchReason} />
+            )}
+
             {/* Tinder card stack — falls back to the algorithm's broader picks
                 once the strict industry+match-threshold stack runs dry, instead
                 of just stopping. Gated on historyReady so a reload never briefly
@@ -1533,6 +1754,8 @@ const MyJobs = () => {
                 onSave={toggleSaveJob}
                 onOpen={handleOpen}
                 savedIdSet={savedIdSet}
+                onTrack={trackJob}
+                trackedIdSet={trackedIdSet}
               />
             )}
           </TabsContent>

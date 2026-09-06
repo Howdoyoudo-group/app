@@ -106,6 +106,10 @@ const footwearCompanies = [
   { name: "Skechers", url: "https://about.skechers.com/careers/", founded: "1992", hq: "Manhattan Beach (UK: Hertfordshire)", glassdoor: 3.6, trustpilot: 2.0, overview: "The third-largest athletic footwear brand globally - comfort-led product across performance and lifestyle.", valueChainStage: "Brand" },
   { name: "Shoe Zone", url: "https://www.shoezone.com/Careers", founded: "1980", hq: "Leicester", glassdoor: 3.0, trustpilot: 4.4, overview: "The UK's largest value footwear retailer with 280+ stores.", valueChainStage: "Retail & E-Commerce" },
   { name: "Kurt Geiger", url: "https://www.kurtgeigercareers.com", founded: "1963", hq: "London", glassdoor: 3.4, trustpilot: 1.8, overview: "London's leading luxury footwear and accessories brand - owned-store, wholesale, and e-commerce.", valueChainStage: "Brand" },
+  { name: "Clarks", url: "https://www.clarksjobs.com", founded: "1825", hq: "Street, Somerset", glassdoor: 3.6, overview: "A long-established British footwear brand with stores and products sold internationally.", valueChainStage: "Brand" },
+  { name: "On", url: "https://culture.on-running.com/jobs", founded: "2010", hq: "Zurich, Switzerland", glassdoor: 2.8, overview: "A Swiss sportswear brand known for its running shoes, with a growing retail and office presence including London.", valueChainStage: "Brand" },
+  { name: "Jimmy Choo", url: "https://www.jimmychoo.com/en/careers.html", founded: "1996", hq: "London", glassdoor: 3.8, overview: "A luxury accessories house that began as an East London shoemaking atelier and now operates stores worldwide.", valueChainStage: "Brand" },
+  { name: "Deichmann", url: "https://corpsite.deichmann.com/gb-en/careers/", founded: "1913", hq: "Essen, Germany", glassdoor: 3.0, overview: "A European footwear retailer with over 120 stores across the UK.", valueChainStage: "Retail & E-Commerce" },
 ];
 
 const Footwear = () => {

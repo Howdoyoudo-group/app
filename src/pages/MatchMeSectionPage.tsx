@@ -12,6 +12,7 @@ import { getEffectiveIndustriesTagged, getCvIndustriesTagged, type TaggedIndustr
 import { RoleMixer } from "@/components/RoleMixer";
 import SiteNav from "@/components/SiteNav";
 import Footer from "@/components/Footer";
+import HowdyIntro from "@/components/HowdyIntro";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -61,13 +62,43 @@ const RIASEC_LABELS: Record<string, { label: string; emoji: string }> = {
   E: { label: "Enterprising", emoji: "🚀" }, C: { label: "Conventional", emoji: "📋" },
 };
 
-const SECTION_META: Record<string, { title: string; subtitle: string; icon: React.ElementType }> = {
-  "what-we-know": { title: "What Howdy Knows About You", subtitle: "The signals we use to match your opportunities", icon: Layers },
-  "suggested-roles": { title: "Suggested Roles", subtitle: "Based on your CV — roles your experience maps to", icon: Briefcase },
-  "suggested-industries": { title: "Suggested Industries", subtitle: "Based on your CV — sectors where your background fits", icon: Building2 },
-  "worlds-collide": { title: "Where Your Worlds Collide", subtitle: "Roles at the crossover of your industries and skills", icon: Shuffle },
-  "what-if-machine": { title: "The What If Machine", subtitle: "Collide two industries and discover 10 roles you'd never have thought of.", icon: Brain },
-  "side-hustles": { title: "Side Hustle Ideas", subtitle: "Flexible ways to earn alongside your career, matched to your skills", icon: Wallet },
+const SECTION_META: Record<string, { title: string; subtitle: string; icon: React.ElementType; intro: string }> = {
+  "what-we-know": {
+    title: "What Howdy Knows About You",
+    subtitle: "The signals we use to match your opportunities",
+    icon: Layers,
+    intro: "This is everything I'm using to match you - what your CV tells me, what you've told me directly, and what your personality quiz revealed. The more complete this is, the sharper your matches get.",
+  },
+  "suggested-roles": {
+    title: "Suggested Roles",
+    subtitle: "Based on your CV — roles your experience maps to",
+    icon: Briefcase,
+    intro: "I've read your CV and matched it against real job titles. These are the roles your existing experience already points to - a good starting shortlist, not the final word.",
+  },
+  "suggested-industries": {
+    title: "Suggested Industries",
+    subtitle: "Based on your CV — sectors where your background fits",
+    icon: Building2,
+    intro: "Same idea, zoomed out - instead of job titles, these are the whole sectors where your background and experience are a strong fit.",
+  },
+  "worlds-collide": {
+    title: "Where Your Worlds Collide",
+    subtitle: "Roles at the crossover of your industries and skills",
+    icon: Shuffle,
+    intro: "Some of the best career moves live at the crossover of two things you're into. This section blends your target industries with your skill type to surface roles you might never have thought to search for.",
+  },
+  "what-if-machine": {
+    title: "The What If Machine",
+    subtitle: "Collide two industries and discover 10 roles you'd never have thought of.",
+    icon: Brain,
+    intro: "Pick any two industries and a skill you're strong in, and I'll invent 10 real jobs that live at their intersection. Purely for exploring - treat it as a spark, not a shortlist.",
+  },
+  "side-hustles": {
+    title: "Side Hustle Ideas",
+    subtitle: "Flexible ways to earn alongside your career, matched to your skills",
+    icon: Wallet,
+    intro: "A side hustle is a low-risk way to test an idea, build a portfolio, or just earn a bit extra. These are ranked against your skill mix, highest match first.",
+  },
 };
 
 export default function MatchMeSectionPage() {
@@ -182,6 +213,12 @@ export default function MatchMeSectionPage() {
             </motion.div>
           )}
 
+          {meta && (
+            <motion.div {...fadeUp} className="mb-8">
+              <HowdyIntro>{meta.intro}</HowdyIntro>
+            </motion.div>
+          )}
+
           {loading && (
             <div className="flex justify-center py-20">
               <div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
@@ -217,7 +254,7 @@ export default function MatchMeSectionPage() {
                   {/* From CV */}
                   <div className="border-2 border-blue-200 rounded-2xl p-4 bg-blue-50/40 space-y-4">
                     <div className="flex items-center justify-between">
-                      <p className="font-display font-700 text-[10px] uppercase tracking-widest text-blue-600">From your CV</p>
+                      <h3 className="font-display font-700 text-[10px] uppercase tracking-widest text-blue-600">From your CV</h3>
                       {!(results?.roleMatches?.length || results?.industryFit?.length) && (
                         <Link to="/my-profile" className="font-display font-700 text-[10px] uppercase tracking-widest text-blue-500 underline">Run Understand Me →</Link>
                       )}
@@ -264,7 +301,7 @@ export default function MatchMeSectionPage() {
 
                   {/* You told us */}
                   <div className="border-2 border-primary/20 rounded-2xl p-4 bg-primary/5 space-y-4">
-                    <p className="font-display font-700 text-[10px] uppercase tracking-widest text-primary">You told us</p>
+                    <h3 className="font-display font-700 text-[10px] uppercase tracking-widest text-primary">You told us</h3>
                     <div>
                       <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-2">Desired industries</p>
                       {industryInterests.length > 0 ? (
@@ -337,7 +374,7 @@ export default function MatchMeSectionPage() {
 
                   {/* Personality */}
                   <div className="border-2 border-purple-200 rounded-2xl p-4 bg-purple-50/40 space-y-4">
-                    <p className="font-display font-700 text-[10px] uppercase tracking-widest text-purple-600">Your personality</p>
+                    <h3 className="font-display font-700 text-[10px] uppercase tracking-widest text-purple-600">Your personality</h3>
                     {riasecScores ? (
                       <div>
                         <p className="font-display font-700 text-[10px] uppercase tracking-widest text-muted-foreground mb-3">RIASEC profile</p>

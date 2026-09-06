@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Sparkles, Copy, Download, Loader2, FileText, ArrowRight } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Sparkles, Copy, Download, Loader2, FileText, ArrowRight, ExternalLink, Send, CheckCircle2 } from "lucide-react";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,15 +9,78 @@ import SEO from "@/components/SEO";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import HowdyIntro from "@/components/HowdyIntro";
+import { useApplyAndTrack } from "@/hooks/useApplyAndTrack";
+import { useJobTracker } from "@/hooks/useJobTracker";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
 export default function HelpMeApply() {
   const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  // Carries the job over from a Job Tracker card (or any other "Help me
+  // apply" link) so this page isn't just a blank form disconnected from the
+  // job the user actually clicked from.
+  const prefillCompany = searchParams.get("company") || "";
+  const prefillTitle = searchParams.get("title") || "";
+  const prefillUrl = searchParams.get("url") || "";
   const [jobDescription, setJobDescription] = useState("");
   const [tone, setTone] = useState<"formal" | "friendly">("friendly");
   const [coverLetter, setCoverLetter] = useState("");
   const [generating, setGenerating] = useState(false);
+  const [applied, setApplied] = useState(false);
+  const { applyAndTrack } = useApplyAndTrack();
+  const { items: trackerItems, updateItem } = useJobTracker();
+
+  // If this page was opened from an already-tracked job (Job Tracker's
+  // "Howdy can help" chip), find that row so we can cache Howdy's output on
+  // it instead of regenerating every visit, and update its status in place
+  // instead of inserting a duplicate tracker row when marking it applied.
+  const existingItem = useMemo(() => {
+    if (prefillUrl) {
+      const byUrl = trackerItems.find((i) => i.url === prefillUrl);
+      if (byUrl) return byUrl;
+    }
+    if (prefillCompany) {
+      return trackerItems.find(
+        (i) => i.company.toLowerCase() === prefillCompany.toLowerCase()
+          && (i.title || "").toLowerCase() === prefillTitle.toLowerCase(),
+      ) ?? null;
+    }
+    return null;
+  }, [trackerItems, prefillUrl, prefillCompany, prefillTitle]);
+
+  // Hydrate from a previously-saved cover letter instead of making the user
+  // regenerate it (and burn another AI call) every time they come back.
+  const [hydratedFromCache, setHydratedFromCache] = useState(false);
+  useEffect(() => {
+    if (hydratedFromCache) return;
+    if (existingItem?.application_helper?.coverLetter) {
+      setCoverLetter(existingItem.application_helper.coverLetter);
+      if (existingItem.application_helper.jobDescription) {
+        setJobDescription(existingItem.application_helper.jobDescription);
+      }
+      setHydratedFromCache(true);
+    }
+    if (existingItem?.status === "applied") setApplied(true);
+  }, [existingItem, hydratedFromCache]);
+
+  const markApplied = async () => {
+    const url = prefillUrl || existingItem?.url || "";
+    if (!url && !existingItem) { toast.error("No apply link found for this job"); return; }
+    const result = await applyAndTrack(
+      {
+        company: prefillCompany || existingItem?.company || "Unknown",
+        title: prefillTitle || existingItem?.title || "Untitled role",
+        url,
+        application_helper: coverLetter ? { coverLetter, jobDescription } : undefined,
+      },
+      existingItem?.id,
+    );
+    if (!result) { toast.error("Couldn't save that - try again."); return; }
+    setApplied(true);
+    toast.success("Saved to your Job Tracker as applied");
+  };
 
   const generate = async () => {
     if (!user) { toast.error("Sign in to use this feature."); return; }
@@ -53,12 +116,15 @@ export default function HelpMeApply() {
         })),
       };
 
+      const contextHeader = prefillCompany || prefillTitle
+        ? `Role: ${prefillTitle || "Unknown"}\nCompany: ${prefillCompany || "Unknown"}\n\n`
+        : "";
       const res = await fetch(
         "https://wgistckxxbfpsuulbswr.supabase.co/functions/v1/help-me-apply",
         {
           method: "POST",
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ jobDescription, tone, profileData }),
+          body: JSON.stringify({ jobDescription: contextHeader + jobDescription, tone, profileData }),
         }
       );
       const data = await res.json().catch(() => ({}));
@@ -68,6 +134,14 @@ export default function HelpMeApply() {
       }
       setCoverLetter(data.coverLetter);
       toast.success("Cover letter ready!");
+
+      // Cache it on the tracker row so reopening this job later doesn't
+      // regenerate the same letter (and doesn't spend another AI call).
+      if (existingItem) {
+        updateItem(existingItem.id, {
+          application_helper: { coverLetter: data.coverLetter, jobDescription },
+        });
+      }
     } catch (err) {
       console.error(err);
       toast.error("Something went wrong.");
@@ -104,9 +178,12 @@ export default function HelpMeApply() {
             <h1 className="font-display font-900 text-4xl md:text-5xl leading-[1.05] tracking-tight text-foreground mb-3">
               Help Me Apply
             </h1>
-            <p className="font-body text-base text-muted-foreground max-w-lg">
+            <p className="font-body text-base text-muted-foreground max-w-lg mb-4">
               Paste the job description and we'll write a tailored cover letter using your profile. Takes about 15 seconds.
             </p>
+            <HowdyIntro>
+              Paste the job description below and I'll draft a cover letter using your profile - tweak the tone, copy it, and mark the job as applied when you're ready. If you came here from a saved job, I'll remember what I wrote so you're not waiting on me twice.
+            </HowdyIntro>
           </motion.div>
 
           {!user ? (
@@ -138,6 +215,30 @@ export default function HelpMeApply() {
                   ))}
                 </div>
               </div>
+
+              {(prefillCompany || prefillTitle) && (
+                <div className="flex items-center justify-between gap-3 border-2 border-primary/40 bg-primary/5 rounded-2xl px-4 py-3">
+                  <p className="font-body text-sm text-foreground">
+                    Cover letter for{" "}
+                    <span className="font-display font-700">{prefillTitle || "this role"}</span>
+                    {prefillCompany && (
+                      <>
+                        {" "}at <span className="font-display font-700">{prefillCompany}</span>
+                      </>
+                    )}
+                  </p>
+                  {prefillUrl && (
+                    <a
+                      href={prefillUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="shrink-0 inline-flex items-center gap-1 text-xs font-body text-primary hover:underline"
+                    >
+                      View listing <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              )}
 
               {/* Job description input */}
               <div>
@@ -193,6 +294,17 @@ export default function HelpMeApply() {
                     </Button>
                     <Button asChild variant="outline" size="sm" className="rounded-full border-2 border-foreground font-display font-700 text-xs uppercase">
                       <Link to="/cv-builder">Also build my CV →</Link>
+                    </Button>
+                    <Button
+                      onClick={markApplied}
+                      disabled={applied}
+                      size="sm"
+                      className={`rounded-full gap-1.5 font-display font-700 text-xs uppercase ${
+                        applied ? "bg-green-600 hover:bg-green-600 text-white" : ""
+                      }`}
+                    >
+                      {applied ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Send className="w-3.5 h-3.5" />}
+                      {applied ? "Marked as applied" : "Mark as applied & save"}
                     </Button>
                   </div>
                 </motion.div>

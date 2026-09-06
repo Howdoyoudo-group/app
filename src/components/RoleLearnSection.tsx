@@ -1,5 +1,5 @@
 import { ExternalLink, GraduationCap } from "lucide-react";
-import { coursesByIndustry } from "@/data/courses";
+import { coursesByIndustry, coursesByRole } from "@/data/courses";
 import { roles } from "@/data/roles";
 import OnlineLearningGrid from "@/components/OnlineLearningGrid";
 
@@ -17,15 +17,21 @@ const MAX_COURSES = 12;
 const RoleLearnSection = ({ roleName, roleSlug }: RoleLearnSectionProps) => {
   const role = roles.find((item) => item.slug === roleSlug);
 
-  // Industry trade courses (City & Guilds plumbing, IMI automotive quals, brewing
-  // certificates, etc.) are only genuinely relevant for roles tied to one real
-  // trade/industry. Business-function roles (Sales, Marketing, Sustainability
-  // Manager...) exist across dozens of unrelated industries, so cross-referencing
-  // them here surfaced irrelevant industry courses instead of role-relevant ones -
-  // those roles rely on OnlineLearningGrid's role-name search below instead.
+  // Role-specific vocational/FE qualifications (coursesByRole) take priority
+  // when we have them - genuinely relevant regardless of category.
+  //
+  // Otherwise: industry trade courses (City & Guilds plumbing, IMI automotive
+  // quals, brewing certificates, etc.) are only relevant for roles tied to one
+  // real trade/industry. Business-function roles (Sales, Marketing...) exist
+  // across dozens of unrelated industries, so cross-referencing them here
+  // surfaced irrelevant industry courses instead of role-relevant ones - those
+  // roles rely on OnlineLearningGrid's role-name search below instead, unless
+  // we have real role-specific data for them in coursesByRole.
+  const roleCourses = coursesByRole[roleSlug];
   const seenUrls = new Set<string>();
-  const courses =
-    role?.category === "business"
+  const courses = roleCourses
+    ? roleCourses
+    : role?.category === "business"
       ? []
       : role?.industries
           .flatMap((industry) => {
@@ -44,15 +50,19 @@ const RoleLearnSection = ({ roleName, roleSlug }: RoleLearnSectionProps) => {
           })
           .slice(0, MAX_COURSES) ?? [];
 
+  const showCourses = Boolean(roleCourses) || role?.category !== "business";
+
   return (
     <>
-      {role?.category !== "business" && (
+      {showCourses && (
         <>
           <h2 className="font-display text-2xl md:text-3xl font-700 mb-6">
             Courses & Qualifications<span className="text-primary">.</span>
           </h2>
           <p className="text-muted-foreground font-body text-sm mb-6 max-w-2xl">
-            A cross-industry learning shortlist for {roleName} - pulled from the sectors where this role shows up.
+            {roleCourses
+              ? `Real vocational and further education routes into ${roleName}.`
+              : `A cross-industry learning shortlist for ${roleName} - pulled from the sectors where this role shows up.`}
           </p>
 
           {courses.length === 0 ? (

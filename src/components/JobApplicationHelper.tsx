@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -15,13 +16,19 @@ import {
   RefreshCw,
   ChevronLeft,
   Tag,
+  LogIn,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+import { useApplyAndTrack } from "@/hooks/useApplyAndTrack";
+import { useJobTracker } from "@/hooks/useJobTracker";
+import { Send } from "lucide-react";
 
 export interface JobForHelper {
+  id?: string;
   title: string;
   company: string;
   industry: string;
@@ -30,6 +37,7 @@ export interface JobForHelper {
   description: string;
   tags: string[];
   type: string;
+  url?: string;
 }
 
 interface CvTip {
@@ -59,11 +67,43 @@ const JobApplicationHelper = ({
   job: JobForHelper;
   onBack: () => void;
 }) => {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [result, setResult] = useState<ApplicationHelp | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [applied, setApplied] = useState(false);
+  const { applyAndTrack } = useApplyAndTrack();
+  const { items: trackerItems, loading: trackerLoading, updateItem } = useJobTracker();
+
+  // Already tracked? (saved earlier, or opened straight from a Job Tracker
+  // card) - if so, reuse whatever Howdy already generated instead of
+  // calling the AI again, and update that row instead of duplicating it.
+  const existingItem = useMemo(
+    () => (job.id ? trackerItems.find((i) => i.job_id === job.id) ?? null : null),
+    [trackerItems, job.id],
+  );
+
+  const markApplied = async () => {
+    const url = job.url || existingItem?.url || "";
+    if (!url && !existingItem) { toast.error("No apply link found for this job"); return; }
+    const saved = await applyAndTrack(
+      {
+        job_id: job.id ?? undefined,
+        company: job.company,
+        title: job.title,
+        url,
+        location: job.location,
+        salary: job.salary,
+        industry: job.industry,
+        application_helper: result ?? undefined,
+      },
+      existingItem?.id,
+    );
+    if (!saved) { toast.error("Couldn't save that - try again."); return; }
+    setApplied(true);
+    toast.success("Saved to your Job Tracker as applied");
+  };
 
   const fetchHelp = async () => {
     setLoading(true);
@@ -124,6 +164,13 @@ const JobApplicationHelper = ({
       }
 
       setResult(data as ApplicationHelp);
+
+      // Cache it on the tracker row (if this job is already saved/tracked)
+      // so reopening it later doesn't burn another AI call regenerating
+      // the same advice.
+      if (existingItem) {
+        updateItem(existingItem.id, { application_helper: data as ApplicationHelp });
+      }
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Something went wrong";
       setError(message);
@@ -134,9 +181,26 @@ const JobApplicationHelper = ({
   };
 
   useEffect(() => {
+    if (authLoading || trackerLoading) return;
+    if (!user) { setLoading(false); return; }
+    const cached = existingItem?.application_helper;
+    if (cached?.coverLetter) {
+      setResult({
+        coverLetter: cached.coverLetter,
+        cvTips: cached.cvTips ?? [],
+        keySkills: cached.keySkills ?? [],
+        companyInsight: cached.companyInsight ?? "",
+      });
+      setLoading(false);
+      return;
+    }
     fetchHelp();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user, authLoading, trackerLoading, existingItem?.id]);
+
+  useEffect(() => {
+    if (existingItem?.status === "applied") setApplied(true);
+  }, [existingItem?.status]);
 
   const copyLetter = async () => {
     if (!result?.coverLetter) return;
@@ -186,6 +250,22 @@ const JobApplicationHelper = ({
         </div>
       </div>
 
+      {!authLoading && !user ? (
+        <div className="border border-border p-6 text-center space-y-3">
+          <LogIn className="w-6 h-6 text-primary mx-auto" />
+          <p className="font-display font-700 text-sm text-foreground">Sign in for Howdy's help</p>
+          <p className="font-body text-xs text-muted-foreground">
+            Create a free account so Howdy can tailor your CV tips and cover letter to this job.
+          </p>
+          <Link
+            to="/auth"
+            className="inline-flex items-center gap-2 bg-primary text-primary-foreground px-5 py-2.5 font-display font-700 text-xs tracking-wider uppercase hover:bg-primary/90 transition-colors"
+          >
+            <LogIn className="w-3.5 h-3.5" /> Sign in
+          </Link>
+        </div>
+      ) : (
+      <>
       {/* Loading state */}
       {loading && (
         <div className="space-y-6">
@@ -319,8 +399,8 @@ const JobApplicationHelper = ({
             </div>
           </motion.div>
 
-          {/* Regenerate */}
-          <div className="flex justify-center">
+          {/* Regenerate + mark as applied */}
+          <div className="flex flex-wrap justify-center gap-2">
             <Button
               size="sm"
               variant="outline"
@@ -330,8 +410,19 @@ const JobApplicationHelper = ({
               <RefreshCw className="w-3 h-3" />
               Regenerate
             </Button>
+            <Button
+              size="sm"
+              onClick={markApplied}
+              disabled={applied || (!job.url && !existingItem)}
+              className={`font-body text-xs gap-1.5 ${applied ? "bg-green-600 hover:bg-green-600 text-white" : ""}`}
+            >
+              {applied ? <CheckCircle2 className="w-3 h-3" /> : <Send className="w-3 h-3" />}
+              {applied ? "Marked as applied" : "Mark as applied & save"}
+            </Button>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );

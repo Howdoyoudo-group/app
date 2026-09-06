@@ -100,6 +100,8 @@ const interiorDesignCompanies = [
   { name: "Tom Dixon", url: "https://www.tomdixon.net/en_gb/jobs", founded: "2002", hq: "London", glassdoor: 3.6, trustpilot: 2.2, profileUrl: "/company/tom-dixon", overview: "A design brand spanning lighting, furniture, and accessories.", valueChainStage: "Product & Manufacturing" },
   { name: "Sonder Living", url: "https://www.sonderliving.com/careers", founded: "2015", hq: "London", glassdoor: 3.8, trustpilot: 4.6, overview: "A trade-focused furniture and accessories brand.", valueChainStage: "Sourcing & Supply" },
   { name: "Swoon", url: "https://www.swooneditions.com", founded: "2012", hq: "London", overview: "Online-only direct-to-consumer furniture retailer selling sofas, dining and living furniture direct from craftspeople at below-retail prices.", valueChainStage: "Retail & Homewares" },
+  { name: "Howdens Joinery", url: "https://careers.howdens.com/", founded: "1995", hq: "London", glassdoor: 3.7, overview: "The UK's leading trade-only supplier of kitchens, joinery and hardware, selling exclusively to trade professionals through a network of local depots.", valueChainStage: "Product & Manufacturing" },
+  { name: "Neptune", url: "https://www.neptune.com/pages/careers", founded: "1996", hq: "Swindon", glassdoor: 3.6, overview: "A British furniture and interiors brand known for handcrafted kitchens and home furnishings, sold through its own stores and franchise partners.", valueChainStage: "Product & Retail" },
 ];
 
 const InteriorDesign = () => {

@@ -188,6 +188,15 @@ const tennisCompanies = [
     url: "https://www.babolat.com/us/about-us/careers.html",
     valueChainStage: "Playing & Coaching",
   },
+  {
+    name: "David Lloyd Clubs",
+    founded: "1982",
+    hq: "Hatfield",
+    overview: "A UK-founded health, racquets and fitness club operator running clubs across the UK and mainland Europe.",
+    url: "https://www.davidlloyd.co.uk/careers",
+    glassdoor: 4.5,
+    valueChainStage: "Playing & Coaching",
+  },
 ];
 
 const Tennis = () => {

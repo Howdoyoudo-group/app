@@ -33,6 +33,7 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Paul UK", industry: "Bakery", url: "https://careers.paul-uk.com/jobs.aspx" },
     { name: "Shipton Mill", industry: "Bakery", url: "https://www.shipton-mill.com" },
     { name: "Warburtons", industry: "Bakery", url: "https://careers.warburtons.co.uk/" },
+    { name: "The Bread Factory", industry: "Bakery", url: "https://jobs.thebreadfactory.co.uk" },
   ],
   Beauty: [
     { name: "Charlotte Tilbury", url: "https://apply.workable.com/charlotte-tilbury/", industry: "Beauty" },
@@ -48,6 +49,11 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Trinny London", url: "https://www.trinnylondon.com/uk/careers", industry: "Beauty" },
     { name: "Glossier", url: "https://life.glossier.com/", industry: "Beauty" },
     { name: "Skin + Me", url: "https://apply.workable.com/skinandme", industry: "Beauty" },
+    { name: "Superdrug", url: "https://www.superdrug.jobs", industry: "Beauty" },
+    { name: "L'Oréal", url: "https://careers.loreal.com/en_US/content/UK", industry: "Beauty" },
+    { name: "Lush", url: "https://lush.pinpointhq.com", industry: "Beauty" },
+    { name: "RUSH Hair & Beauty", url: "https://www.rush.co.uk/careers", industry: "Beauty" },
+    { name: "Thérapie Clinic", url: "https://careers.therapieclinic.com/", industry: "Beauty" },
   ],
   Beer: [
     { name: "Fever-Tree", industry: "Beer", url: "https://fever-tree.com/en-gb/careers", profileUrl: "/company/fever-tree" },
@@ -65,6 +71,8 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "JD Wetherspoon", industry: "Beer", url: "https://www.jdwetherspoon.com/en-gb" },
     { name: "Diageo (Guinness)", industry: "Beer", url: "https://www.diageo.com/careers" },
     { name: "Toast Ale", industry: "Beer", url: "https://www.toastale.com" },
+    { name: "Greene King", industry: "Beer", url: "https://jobs.greeneking.co.uk/" },
+    { name: "Stonegate Group", industry: "Beer", url: "https://www.stonegatecareers.co.uk/" },
   ],
   Books: [
     { name: "Penguin Random House UK", industry: "Books", url: "https://jobsearch.createyourowncareer.com/PRH_UK/content/home/?locale=en_GB", founded: "2013", hq: "London", overview: "The world's largest trade book publisher - home to Penguin, Vintage, Transworld and dozens of imprints.", valueChainStage: "Editorial" },
@@ -106,6 +114,7 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Vistry Group", url: "https://www.vistrycareers.co.uk/", industry: "Building" },
     { name: "Willmott Dixon", url: "https://www.willmottdixon.co.uk/careers", industry: "Building" },
     { name: "Wates Group", url: "https://www.wates.co.uk/careers", industry: "Building" },
+    { name: "PlanRadar", url: "https://www.planradar.com/en/career/", industry: "Building" },
   ],
   Cars: [
     { name: "Jaguar Land Rover", url: "https://www.jaguarlandrovercareers.com", industry: "Cars" },
@@ -116,10 +125,18 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Pendragon / Stratstone", url: "https://www.stratstone.com/about-us/careers/", industry: "Cars" },
     { name: "Arnold Clark", url: "https://www.arnoldclark.com/careers", industry: "Cars" },
     { name: "Octopus Electric Vehicles", url: "https://octopusev.com/careers", industry: "Cars" },
+    { name: "Ohme", url: "https://ohme-ev.com/job-postings/", industry: "Cars" },
     { name: "Halfords", url: "https://careers.halfordscareers.com", industry: "Cars" },
     { name: "AA (Automobile Association)", url: "https://www.theaacareers.co.uk", industry: "Cars" },
     { name: "RAC", url: "https://www.rac-careers.com", industry: "Cars" },
     { name: "Kwik Fit", url: "https://www.kwik-fit.com/careers", industry: "Cars" },
+    { name: "Motorway", url: "https://careers.motorway.co.uk/", industry: "Cars" },
+    { name: "Carwow", url: "https://www.carwow.co.uk/jobs", industry: "Cars" },
+    { name: "Carmoola", url: "https://apply.workable.com/carmoola-1/", industry: "Cars" },
+    { name: "Tesla", url: "https://www.tesla.com/en_GB/careers/search/?site=GB", industry: "Cars" },
+    { name: "Stellantis UK", url: "https://www.stellantis-careers.co.uk/", industry: "Cars" },
+    { name: "Sytner Group", url: "https://jobs.sytner.co.uk/jobs/home/", industry: "Cars" },
+    { name: "Listers Group", url: "https://careers.listers.co.uk/", industry: "Cars" },
   ],
   Charity: [
     { name: "Blackbaud", url: "https://careers.blackbaud.com", industry: "Charity" },
@@ -134,6 +151,8 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Oxfam GB", url: "https://jobs.oxfam.org.uk", industry: "Charity" },
     { name: "Comic Relief", url: "https://www.comicrelief.com/jobs/", industry: "Charity" },
     { name: "Motability Foundation", url: "https://www.motability.org.uk/about/careers/", industry: "Charity" },
+    { name: "British Heart Foundation", url: "https://jobs.bhf.org.uk/", industry: "Charity" },
+    { name: "British Red Cross", url: "https://careers.redcross.org.uk/", industry: "Charity" },
   ],
   "Film & TV": [
     { name: "Working Title Films", url: "https://www.workingtitlefilms.com", industry: "Cinema" },
@@ -191,6 +210,10 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "XPO Logistics", url: "https://jobs.xpo.com/gb/en", industry: "Delivery" },
     { name: "Yodel", url: "https://jobs.yodel.co.uk", industry: "Delivery" },
     { name: "Wincanton", url: "https://www.wincanton.co.uk/careers", industry: "Delivery" },
+    { name: "HIVED", url: "https://www.hived.space/careers", industry: "Delivery" },
+    { name: "Relay", url: "https://relaytech.co/careers", industry: "Delivery" },
+    { name: "AnyVan", url: "https://www.anyvan.com/careers", industry: "Delivery" },
+    { name: "DX Network Services", url: "https://careers.dxdelivery.com/jobs/", industry: "Delivery" },
   ],
   "Estate Agency": [
     { name: "Connells Group", url: "https://www.connellsgroup.co.uk/careers", industry: "Estate Agency" },
@@ -224,6 +247,7 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Reeds Rains", url: "https://www.reedsrains.co.uk/careers", industry: "Estate Agency" },
     { name: "OpenRent", url: "https://apply.workable.com/openrent/", industry: "Estate Agency" },
     { name: "Goodlord", url: "https://goodlord.pinpointhq.com/", industry: "Estate Agency" },
+    { name: "Fine & Country", url: "https://www.fineandcountry.com/about/join-us", industry: "Estate Agency" },
   ],
   Farming: [
     { name: "AHDB (Agriculture & Horticulture Development Board)", url: "https://ahdb.org.uk/careers", industry: "Farming" },
@@ -242,6 +266,9 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "LEAF (Linking Environment And Farming)", url: "https://leaf.eco/about/careers", industry: "Farming" },
     { name: "Soil Association", url: "https://www.soilassociation.org/about-us/jobs/", industry: "Farming" },
     { name: "ABP UK", url: "https://www.abpfoodgroup.com/careers/", industry: "Farming" },
+    { name: "Avara Foods", url: "https://careers.avarafoods.co.uk/", industry: "Farming" },
+    { name: "Chesterfield Poultry", url: "https://cplfoods.co.uk/latest-vacancies/", industry: "Farming" },
+    { name: "Pilgrim's Europe", url: "https://pilgrimseurope.current-vacancies.com/Careers/PilgrimsEurope-Vacancy-Search-Page1-1899", industry: "Farming" },
   ],
   Fashion: [
     { name: "Coats Group", industry: "Fashion", url: "https://www.coats.com/careers" },
@@ -271,6 +298,9 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Depop", industry: "Fashion", url: "https://depopcareers.com" },
     { name: "Vinted", industry: "Fashion", url: "https://www.vinted.com/jobs" },
     { name: "eBay", industry: "Fashion", url: "https://www.ebayinc.com/careers" },
+    { name: "Chanel", industry: "Fashion", url: "https://www.chanel.com/gb/careers/" },
+    { name: "Mango", industry: "Fashion", url: "https://jobs.mango.com" },
+    { name: "Yours Clothing", industry: "Fashion", url: "https://www.yoursclothing.co.uk/careers" },
   ],
   Fixing: [
     { name: "British Gas (Centrica)", url: "https://www.centrica.com/people-careers/", industry: "Fixing" },
@@ -284,12 +314,15 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Geek Squad (Currys)", url: "https://www.currys.co.uk/careers", industry: "Fixing" },
     { name: "Uswitch / Go.Compare", url: "https://www.zoopla.co.uk/careers", industry: "Fixing" },
     { name: "Checkatrade", url: "https://www.checkatrade.com/careers", industry: "Fixing" },
+    { name: "Elyos AI", url: "https://elyos.ai/careers", industry: "Fixing" },
+    { name: "Sureserve Group", url: "https://careers.sureservegroup.co.uk/", industry: "Fixing" },
   ],
   Football: [
     { name: "Manchester United", url: "https://www.manutd.com/en/club/jobs", industry: "Football" },
     { name: "Liverpool FC", url: "https://careers.liverpoolfc.com", industry: "Football" },
     { name: "Arsenal", url: "https://careers.arsenal.com/jobs", industry: "Football" },
     { name: "Chelsea FC", url: "https://www.chelseafc.com/en/careers", industry: "Football" },
+    { name: "Castore", url: "https://careers.castore.com/jobs", industry: "Football" },
     { name: "Tottenham Hotspur", url: "https://www.tottenhamhotspur.com/the-club/careers/", industry: "Football" },
     { name: "City Football Group", url: "https://www.cityfootballgroup.com/careers/", industry: "Football" },
     { name: "DAZN", url: "https://careers.dazn.com", industry: "Football" },
@@ -316,6 +349,11 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Ipswich Town", url: "https://www.itfc.co.uk/club/careers/", industry: "Football" },
     { name: "Coventry City", url: "https://coventrycityfootballclub.teamtailor.com/jobs", industry: "Football" },
     { name: "Hull City", url: "https://www.wearehullcity.co.uk/club/vacancies/", industry: "Football" },
+    { name: "Southampton FC", url: "https://www.southamptonfc.com/en/working-for-us", industry: "Football" },
+    { name: "Birmingham City FC", url: "https://www.bcfc.com/pages/en/vacancies", industry: "Football" },
+    { name: "Norwich City FC", url: "https://careers.canaries.co.uk/", industry: "Football" },
+    { name: "Burnley FC", url: "https://careers.burnleyfootballclub.com/", industry: "Football" },
+    { name: "Sheffield United FC", url: "https://www.sufc.co.uk/club/vacancies/", industry: "Football" },
   ],
   Footwear: [
     { name: "Vibram", industry: "Footwear", url: "https://www.vibram.com" },
@@ -335,6 +373,10 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Skechers", industry: "Footwear", url: "https://careers.skechers.com" },
     { name: "Shoe Zone", industry: "Footwear", url: "https://shoezone.com" },
     { name: "Kurt Geiger", industry: "Footwear", url: "https://kurtgeiger.com" },
+    { name: "Clarks", industry: "Footwear", url: "https://www.clarksjobs.com" },
+    { name: "On", industry: "Footwear", url: "https://culture.on-running.com/jobs" },
+    { name: "Jimmy Choo", industry: "Footwear", url: "https://www.jimmychoo.com/en/careers.html" },
+    { name: "Deichmann", industry: "Footwear", url: "https://corpsite.deichmann.com/gb-en/careers/" },
   ],
   "Formula 1": [
     { name: "Formula 1 (Liberty Media)", url: "https://corp.formula1.com/careers/", industry: "Formula 1" },
@@ -367,6 +409,9 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Ubisoft Reflections", url: "https://www.ubisoft.com/en-gb/company/careers", industry: "Gaming" },
     { name: "nDreams", url: "https://www.ndreams.com/careers", industry: "Gaming" },
     { name: "Playrix", url: "https://playrix.com/job/open", industry: "Gaming" },
+    { name: "Lighthouse Games", url: "https://lighthousegames.com/working-at-lighthouse/", industry: "Gaming" },
+    { name: "Rebellion Developments", url: "https://careers.rebellion.com", industry: "Gaming" },
+    { name: "Tencent", url: "https://careers.tencent.com/en-us/home.html", industry: "Gaming" },
   ],
   Grocery: [
     { name: "Cranswick", url: "https://www.cranswick.plc.uk/careers", industry: "Grocery" },
@@ -387,6 +432,9 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Waitrose", url: "https://www.jlpjobs.com", industry: "Grocery" },
     { name: "Deliveroo", url: "https://careers.deliveroo.co.uk", industry: "Grocery" },
     { name: "Gousto", url: "https://www.gousto.co.uk/careers", industry: "Grocery" },
+    { name: "Too Good To Go", url: "https://www.toogoodtogo.com/en-gb/about-us/careers", industry: "Grocery" },
+    { name: "ASDA", url: "https://www.asda.jobs/", industry: "Grocery" },
+    { name: "Morrisons", url: "https://www.morrisons.jobs/", industry: "Grocery" },
   ],
   Health: [
     { name: "NHS England", url: "https://www.jobs.nhs.uk", industry: "Health" },
@@ -411,6 +459,9 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "NICE (National Institute for Health and Care Excellence)", url: "https://www.nice.org.uk/about/who-we-are/jobs", industry: "Health" },
     { name: "Department of Health & Social Care", url: "https://www.gov.uk/government/organisations/department-of-health-and-social-care/about/recruitment", industry: "Health" },
     { name: "Wellcome Trust", url: "https://www.wellcome.org", industry: "Health" },
+    { name: "Barchester Healthcare", url: "https://jobs.barchester.com/", industry: "Health" },
+    { name: "Elysium Healthcare", url: "https://www.elysiumhealthcare.co.uk/careers/", industry: "Health" },
+    { name: "Avery Healthcare", url: "https://jobsearch.averyhealthcare.co.uk/", industry: "Health" },
   ],
   "Home & Design": [
     { name: "IKEA", url: "https://www.ikea.com", industry: "Home & Design" },
@@ -425,6 +476,8 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Tom Dixon", url: "https://www.tomdixon.net", industry: "Home & Design", profileUrl: "/company/tom-dixon" },
     { name: "Sonder Living", url: "https://www.sonder.com", industry: "Home & Design" },
     { name: "Swoon", url: "https://www.swooneditions.com", industry: "Home & Design" },
+    { name: "Howdens Joinery", url: "https://careers.howdens.com/", industry: "Home & Design" },
+    { name: "Neptune", url: "https://www.neptune.com/pages/careers", industry: "Home & Design" },
   ],
   "Food & Drink": [
     { name: "Diageo", url: "https://www.diageo.com/en/careers", industry: "Hospitality" },
@@ -451,6 +504,10 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Nando's", url: "https://www.nandos.co.uk", industry: "Hospitality" },
     { name: "Whitbread / Premier Inn", url: "https://www.premierinn.com", industry: "Hospitality" },
     { name: "SSP Group", url: "https://www.ssp-group.com", industry: "Hospitality" },
+    { name: "Stonegate Group", url: "https://www.stonegatecareers.co.uk/", industry: "Hospitality" },
+    { name: "PPHE Hotel Group", url: "https://jobs.pphe.com/careers/", industry: "Hospitality" },
+    { name: "Booker Group", url: "https://www.bookergroupjobs.co.uk", industry: "Hospitality" },
+    { name: "Restaurant Associates", url: "https://jobs.compass-group.co.uk/restaurant-associates", industry: "Hospitality" },
   ],
   Influencing: [
     { name: "Whalar", url: "https://whalar.com/careers", industry: "Influencing" },
@@ -485,6 +542,9 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Astley Clarke", url: "https://www.astleyclarke.com/join-us", industry: "Jewellery" },
     { name: "Christie's (Jewellery Dept)", url: "https://www.christies.com/en/careers", industry: "Jewellery" },
     { name: "Sotheby's (Jewellery Dept)", url: "https://www.sothebys.com/en/about/careers", industry: "Jewellery" },
+    { name: "Goldsmiths", url: "https://ukcareers.thewosgroup.com/jobs/divisions/goldsmiths/", industry: "Jewellery" },
+    { name: "Queensmith", url: "https://www.queensmith.co.uk/about-us/join-the-team", industry: "Jewellery" },
+    { name: "Mejuri", url: "https://www.mejuri.com/careers", industry: "Jewellery" },
   ],
   Journalism: [
     { name: "BBC News", url: "https://www.bbc.co.uk/careers", industry: "Journalism" },
@@ -588,6 +648,10 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Jollyes", url: "https://careers.jollyes.co.uk", industry: "Pets" },
     { name: "Vets Now", url: "https://www.vets-now.com/careers/", industry: "Pets" },
     { name: "CVS Group", url: "https://careers.cvsukltd.co.uk", industry: "Pets" },
+    { name: "Tailster", url: "https://www.tailster.com/sign-up?state=carerSignup", industry: "Pets" },
+    { name: "Goddard Veterinary Group", url: "https://www.goddardvetgroup.co.uk/veterinary-professionals/working-for-goddard/vacancies/", industry: "Pets" },
+    { name: "Animal Trust", url: "https://www.animaltrust.org.uk/careers/vacancies", industry: "Pets" },
+    { name: "Cats Protection", url: "https://careers.cats.org.uk/", industry: "Pets" },
   ],
   Physiotherapy: [
     { name: "CSP", url: "https://www.csp.org.uk/careers", industry: "Physiotherapy" },
@@ -597,6 +661,7 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Six Physio", url: "https://sixphysio.com/physiotherapy-jobs", industry: "Physiotherapy" },
     { name: "PhysioFirst", url: "https://www.physiofirst.org.uk", industry: "Physiotherapy" },
     { name: "Ramsay Health Care UK", url: "https://www.ramsayhealth.co.uk/Careers", industry: "Physiotherapy" },
+    { name: "Active Care Group", url: "https://careers.activecaregroup.co.uk/", industry: "Physiotherapy" },
   ],
   Politics: [
     { name: "UK Parliament", url: "https://www.parliament.uk/about/careers/", industry: "Politics" },
@@ -611,6 +676,8 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Centre for Policy Studies", url: "https://cps.org.uk/about/jobs/", industry: "Politics" },
     { name: "Electoral Commission", url: "https://www.electoralcommission.org.uk/who-we-are/jobs", industry: "Politics" },
     { name: "FGS Global", url: "https://fgsglobal.com/join-us/", industry: "Politics" },
+    { name: "Department for Work and Pensions", url: "https://www.civil-service-careers.gov.uk/dwp-our-careers/", industry: "Politics" },
+    { name: "Ofgem", url: "https://www.ofgem.gov.uk/about-us/join-ofgem/work-ofgem", industry: "Politics" },
   ],
   Psychotherapy: [
     { name: "Tavistock & Portman NHS Trust", url: "https://tavistockandportman.nhs.uk", industry: "Psychotherapy" },
@@ -626,6 +693,19 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Oak National Academy", url: "https://www.thenational.academy", industry: "Teaching" },
     { name: "Ark Schools", url: "https://arkonline.org/careers", industry: "Teaching" },
     { name: "United Learning", url: "https://www.unitedlearning.org.uk/careers", industry: "Teaching" },
+  ],
+  Tennis: [
+    { name: "LTA (Lawn Tennis Association)", url: "https://careers.lta.org.uk/vacancies/vacancy-search-results.aspx", industry: "Tennis" },
+    { name: "All England Club (AELTC)", url: "https://jobs.wimbledon.com/", industry: "Tennis" },
+    { name: "ITF (International Tennis Federation)", url: "https://www.itftennis.com/en/about-us/organisation/jobs/latest-jobs/", industry: "Tennis" },
+    { name: "ATP Tour", url: "https://www.atptour.com/en/corporate/careers", industry: "Tennis" },
+    { name: "WTA (Women's Tennis Association)", url: "https://www.wtatennis.com/job-opportunities", industry: "Tennis" },
+    { name: "IMG Tennis", url: "https://www.img.com/careers", industry: "Tennis" },
+    { name: "Amazon Prime Video", url: "https://www.amazon.jobs/en-gb", industry: "Tennis" },
+    { name: "Hawk-Eye Innovations", url: "https://careers.hawkeyeinnovations.com/", industry: "Tennis" },
+    { name: "Castore", url: "https://castore.com/pages/careers", industry: "Tennis" },
+    { name: "Babolat", url: "https://www.babolat.com/us/about-us/careers.html", industry: "Tennis" },
+    { name: "David Lloyd Clubs", url: "https://www.davidlloyd.co.uk/careers", industry: "Tennis" },
   ],
   Theatre: [
     { name: "National Theatre", url: "https://www.nationaltheatre.org.uk/about-us/careers/", industry: "Theatre" },
@@ -666,6 +746,9 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "Accor", url: "https://careers.accor.com", industry: "Travel" },
     { name: "Marriott International", url: "https://careers.marriott.com", industry: "Travel" },
     { name: "Expedia Group", url: "https://lifeatexpediagroup.com/jobs", industry: "Travel" },
+    { name: "loveholidays", url: "https://www.loveholidays.com/about-us/careers.html", industry: "Travel" },
+    { name: "Travelodge", url: "https://www.travelodge.co.uk/vacancies/", industry: "Travel" },
+    { name: "Hilton", url: "https://jobs.hilton.com/emea/en/uk-ireland-jobs", industry: "Travel" },
   ],
   Wellness: [
     { name: "David Lloyd Clubs", url: "https://careers.davidlloyd.co.uk", industry: "Wellness" },
@@ -687,6 +770,8 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "GLL (Better)", url: "https://www.gll.org/careers", industry: "Wellness" },
     { name: "JD Gyms", url: "https://careers.jdgyms.co.uk", industry: "Wellness" },
     { name: "ClassPass", url: "https://classpass.com/careers", industry: "Wellness" },
+    { name: "Fitness First", url: "https://www.fitnessfirstcareers.co.uk/", industry: "Wellness" },
+    { name: "Everlast Gyms", url: "https://www.frasers.group/careers/jobs", industry: "Wellness" },
   ],
   "Horse Racing": [
     { name: "British Horseracing Authority (BHA)", url: "https://www.britishhorseracing.com/people/working-for-the-bha/", industry: "Horse Racing" },
@@ -721,4 +806,61 @@ export function getCompaniesByIndustry(industryName: string): CompanyData[] {
 
 export function getIndustriesWithCompanies(): typeof INDUSTRIES {
   return INDUSTRIES.filter(ind => ALL_COMPANIES_BY_INDUSTRY[ind.name]);
+}
+
+const ALL_COMPANIES_BY_LOWER_NAME: Record<string, CompanyData> = {};
+for (const c of ALL_COMPANIES_FLAT) {
+  const key = c.name.toLowerCase();
+  if (!ALL_COMPANIES_BY_LOWER_NAME[key]) ALL_COMPANIES_BY_LOWER_NAME[key] = c;
+}
+
+/** Loosens a company name for matching against real-world variants that
+ * carry extra legal/entity words a curated name doesn't (e.g. a scraped job
+ * listing's "Brighton & Hove Albion Football Club" vs the curated "Brighton
+ * & Hove Albion", or "Manchester City Women" vs "Manchester City"). */
+const normalizeCompanyName = (name: string): string =>
+  name
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[.''-]/g, "")
+    .replace(/\b(football club|f c|fc|ltd|limited|plc|group|inc|incorporated|corp|corporation)\b/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const ALL_COMPANIES_BY_NORMALIZED_NAME: Record<string, CompanyData> = {};
+for (const c of ALL_COMPANIES_FLAT) {
+  const key = normalizeCompanyName(c.name);
+  if (key && !ALL_COMPANIES_BY_NORMALIZED_NAME[key]) ALL_COMPANIES_BY_NORMALIZED_NAME[key] = c;
+}
+
+/** Careers/website URL for a company as shown on its industry's Who tab,
+ * matched case-insensitively by name across every industry (a company name
+ * is unambiguous regardless of which industry key it's filed under). This
+ * is the richest, largest source of real company links on the site - check
+ * it before falling back to the smaller curated profile/external-link lists.
+ * Falls back to a normalized match, then to the longest curated name that's
+ * a leading phrase of the search term, so real-world variants (extra legal
+ * suffixes, a sub-brand like "... Women") still resolve to the right company
+ * instead of dropping to a generic search. */
+export function getCompanyUrlFromWhoData(name: string | null | undefined): string | null {
+  if (!name) return null;
+  const exact = ALL_COMPANIES_BY_LOWER_NAME[name.trim().toLowerCase()];
+  if (exact) return exact.url || null;
+
+  const normalized = normalizeCompanyName(name);
+  if (!normalized) return null;
+  const normalizedExact = ALL_COMPANIES_BY_NORMALIZED_NAME[normalized];
+  if (normalizedExact) return normalizedExact.url || null;
+
+  let best: CompanyData | null = null;
+  let bestLen = 0;
+  for (const c of ALL_COMPANIES_FLAT) {
+    const candidate = normalizeCompanyName(c.name);
+    if (candidate.length < 4 || candidate.length <= bestLen) continue;
+    if (normalized === candidate || normalized.startsWith(`${candidate} `)) {
+      best = c;
+      bestLen = candidate.length;
+    }
+  }
+  return best?.url || null;
 }

@@ -16,6 +16,7 @@ import { CAREER_MAP_ROLES } from "@/data/career-map-roles";
 import { WHO_COMPANIES } from "@/data/who-companies";
 import RiasecQuiz, { RiasecScores, WorkValues } from "@/components/RiasecQuiz";
 import HowdyCoach from "@/components/HowdyCoach";
+import HowdyIntro from "@/components/HowdyIntro";
 import { launchHowdyTour } from "@/components/HowdyTour";
 
 const INDUSTRIES = CANONICAL_INDUSTRIES.map((i) => i.name);
@@ -587,6 +588,9 @@ const Onboarding = () => {
           <h1 className="font-display font-900 text-3xl md:text-4xl mb-4">
             You're all set{fullName ? `, ${fullName.split(" ")[0]}` : ""}<span className="text-primary">.</span>
           </h1>
+          <HowdyIntro className="mb-6 text-left">
+            You're set - I'll start watching for matches as soon as you land in Howdy Jobs, and flag anything worth a second look.
+          </HowdyIntro>
           <p className="font-body text-muted-foreground mb-8">
             We're excited to have you. We've sent a personal welcome to your inbox with role
             matches, daily digest details, and a quick guide to getting the most from the site.

@@ -744,3 +744,16 @@ export const coursesByIndustry: Record<string, Course[]> = {
     { title: "MA Digital Media: Production", provider: "Goldsmiths, University of London", url: "https://www.gold.ac.uk/pg/ma-digital-media-production/", description: "Postgraduate degree blending creative practice with platform theory - strong pipeline into creator-economy roles.", free: false },
   ],
 };
+
+// Real FE / vocational qualifications for individual roles, keyed by role
+// slug rather than industry - for cross-industry "business" roles (Sales,
+// Marketing, Sustainability Manager...), cross-referencing coursesByIndustry
+// surfaces irrelevant industry trade courses (see RoleLearnSection.tsx), so
+// those roles need genuinely role-specific vocational content here instead.
+export const coursesByRole: Record<string, (Course & { industry: string })[]> = {
+  sustainability: [
+    { title: "Foundation Certificate in Sustainability and Environmental Management", provider: "ISEP (Institute of Sustainability and Environmental Professionals)", url: "https://isepglobal.org/learn/courses/foundation-certificate-in-sustainability-and-environmental-management/", description: "No prior experience needed - a recognised entry point into the profession, with a direct route to Associate Membership (AISEP).", free: false, industry: "Vocational" },
+    { title: "Environmental Management Certificate", provider: "NEBOSH", url: "https://www.nebosh.org.uk/qualifications/environmental-management-certificate", description: "A practical, compliance-focused vocational qualification - covers environmental risk, legislation and day-to-day management.", free: false, industry: "Vocational" },
+    { title: "Sustainability Business Specialist (Level 7 Degree Apprenticeship)", provider: "Institute for Apprenticeships (Skills England)", url: "https://skillsengland.education.gov.uk/apprenticeships/st0748-v1-1", description: "An integrated master's-level apprenticeship for experienced candidates. Government funding for new starts is now restricted to apprentices aged 16-21 (or under 25 with an EHC plan or care experience) - check current eligibility before applying.", free: false, industry: "Apprenticeship" },
+  ],
+};

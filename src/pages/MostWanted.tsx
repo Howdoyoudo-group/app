@@ -10,6 +10,7 @@ import { INDUSTRIES } from "@/data/industries";
 import { roles } from "@/data/roles";
 import { INDUSTRY_ICONS } from "@/data/industryIcons";
 import { ALL_COMPANIES_BY_INDUSTRY } from "@/data/all-companies";
+import HowdyIntro from "@/components/HowdyIntro";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.5 } };
 
@@ -64,10 +65,16 @@ export default function MostWanted() {
       <main className="min-h-screen bg-background">
         <section className="px-4 sm:px-6 lg:px-10 pt-8 pb-16 max-w-5xl mx-auto">
           {/* Header */}
-          <motion.div {...fadeUp} className="mb-16">
+          <motion.div {...fadeUp} className="mb-8">
             <h1 className="font-display font-900 text-4xl md:text-5xl lg:text-6xl leading-[1.05] tracking-tight text-foreground">
               Most Wanted.
             </h1>
+          </motion.div>
+
+          <motion.div {...fadeUp} className="mb-16">
+            <HowdyIntro>
+              Every role and company you save around the site lands here. Think of it as your shortlist - the ones worth a second look when you're ready to apply.
+            </HowdyIntro>
           </motion.div>
 
           {/* Industries */}

@@ -3072,6 +3072,9 @@ async function fetchPinpointJobs(tenant: { slug: string; company: string; indust
 const TEAMTAILOR_TENANTS: Array<{ domain: string; company: string; industry: string }> = [
   { domain: "coventrycityfootballclub.teamtailor.com", company: "Coventry City FC", industry: "football" },
   { domain: "careers.nottinghamforest.co.uk", company: "Nottingham Forest FC", industry: "football" },
+  { domain: "careers.castore.com", company: "Castore", industry: "football" },
+  { domain: "therapieclinic.teamtailor.com", company: "Thérapie Clinic", industry: "beauty" },
+  { domain: "sureservegroup.teamtailor.com", company: "Sureserve Group", industry: "fixing" },
 ];
 
 async function fetchTeamtailorJobs(tenant: { domain: string; company: string; industry: string }) {
@@ -5732,6 +5735,7 @@ type GreenhouseTenant = {
 };
 
 const GREENHOUSE_TENANTS: GreenhouseTenant[] = [
+  { board: "mejuri",          company: "Mejuri",         industry: "jewellery",   allUk: false },
   { board: "monzo",           company: "Monzo",          industry: "money",       allUk: true },
   { board: "sothebys",        company: "Sotheby's",      industry: "fashion",     allUk: false },
   { board: "butternutbox",    company: "Butternut Box",   industry: "pets",        allUk: true },
@@ -5784,6 +5788,12 @@ const GREENHOUSE_TENANTS: GreenhouseTenant[] = [
   { board: "classpass",        company: "ClassPass",        industry: "wellness",    allUk: false },
   // Beauty
   { board: "glossier",         company: "Glossier",         industry: "beauty",      allUk: false },
+  // Cars
+  { board: "ohme",             company: "Ohme",             industry: "cars",        allUk: false },
+  // Grocery
+  { board: "toogoodtogo",      company: "Too Good To Go",   industry: "grocery",     allUk: false },
+  // Building
+  { board: "planradar",        company: "PlanRadar",        industry: "building",    allUk: false },
 ];
 
 async function fetchGreenhouseJobs(tenant: GreenhouseTenant) {
@@ -5863,6 +5873,9 @@ type WorkableTenant = {
 
 const WORKABLE_TENANTS: WorkableTenant[] = [
   { slug: "charlotte-tilbury",    company: "Charlotte Tilbury",    industry: "beauty",        allUk: false },
+  { slug: "queensmith",           company: "Queensmith",           industry: "jewellery",     allUk: true },
+  { slug: "lighthousegames",      company: "Lighthouse Games",     industry: "gaming",        allUk: true },
+  { slug: "rebellion",            company: "Rebellion Developments", industry: "gaming",      allUk: true },
   { slug: "zoopla",               company: "Zoopla",               industry: "estate-agency", allUk: true },
   { slug: "tomorrow-2",           company: "Tomorrow London",      industry: "fashion",       allUk: true },
   { slug: "motabilityfoundation", company: "Motability Foundation", industry: "charity",       allUk: true },
@@ -5884,6 +5897,8 @@ const WORKABLE_TENANTS: WorkableTenant[] = [
   { slug: "neom-wellbeing",       company: "NEOM Wellbeing",       industry: "wellness",      allUk: true  },
   // Interior Design / Home
   { slug: "swoon-editions",       company: "Swoon",                industry: "interior-design", allUk: false },
+  // Cars
+  { slug: "carmoola-1",           company: "Carmoola",             industry: "cars",          allUk: true  },
 ];
 
 async function fetchWorkableJobs(tenant: WorkableTenant) {
@@ -6068,6 +6083,7 @@ const ASHBY_TENANTS: AshbyTenant[] = [
   { board: "MUBI", company: "MUBI", industry: "cinema", allUk: false },
   { board: "joor", company: "JOOR", industry: "fashion", allUk: false },
   { board: "trainline", company: "Trainline", industry: "travel", allUk: false },
+  { board: "loveholidays", company: "loveholidays", industry: "travel", allUk: false },
   // Money
   { board: "thought-machine", company: "Thought Machine", industry: "money", allUk: true },
   { board: "marshmallow",     company: "Marshmallow",     industry: "money", allUk: true },
@@ -6076,6 +6092,15 @@ const ASHBY_TENANTS: AshbyTenant[] = [
   { board: "zoe",             company: "ZOE",             industry: "wellness", allUk: false },
   // Fixing
   { board: "checkatrade",     company: "Checkatrade",     industry: "fixing", allUk: true },
+  // Cars
+  { board: "motorway",        company: "Motorway",        industry: "cars",   allUk: true },
+  { board: "Carwow",          company: "Carwow",          industry: "cars",   allUk: false },
+  // Delivery
+  { board: "hived",           company: "HIVED",           industry: "delivery", allUk: true },
+  { board: "relay",           company: "Relay",           industry: "delivery", allUk: true },
+  { board: "anyvan",          company: "AnyVan",          industry: "delivery", allUk: false },
+  // Fixing
+  { board: "elyos",           company: "Elyos AI",        industry: "fixing",   allUk: true },
 ];
 
 async function fetchAshbyJobs(tenant: AshbyTenant) {
@@ -7777,6 +7802,26 @@ Deno.serve(async (req) => {
             console.log(`[${industry}] Priority Ashby(${tenant.board}): saved=${inserted} of ${ashJobs.length}`);
           } catch (e: any) {
             console.error(`[${industry}] Priority Ashby(${tenant.board}) save error:`, e?.message || e);
+          }
+        }
+      }
+
+      // Priority Teamtailor tenants - same early-save reasoning as the ATS
+      // block above. Football in particular runs a heavy keyword sweep (see
+      // the football block earlier in this loop) that has starved late
+      // passes before, so any Teamtailor tenant in a heavy industry needs
+      // this too, not just Greenhouse/Lever/Workable/Ashby.
+      const priorityTtTenants = TEAMTAILOR_TENANTS.filter((t) => t.industry === industry);
+      for (const tenant of priorityTtTenants) {
+        const ttJobs = await fetchTeamtailorJobs(tenant);
+        if (ttJobs.length > 0) {
+          allJobs.push(...ttJobs);
+          try {
+            const inserted = await safeUpsertJobs(supabase, ttJobs);
+            totalInserted += inserted;
+            console.log(`[${industry}] Priority Teamtailor(${tenant.domain}): saved=${inserted} of ${ttJobs.length}`);
+          } catch (e: any) {
+            console.error(`[${industry}] Priority Teamtailor(${tenant.domain}) save error:`, e?.message || e);
           }
         }
       }

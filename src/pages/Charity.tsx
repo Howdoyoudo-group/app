@@ -100,6 +100,8 @@ const charityCompanies = [
   { name: "Oxfam GB", url: "https://jobs.oxfam.org.uk", founded: "1942", hq: "Oxford", glassdoor: 3.8, trustpilot: 3.6, overview: "One of the UK's best-known international development charities - 580+ shops and global humanitarian programmes.", valueChainStage: "Mission & Cause" },
   { name: "Comic Relief", url: "https://www.comicrelief.com/jobs/", founded: "1985", hq: "London", glassdoor: 3.9, overview: "The fundraising charity behind Red Nose Day and Sport Relief.", valueChainStage: "Fundraising" },
   { name: "Motability Foundation", url: "https://www.motability.org.uk/about/careers/", founded: "1977", hq: "Harlow", glassdoor: 4.0, overview: "The national charity helping disabled people access transport - funds the Motability Scheme.", valueChainStage: "Mission & Cause" },
+  { name: "British Heart Foundation", url: "https://jobs.bhf.org.uk/", founded: "1961", hq: "London", glassdoor: 3.9, overview: "The UK's leading heart and circulatory disease charity, funding research and running a national chain of charity shops.", valueChainStage: "Mission & Cause" },
+  { name: "British Red Cross", url: "https://careers.redcross.org.uk/", founded: "1870", hq: "London", glassdoor: 3.6, overview: "The UK arm of the international Red Cross movement, providing emergency response, crisis support and first aid services.", valueChainStage: "Mission & Cause" },
 ];
 
 const Charity = () => {

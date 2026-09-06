@@ -5,9 +5,11 @@ import { Menu, X, Search } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import SiteHeader from "./SiteHeader";
 import { supabase } from "@/integrations/supabase/client";
+import { launchHowdyTour } from "@/components/HowdyTour";
 import { INDUSTRIES } from "@/data/industries";
 import heroBg from "@/assets/hero-bg-industries.jpg";
 import brandQuestionMark from "@/assets/brand/logo-question-mark.png";
+import howdyMascot from "@/assets/howdy-mascot.png";
 
 // Hand-drawn industry doodles
 import doodleWhisk from "@/assets/bakery-whisk.png";
@@ -355,6 +357,13 @@ const Hero = () => {
                 />
               </span>
             </h1>
+            <Link
+              to="/howdy"
+              aria-label="Meet Howdy"
+              className="absolute bottom-3 sm:bottom-8 md:bottom-12 right-2 sm:right-6 md:right-10 z-20 w-11 h-11 sm:w-14 sm:h-14 rounded-full border-2 border-foreground bg-primary/15 shadow-[3px_3px_0_hsl(var(--foreground))] overflow-hidden hover:shadow-none hover:translate-x-[3px] hover:translate-y-[3px] transition-all"
+            >
+              <img src={howdyMascot} alt="Howdy" className="w-full h-full object-contain p-1" />
+            </Link>
           </div>
           {firstName && (
             <div className="relative -mt-2 md:-mt-4 ml-[10%] sm:ml-[45%] md:ml-[50%] flex items-start gap-2 sm:gap-3 max-w-full pr-2">
@@ -399,7 +408,7 @@ const Hero = () => {
             Start with what you <span style={{ color: LIME }}>love,</span> and see where it takes you.
           </p>
 
-          <div className="mt-5 md:mt-8 flex flex-nowrap items-center gap-2 sm:gap-3 md:gap-4 overflow-x-auto whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="mt-5 md:mt-8 flex flex-wrap md:flex-nowrap items-center gap-2 sm:gap-3 md:gap-4 md:overflow-x-auto md:whitespace-nowrap [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {user ? (
               <Link
                 to="/my-profile"
@@ -418,6 +427,16 @@ const Hero = () => {
             <a href="#about" className="hover:opacity-90 transition-opacity">
               <SketchCta variant="ghost">About Us</SketchCta>
             </a>
+            <button
+              type="button"
+              onClick={() => launchHowdyTour()}
+              className="hover:opacity-90 transition-opacity basis-full md:basis-auto flex justify-start"
+            >
+              <SketchCta variant="ghost">
+                <span className="md:hidden">Tour</span>
+                <span className="hidden md:inline">Take the tour</span>
+              </SketchCta>
+            </button>
           </div>
 
         </motion.div>

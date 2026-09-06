@@ -111,6 +111,7 @@ const estateAgencyCompanies = [
   { name: "Reeds Rains", url: "https://www.reedsrains.co.uk/careers", founded: "1868", hq: "Manchester", glassdoor: 3.2, overview: "National estate and lettings agency with 150+ branches - part of LSL Property Services.", valueChainStage: "Sales & Lettings" },
   { name: "OpenRent", url: "https://apply.workable.com/openrent/", founded: "2012", hq: "London", glassdoor: 3.7, overview: "The UK's largest online letting agent - direct landlord-to-tenant platform with referencing, contracts and rent collection.", valueChainStage: "Technology & Portals" },
   { name: "Goodlord", url: "https://goodlord.pinpointhq.com/", founded: "2014", hq: "London", glassdoor: 4.0, overview: "Lettings software platform powering tenant referencing, e-signing, rent collection and onboarding for thousands of UK letting agents.", valueChainStage: "Technology & Portals" },
+  { name: "Fine & Country", url: "https://www.fineandcountry.com/about/join-us", founded: "2001", hq: "London", glassdoor: 3.9, overview: "A UK-founded network of licensed premium estate agency offices marketing higher-value residential property, operating in around 300 locations worldwide.", valueChainStage: "Sales & Lettings" },
 ];
 
 const EstateAgency = () => {

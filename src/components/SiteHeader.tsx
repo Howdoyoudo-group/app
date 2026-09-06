@@ -262,6 +262,40 @@ const GroupedNavDropdown = ({
           >
             {groups.map((group) => {
               const isExpanded = expandedGroup === group.label;
+
+              // A single-item group is just a link - no need for an
+              // expand/collapse step to reach its one destination.
+              if (group.items.length === 1) {
+                const item = group.items[0];
+                const rowClass = "w-full flex items-center justify-between px-3 py-2.5 rounded-xl hover:bg-primary transition-colors border-2 border-transparent hover:border-foreground";
+                const rowInner = (
+                  <div>
+                    <span className="font-display font-900 text-sm uppercase tracking-wide text-foreground block">
+                      {group.label}
+                    </span>
+                    {item.description && (
+                      <span className="font-body text-xs text-foreground/60">{item.description}</span>
+                    )}
+                  </div>
+                );
+                return item.to ? (
+                  <Link key={group.label} to={item.to} onClick={closeAll} className={`${rowClass} block`}>
+                    {rowInner}
+                  </Link>
+                ) : (
+                  <a
+                    key={group.label}
+                    href={item.href}
+                    target={item.href?.startsWith("http") ? "_blank" : undefined}
+                    rel={item.href?.startsWith("http") ? "noopener noreferrer" : undefined}
+                    onClick={closeAll}
+                    className={`${rowClass} block`}
+                  >
+                    {rowInner}
+                  </a>
+                );
+              }
+
               return (
                 <div key={group.label}>
                   {/* Group header */}
@@ -353,21 +387,13 @@ const LEVEL_UP_GROUPS: NavGroup[] = [
   {
     label: "About You",
     items: [
-      { label: "Your Matches", to: "/match-me", description: "Your personality, CV and where it could take you" },
-      { label: "What We Know", to: "/match-me/what-we-know", description: "Your traits, values and passions" },
-      { label: "Suggested Roles", to: "/match-me/suggested-roles", description: "Roles matched to who you are" },
-      { label: "Suggested Industries", to: "/match-me/suggested-industries", description: "Industries that fit your profile" },
-      { label: "Worlds Collide", to: "/match-me/worlds-collide", description: "Unexpected combinations worth exploring" },
-      { label: "Most Wanted", to: "/most-wanted", description: "Your saved roles and companies" },
+      { label: "Your Matches", to: "/match-me", description: "Your personality, CV, saved roles - and where it could take you" },
     ],
   },
   {
     label: "Skills",
     items: [
-      { label: "Your Plan", to: "/skills-passport", description: "Howdy's honest checklist for your target role" },
-      { label: "Skills Assessment", to: "/skills-passport?tab=assessment", description: "Rate your skills for any role" },
-      { label: "Skill Gaps", to: "/skills-passport?tab=gaps", description: "See where you need to develop" },
-      { label: "Industry Badges", to: "/skills-passport?tab=badges", description: "Industry modules, badges & more" },
+      { label: "Skills Passport", to: "/skills-passport", description: "Rate your skills, see your gaps, build your plan, earn badges" },
     ],
   },
   {
@@ -413,6 +439,7 @@ const LEVEL_UP_GROUPS: NavGroup[] = [
 
 const JOBS: DropdownItem[] = [
   { label: "Jobs Marketplace", to: "/marketplace", description: "Browse all live roles" },
+  { label: "Job Tracker", to: "/job-tracker", description: "Track every application in one board", badge: "New" },
   { label: "Howdy Jobs", to: "/my-jobs?tab=jobs", description: "Roles matched to your profile" },
   { label: "CV Builder", to: "/cv-builder", description: "Build a profile that stands out" },
   { label: "Help Me Apply", to: "/help-me-apply", description: "AI cover letters & applications", badge: "New" },
@@ -573,7 +600,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
                       onClick={() => setAccountOpen(false)}
                       className="block px-4 py-3 font-display font-900 text-sm uppercase tracking-wide text-foreground hover:bg-primary transition-colors"
                     >
-                      Edit Profile
+                      My Profile
                     </Link>
                     <Link
                       to="/onboarding"
@@ -581,6 +608,13 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
                       className="block px-4 py-3 font-display font-900 text-sm uppercase tracking-wide text-foreground hover:bg-primary transition-colors border-t-2 border-foreground/10"
                     >
                       Take the Quiz
+                    </Link>
+                    <Link
+                      to="/job-tracker"
+                      onClick={() => setAccountOpen(false)}
+                      className="block px-4 py-3 font-display font-900 text-sm uppercase tracking-wide text-foreground hover:bg-primary transition-colors border-t-2 border-foreground/10"
+                    >
+                      Job Tracker
                     </Link>
                     <Link
                       to="/my-profile"

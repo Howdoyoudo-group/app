@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getCached, setCached } from "@/lib/ttlCache";
 import { useAuth } from "@/contexts/AuthContext";
 import howdyMascot from "@/assets/howdy-mascot.png";
+import HowdyIntro from "@/components/HowdyIntro";
 import {
   ArrowLeft,
   Search,
@@ -33,7 +34,9 @@ import {
   ArrowUpDown,
   ChevronDown,
   Share2,
+  Kanban,
 } from "lucide-react";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { ShareJobDialog } from "@/components/ShareJobDialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -55,6 +58,8 @@ import { toEmbeddableVideo } from "@/lib/video-embed";
 import { getCompanyExternalUrl } from "@/lib/company-external-links";
 import { trackInteraction } from "@/hooks/useTrackInteraction";
 import { useSavedJobs } from "@/hooks/useSavedJobs";
+import { useJobTracker } from "@/hooks/useJobTracker";
+import { toast } from "sonner";
 import SourceAttribution, { SourceAttributionFooter, detectJobSource } from "@/components/AdzunaAttribution";
 import SignUpPopup, { useSignUpPopup } from "@/components/SignUpPopup";
 import { roles as ROLE_DEFINITIONS } from "@/data/roles";
@@ -1146,6 +1151,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     return () => { cancelled = true; };
   }, [industry]);
   const { isSaved: isJobSaved, toggle: toggleSavedJob } = useSavedJobs();
+  const { isTracked, addItem: addTrackerItem } = useJobTracker();
   const { open: signupOpen, close: closeSignup, openPopup: openSignup } = useSignUpPopup(0, false);
   const [showSortFilter, setShowSortFilter] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>("smart");
@@ -1697,6 +1703,26 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     if (!user) { openSignup(); return; }
     if (!job.dbId) return;
     toggleSavedJob(job.dbId);
+  };
+
+  const trackJob = async (job: Job) => {
+    if (!user) { openSignup(); return; }
+    if (isTracked(job.dbId)) {
+      toast.info("Already in your Job Tracker");
+      return;
+    }
+    await addTrackerItem({
+      job_id: job.dbId ?? null,
+      company: job.company,
+      title: job.title,
+      url: job.url ?? null,
+      location: job.location,
+      salary: job.salary,
+      industry: job.industry,
+    });
+    toast.success("Added to Job Tracker", {
+      action: { label: "View board", onClick: () => { window.location.href = "/job-tracker"; } },
+    });
   };
 
   const activeFilterCount = [industry, location, jobType, salary, workMode, careerLevel].filter(
@@ -2524,6 +2550,20 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
               <Bookmark className="w-5 h-5" />
             )}
           </button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                onClick={(e) => { e.stopPropagation(); trackJob(job); }}
+                className={`p-1.5 transition-colors ${isTracked(job.dbId) ? "text-primary" : "text-muted-foreground hover:text-primary"}`}
+                aria-label={isTracked(job.dbId) ? "In your Job Tracker" : "Add to Job Tracker"}
+              >
+                <Kanban className="w-5 h-5" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isTracked(job.dbId) ? "In your Job Tracker" : "Add to Job Tracker"}
+            </TooltipContent>
+          </Tooltip>
           <button
             onClick={(e) => { e.stopPropagation(); setShareOpen(true); }}
             className="p-1.5 text-muted-foreground hover:text-primary transition-colors"
@@ -2620,6 +2660,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
           className="font-body text-sm gap-2 bg-foreground text-background hover:bg-foreground/90 border-2 border-foreground"
           onClick={() => {
             setHelperJob({
+              id: job.dbId,
               title: job.title,
               company: job.company,
               industry: job.industry,
@@ -2628,6 +2669,7 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
               description: job.description,
               tags: job.tags,
               type: job.type,
+              url: job.url || getCompanyUrl(job.company),
             });
             setActiveTab("cv-builder");
             setTimeout(() => tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
@@ -2708,37 +2750,47 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
       >
         {hasCustomMedia ? (
           <div className="relative">
-            <div
-              className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-0.5 border bg-card/90"
-              style={{ borderColor: "hsl(var(--foreground))" }}
-            >
-              <Sparkles className="w-3 h-3" /> Employer spotlight
-            </div>
             {emp.mediaType === "video" && embed ? (
-              embed.kind === "iframe" ? (
-                <iframe
-                  src={embed.src}
-                  title={`${emp.company} video`}
-                  className="w-full aspect-video border-0 block"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              ) : (
-                <video
-                  src={embed.src}
-                  controls
-                  muted
-                  loop
-                  playsInline
-                  className="w-full aspect-video object-cover block"
-                />
-              )
+              <>
+                <div
+                  className="flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-1 border-b-2 bg-card"
+                  style={{ borderColor: "hsl(var(--foreground))" }}
+                >
+                  <Sparkles className="w-3 h-3" /> Employer spotlight
+                </div>
+                {embed.kind === "iframe" ? (
+                  <iframe
+                    src={embed.src}
+                    title={`${emp.company} video`}
+                    className="w-full aspect-video md:aspect-auto md:h-56 lg:h-64 border-0 block"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                ) : (
+                  <video
+                    src={embed.src}
+                    controls
+                    muted
+                    loop
+                    playsInline
+                    className="w-full aspect-video md:aspect-auto md:h-56 lg:h-64 object-cover block"
+                  />
+                )}
+              </>
             ) : (
-              <img
-                src={emp.mediaUrl!}
-                alt={`${emp.company} banner`}
-                className="w-full aspect-[21/9] object-cover block"
-              />
+              <>
+                <div
+                  className="absolute top-3 left-3 z-10 inline-flex items-center gap-1 text-[10px] font-body uppercase tracking-[0.18em] px-2 py-0.5 border bg-card/90"
+                  style={{ borderColor: "hsl(var(--foreground))" }}
+                >
+                  <Sparkles className="w-3 h-3" /> Employer spotlight
+                </div>
+                <img
+                  src={emp.mediaUrl!}
+                  alt={`${emp.company} banner`}
+                  className="w-full aspect-[21/9] object-cover block"
+                />
+              </>
             )}
           </div>
         ) : (
@@ -2956,6 +3008,9 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
             <h1 className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-900 leading-[0.9] tracking-tight text-foreground mb-4 md:mb-6 whitespace-nowrap">
               Howdoyoudo<span className="text-primary">?</span> Jobs
             </h1>
+            <HowdyIntro className="mb-6">
+              I've picked the roles most likely to fit you first. Search, filter, or ask me to find something specific - and tap "Howdy can help" on any listing when you're ready to apply.
+            </HowdyIntro>
           </motion.div>
         )}
 

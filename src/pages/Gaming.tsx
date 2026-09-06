@@ -97,6 +97,9 @@ const gamingCompanies = [
   { name: "Ubisoft Reflections", url: "https://www.ubisoft.com/en-gb/company/careers", founded: "1984", hq: "Newcastle", overview: "Ubisoft's Newcastle studio - contributed to The Division, Watch Dogs, and more.", valueChainStage: "Development & Engineering" },
   { name: "nDreams", url: "https://www.ndreams.com/careers", founded: "2006", hq: "Farnborough", overview: "Leading UK VR game studio - pushing the boundaries of immersive gaming.", valueChainStage: "Development & Engineering" },
   { name: "Playrix", url: "https://playrix.com/job/open", founded: "2004", hq: "Dublin (global remote)", overview: "One of the world's largest mobile game developers - creators of Gardenscapes, Homescapes, and Township.", valueChainStage: "Development & Engineering" },
+  { name: "Lighthouse Games", url: "https://lighthousegames.com/working-at-lighthouse/", founded: "2023", hq: "Leamington Spa", glassdoor: 2.9, overview: "A AAA video game studio in Royal Leamington Spa founded by former Playground Games co-founder Gavin Raeburn, working on a new racing/driving IP.", valueChainStage: "Development & Engineering" },
+  { name: "Rebellion Developments", url: "https://careers.rebellion.com", founded: "1992", hq: "Oxford", glassdoor: 3.5, overview: "One of the UK's largest independent studios, developing and publishing video games (including the Sniper Elite series) alongside comics, film/TV and tabletop games.", valueChainStage: "Development & Engineering" },
+  { name: "Tencent", url: "https://careers.tencent.com/en-us/home.html", founded: "1998", hq: "Shenzhen, China", glassdoor: 4.0, overview: "A Chinese multinational technology and entertainment conglomerate, one of the world's largest video game publishers/investors, with a UK presence including offices in London.", valueChainStage: "Marketing & Publishing" },
 ];
 
 const Gaming = () => {

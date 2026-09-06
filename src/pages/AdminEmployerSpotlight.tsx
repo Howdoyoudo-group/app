@@ -53,6 +53,9 @@ const labelForSlug = (slug: string) =>
   INDUSTRIES.find((i) => i.slug === slug)?.name ??
   slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
+const isFilled = (row: Pick<SpotlightRow, "tagline" | "why_work_here">) =>
+  Boolean(row.tagline) && (row.why_work_here ?? []).length > 0;
+
 const emptyDraft = {
   id: null as string | null,
   industry: INDUSTRIES[0]?.slug ?? "",
@@ -86,6 +89,8 @@ export default function AdminEmployerSpotlight() {
   const [draft, setDraft] = useState(emptyDraft);
   const [bulletDraft, setBulletDraft] = useState("");
   const [saving, setSaving] = useState(false);
+  const [autoFilling, setAutoFilling] = useState(false);
+  const [bulkFilling, setBulkFilling] = useState(false);
   // "Other" lets an admin type a company that isn't on the Who tab yet
   // (e.g. a brand new pin with no hardcoded profile). Starts true whenever
   // the current draft's company isn't one of the known candidates, so
@@ -101,14 +106,19 @@ export default function AdminEmployerSpotlight() {
     document.title = "Employer Spotlight · Admin";
   }, []);
 
-  const loadRows = useCallback(async () => {
-    setLoading(true);
+  // `silent` skips the full-page loading spinner - used when refreshing
+  // after an in-place action (delete, reorder, toggle, save) rather than the
+  // initial mount. Swapping the whole grid out for a spinner and back again
+  // collapses the page height mid-action, which is what was throwing the
+  // scroll position back to the top after every delete/reorder.
+  const loadRows = useCallback(async (opts?: { silent?: boolean }) => {
+    if (!opts?.silent) setLoading(true);
     const { data, error } = await supabase
       .from("pinned_industry_employers")
       .select("id, industry, company_name, rank, tagline, why_work_here, url, logo_url, media_url, media_type, active")
       .order("industry", { ascending: true })
       .order("rank", { ascending: true });
-    setLoading(false);
+    if (!opts?.silent) setLoading(false);
     if (error) {
       toast.error(`Failed to load: ${error.message}`);
       return;
@@ -180,14 +190,27 @@ export default function AdminEmployerSpotlight() {
     setDialogOpen(true);
   };
 
+  // Switching company on an existing spotlight (or mid-way through adding
+  // one) previously only updated company_name - the tagline, bullets, logo
+  // and media stayed exactly as they were for whichever company was there
+  // before, so the visible name up top would change but everything below it
+  // kept describing the old company. Content is company-specific, so any
+  // company switch starts it fresh; id/industry/active (the slot itself)
+  // are untouched.
+  const clearedForNewCompany = (d: typeof emptyDraft, name: string, url = "") => ({
+    ...d,
+    company_name: name,
+    url,
+    tagline: "",
+    why_work_here: [] as string[],
+    logo_url: "",
+    media_url: "",
+    media_type: "image" as "image" | "video",
+  });
+
   const selectCompanyCandidate = (name: string) => {
     const match = companyCandidates.find((c) => c.name === name);
-    setDraft((d) => ({
-      ...d,
-      company_name: name,
-      // Only fill the URL if the admin hasn't already typed one.
-      url: d.url || match?.url || "",
-    }));
+    setDraft((d) => (name === d.company_name ? d : clearedForNewCompany(d, name, match?.url || "")));
   };
 
   const [uploadingMedia, setUploadingMedia] = useState(false);
@@ -229,6 +252,53 @@ export default function AdminEmployerSpotlight() {
 
   const removeBullet = (idx: number) => {
     setDraft((d) => ({ ...d, why_work_here: d.why_work_here.filter((_, i) => i !== idx) }));
+  };
+
+  // Generates a tagline + why-work-here bullets for the row currently open
+  // in the dialog. Existing rows (draft.id set) get saved straight to the
+  // DB by the function and we just mirror that into the draft; brand-new,
+  // not-yet-saved spotlights have no row to write to, so the function only
+  // returns the content and we drop it into the draft for the admin to
+  // review before hitting Save.
+  const autoFillDraft = async () => {
+    if (!draft.company_name.trim()) {
+      toast.error("Pick or enter a company first");
+      return;
+    }
+    setAutoFilling(true);
+    const { data, error } = await supabase.functions.invoke("generate-spotlight-content", {
+      body: draft.id
+        ? { id: draft.id, force: true }
+        : { company_name: draft.company_name.trim(), industry: draft.industry },
+    });
+    setAutoFilling(false);
+    if (error || data?.error) {
+      toast.error(`Auto-fill failed: ${data?.error ?? error?.message}`);
+      return;
+    }
+    setDraft((d) => ({ ...d, tagline: data.tagline, why_work_here: data.why_work_here }));
+    toast.success("Filled in with AI - review before saving");
+  };
+
+  // One-click pass over every spotlight that's missing a tagline or bullets,
+  // so existing pins don't all need opening and auto-filling one at a time.
+  const bulkAutoFill = async () => {
+    const targets = rows.filter((r) => !isFilled(r));
+    if (targets.length === 0) {
+      toast.success("Every spotlight already has content");
+      return;
+    }
+    if (!confirm(`Auto-fill ${targets.length} spotlight${targets.length === 1 ? "" : "s"} that are missing a tagline or "why work here" bullets?`)) return;
+    setBulkFilling(true);
+    let ok = 0, failed = 0;
+    for (const row of targets) {
+      const { data, error } = await supabase.functions.invoke("generate-spotlight-content", { body: { id: row.id } });
+      if (error || data?.error) failed += 1; else ok += 1;
+    }
+    setBulkFilling(false);
+    await loadRows({ silent: true });
+    if (failed === 0) toast.success(`Filled in ${ok} spotlight${ok === 1 ? "" : "s"}`);
+    else toast.error(`Filled in ${ok}, ${failed} failed - try those individually`);
   };
 
   const save = async () => {
@@ -285,7 +355,7 @@ export default function AdminEmployerSpotlight() {
       toast.success("Spotlight added");
     }
     setDialogOpen(false);
-    await loadRows();
+    await loadRows({ silent: true });
   };
 
   const remove = async (row: SpotlightRow) => {
@@ -295,7 +365,7 @@ export default function AdminEmployerSpotlight() {
     setBusyId(null);
     if (error) { toast.error(`Delete failed: ${error.message}`); return; }
     toast.success("Removed");
-    await loadRows();
+    await loadRows({ silent: true });
   };
 
   const toggleActive = async (row: SpotlightRow) => {
@@ -306,7 +376,7 @@ export default function AdminEmployerSpotlight() {
       .eq("id", row.id);
     setBusyId(null);
     if (error) { toast.error(`Update failed: ${error.message}`); return; }
-    await loadRows();
+    await loadRows({ silent: true });
   };
 
   // Swaps a row with its immediate neighbour in the *currently displayed*
@@ -329,7 +399,7 @@ export default function AdminEmployerSpotlight() {
     ]);
     setBusyIndustry(null);
     if (e1 || e2) { toast.error(`Reorder failed: ${(e1 ?? e2)?.message}`); return; }
-    await loadRows();
+    await loadRows({ silent: true });
   };
 
   if (authLoading || isAdmin === null) {
@@ -365,9 +435,15 @@ export default function AdminEmployerSpotlight() {
               time (the lowest rank, active row wins); reorder with the arrows to change who's currently featured.
             </p>
           </div>
-          <Button onClick={() => openNew()}>
-            <Plus className="h-4 w-4" /> Add spotlight
-          </Button>
+          <div className="flex items-center gap-2 shrink-0">
+            <Button variant="outline" onClick={bulkAutoFill} disabled={bulkFilling}>
+              {bulkFilling ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              Auto-fill all empty
+            </Button>
+            <Button onClick={() => openNew()}>
+              <Plus className="h-4 w-4" /> Add spotlight
+            </Button>
+          </div>
         </header>
 
         {loading ? (
@@ -376,17 +452,19 @@ export default function AdminEmployerSpotlight() {
           <div className="space-y-8">
             {allIndustryGroups.map(({ slug, name, list }) => (
               <div key={slug}>
-                <h2 className="text-lg font-semibold mb-3">{name}</h2>
+                <div className="flex items-center justify-between gap-3 mb-3">
+                  <h2 className="text-lg font-semibold">{name}</h2>
+                  {/* Always visible, even once this industry already has spotlights -
+                      previously this button only existed in the empty state, so the
+                      only way to add another option once one existed was the generic
+                      top-of-page button, which doesn't default to this industry. */}
+                  <Button size="sm" variant="outline" onClick={() => openNew(slug)}>
+                    <Plus className="h-4 w-4" /> Add spotlight
+                  </Button>
+                </div>
                 {list.length === 0 ? (
-                  <Card className="p-4 flex items-center justify-between gap-4">
+                  <Card className="p-4">
                     <p className="text-sm text-muted-foreground">No spotlight set for {name} yet.</p>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => openNew(slug)}
-                    >
-                      <Plus className="h-4 w-4" /> Add spotlight
-                    </Button>
                   </Card>
                 ) : (
                 <div className="grid gap-3">
@@ -473,7 +551,7 @@ export default function AdminEmployerSpotlight() {
                   <Select
                     value={draft.company_name || undefined}
                     onValueChange={(v) => {
-                      if (v === "__other__") { setManualCompany(true); setDraft((d) => ({ ...d, company_name: "" })); }
+                      if (v === "__other__") { setManualCompany(true); setDraft((d) => clearedForNewCompany(d, "")); }
                       else selectCompanyCandidate(v);
                     }}
                   >
@@ -511,7 +589,20 @@ export default function AdminEmployerSpotlight() {
             </div>
 
             <div className="space-y-1">
-              <Label htmlFor="es-tagline">Tagline</Label>
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor="es-tagline">Tagline</Label>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={autoFillDraft}
+                  disabled={autoFilling || !draft.company_name.trim()}
+                  className="h-7 px-2 text-xs"
+                >
+                  {autoFilling ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+                  Auto-fill with AI
+                </Button>
+              </div>
               <Textarea
                 id="es-tagline"
                 value={draft.tagline}

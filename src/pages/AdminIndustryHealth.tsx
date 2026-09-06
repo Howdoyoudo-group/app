@@ -167,6 +167,18 @@ export default function AdminIndustryHealth() {
               {badgeBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
               (Re)generate Football badge
             </Button>
+            <Button variant="outline" size="sm" onClick={() => generateBadge("music")} disabled={badgeBusy}>
+              {badgeBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
+              (Re)generate Music badge
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => generateBadge("journalism")} disabled={badgeBusy}>
+              {badgeBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
+              (Re)generate Journalism badge
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => generateBadge("fashion")} disabled={badgeBusy}>
+              {badgeBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Play className="h-4 w-4 mr-2" />}
+              (Re)generate Fashion badge
+            </Button>
             <Button variant="outline" size="sm" onClick={loadRuns} disabled={loading}>
               <RefreshCw className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`} />
               Refresh

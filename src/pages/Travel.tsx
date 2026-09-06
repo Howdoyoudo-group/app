@@ -89,6 +89,7 @@ const travelCompanies = [
   { name: "Ryanair", url: "https://careers.ryanair.com", founded: "1984", hq: "Dublin (UK ops)", glassdoor: 3.0, overview: "Europe's largest airline by passenger numbers - ultra-low-cost model.", valueChainStage: "Airlines & Aviation" },
   { name: "Uber", url: "https://www.uber.com/gb/en/careers/", founded: "2009", hq: "London (UK)", glassdoor: 4.0, overview: "Global ride-hailing and mobility platform - also Uber Eats and freight.", valueChainStage: "Travel Tech & Platforms" },
   { name: "Booking.com", url: "https://careers.booking.com", founded: "1996", hq: "Amsterdam (UK office)", glassdoor: 3.9, overview: "The world's leading online travel agency - hotels, flights, and car hire.", valueChainStage: "Travel Tech & Platforms" },
+  { name: "loveholidays", url: "https://www.loveholidays.com/about-us/careers.html", founded: "2012", hq: "London", glassdoor: 3.8, overview: "The UK and Ireland's largest online travel agent for package holidays - flights and hotels bundled together at scale.", valueChainStage: "Travel Tech & Platforms" },
   { name: "Airbnb", url: "https://careers.airbnb.com", founded: "2008", hq: "London (UK)", glassdoor: 4.3, overview: "The platform that reinvented accommodation - home stays, experiences, and hosting.", valueChainStage: "Travel Tech & Platforms" },
   { name: "Trainline", url: "https://www.trainlinegroup.com/careers/en/", founded: "1997", hq: "London", glassdoor: 3.7, overview: "Europe's leading rail booking platform - simplifying train and coach travel.", valueChainStage: "Travel Tech & Platforms" },
   { name: "Skyscanner", url: "https://www.skyscanner.net/jobs", founded: "2003", hq: "Edinburgh", glassdoor: 4.2, overview: "Global flight comparison engine - meta-search for flights, hotels, and car hire.", valueChainStage: "Travel Tech & Platforms" },
@@ -103,6 +104,8 @@ const travelCompanies = [
   { name: "Accor", url: "https://careers.accor.com", founded: "1967", hq: "London (UK)", glassdoor: 3.7, overview: "Global hospitality group - Ibis, Novotel, Sofitel, Fairmont, and more.", valueChainStage: "Hotels & Accommodation" },
   { name: "Marriott International", url: "https://careers.marriott.com", founded: "1927", hq: "London (UK)", glassdoor: 3.8, overview: "World's largest hotel company - Marriott, Sheraton, W Hotels, The Ritz-Carlton.", valueChainStage: "Hotels & Accommodation" },
   { name: "Expedia Group", url: "https://lifeatexpediagroup.com/jobs", founded: "1996", hq: "London (UK)", glassdoor: 3.8, overview: "Travel tech giant - Expedia, Hotels.com, Vrbo, and Trivago.", valueChainStage: "Travel Tech & Platforms" },
+  { name: "Travelodge", url: "https://www.travelodge.co.uk/vacancies/", founded: "1985", hq: "Thame", glassdoor: 3.7, overview: "UK budget hotel chain with several hundred hotels nationwide, offering value accommodation for business and leisure travellers.", valueChainStage: "Hotels & Accommodation" },
+  { name: "Hilton", url: "https://jobs.hilton.com/emea/en/uk-ireland-jobs", founded: "1919", hq: "Watford (UK)", glassdoor: 3.8, overview: "US-headquartered global hotel group operating multiple brands, with hotels across the UK and a European regional office in Watford.", valueChainStage: "Hotels & Accommodation" },
 ];
 
 const Travel = () => {

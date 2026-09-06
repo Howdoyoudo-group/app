@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { MessageCircle, X, Send, HelpCircle, Compass, Play } from "lucide-react";
+import { MessageCircle, X, Send, HelpCircle, Compass, Play, LogIn } from "lucide-react";
 import { launchHowdyTour } from "@/components/HowdyTour";
 import { HowdyVoiceButtonWrapped as HowdyVoiceButton } from "@/components/HowdyVoiceButton";
 import howdyMascot from "@/assets/howdy-mascot.png";
@@ -150,13 +150,47 @@ const CareerAssistant = () => {
     return () => { cancelled = true; };
   }, [user]);
 
+  // Notification dot: does Howdy have something new to say? Reuses the same
+  // "new since howdy_jobs_last_seen_at" signal that drives the Howdy Jobs nav
+  // badge, so the floating button becomes the site-wide home for that alert
+  // instead of only showing up once the user is already on /my-jobs.
+  const [hasNewJobs, setHasNewJobs] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) { setHasNewJobs(false); return; }
+    (async () => {
+      const { data: profileRow } = await supabase
+        .from("profiles")
+        .select("howdy_jobs_last_seen_at")
+        .eq("id", user.id)
+        .maybeSingle();
+      const lastSeen = profileRow?.howdy_jobs_last_seen_at;
+      // No watermark yet = first-ever visit; the Howdy Jobs nav badge already
+      // covers that case on its own terms, so don't double-alert here.
+      if (!lastSeen) { if (!cancelled) setHasNewJobs(false); return; }
+      const { count } = await supabase
+        .from("job_matches")
+        .select("job_id", { count: "exact", head: true })
+        .eq("user_id", user.id)
+        .gt("computed_at", lastSeen);
+      if (!cancelled) setHasNewJobs((count ?? 0) > 0);
+    })();
+    return () => { cancelled = true; };
+  }, [user, location.pathname]);
+
   // Howdy never auto-opens — users open the chat on demand via the floating button.
 
   // Allow any part of the app (e.g. the MyJobs bottom nav "Howdy" button) to
   // open the chat panel via a global event, so we don't need two competing
   // entry points stacked on top of each other.
   useEffect(() => {
-    const handler = () => setOpen(true);
+    // Optional `detail.prefill` lets a caller (e.g. a Job Tracker card) open
+    // Howdy with a relevant message already typed in, without auto-sending it.
+    const handler = (e: Event) => {
+      const prefill = (e as CustomEvent<{ prefill?: string }>).detail?.prefill;
+      if (prefill) setInput(prefill);
+      setOpen(true);
+    };
     const videoHandler = () => { setOpen(true); setShowVideo(true); };
     window.addEventListener("howdy:open", handler);
     window.addEventListener("howdy:open-video", videoHandler);
@@ -454,6 +488,9 @@ const CareerAssistant = () => {
             >
               <span className="absolute inset-0 rounded-full bg-primary/10" aria-hidden />
               <img src={howdyMascot} alt="Howdy" className="relative h-full w-full object-contain" />
+              {hasNewJobs && (
+                <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[#FF3B30] ring-2 ring-background" aria-hidden />
+              )}
             </motion.button>
             <span className="pointer-events-none rounded-full border-2 border-foreground bg-background px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide shadow-[2px_2px_0_hsl(var(--foreground))]">
               Howdy
@@ -607,33 +644,45 @@ const CareerAssistant = () => {
             </div>
 
             {/* Composer */}
-            <form
-              onSubmit={(e) => { e.preventDefault(); send(); }}
-              className="flex items-end gap-2 border-t-2 border-foreground bg-background px-3 py-2"
-            >
-              <textarea
-                ref={inputRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    send();
-                  }
-                }}
-                placeholder={user ? "Ask Howdy anything..." : "Sign in to chat with Howdy"}
-                rows={1}
-                className="flex-1 resize-none rounded-xl border-2 border-foreground bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary max-h-32"
-              />
-              <button
-                type="submit"
-                disabled={loading || !input.trim()}
-                className="rounded-full bg-foreground text-background p-2 disabled:opacity-40 hover:opacity-90 transition-opacity"
-                aria-label="Send"
+            {user ? (
+              <form
+                onSubmit={(e) => { e.preventDefault(); send(); }}
+                className="flex items-end gap-2 border-t-2 border-foreground bg-background px-3 py-2"
               >
-                <Send className="h-4 w-4" />
-              </button>
-            </form>
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      send();
+                    }
+                  }}
+                  placeholder="Ask Howdy anything..."
+                  rows={1}
+                  className="flex-1 resize-none rounded-xl border-2 border-foreground bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary max-h-32"
+                />
+                <button
+                  type="submit"
+                  disabled={loading || !input.trim()}
+                  className="rounded-full bg-foreground text-background p-2 disabled:opacity-40 hover:opacity-90 transition-opacity"
+                  aria-label="Send"
+                >
+                  <Send className="h-4 w-4" />
+                </button>
+              </form>
+            ) : (
+              <div className="flex items-center justify-between gap-2 border-t-2 border-foreground bg-background px-3 py-2.5">
+                <span className="text-sm text-muted-foreground">Sign in to chat with Howdy</span>
+                <Link
+                  to="/auth"
+                  className="inline-flex items-center gap-1.5 rounded-full bg-foreground text-background px-3 py-1.5 text-xs font-display font-700 uppercase tracking-wider hover:opacity-90 transition-opacity shrink-0"
+                >
+                  <LogIn className="h-3.5 w-3.5" /> Sign in
+                </Link>
+              </div>
+            )}
 
           </motion.div>
         )}
