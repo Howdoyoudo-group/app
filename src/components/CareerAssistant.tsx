@@ -6,7 +6,6 @@ import howdyMascot from "@/assets/howdy-mascot.png";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import CoachPlanPanel from "@/components/CoachPlanPanel";
 import ReactMarkdown from "react-markdown";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -588,12 +587,6 @@ const CareerAssistant = () => {
                 <X className="h-5 w-5" />
               </button>
             </div>
-
-            {mode === "candidate" && (
-              <div className="px-3 pt-3 bg-[#00E600]">
-                <CoachPlanPanel compact />
-              </div>
-            )}
 
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3 flex flex-col" style={{ backgroundColor: "#00E600" }}>
