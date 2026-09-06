@@ -5,6 +5,29 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-06 — Andrew (main branch) — Fixed "Mark as applied" and made Howdy cache its application summary
+
+### What was done THIS SESSION
+Andrew reported that "Mark as applied" wasn't turning green when he used "Howdy can help" on a job, and asked for a Howdy intro on Help Me Apply plus caching so Howdy's cover letter/CV tips aren't regenerated every time a saved job is reopened. He also flagged that Job Tracker's "Howdy can help" chip actually opens `/help-me-apply` (`HelpMeApply.tsx`), not the richer Marketplace panel (`JobApplicationHelper.tsx`) - confirmed that's correct, and used it to focus the fix on the right component.
+
+Found the real root cause of the button bug: Marketplace's "Howdy can help" was passing `String(job.id)` as the job id - `job.id` is a display-only numeric index in that page, not the real database id (`job.dbId` is the actual one, used everywhere else in the file for tracking/saving). That fake id failed the `job_tracker_items.job_id` uuid cast silently, so the insert never actually happened - but both apply-helper components called `setApplied(true)` and showed a success toast unconditionally, regardless of whether the save worked. Also found both flows always inserted a *new* tracker row rather than updating one that already existed for a tracked job, and Help Me Apply's button was hidden entirely whenever the tracked item had no saved url.
+
+Fixed all of it: Marketplace now passes `job.dbId` and falls back to the same company-url lookup "Apply now" already uses; `useApplyAndTrack` takes an optional existing-tracker-item id and updates that row's status instead of duplicating it; both "Mark as applied" buttons now check the save genuinely succeeded before claiming success, and turn visibly green with a checkmark when it does.
+
+Added the caching Andrew asked for: new `job_tracker_items.application_helper` jsonb column caches whatever Howdy generated (cover letter for Help Me Apply; cover letter + CV tips + keywords + company insight for the richer Marketplace flow) the first time it's produced for a tracked job, and both components now check that cache before calling their edge function again - a "Regenerate" button still works by re-running the AI and overwriting the cache. Added a `HowdyIntro` to Help Me Apply, which had none.
+
+### Commits
+`4e6256d` — pushed to both remotes (`howdoyoudo` + `origin`) ✅. New migration `20260906090000_job_tracker_application_helper.sql` applied directly to the linked DB and Supabase types regenerated.
+
+### Current state
+Live. Both "Howdy can help" flows (Marketplace's inline panel and Job Tracker's Help Me Apply page) now genuinely save and clearly confirm "Mark as applied," reuse cached AI output instead of regenerating it, and Help Me Apply has a Howdy-voiced intro.
+
+### Left for next session
+- Still no test account credentials available this session - the actual signed-in save/apply flow, the green success state, and the cache hit/miss behaviour were verified by code review + typecheck + no console errors, not a live click-through. Worth a manual pass with a real login.
+- The two apply-helper flows (`JobApplicationHelper`/`tailor-application` vs `HelpMeApply`/`help-me-apply`) are still separate components hitting different edge functions - Andrew's comment about the Job Tracker chip landing on a different page than expected suggests he may want these properly unified into one experience at some point; flagged again as a real option, not done this session since it wasn't explicitly requested.
+
+---
+
 ## 2026-09-05 (later) — Andrew (main branch) — Howdy vs. Indeed Career Scout review; made Howdy proactive and more visible
 
 ### What was done THIS SESSION
