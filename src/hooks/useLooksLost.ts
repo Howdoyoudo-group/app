@@ -7,7 +7,7 @@ import { useLocation } from "react-router-dom";
 //     actually means something (search, onboarding, tracker, etc.)
 //   - thrash: bouncing back and forth between the same couple of pages,
 //     the classic "I can't find what I'm after" pattern.
-const IDLE_THRESHOLD_MS = 50_000;
+const IDLE_THRESHOLD_MS = 30_000;
 const MIN_DWELL_MS = 10_000;
 const THRASH_WINDOW_MS = 60_000;
 const THRASH_MIN_REVISITS = 3;
