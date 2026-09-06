@@ -62,6 +62,13 @@ async function embedBatch(texts: string[]): Promise<number[][]> {
 }
 
 Deno.serve(async (req) => {
+  // No incoming auth previously - anyone with the URL could trigger repeated
+  // Gemini embedding runs and burn API quota. verify_jwt is false, so this
+  // in-code check is the only gate.
+  if (req.headers.get("Authorization") !== `Bearer ${Deno.env.get("HDYD_SERVICE_JWT")}`) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
+  }
+
   const body = await req.json().catch(() => ({}));
   const batchSize = Math.min(body.batch_size || 500, 500);
 

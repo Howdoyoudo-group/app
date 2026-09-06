@@ -14,41 +14,57 @@
 // supabase/config.toml) because email clients won't send a JWT.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { signClickTrackerUrl } from "../_shared/click-tracker-sign.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const CLICK_TRACKER_SECRET = Deno.env.get("CLICK_TRACKER_SECRET")!;
+const SAFE_FALLBACK = "https://www.howdoyoudo.co.uk/";
 
-function safeRedirectUrl(raw: string | null): string | null {
-  if (!raw) return null;
+// This endpoint has to accept a redirect to ANY real job/news URL - jobs come
+// from thousands of different employer/publisher domains, so a domain
+// allowlist isn't workable. Instead the target is HMAC-signed at link-build
+// time (see send-daily-digest's trackUrl(), via _shared/click-tracker-sign.ts)
+// and verified here, so the redirect only ever fires for a URL *we*
+// generated - closing the open redirect (an attacker can no longer use this
+// endpoint to bounce an arbitrary phishing link through our trusted domain)
+// without breaking the real feature. Links built before this fix have no
+// signature and safely fall back to the homepage instead of erroring.
+async function verifySignedTarget(raw: string | null, sig: string | null): Promise<string | null> {
+  if (!raw || !sig) return null;
   try {
     const u = new URL(raw);
     if (u.protocol !== "http:" && u.protocol !== "https:") return null;
-    return u.toString();
   } catch {
     return null;
   }
+  const expected = await signClickTrackerUrl(CLICK_TRACKER_SECRET, raw);
+  if (expected.length !== sig.length) return null;
+  // Constant-time-ish compare - this isn't a high-value secret boundary,
+  // but there's no reason to make timing analysis easier than it needs to be.
+  let diff = 0;
+  for (let i = 0; i < expected.length; i++) diff |= expected.charCodeAt(i) ^ sig.charCodeAt(i);
+  return diff === 0 ? raw : null;
 }
 
-function fallbackHtml(target: string | null) {
-  const safe = target ?? "https://howdoyoudo.group/";
-  return `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${safe}"><title>Redirecting…</title><p>Redirecting to <a href="${safe}">${safe}</a>…</p>`;
+function fallbackHtml(target: string) {
+  return `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=${target}"><title>Redirecting…</title><p>Redirecting to <a href="${target}">${target}</a>…</p>`;
 }
 
 Deno.serve(async (req) => {
   const url = new URL(req.url);
-  const target = safeRedirectUrl(url.searchParams.get("u"));
+  const rawTarget = url.searchParams.get("u");
+  const sig = url.searchParams.get("sig");
   const kind = url.searchParams.get("kind") || "link"; // "job" | "news" | "link"
   const jobId = url.searchParams.get("jid");
   const industry = url.searchParams.get("ind");
   const companySlug = url.searchParams.get("co");
   const subEmail = url.searchParams.get("sub");
 
-  if (!target) {
-    return new Response(fallbackHtml(null), {
-      status: 400,
-      headers: { "Content-Type": "text/html; charset=utf-8" },
-    });
-  }
+  // No signature, or it doesn't match => either a forged link or one built
+  // before this fix shipped. Either way, land somewhere safe rather than
+  // following an unverified destination.
+  const target = await verifySignedTarget(rawTarget, sig) ?? SAFE_FALLBACK;
 
   // Fire-and-forget logging - never block the redirect.
   (async () => {

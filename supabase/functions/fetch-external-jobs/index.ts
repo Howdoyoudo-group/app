@@ -7414,6 +7414,17 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // This function has verify_jwt = false so cron's key-format risk is out of
+  // the picture (see CLAUDE.md); it checks auth itself instead. Previously
+  // had no check at all - anyone who found the URL could trigger scoped
+  // Adzuna/Reed/Jooble/Firecrawl runs and burn through paid API quota.
+  if (req.headers.get("Authorization") !== `Bearer ${Deno.env.get("HDYD_SERVICE_JWT")}`) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
