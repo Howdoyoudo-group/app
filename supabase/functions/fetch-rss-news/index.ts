@@ -222,7 +222,12 @@ Return real, verifiable stories. For each, give the EXACT real headline as publi
 
     // Maximum age (days) for any breaking-news item, regardless of source.
     // Anything older than this is treated as stale and dropped before insert.
-    const MAX_AGE_DAYS = 21;
+    // Was 21 - tightened 2026-09-07 after finding this table is meant to read
+    // as "breaking," but a 3-week floor let genuinely old backlog items
+    // masquerade as fresh (measured: some sources averaging 10-17 days stale
+    // at ingestion). Deep-background pieces belong in `articles`, which has
+    // its own, deliberately looser, hallucination-guard floor.
+    const MAX_AGE_DAYS = 5;
 
     function parsePubDate(raw: string | undefined | null): string | null {
       if (!raw) return null;
@@ -536,11 +541,18 @@ Return real, verifiable stories. For each, give the EXACT real headline as publi
         if (!r.ok) {
           if (urlLooksStale(n.url)) { staleCount++; return null; }
         }
-        const resolved = n.published_at || r.metaDate || n.fetched_at;
-        const ts = Date.parse(resolved);
+        // When there's no real published date (no RSS pubDate, no scraped
+        // meta date), we used to fall back to fetch time - which made
+        // undated items look like the freshest thing in the feed and win
+        // every recency sort, even though we have no idea how old they
+        // actually are. Rank them as the oldest item the age filter still
+        // allows instead, so they're kept (still useful content) but never
+        // masquerade as "just published."
+        const hasRealDate = !!(n.published_at || r.metaDate);
+        const ts = hasRealDate ? Date.parse(n.published_at || r.metaDate!) : cutoffMs + 60 * 60 * 1000;
         if (!Number.isFinite(ts)) return null;
         if (ts < cutoffMs) { staleCount++; return null; }
-        if (!n.published_at && !r.metaDate) undatedAccepted++;
+        if (!hasRealDate) undatedAccepted++;
         const { source_kind: _sk, ...rest } = n;
         return { ...rest, published_at: new Date(ts).toISOString() };
       })

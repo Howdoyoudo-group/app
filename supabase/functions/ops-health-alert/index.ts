@@ -8,6 +8,10 @@ const corsHeaders = {
 const ALERT_RECIPIENTS = ["woodyharrison100@gmail.com", "andrew@stanwoodoffice.com"];
 const DROP_THRESHOLD_PCT = -15;
 const HEALTH_MONITOR_STALE_HOURS = 9;
+// breaking_news normally refreshes every 6h - alert at 2x that so one slow
+// run doesn't cry wolf, but a genuine multi-day outage (like 2026-09-07's)
+// gets caught on the very next twice-daily check instead of 5 days later.
+const CONTENT_STALE_HOURS = 12;
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
@@ -51,6 +55,19 @@ Deno.serve(async (req) => {
       }
     } else {
       issues.push(`industry-health-monitor has never logged a run — check it's deployed and the cron is pointed at the right project.`);
+    }
+
+    if (check.stuck_digest_runs?.length > 0) {
+      const dates = check.stuck_digest_runs.map((r: any) => r.run_date).join(", ");
+      issues.push(
+        `${check.stuck_digest_runs.length} daily digest run(s) stuck in "running" for 20+ minutes and never completed (${dates}) — the send loop or its content-refresh fallback likely got killed mid-run. Check daily_digest_runs and whether that day's digest actually went out.`
+      );
+    }
+
+    if (check.breaking_news_stale_hours !== null && check.breaking_news_stale_hours > CONTENT_STALE_HOURS) {
+      issues.push(
+        `breaking_news hasn't had a new row in ${check.breaking_news_stale_hours} hours (should refresh every 6h via refresh-all-content). This is exactly the silent failure mode found 2026-09-07 (a cron timeout mismatch left it dead for 5+ days with zero errors anywhere) — worth checking the refresh-all-content cron and its recent runs.`
+      );
     }
 
     const alertSent = issues.length > 0;

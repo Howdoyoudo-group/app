@@ -30,14 +30,18 @@ function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
-  }
-
-  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-  const serviceKey = Deno.env.get("HDYD_SERVICE_JWT")!;
-
+// The full sweep (34 industries in batches of 5, some needing a 25s-capped
+// Perplexity fallback) genuinely takes ~2 minutes end to end. The crons that
+// trigger this function set a 5s net.http_post timeout, expecting a
+// fire-and-forget ack - not a wait for full completion. Found 2026-09-07:
+// that mismatch meant every cron-triggered run was getting cut off before
+// it could finish, so content silently stopped refreshing for 5+ days with
+// no error anywhere (pg_net just logged a timeout, which looks identical to
+// the *intentional* fire-and-forget timeout other crons use on purpose - see
+// ops_health_check()'s comment on http_timeouts_12h). Fix: ack immediately,
+// do the real sweep in the background via EdgeRuntime.waitUntil, matching
+// the pattern already used elsewhere in this codebase (see CLAUDE.md).
+async function runFullSweep(supabaseUrl: string, serviceKey: string) {
   const results: Record<string, unknown> = {};
   const INDUSTRIES = shuffle(ALL_INDUSTRIES);
 
@@ -120,9 +124,29 @@ Deno.serve(async (req) => {
   }
 
   console.log("Content refresh complete for all industries");
+  return results;
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+  const serviceKey = Deno.env.get("HDYD_SERVICE_JWT")!;
+
+  const work = runFullSweep(supabaseUrl, serviceKey).catch((err) => {
+    console.error("refresh-all-content sweep failed:", err);
+  });
+
+  if (typeof EdgeRuntime !== "undefined" && (EdgeRuntime as any)?.waitUntil) {
+    (EdgeRuntime as any).waitUntil(work);
+  } else {
+    await work;
+  }
 
   return new Response(
-    JSON.stringify({ success: true, results }),
+    JSON.stringify({ accepted: true }),
     { headers: { ...corsHeaders, "Content-Type": "application/json" } }
   );
 });
