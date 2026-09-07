@@ -102,7 +102,9 @@ place as a harmless redundant safety net (deduped by URL).
 - `send-daily-digest` — 7am Mon/Fri (was weekdays until 2026-09-02; also restructured to one consolidated email per subscriber covering all their industries, instead of one full email per industry — see the function's own comments)
 
 ## Cron Jobs
-21 scheduled. Crons live in the DB (`cron.job`), NOT in migrations — list them with:
+27 scheduled as of 2026-09-06 (the list below isn't fully reconciled to that —
+several daily scrapers added since aren't listed individually yet). Crons live
+in the DB (`cron.job`), NOT in migrations — list them with:
 `select jobname, schedule, active from cron.job order by jobname;`
 
 - `process-email-queue` — every minute
@@ -123,6 +125,24 @@ place as a harmless redundant safety net (deduped by URL).
 - `fetch-industry-videos-weekly` — 7am Mondays
 - `scrape-w4mp-jobs-weekly` / `scrape-lgjobs-weekly` — 7am Mondays
 - `daily-jobs-report` — 7am daily
+- `scrape-jobs-weekly` — 6:30am + 6:30pm daily (see note below — name is legacy, don't go by it)
+
+### ⚠️ `scrape-jobs-weekly` was silently running every hour, not weekly
+Found 2026-09-06 while investigating Firecrawl hitting 90% of its monthly
+100k-credit quota with 12 days left in the billing period. The cron (jobid
+31) was scheduled `0 * * * *` (every hour, ~180x more often than its own
+name implies) and had never been added to this doc's cron list — looks
+like a leftover from initial testing that was never reconciled to a real
+cadence. `scrape-jobs` Firecrawl-scrapes a rolling window of the 463-entry
+`CAREER_SOURCES` list (cursor-based, ~30-60 companies/run) every time it
+fires, so 24 runs/day was burning credits roughly 12x faster than needed.
+Changed to `30 6,18 * * *` (twice daily, alongside `fetch-external-jobs`'s
+own rhythm) — at that cadence the full company list still gets swept about
+once a week, just spread evenly instead of hourly, for ~1/12th the credit
+cost. Monitor `check-firecrawl-usage`-style credit-usage query (see
+`provider-usage` function) over the next billing cycle to confirm this
+cadence holds up; adjust `cron.alter_job(job_id := 31, schedule := ...)` if
+it turns out too sparse or still too much.
 
 ### ⚠️ Crons fail SILENTLY — check them
 A cron can be `active` and still never work. Check actual HTTP results:
