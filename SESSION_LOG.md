@@ -5,6 +5,35 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-07 — Andrew (main branch) — Found and fixed a 5-day silent content-pipeline outage; tightened news freshness
+
+### What was done THIS SESSION
+Andrew asked whether the daily digests had failed to run because of Perplexity credits, and separately why the news in digests rarely reads as "yesterday's." Investigated via direct DB queries (Supabase Management API) rather than guessing.
+
+**Not Perplexity credits.** Confirmed live: calling `scrape-articles` (Perplexity-backed) directly worked fine and returned real results. The actual problem was much bigger: `breaking_news`/`articles` had **zero new rows for 5 days 7.5 hours** (2026-09-02 06:03 UTC → 2026-09-07 13:32 UTC) across all ~34 industries, and `daily_digest_runs` showed the **Sep 4 (Friday) digest stuck in `status: "running"` forever** - it never completed.
+
+**Root cause**: `refresh-all-content` is triggered by two crons via `net.http_post(..., timeout_milliseconds:='5000')`, but the actual sweep across 34 industries genuinely takes ~2 minutes. That mismatch meant every cron-triggered run got cut off before finishing - the classic "cron reports success, function never actually completes, no error anywhere" failure this project has hit before (documented in CLAUDE.md for other functions). Confirmed by manually invoking it: completed in ~2 minutes and immediately repopulated all 34 industries with fresh, correctly-dated content.
+
+**Second, independent finding** (why news often isn't "yesterday's" even when the pipeline is healthy): `fetch-rss-news` accepted anything up to 21 days old as "breaking" news, and several sources with no real publish date (gov.uk, LinkedIn, Yahoo Finance, etc.) were falling back to *fetch time* as their `published_at` - making them look artificially fresh and win recency sorts despite being unverified. Measured before the fix: `news.google.com` items averaged ~3.8 days old at ingestion, `theguardian.com` ~10 days, `bbc.com` ~17 days.
+
+**Fixes shipped (all four Andrew asked for):**
+1. `refresh-all-content` now acks the cron immediately and runs the real sweep via `EdgeRuntime.waitUntil` (same pattern used elsewhere in this codebase) - a short caller timeout can no longer strand it mid-run. Also switched the every-6h cron (jobid 17) from a legacy anon-role JWT to the same service_role JWT its daily sibling already used.
+2. `fetch-rss-news`: `MAX_AGE_DAYS` 21 → 5; undated items now rank near the stale edge instead of masquerading as just-published. Deliberately left Google's `when:7d` search window alone (narrowing it risked collapsing quiet-day industries to near-zero results per an existing code comment) - the new 5-day acceptance floor is the real freshness gate now, not the search window.
+3. (Implicit in #2 - the "improve sources" ask.) Left `articles`' own 45-day floor untouched - that's a deliberate Perplexity-hallucination guard, not a freshness target, and a separate content type from "breaking."
+4. `ops_health_check()` (feeds the existing twice-daily `ops-health-alert` email) now also flags any `daily_digest_runs` row stuck "running" past 20 minutes and `breaking_news` going stale past 12h (2x its normal cadence) - this exact outage would now trigger an email within half a day instead of running silently for 5. Backfill-corrected the historical Sep 4 stuck row to `status: "failed"` so the new check starts clean.
+
+### Commits
+`e109ac3` (all four fixes) + merge commit `2308dd9` reconciling with Woody's concurrent session - pushed to both remotes ✅. Deployed `refresh-all-content`, `fetch-rss-news`, `ops-health-alert`. Migration `20260907120000_ops_health_check_digest_and_content_staleness.sql` applied directly to the linked DB.
+
+### Current state
+Live and verified: a cron-style call to `refresh-all-content` now returns in <1s (was hanging indefinitely); the every-6h cron will keep it fresh going forward; `ops-health-alert` will catch a repeat of this specific failure mode within its next twice-daily run instead of 5 days later.
+
+### Left for next session
+- Watch the next couple of `send-daily-digest` runs (Mon/Fri) now that `breaking_news` should stay consistently fresh - `refreshIndustryContent()`'s synchronous per-industry fallback inside the digest itself should fire far less often now that the 6-hourly sweep is reliable again, which should also reduce the risk of the digest itself running long.
+- Not done (out of scope of the 4 fixes asked for): consolidating `refreshIndustryContent()`'s own synchronous fetch calls inside `send-daily-digest` to use the same backgrounding pattern, in case a still-thin industry causes a slow digest run in the future.
+
+---
+
 ## 2026-09-06 (later still) — Woody (main branch) — Firecrawl 90%-quota investigation; found & fixed a misconfigured cron; set up an Omni pentest test account
 
 ### What was done THIS SESSION
