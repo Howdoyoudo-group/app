@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Youtube } from "lucide-react";
+import { Instagram, Youtube, Linkedin } from "lucide-react";
 
 // Lucide has no TikTok glyph (brand-icon licensing) - a small inline path is
 // the standard workaround other sites use too.
@@ -21,6 +21,7 @@ const SOCIALS = [
   { name: "TikTok", href: "https://tiktok.com/@Howdoyoudo_official", Icon: TikTokIcon },
   { name: "YouTube", href: "https://youtube.com/@HDYD_OFFICIAL", Icon: Youtube },
   { name: "X", href: "https://x.com/HDYD_OFFICIAL", Icon: XIcon },
+  { name: "LinkedIn", href: "https://linkedin.com/company/howdoyoudoltd", Icon: Linkedin },
 ];
 
 const Footer = () => {
