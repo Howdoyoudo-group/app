@@ -5,6 +5,71 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-08 — Woody (main branch) — Footer socials + finished the audit-job-links throughput fix (Task #13, deferred since 07-26)
+
+### What was done THIS SESSION
+1. Renamed the "The HDYD Show" nav dropdown entry to "HDYD Originals" in
+   `SiteHeader.tsx` and `GlobalMobileMenu.tsx` (nav label only - the show's
+   own page title/H1/SEO title and industry-page callouts still say "The
+   HDYD Show", left untouched as out of scope).
+2. Added social links to `Footer.tsx` - Instagram, TikTok, YouTube, X (real
+   handles pulled from the existing founder-update emails, not invented) and
+   LinkedIn (Woody supplied `linkedin.com/company/howdoyoudoltd` - his
+   message was missing the `/company/` slash, fixed and confirmed the URL
+   200s before shipping). TikTok/X have no lucide-react glyph so those two
+   are small inline SVGs.
+3. **audit-job-links investigation + fix.** Woody clicked into Music jobs,
+   first 2 were dead, asked "didn't we fix this a month ago." Traced it to
+   the 2026-07-26 fix (see that entry below) only being a partial fix -
+   Task #13 ("speed up rotation") was explicitly left `in_progress` that day
+   and never picked back up. Confirmed live via direct dry runs: 24% dead
+   DB-wide, 42.5% dead in Music specifically - concentrated in Live Nation's
+   Workday board (`livenation.wd503.myworkdayjobs.com`, 67 postings, almost
+   all 404ing, mostly generic corporate/tech roles mistagged into music -
+   a separate tagging issue worth a follow-up, not fixed this session).
+   Root cause: the 07-26 fix sized the checker for that day's ~42.5k-job
+   queue; it's since grown to 87.7k and nobody revisited the budget, so the
+   backlog quietly kept growing unwatched (not on the Known Issues list, no
+   alert on backlog age) - oldest unchecked job was 20 days stale DB-wide,
+   42 days in Music.
+
+   **Fix (commit `e67e22a`):** moved real (non-dryRun) invocations onto the
+   `EdgeRuntime.waitUntil` background pattern (same pattern documented in
+   CLAUDE.md for other long-running functions) so they return
+   `{accepted:true}` immediately instead of racing the caller's own HTTP
+   timeout - the actual failure mode behind both the original 5s-timeout bug
+   and the 07-26 fix's 20s budget. Run budget 20s→120s, per-run fetch cap
+   1000/2000→4000/6000, concurrency 16→24. Cron (`audit-job-links-nightly`,
+   jobid 15) moved 0 2 * * * → 0 */6 * * * (once nightly → every 6 hours) via
+   `cron.alter_job` - confirmed with Woody first (bulk cron/config changes
+   get blocked by the permission classifier without explicit chat
+   confirmation, separate from the earlier general "yes let's fix this").
+   Ran real cleanup passes (also confirmed first, same classifier reason -
+   large unscoped bulk deletes): scoped to music, then DB-wide. Deleted 117
+   dead Music jobs (551→434) and 255 DB-wide (130987→130732). Verified
+   after: all 174 of Music's audit-eligible (non-Adzuna) jobs now show
+   `scraped_at` as of this run - that industry's backlog is fully current
+   for the first time since this whole thing started.
+
+### To watch next session
+- Confirm the new every-6-hours cadence is actually landing real (not just
+  "succeeded"-but-queued) results - check `net._http_response` for this
+  function's response bodies within a few hours of a run (that table only
+  retains ~6hrs, so check promptly), or just re-run a scoped dry run and
+  compare `oldest scraped_at` to see if the DB-wide backlog (still 20 days
+  stale as of this session - only Music got a full real pass) is actually
+  trending down over the following days.
+- Live Nation Workday industry-tagging leak (generic corporate/tech roles
+  landing in `music`) - same class of bug as the `COMPANY_INDUSTRY_MAP`
+  overreach already fixed for grocery/beauty/fashion in `validate-jobs`.
+  Not fixed this session, flagged only.
+- Watch Micro compute headroom over the next few days now that this cron
+  runs 4x more often - the 07-26 entry deliberately deferred a frequency
+  bump pending exactly this check, in light of the 2026-07-22 compute
+  incident.
+
+---
+
 ## 2026-09-07 — Andrew (main branch) — Found and fixed a 5-day silent content-pipeline outage; tightened news freshness
 
 ### What was done THIS SESSION
