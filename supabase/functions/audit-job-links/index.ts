@@ -9,6 +9,8 @@ const corsHeaders = {
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+declare const EdgeRuntime: { waitUntil?: (p: Promise<unknown>) => void } | undefined;
+
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -155,30 +157,10 @@ async function withTimeout<T>(p: (signal: AbortSignal) => Promise<T>, ms: number
   }
 }
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
-
-  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
-  let dryRun = false;
-  let limit = 1000; // per invocation - 4x increase to clear backlog faster
-  let industry: string | null = null; // optional: audit a single industry only
-  try {
-    if (req.method === "POST") {
-      const body = await req.json().catch(() => ({}));
-      dryRun = body?.dryRun === true;
-      if (typeof body?.limit === "number") limit = Math.min(2000, Math.max(1, body.limit));
-      if (typeof body?.industry === "string" && body.industry.trim()) industry = body.industry.trim();
-    } else {
-      const u = new URL(req.url);
-      dryRun = u.searchParams.get("dryRun") === "1";
-      const ql = u.searchParams.get("limit");
-      if (ql) limit = Math.min(2000, Math.max(1, parseInt(ql, 10)));
-      const qi = u.searchParams.get("industry");
-      if (qi && qi.trim()) industry = qi.trim();
-    }
-  } catch (_) {}
-
+async function runAudit(
+  supabase: ReturnType<typeof createClient>,
+  { dryRun, limit, industry }: { dryRun: boolean; limit: number; industry: string | null }
+) {
   // Pre-pass: auto-delete Reed jobs older than 60 days.
   // Reed listing period is 30 days — anything older is expired by design.
   let staleReedDeleted = 0;
@@ -206,28 +188,23 @@ Deno.serve(async (req) => {
   const { data: jobs, error } = await jobsQuery;
 
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return { error: error.message };
   }
 
-  // Wall-clock cap so a run always finishes and persists its writes well
-  // inside the cron's HTTP timeout, instead of getting cut off mid-flight.
-  // The previous cron called this with only a 5s timeout while a full
-  // 1000-2000 job batch at 8x concurrency realistically takes 50-100+
-  // seconds — meaning most nights the connection was killed before the
-  // delete/touch writes below ever ran, so nothing actually rotated. Budget
-  // is checked against wall-clock time, not job count, so a run degrades
-  // gracefully (fewer jobs checked) instead of failing outright if sites are
-  // slow to respond. dryRun gets a much bigger budget since it's a manual
-  // diagnostic call, not something a cron is waiting on.
-  const RUN_BUDGET_MS = dryRun ? 120_000 : 20_000;
+  // Wall-clock cap on the check phase. Real (non-dryRun) runs used to race
+  // the cron's own HTTP timeout (5s originally, then 20s) and get cut off
+  // mid-flight before the delete/touch writes below ever ran — see
+  // SESSION_LOG.md 2026-07-26 and 2026-09-08. Fixed for good by moving real
+  // runs onto the EdgeRuntime.waitUntil background pattern (below) so this
+  // function is no longer racing the caller's connection at all; the budget
+  // here just bounds a single invocation's own runtime. dryRun keeps the
+  // same budget since both are now equally un-rushed.
+  const RUN_BUDGET_MS = 120_000;
   const runStart = Date.now();
 
   const toDelete: { id: string; url: string; reason: string }[] = [];
   const processedIds = new Set<string>();
-  const concurrency = 16;
+  const concurrency = 24;
   let idx = 0;
 
   async function worker() {
@@ -282,18 +259,71 @@ Deno.serve(async (req) => {
   const reasonCounts: Record<string, number> = {};
   for (const d of toDelete) reasonCounts[d.reason] = (reasonCounts[d.reason] ?? 0) + 1;
 
-  return new Response(
-    JSON.stringify({
-      fetched: jobs?.length ?? 0,
-      checked,
-      timedOut: checked < (jobs?.length ?? 0),
-      flagged: toDelete.length,
-      deleted: dryRun ? 0 : deleted,
-      staleReedDeleted,
-      dryRun,
-      reasonCounts,
-      sample: toDelete.slice(0, 20),
-    }),
-    { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-  );
+  return {
+    fetched: jobs?.length ?? 0,
+    checked,
+    timedOut: checked < (jobs?.length ?? 0),
+    flagged: toDelete.length,
+    deleted: dryRun ? 0 : deleted,
+    staleReedDeleted,
+    dryRun,
+    reasonCounts,
+    sample: toDelete.slice(0, 20),
+  };
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+  let dryRun = false;
+  // Per-invocation fetch size. Was capped at 1000-2000 to fit inside the old
+  // 20s real-run budget; now that real runs are backgrounded (not racing an
+  // HTTP timeout) and get the full 120s budget, raise both the default and
+  // the max so a run actually has enough queued work to use the time it has.
+  let limit = 4000;
+  let industry: string | null = null; // optional: audit a single industry only
+  try {
+    if (req.method === "POST") {
+      const body = await req.json().catch(() => ({}));
+      dryRun = body?.dryRun === true;
+      if (typeof body?.limit === "number") limit = Math.min(6000, Math.max(1, body.limit));
+      if (typeof body?.industry === "string" && body.industry.trim()) industry = body.industry.trim();
+    } else {
+      const u = new URL(req.url);
+      dryRun = u.searchParams.get("dryRun") === "1";
+      const ql = u.searchParams.get("limit");
+      if (ql) limit = Math.min(6000, Math.max(1, parseInt(ql, 10)));
+      const qi = u.searchParams.get("industry");
+      if (qi && qi.trim()) industry = qi.trim();
+    }
+  } catch (_) {}
+
+  // dryRun is a manual diagnostic call - the caller is waiting for the
+  // result, so run inline and return it directly.
+  if (dryRun) {
+    const result = await runAudit(supabase, { dryRun, limit, industry });
+    return new Response(JSON.stringify(result), {
+      status: "error" in result ? 500 : 200,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
+  // Real runs (the nightly/scheduled cron) don't need the caller to wait -
+  // background the actual check+delete work and return immediately, so this
+  // function is never at risk of losing its writes to a connection timeout.
+  const work = runAudit(supabase, { dryRun, limit, industry })
+    .then((result) => console.log(`audit-job-links run: ${JSON.stringify(result)}`))
+    .catch((err) => console.error("audit-job-links background run failed:", err));
+
+  if (typeof EdgeRuntime !== "undefined" && (EdgeRuntime as any)?.waitUntil) {
+    (EdgeRuntime as any).waitUntil(work);
+  } else {
+    await work;
+  }
+
+  return new Response(JSON.stringify({ accepted: true }), {
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 });
