@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, type ReactNode } from "react";
+import { useState, useMemo, useEffect, useRef, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowLeft, HeartHandshake } from "lucide-react";
@@ -128,6 +128,16 @@ const IndustryPageLayout = ({
   });
   const [activeTab, setActiveTab] = useState(sortedTabs[0]?.id || "");
   const location = useLocation();
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Tapping a tab swaps content that sits below the tab grid - on mobile that
+  // grid plus the hero often fills the whole screen, so without an explicit
+  // scroll the new content is invisible below the fold and it looks like the
+  // tap did nothing. Scroll it into view every time the active tab changes.
+  const selectTab = (id: string) => {
+    setActiveTab(id);
+    setTimeout(() => contentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  };
 
   // Sync active tab with URL hash (e.g. /fashion#watch)
   useEffect(() => {
@@ -212,7 +222,7 @@ const IndustryPageLayout = ({
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => selectTab(tab.id)}
                   className={`flex flex-col items-center gap-2 px-3 py-4 transition-all border-2 ${
                     isApply
                       ? isActive
@@ -259,6 +269,7 @@ const IndustryPageLayout = ({
 
         {/* Active tab content */}
         <motion.div
+          ref={contentRef}
           key={activeTab}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
