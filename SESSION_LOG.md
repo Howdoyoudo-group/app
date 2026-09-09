@@ -5,6 +5,22 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-10 — Andrew (main branch) — Fixed a broken footwear Watch video, added 4 more
+
+### What was done THIS SESSION
+Andrew asked to check the video in Footwear's Watch tab and add some others. Verified both existing `src/data/industry-videos.ts` footwear entries against YouTube's oembed API (the file's own stated verification method) - "Inside Sneaker Manufacturing in the USA" (`LsJJtP0Sy3M`) came back 403 with an empty page title, confirming it's been removed or made private. Removed it and sourced + verified 4 replacements before adding (each checked via oembed first, same as the existing convention): "How Nike Won" (full documentary), "Inside Clarks Shoe Factory: The Rise and Fall of Britain's Footwear Empire", "Rise and Fall of an Icon: Dr Martens", and "Footwear Designer: Careers Uncovered" - rounding footwear out to 5 clips covering Explainer/Documentary/Behind the Scenes/Careers tags it was previously thin on.
+
+### Commits
+`09c428c` — pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Footwear's Watch tab shows 5 working videos; verified in the dev server that all 5 thumbnails/cards render correctly.
+
+### Left for next session
+Nothing outstanding from this task. Worth noting: no other industry's video list has been re-verified this pass - if Andrew wants, the same oembed-check approach could be run across all industries in `industry-videos.ts` to catch any other links that have gone dead since the file's original verification pass.
+
+---
+
 ## 2026-09-09 — Andrew (main branch) — Fixed industry page tab grid not navigating on mobile
 
 ### What was done THIS SESSION
