@@ -5,6 +5,25 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-09 — Andrew (main branch) — Fixed industry page tab grid not navigating on mobile
+
+### What was done THIS SESSION
+Andrew reported that on mobile, tapping any tile in an industry page's Plan/Watch/Listen/Read/Who/Attend/Learn/Mentor/Jobs 9-box grid looked broken - nothing seemed to happen. Root cause in `src/components/IndustryPageLayout.tsx`: the tap correctly swapped React state and rendered the new tab's content, but nothing ever scrolled to reveal it - the content section sits below the tab grid in the DOM, and on mobile the hero text + grid alone fill the screen, so the new content was there but invisible below the fold. Fixed by scrolling the content section into view (`scrollIntoView({ behavior: "smooth", block: "start" })`, 50ms after the state update) every time a tab is tapped, matching the same pattern already used elsewhere in the app (`MyProfile.tsx`, `Jobs.tsx`, `Marketplace.tsx`). Verified on a mobile viewport in the dev server - tapping "Learn" now visibly scrolls down to the Learn content.
+
+Also spent time earlier in the session on a "how can agents/advisors supplement a low-headcount team" exploration with Andrew (marketing content, sales/partnership outreach, and community/support were all researched in depth) - landed on a plan for an AI-drafted blog/marketing-content tool with a human-approve step, but that plan was not carried through to execution this session (interrupted before build started). The plan is saved at `~/.claude/plans/zany-rolling-dahl.md` if picked back up next session - research found: no blog/CMS exists today (would be built from scratch), but the Gemini structured-output pattern (`generate-spotlight-content`) and the "AI drafts → human edits → explicit Save" UI pattern (`AdminEmployerSpotlight.tsx`) are both directly reusable. Also flagged as a real, separate gap found during that research (not yet actioned): `user_reports` and `contact_enquiries` tables exist with proper schema but **no admin page anywhere reads either one** - user reports and general support requests currently go into tables nobody looks at.
+
+### Commits
+`4acdca9` — pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Industry page tab navigation works correctly on mobile.
+
+### Left for next session
+- The marketing-content-studio plan (blog + AI drafting + admin review) is fully researched and written up, ready to execute if Andrew wants to pick it back up.
+- Worth flagging again: `user_reports` (community moderation) and `contact_enquiries` (general support) have zero admin visibility today - a real gap, not just a nice-to-have.
+
+---
+
 ## 2026-09-08 — Woody (main branch) — Footer socials + finished the audit-job-links throughput fix (Task #13, deferred since 07-26)
 
 ### What was done THIS SESSION
