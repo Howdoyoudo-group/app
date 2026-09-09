@@ -5,6 +5,29 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-10 (later) — Andrew (main branch) — Full audit of every industry's Watch videos
+
+### What was done THIS SESSION
+Following up on the footwear video fix earlier today, Andrew asked for a full audit of `src/data/industry-videos.ts` (every industry's Watch tab) with suggested updates. Extracted all 142 entries (140 unique YouTube IDs) across all 37 industries and batch-checked every one against YouTube's oembed API, then went a step further than a simple pass/fail: cross-checked each stored title/channel against the video's real oembed metadata to catch mislabeling, not just dead links (a crude string-similarity diff flagged 8 candidates, 5 were false positives - just paraphrased/shortened versions of verbose real titles - 3 were genuine problems).
+
+Found and fixed 3 real issues:
+- **charity**: "Careers in Charities & Non-Profits" (`SD-eSy8CJTw`) was dead - 404, empty page title, confirmed removed. Replaced with a working Cambridge University Careers Service video on the same topic.
+- **music**: "Music Law Essentials" was attributed to channel "BAFTA", but the video is actually a personal-channel interview with a practising music attorney (real channel: Peter Barber) - BAFTA never made it. Corrected the title and channel rather than leaving a false attribution live.
+- **wellness**: the "Day in My Life as a Personal Trainer" video's real content turned out to be a generic London lifestyle vlog (eating, gym routine, unspecified "work"), not a dedicated careers piece as labelled. Replaced with a genuine PT day-in-the-life video (Wildcat Fitness UK).
+
+All other 137 entries confirmed live and accurately labelled.
+
+### Commits
+`5324498` — pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Every video across all 37 industries' Watch tabs is confirmed working and accurately labelled as of today.
+
+### Left for next session
+Nothing outstanding from this task. Worth noting for future content adds: the oembed-check-before-adding + title/channel-accuracy-check approach used here is now the established pattern (per the file's own header comment) - worth reusing whenever new videos are added rather than trusting a title typed from memory.
+
+---
+
 ## 2026-09-10 — Andrew (main branch) — Fixed a broken footwear Watch video, added 4 more
 
 ### What was done THIS SESSION
