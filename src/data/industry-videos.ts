@@ -42,7 +42,7 @@ export const industryVideos: Record<string, VideoClip[]> = {
   ],
   charity: [
     { youtubeId: "AYKfdscj5Fs", title: "Fundraising Manager - Career Insights", description: "A fundraising manager shares how they got into the role, the skills needed, and what a typical day looks like.", tag: "Careers", duration: "21:37", channel: "Career Insights" },
-    { youtubeId: "SD-eSy8CJTw", title: "Careers in Charities & Non-Profits - Cambridge Careers", description: "A broad introduction to working in charities: what people love, the challenges, salaries, and skills needed.", tag: "Explainer", duration: "18:40", channel: "Cambridge University Careers Service" },
+    { youtubeId: "b-nW8Ls2bS4", title: "Quick Introduction to Careers in Charities & Development", description: "A short overview of working in the charity and development sector - roles, routes in, and what to expect.", tag: "Explainer", duration: "4:07", channel: "University of Cambridge Careers Service" },
     { youtubeId: "uPk8oLOPvhg", title: "A Day in My Life - The Solan Connor Fawcett Family Cancer Trust", description: "Behind the scenes at a small UK cancer charity - meeting the founder, volunteers, and the emotional reality of front-line work.", tag: "Documentary", duration: "16:18", channel: "Dean Midas Films" },
   ],
   cinema: [
@@ -156,7 +156,7 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "bXDU5E2_VDc", title: "How I Earn Money in the Music Business", description: "A breakdown of royalties, advances, publishing, and how artists actually get paid.", tag: "Explainer", duration: "17:16", channel: "KARRA" },
     { youtubeId: "A6n3GkB5-kU", title: "How to Make It in the New Music Business", description: "Ari Herstand on the modern music industry and building a sustainable career.", tag: "Interview", duration: "1:25:37", channel: "One More Time Podcast" },
     { youtubeId: "nyHMgxzKa6Y", title: "Are Artist Managers More Important Than Record Labels Now?", description: "The shifting power dynamics in the modern music industry.", tag: "Explainer", channel: "YouTube" },
-    { youtubeId: "XnSJwdIoR4k", title: "Music Law Essentials", description: "Key legal concepts for musicians - contracts, rights, publishing, and protecting your work in the music industry.", tag: "Explainer", channel: "BAFTA" },
+    { youtubeId: "XnSJwdIoR4k", title: "Meet a Top Music Attorney - How Music Law Really Works", description: "A practising music attorney explains contracts, rights, and what actually protects an artist's work.", tag: "Interview", channel: "Peter Barber" },
   ],
   pets: [
     { youtubeId: "04WhT1D4bS8", title: "A Day in the Life of a Vet - Working at Cats Protection", description: "Senior vet Emily walks through her rounds at a UK cat centre.", tag: "Careers", duration: "5:50", channel: "Cats Protection" },
@@ -197,7 +197,7 @@ export const industryVideos: Record<string, VideoClip[]> = {
   ],
   wellness: [
     { youtubeId: "nOvCeoD2HYs", title: "How to Start a Wellness Business: Step-by-Step Guide", description: "A practical guide for massage therapists and wellness practitioners.", tag: "Careers", duration: "57:34", channel: "AIM Wellness Education" },
-    { youtubeId: "qJhcehBnzJo", title: "Day in My Life as a Personal Trainer in London", description: "Behind the scenes of training clients, meal prep and the hustle of building a fitness career.", tag: "Careers", duration: "15:22", channel: "Obi Vincent" },
+    { youtubeId: "LLmgWb3YGUo", title: "A Day in the Life of a Personal Trainer", description: "A working London PT walks through a real morning of back-to-back client sessions.", tag: "Careers", duration: "4:29", channel: "Wildcat Fitness" },
   ],
   building: [
     { youtubeId: "6qTM0lbxsLE", title: "A Day in the Life of a Construction Site Manager in the UK", description: "Behind the scenes of a real day on site — from blueprints to big decisions as a construction site manager.", tag: "Careers", channel: "Construction Careers" },
