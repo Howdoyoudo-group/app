@@ -68,7 +68,10 @@ export const industryVideos: Record<string, VideoClip[]> = {
   ],
   footwear: [
     { youtubeId: "73O81rxazoQ", title: "How On Running Shoes Are Taking On Nike and Adidas", description: "The Swiss brand challenging sportswear's biggest names.", tag: "Explainer", duration: "10:29", channel: "CNBC" },
-    { youtubeId: "LsJJtP0Sy3M", title: "Inside Sneaker Manufacturing in the USA", description: "From rough samples to real prototypes - the art and science of making shoes.", tag: "Behind the Scenes", duration: "41:13", channel: "Pete Roberts" },
+    { youtubeId: "FuYtC9kQSgs", title: "How Nike Won - Full Documentary", description: "The sneaker wars of the 1990s and how Nike came to dominate athletic footwear.", tag: "Documentary", duration: "29:28", channel: "NachoAverageFinds" },
+    { youtubeId: "RL2yjkfes60", title: "Inside Clarks Shoe Factory: The Rise and Fall of Britain's Footwear Empire", description: "How a 200-year-old Somerset shoemaker became a British institution - and what happened next.", tag: "Behind the Scenes", duration: "48:16", channel: "Rust Britain" },
+    { youtubeId: "dc33uY0Rwp4", title: "Rise and Fall of an Icon: Dr Martens", description: "From a broken foot and salvaged tyre rubber to a global brand - the Dr Martens story.", tag: "Documentary", duration: "13:52", channel: "Golden Age Britain" },
+    { youtubeId: "hwQblgh2xhQ", title: "Footwear Designer: Careers Uncovered", description: "What a footwear designer actually does day to day, and how to break into the role.", tag: "Careers", duration: "12:19", channel: "RoleCatcher" },
   ],
   "formula-1": [
     { youtubeId: "aDXMoTZX6a0", title: "How F1 Teams Actually Spend $350M a Year", description: "Guenther Steiner breaks down the real expenses of running a Formula 1 team.", tag: "Explainer", duration: "16:34", channel: "Driver61" },
