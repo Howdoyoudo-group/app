@@ -39,6 +39,8 @@ const healthStages: CareerStage[] = [
     { name: "Health Visitor", description: "Specialist community nurse supporting families with children under 5.", salary: "£35k–£48k" },
   ]},
   { title: "Care & Social Care", icon: Heart, roles: [
+    { name: "Healthcare Assistant (HCA)", description: "Hands-on patient care on hospital wards or in the community under a nurse's supervision - no degree needed, the most common route into the NHS.", salary: "£23k–£25k" },
+    { name: "Medical Receptionist / Admin", description: "Front-of-house and admin support at a GP surgery or hospital - booking appointments, records and patient queries.", salary: "£22k–£25k" },
     { name: "Care Worker / Carer", description: "Provides personal, practical and emotional support to older or disabled people at home or in residential care.", salary: "£25k–£26k" },
     { name: "Care Home Manager", description: "Runs a residential or nursing home - staff, regulation, residents and families.", salary: "£30k–£55k" },
     { name: "Live-in Carer", description: "Provides 24/7 in-home support, often as an alternative to residential care.", salary: "£700–£1,100/wk" },

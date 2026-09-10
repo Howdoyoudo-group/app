@@ -26,6 +26,7 @@ import PodcastGrid from "@/components/PodcastGrid";
 
 const moneyStages: CareerStage[] = [
   { title: "Banking", icon: Landmark, roles: [
+    { name: "Customer Service Advisor (Bank)", description: "Branch or contact-centre role helping customers with everyday banking - no degree needed, the most common walk-in route into a bank.", salary: "£21k–£25k" },
     { name: "Retail Banker", description: "Front-line role helping personal customers with current accounts, mortgages and lending.", salary: "£25k–£38k" },
     { name: "Investment Banker", description: "Advises corporates on M&A, IPOs, debt and equity issuance - long hours, big numbers.", salary: "£60k–£150k+" },
     { name: "Relationship Manager", description: "Owns the bank's relationship with SME or corporate clients - credit, treasury, payments.", salary: "£40k–£75k" },
@@ -39,6 +40,7 @@ const moneyStages: CareerStage[] = [
     { name: "ESG Analyst", description: "Assesses the sustainability and governance of companies for impact-aligned investing.", salary: "£40k–£75k" },
   ]},
   { title: "Insurance & Risk", icon: Shield, roles: [
+    { name: "Claims Handler", description: "Processes and progresses customer claims for an insurer - the standard entry point into insurance, no degree required.", salary: "£21k–£26k" },
     { name: "Underwriter", description: "Decides what risks an insurer will take on - Lloyd's of London, life, motor, commercial.", salary: "£35k–£75k" },
     { name: "Actuary", description: "Uses statistics and modelling to price risk and reserve capital - long study path, very well paid.", salary: "£45k–£120k+" },
     { name: "Insurance Broker", description: "Acts for clients to find the best insurance cover - commercial, marine, specialty.", salary: "£30k–£70k" },

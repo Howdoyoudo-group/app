@@ -33,7 +33,8 @@ const physiotherapyStages: CareerStage[] = [
     { name: "Research Physiotherapist", description: "Conducts clinical research to advance evidence-based practice.", salary: "£35k–£55k" },
   ]},
   { title: "NHS & Primary Care", icon: Stethoscope, roles: [
-    { name: "Band 5 Physiotherapist", description: "Newly qualified physiotherapist.", salary: "£29k–£36k" },
+    { name: "Physiotherapy Assistant", description: "Supports qualified physios with exercises, mobility and equipment - no degree needed, a genuine no-experience way into the profession.", salary: "£23k–£25k" },
+    { name: "Band 5 Physiotherapist", description: "Newly qualified physiotherapist (requires a physiotherapy degree).", salary: "£29k–£36k" },
     { name: "Band 6 Specialist", description: "Experienced physiotherapist specialising in MSK, respiratory, or neurology.", salary: "£37k–£44k" },
     { name: "Band 7 Advanced Practitioner", description: "Senior clinician managing complex caseloads.", salary: "£46k–£53k" },
     { name: "Band 8a Clinical Lead", description: "Leads a physiotherapy team or service.", salary: "£53k–£60k" },

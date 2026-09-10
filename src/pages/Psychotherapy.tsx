@@ -34,7 +34,8 @@ const psychotherapyStages: CareerStage[] = [
     { name: "Training Programme Director", description: "Leads a counselling or psychotherapy training programme.", salary: "£50k–£75k" },
   ]},
   { title: "NHS & IAPT", icon: HeartHandshake, roles: [
-    { name: "Psychological Wellbeing Practitioner", description: "Delivers low-intensity CBT interventions.", salary: "£29k–£36k" },
+    { name: "Mental Health Support Worker", description: "Supports patients day-to-day on wards or in the community under supervision - no prior qualification needed, a genuine first step into mental health work.", salary: "£23k–£26k" },
+    { name: "Psychological Wellbeing Practitioner", description: "Delivers low-intensity CBT interventions (NHS-funded training role, requires a degree).", salary: "£29k–£36k" },
     { name: "High Intensity Therapist", description: "Provides one-to-one CBT for moderate to severe conditions.", salary: "£37k–£44k" },
     { name: "Clinical Psychologist", description: "Assesses and treats complex mental health conditions.", salary: "£46k–£60k" },
     { name: "Counselling Psychologist", description: "Works therapeutically using integrative approaches.", salary: "£40k–£55k" },

@@ -34,6 +34,7 @@ const formula1Stages: CareerStage[] = [
     { name: "Simulation Engineer", description: "Builds and runs vehicle dynamics models to predict car behaviour before it hits the track.", salary: "£45k–£85k" },
   ]},
   { title: "Operations & Logistics", icon: TrendingUp, roles: [
+    { name: "Logistics Assistant", description: "Supports freight, travel and equipment moves across the calendar - a genuine junior way into team operations.", salary: "£25k–£32k" },
     { name: "Team Manager", description: "Runs the race team on track - pit-stop coordination, FIA liaison, team logistics.", salary: "£60k–£120k+" },
     { name: "Logistics Manager", description: "Moves cars, equipment and motorhomes across the global calendar - 24 races a year.", salary: "£40k–£70k" },
     { name: "Pit Crew / Mechanic", description: "Builds, strips and services the car in the garage - and executes sub-two-second pit stops.", salary: "£35k–£60k" },
@@ -41,6 +42,7 @@ const formula1Stages: CareerStage[] = [
     { name: "IT / Trackside Systems Engineer", description: "Maintains trackside servers, telemetry links and communication networks at every Grand Prix.", salary: "£40k–£70k" },
   ]},
   { title: "Commercial & Marketing", icon: Briefcase, roles: [
+    { name: "Marketing Assistant", description: "Supports campaigns, social content and race-weekend fan engagement - a real entry point into an F1 team's commercial side.", salary: "£25k–£32k" },
     { name: "Sponsorship Manager", description: "Brings partners into F1 - negotiating title deals, activations and hospitality packages.", salary: "£45k–£90k" },
     { name: "Marketing Manager", description: "Runs brand campaigns, social media and fan engagement across race weekends and beyond.", salary: "£38k–£70k" },
     { name: "Hospitality & Events Coordinator", description: "Delivers Paddock Club and team hospitality at every Grand Prix and partner event.", salary: "£30k–£50k" },
