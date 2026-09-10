@@ -5,6 +5,30 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-11 (later) — Woody (main branch) — Film & TV Learn: linked the 2 missing HDYD Studio courses
+
+### What was done THIS SESSION
+Woody was in HDYD Studio building a "5 courses in Film we rate" series and asked to make sure all 5 are linked in the Film & TV section under Learn. That section is the `/cinema` page → Learn tab → `CoursesSection industry="cinema"`, which reads `coursesByIndustry.cinema` in `src/data/courses.ts`.
+
+Checked the 5 against what was already live: BFI Film Academy, NFTS Short Courses ("Short Courses"), and King's Trust Making It in Media ("Ant & Dec - Making It in Media") were already there. Added the 2 missing:
+- **MAMA Youth Project — Broadcast Media Training** — `https://www.mamayouth.org.uk/` (site 403s to curl GET but is live; HEAD returned 200)
+- **Channel 4 — 4Skills Work Experience** — `https://careers.channel4.com/4skills/work-experience` (matches the URL the Studio generated; the canonical signup is `4skillsworkexperience.com` but the careers.channel4.com page is the info hub)
+
+Also repointed the existing NFTS entry from `nfts.co.uk/short-courses` (200 but redirecting) to its canonical `nfts.co.uk/nfts-short-courses`.
+
+All 5 URLs verified live. Verified in dev server: Film & TV → Learn → Courses now shows 8 cards, both new ones rendering with FREE badges and correct hrefs.
+
+### Commits
+`a2fa14d` — pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Nothing outstanding.
+
+### Note for future
+`coursesByIndustry` is keyed by lowercase industry slug — the Film & TV page uses key `cinema` (not `film`). Same data file also has `coursesByRole` for individual role pages, which was not touched.
+
+---
+
 ## 2026-09-11 (later) — Andrew (main branch) — Small copy fix on Community page
 
 ### What was done THIS SESSION
