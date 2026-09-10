@@ -5,6 +5,32 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-11 (even later) — Andrew (main branch) — Purplebricks scraper fix + Career Map video badges
+
+### What was done THIS SESSION
+Two separate tasks.
+
+**1. Purplebricks scraper showing only 1 job.** Diagnosed via DB query → live Adzuna/Reed API test → code review → isolated timing test → scoped refresh → DB re-check → cross-industry coverage query. Purplebricks itself was fine (its BambooHR-style fetch runs in ~6s for 19 sequential detail fetches, no bug). The real cause is systemic: `fetch-external-jobs`'s cron sweep processes industries in a **static, non-rotating** `[priority, normal, heavy]` order (`orderIndustriesForFairUse()`), and the background-task budget isn't enough to reliably finish all ~34 industries every run - "priority" tier (horse-racing, jewellery, footwear, gaming, interior-design, farming) almost always completes, "normal" tier industries like estate-agency get starved unpredictably. Fixed the immediate symptom by manually triggering a scoped refresh for `estate-agency` (all 19 real Purplebricks jobs landed). Proposed rotating the industry order as the real fix but **Andrew said "Leave for now"** - the systemic scheduling change has NOT been made. Do not implement it unless asked again.
+
+**2. Career Map video badges.** Andrew asked: if a role card in the Plan tab has a direct video match already in that industry's Watch tab, show a video symbol on the card; then source more videos to fill the gaps (explainer / day-in-the-life, matched to the specific role).
+- `VideoClip` (`VideoShowcase.tsx`) gained an optional `roleMatch?: string[]` field. `industry-videos.ts` gained `findRoleVideo(industry, roleName)`, a straight lookup against it.
+- Went through all 34 industries with existing Watch videos and every role name in every `CareerStage` array (~1,167 roles) and tagged every video that is a genuine, specific match for one exact role name (not just "about the industry generally") - 13 industries had one already (17 clips): footwear, interior-design, journalism, money, books, music, theatre, wellness, building, fixing, delivery, horse-racing, politics.
+- `CareerMap.tsx`: role cards compute `findRoleVideo(industry, role.name)` and show a small "Watch" badge (top-right, `Play` icon) when matched. Clicking opens the clip in an inline modal (`youtube-nocookie.com` embed + close button) without leaving the Plan tab - no navigation to the separate Watch tab needed.
+- Part B: sourced and oembed-verified one new role-specific video for every industry that had zero role matches after the audit above - health (Healthcare Assistant), physiotherapy (Physiotherapy Assistant), football (Data Analyst), gaming (QA Tester), formula-1 (Race Engineer), farming (Dairy Farm Manager), charity (Outreach Worker), cars (Breakdown Mechanic/RAC), beauty (Nail Technician), bakery (Pastry Chef), beer (Head Brewer), jewellery (Bench Jeweller), estate-agency (Sales Negotiator), grocery (Store Manager), hospitality (Head Chef), teaching (Classroom Teacher), travel (Cabin Crew), pets (Dog Groomer), influencing (Content Creator), coffee (Production Roaster) - 19 new clips, all verified live via YouTube's oembed API before adding, prioritising official/employer/careers-site channels (Indeed, RAC, TUI Careers, Mercedes-AMG F1) where available. Only `cinema` (which uses its own bespoke `CinemaCareerMap.tsx`, not the shared component) is still untouched - a natural fast-follow if this pattern gets extended there.
+
+### Commits
+`fb4192c` (video badge + matching mechanism), `7836865` (18 gap-filling videos) - pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Verified in the dev server on Footwear (Footwear Designer badge → modal plays correctly, closes correctly, checked on mobile width too) and confirmed via `get_page_text` + real clicks on Health (Healthcare Assistant) and Football (Data Analyst) that badges appear only on the exact matching card, nowhere else. `npm run typecheck` clean throughout.
+
+### Left for next session
+- The declined `fetch-external-jobs` industry-scheduling fix (rotate `orderIndustriesForFairUse()` instead of a static priority/normal/heavy order) remains open but deliberately un-actioned - only revisit if Andrew raises it again.
+- Cinema's Plan tab (`CinemaCareerMap.tsx`) doesn't have the video-badge feature since it's a separate component from the shared `CareerMap.tsx` - low priority, but worth doing if Cinema's Watch tab ever gets role-specific videos.
+- Coffee, tennis and a handful of other industries still have several roles with no video match at all (this session deliberately scoped to "at least one gap filled per industry that had zero," not full coverage of every one of the ~1,150 roles) - more gap-filling is straightforward to continue with the same oembed-verification pattern.
+
+---
+
 ## 2026-09-11 (later) — Woody (main branch) — Film & TV Learn: linked the 2 missing HDYD Studio courses
 
 ### What was done THIS SESSION
