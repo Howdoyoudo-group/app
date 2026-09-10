@@ -829,7 +829,7 @@ const Community = () => {
         <section>
           <SectionHeader
             title="People you should meet"
-            action={<Link to="/community/members" className="text-xs font-semibold inline-flex items-center gap-1" style={{ color: LIME }}>Real directory <ArrowRight className="w-3 h-3" /></Link>}
+            action={<Link to="/community/members" className="text-xs font-semibold inline-flex items-center gap-1" style={{ color: LIME }}>Directory <ArrowRight className="w-3 h-3" /></Link>}
           />
           <div className="flex items-center gap-2 mb-3 flex-wrap">
             <RealTag />
