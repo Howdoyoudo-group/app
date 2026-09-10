@@ -5,6 +5,26 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-11 — Andrew (main branch) — Audited every industry's Career Map for missing entry-level roles
+
+### What was done THIS SESSION
+Andrew reported "no entry level roles in Health." Traced it to `CareerMap.tsx`'s `deriveLevel()`, which infers a role's displayed level purely from the low end of its salary string (<£30k = "Entry level") - there's no explicit qualification/experience field anywhere in the role data. Rather than fix Health alone, extracted and classified all ~1,100 roles across all 36 industry pages' `CareerStage` arrays to find the real pattern.
+
+Most industries are genuinely fine (Bakery, Music, Coffee etc. run 60-85% entry-level). Health was a real outlier at 31% - and worse, every "entry level" role there except Care Worker actually requires a full degree (Registered Nurse, Midwife, Paramedic, Radiographer, Occupational Therapist, Dietitian, Biomedical Scientist all got the tag purely because NHS Band 5 starting pay happens to be under £30k, even though none of them are walk-in accessible). Found the identical mislabeling pattern in Physiotherapy (18%, "Band 5 Physiotherapist" tagged entry despite requiring a physio degree) and Psychotherapy (11%, same shape), plus a straightforwardly thin industry in Money (8% - the lowest of any industry) and Formula 1 (10%).
+
+Fixed all five: added Healthcare Assistant + Medical Receptionist to Health, Physiotherapy Assistant to Physiotherapy, Mental Health Support Worker to Psychotherapy, Customer Service Advisor (Bank) + Claims Handler to Money, and Logistics Assistant + Marketing Assistant to Formula 1 - all genuine no-degree, walk-in-accessible roles in each industry, placed in the most fitting existing `CareerStage`. Left Building/Politics/Travel alone despite lower-than-average ratios - their existing entry-level content (trades, admin/casework roles) checked out as genuinely accessible, just reflecting industries that are naturally more degree/trade-structured.
+
+### Commits
+`7a8fe26` — pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Verified in the dev server: Health's Care & Social Care stage now shows 7 roles (was 5) including Healthcare Assistant and Medical Receptionist; Money's Banking stage shows Customer Service Advisor tagged "Entry Level" correctly.
+
+### Left for next session
+Nothing outstanding from this task. Worth knowing for future content adds to any `CareerStage` array: `deriveLevel()` in `CareerMap.tsx` only looks at salary, so a genuinely degree-gated role that happens to start under £30k will always display as "Entry level" unless a real no-qualification alternative is added alongside it - worth checking when adding new roles to any industry's Plan tab.
+
+---
+
 ## 2026-09-10 (later) — Andrew (main branch) — Full audit of every industry's Watch videos
 
 ### What was done THIS SESSION
