@@ -71,7 +71,7 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "FuYtC9kQSgs", title: "How Nike Won - Full Documentary", description: "The sneaker wars of the 1990s and how Nike came to dominate athletic footwear.", tag: "Documentary", duration: "29:28", channel: "NachoAverageFinds" },
     { youtubeId: "RL2yjkfes60", title: "Inside Clarks Shoe Factory: The Rise and Fall of Britain's Footwear Empire", description: "How a 200-year-old Somerset shoemaker became a British institution - and what happened next.", tag: "Behind the Scenes", duration: "48:16", channel: "Rust Britain" },
     { youtubeId: "dc33uY0Rwp4", title: "Rise and Fall of an Icon: Dr Martens", description: "From a broken foot and salvaged tyre rubber to a global brand - the Dr Martens story.", tag: "Documentary", duration: "13:52", channel: "Golden Age Britain" },
-    { youtubeId: "hwQblgh2xhQ", title: "Footwear Designer: Careers Uncovered", description: "What a footwear designer actually does day to day, and how to break into the role.", tag: "Careers", duration: "12:19", channel: "RoleCatcher" },
+    { youtubeId: "hwQblgh2xhQ", title: "Footwear Designer: Careers Uncovered", description: "What a footwear designer actually does day to day, and how to break into the role.", tag: "Careers", duration: "12:19", channel: "RoleCatcher", roleMatch: ["Footwear Designer"] },
   ],
   "formula-1": [
     { youtubeId: "aDXMoTZX6a0", title: "How F1 Teams Actually Spend $350M a Year", description: "Guenther Steiner breaks down the real expenses of running a Formula 1 team.", tag: "Explainer", duration: "16:34", channel: "Driver61" },
@@ -98,7 +98,7 @@ export const industryVideos: Record<string, VideoClip[]> = {
   "horse-racing": [
     { youtubeId: "47BPprbt0KE", title: "Jockeys: The Podcast - David Egan on Racing Life", description: "David Egan on working for Amo Racing, poker, and life as a professional jockey.", tag: "Interview", duration: "45:34", channel: "Racing TV" },
     { youtubeId: "mGyzGYk81KU", title: "The Fight for a Multi-Billion Sports Empire", description: "The staggering numbers behind Cheltenham, the governance battle threatening British racing, and what needs to change.", tag: "Documentary", duration: "29:29", channel: "Business of Sport" },
-    { youtubeId: "103-Rx3N5fk", title: "A Day in the Life of a Jockey - Jonjo O'Neill Jr.", description: "Betfred follows a professional jump jockey through a full working day - from early morning riding out to race day.", tag: "Careers", duration: "11:16", channel: "Betfred" },
+    { youtubeId: "103-Rx3N5fk", title: "A Day in the Life of a Jockey - Jonjo O'Neill Jr.", description: "Betfred follows a professional jump jockey through a full working day - from early morning riding out to race day.", tag: "Careers", duration: "11:16", channel: "Betfred", roleMatch: ["Jockey (Flat / Jump)"] },
     { youtubeId: "oGKlmkMvwxI", title: "Racing Unfiltered - Every Detail Matters", description: "Racing Post goes behind the scenes in a Lambourn yard to show the precision and welfare focus of modern racehorse training.", tag: "Behind the Scenes", duration: "5:21", channel: "Racing Post" },
   ],
   hospitality: [
@@ -114,9 +114,9 @@ export const industryVideos: Record<string, VideoClip[]> = {
   "interior-design": [
     { youtubeId: "S8t0O9WlwyY", title: "The Rise of Everyday Design: The Arts and Crafts Movement", description: "How the Arts and Crafts movement shaped British design and interiors.", tag: "Documentary", channel: "YouTube" },
     { youtubeId: "5f7fHHEr_NA", title: "Abstract: The Art of Design - Ilse Crawford: Interior Design", description: "Netflix's full episode on British designer Ilse Crawford - how she designs spaces that put human wellbeing first.", tag: "Documentary", duration: "41:54", channel: "Netflix" },
-    { youtubeId: "wXNkzgxc4ck", title: "Behind the Scenes in the Life of an Interior Designer", description: "Sophie Paterson shows the reality of running a luxury interiors practice - client meetings, site visits, and sourcing.", tag: "Careers", duration: "15:07", channel: "Sophie Paterson" },
-    { youtubeId: "vcJLa01WFVc", title: "Life as an Interior Designer Based in London", description: "A London-based luxury designer shares site visits, fabric selections, and how she broke into the industry.", tag: "Careers", duration: "21:39", channel: "Jordan Anais" },
-    { youtubeId: "q5ptHEY0I64", title: "A Day in My Life - Top 50 UK Interior Designer", description: "Noor Charchafchi walks through a typical working day as one of the UK's top-rated interior designers.", tag: "Careers", duration: "10:43", channel: "Celine Interior Design" },
+    { youtubeId: "wXNkzgxc4ck", title: "Behind the Scenes in the Life of an Interior Designer", description: "Sophie Paterson shows the reality of running a luxury interiors practice - client meetings, site visits, and sourcing.", tag: "Careers", duration: "15:07", channel: "Sophie Paterson", roleMatch: ["Interior Designer"] },
+    { youtubeId: "vcJLa01WFVc", title: "Life as an Interior Designer Based in London", description: "A London-based luxury designer shares site visits, fabric selections, and how she broke into the industry.", tag: "Careers", duration: "21:39", channel: "Jordan Anais", roleMatch: ["Interior Designer"] },
+    { youtubeId: "q5ptHEY0I64", title: "A Day in My Life - Top 50 UK Interior Designer", description: "Noor Charchafchi walks through a typical working day as one of the UK's top-rated interior designers.", tag: "Careers", duration: "10:43", channel: "Celine Interior Design", roleMatch: ["Interior Designer"] },
     { youtubeId: "J5Syn87YuVs", title: "A Day with Sophie & Her Team - Interior Design Studio", description: "Inside a busy UK design studio - how a team collaborates on high-end residential projects.", tag: "Behind the Scenes", duration: "15:12", channel: "Sophie Paterson" },
     { youtubeId: "UyhjNdVa280", title: "The Secrets to Starting a Successful Interior Design Business", description: "Practical advice on launching and growing an interior design practice - pricing, clients, and positioning.", tag: "Explainer", duration: "25:54", channel: "IntoDesign" },
   ],
@@ -128,34 +128,33 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "-BpSoeGFxo4", title: "How Jeff Bezos Broke The Washington Post", description: "The Atlantic investigates what went wrong at one of America's most storied newsrooms - layoffs, leadership, and the business of news.", tag: "Documentary", duration: "31:21", channel: "The Atlantic" },
     { youtubeId: "fd4tnA7osX4", title: "Digital News Report 2025: What You Need to Know", description: "Reuters Institute authors discuss the state of news media - AI, trust, subscriptions, news avoidance, and podcasts.", tag: "Explainer", duration: "34:27", channel: "Reuters Institute" },
     { youtubeId: "0rKDo3hKbVk", title: "The Internet Didn't Fail. It Was Taken.", description: "Johnny Harris on how the internet reshaped journalism - algorithms, independent media, and the future of news.", tag: "Explainer", duration: "13:02", channel: "Johnny Harris" },
-    { youtubeId: "HrU-Zi7TRi4", title: "Behind the Scenes as a TV News Reporter", description: "Come to work with a TV news reporter for a day - from the morning meeting to going live on air.", tag: "Careers", channel: "YouTube" },
+    { youtubeId: "HrU-Zi7TRi4", title: "Behind the Scenes as a TV News Reporter", description: "Come to work with a TV news reporter for a day - from the morning meeting to going live on air.", tag: "Careers", channel: "YouTube", roleMatch: ["News Reporter"] },
     { youtubeId: "chBDvqyinT8", title: "What Does an NBC News Field Producer Do?", description: "A field producer explains the behind-the-scenes logistics of getting a news story on air.", tag: "Careers", duration: "7:37", channel: "NBCU Academy" },
     { youtubeId: "6F0g4N415uw", title: "Media Institution - Crash Course Government & Politics", description: "A fast-paced overview of how the media industry works - print, broadcast, social, and the economics of news.", tag: "Explainer", duration: "8:44", channel: "CrashCourse" },
     { youtubeId: "HGrE_hETgTA", title: "A Day in the Life of a Multimedia Journalist", description: "A working TV journalist walks through a full day - shooting, editing, and filing packages on deadline.", tag: "Careers", duration: "8:44", channel: "Julian Kolsut" },
   ],
   money: [
-    { youtubeId: "zHcgMgjiRb8", title: "Realistic Day in My Life as an Investment Banker in London", description: "A 16-hour day in the life of a London investment banker.", tag: "Careers", channel: "YouTube" },
+    { youtubeId: "zHcgMgjiRb8", title: "Realistic Day in My Life as an Investment Banker in London", description: "A 16-hour day in the life of a London investment banker.", tag: "Careers", channel: "YouTube", roleMatch: ["Investment Banker"] },
     { youtubeId: "s6k7EDNVdZQ", title: "A Day in the Life: Working at an Investment Bank", description: "Plus a practical guide to getting into investment banking.", tag: "Careers", duration: "18:12", channel: "Dean Edward" },
-    { youtubeId: "L-TCjokRfWY", title: "What Auditors Actually Do - Junior Auditor Day-to-Day", description: "A Big Four auditor explains the real day-to-day work at EY, KPMG, PwC and Deloitte - graduate advice included.", tag: "Careers", duration: "9:57", channel: "Devamsha" },
+    { youtubeId: "L-TCjokRfWY", title: "What Auditors Actually Do - Junior Auditor Day-to-Day", description: "A Big Four auditor explains the real day-to-day work at EY, KPMG, PwC and Deloitte - graduate advice included.", tag: "Careers", duration: "9:57", channel: "Devamsha", roleMatch: ["Auditor"] },
     { youtubeId: "0s7HdgvSgf0", title: "Day in the Life: Working in London as a Qualified Accountant", description: "A UK-qualified accountant walks through a typical working day in London - from commute to close.", tag: "Careers", duration: "7:29", channel: "Poppy Dontree" },
-    
     { youtubeId: "Wi8wNWdkdiY", title: "What Do Big 4 Consultants Actually Do?", description: "A clear breakdown of consulting roles at Deloitte, PwC, EY and KPMG - what the work looks like day to day.", tag: "Explainer", duration: "11:16", channel: "My Consulting Offer" },
     { youtubeId: "qjXgpJpSlCc", title: "Insurance Explained - How Do Insurance Companies Make Money?", description: "The Infographics Show breaks down the business model behind insurance - premiums, risk pools, and profit.", tag: "Explainer", duration: "6:57", channel: "The Infographics Show" },
     { youtubeId: "fZ-R1TQDf-E", title: "How the Lloyd's of London Market Works", description: "Lloyd's own explainer on how risk is placed in the world's leading specialist insurance market.", tag: "Explainer", duration: "1:52", channel: "Lloyd's of London" },
-    { youtubeId: "GNXyX1pvfy4", title: "What Does an Insurance Broker Do? Breaking Into the Industry", description: "Tips and insights on how to start a career in insurance broking.", tag: "Careers", channel: "YouTube" },
+    { youtubeId: "GNXyX1pvfy4", title: "What Does an Insurance Broker Do? Breaking Into the Industry", description: "Tips and insights on how to start a career in insurance broking.", tag: "Careers", channel: "YouTube", roleMatch: ["Insurance Broker"] },
   ],
   books: [
     { youtubeId: "sWeMjVkhhQE", title: "What Does a Book Editor Do?", description: "A look inside the day-to-day of a book editor at one of the UK's biggest publishers.", tag: "Careers", channel: "Penguin Random House UK" },
-    { youtubeId: "uCsZmeydAiI", title: "Come to Work With Me... Literary Agent Edition!", description: "A day in the life of a literary agent, from submissions to deal-making.", tag: "Careers", channel: "Publishers Association" },
-    { youtubeId: "Vb0gsH12hdk", title: "Getting a Job in Publishing - What Does a Literary Agent Do?", description: "Breaking down the literary agent role and how to get into publishing.", tag: "Explainer", channel: "Epic Reads" },
-    { youtubeId: "2jotS_0evWM", title: "A Day in the Life of... a Waterstones Bookseller!", description: "A shift on the shop floor at Waterstones Nuneaton - what bookselling actually involves day to day.", tag: "Careers", channel: "Publishers Association" },
+    { youtubeId: "uCsZmeydAiI", title: "Come to Work With Me... Literary Agent Edition!", description: "A day in the life of a literary agent, from submissions to deal-making.", tag: "Careers", channel: "Publishers Association", roleMatch: ["Literary Agent (Junior)"] },
+    { youtubeId: "Vb0gsH12hdk", title: "Getting a Job in Publishing - What Does a Literary Agent Do?", description: "Breaking down the literary agent role and how to get into publishing.", tag: "Explainer", channel: "Epic Reads", roleMatch: ["Literary Agent (Junior)"] },
+    { youtubeId: "2jotS_0evWM", title: "A Day in the Life of... a Waterstones Bookseller!", description: "A shift on the shop floor at Waterstones Nuneaton - what bookselling actually involves day to day.", tag: "Careers", channel: "Publishers Association", roleMatch: ["Bookseller"] },
     { youtubeId: "R6DSbf13iio", title: "How to Become a Book Editor at Penguin Random House", description: "A working editor on how she broke into publishing and what the job really involves.", tag: "Careers", channel: "Alyssa Matesic" },
   ],
   music: [
     { youtubeId: "Nb8idwwX4Yo", title: "How Do You Do, Music?", description: "Our own podcast — going inside the music industry with the people who live it: the paths in, the graft, and how it really works.", tag: "Podcast", channel: "How Do You Do?" },
     { youtubeId: "bXDU5E2_VDc", title: "How I Earn Money in the Music Business", description: "A breakdown of royalties, advances, publishing, and how artists actually get paid.", tag: "Explainer", duration: "17:16", channel: "KARRA" },
     { youtubeId: "A6n3GkB5-kU", title: "How to Make It in the New Music Business", description: "Ari Herstand on the modern music industry and building a sustainable career.", tag: "Interview", duration: "1:25:37", channel: "One More Time Podcast" },
-    { youtubeId: "nyHMgxzKa6Y", title: "Are Artist Managers More Important Than Record Labels Now?", description: "The shifting power dynamics in the modern music industry.", tag: "Explainer", channel: "YouTube" },
+    { youtubeId: "nyHMgxzKa6Y", title: "Are Artist Managers More Important Than Record Labels Now?", description: "The shifting power dynamics in the modern music industry.", tag: "Explainer", channel: "YouTube", roleMatch: ["Artist Manager"] },
     { youtubeId: "XnSJwdIoR4k", title: "Meet a Top Music Attorney - How Music Law Really Works", description: "A practising music attorney explains contracts, rights, and what actually protects an artist's work.", tag: "Interview", channel: "Peter Barber" },
   ],
   pets: [
@@ -185,7 +184,7 @@ export const industryVideos: Record<string, VideoClip[]> = {
   theatre: [
     { youtubeId: "oBV8pqN4MFs", title: "Welcome to the National Theatre", description: "A look behind the scenes at the National Theatre, and who it takes to make a production for one of its three stages.", tag: "Explainer", duration: "3:48", channel: "National Theatre" },
     { youtubeId: "Cp6mXLWGF_w", title: "Backstage at the National Theatre in the hour before a play begins", description: "The hour before actors go on stage is a performance in and of itself - a real-time look at backstage life.", tag: "Documentary", duration: "30:25", channel: "Aeon Video" },
-    { youtubeId: "fFqBJ0RsjX8", title: "Behind the Scenes of a West End Production - Deputy Stage Manager (DSM)", description: "A working DSM shows the technical side of calling a West End show - lighting, flies, sound, MD, pyros and SFX.", tag: "Careers", channel: "Rebs Tries It" },
+    { youtubeId: "fFqBJ0RsjX8", title: "Behind the Scenes of a West End Production - Deputy Stage Manager (DSM)", description: "A working DSM shows the technical side of calling a West End show - lighting, flies, sound, MD, pyros and SFX.", tag: "Careers", channel: "Rebs Tries It", roleMatch: ["Deputy Stage Manager (DSM)"] },
     { youtubeId: "x0OIw29TyFw", title: "Behind the scenes at Disney's Frozen in the West End", description: "The hard work, dedication and skill of the many people who brought Arendelle to life on a West End stage.", tag: "Documentary", channel: "OfficialLondonTheatre" },
     { youtubeId: "V4bMY3Icme4", title: "My RADA: BA (Hons) in Acting the audition", description: "The UK's most prestigious drama school on what it's actually training actors, stage managers and technical specialists for.", tag: "Careers", channel: "RADA" },
     { youtubeId: "2GNFkxNj8m8", title: "Acting Headshots (Do's and Don'ts, How To Find Photographers, What to Wear)", description: "The practical first step for any aspiring performer - how to find a photographer, what to wear, and what casting directors actually want to see.", tag: "Careers", channel: "Makayla Lysiak" },
@@ -197,19 +196,19 @@ export const industryVideos: Record<string, VideoClip[]> = {
   ],
   wellness: [
     { youtubeId: "nOvCeoD2HYs", title: "How to Start a Wellness Business: Step-by-Step Guide", description: "A practical guide for massage therapists and wellness practitioners.", tag: "Careers", duration: "57:34", channel: "AIM Wellness Education" },
-    { youtubeId: "LLmgWb3YGUo", title: "A Day in the Life of a Personal Trainer", description: "A working London PT walks through a real morning of back-to-back client sessions.", tag: "Careers", duration: "4:29", channel: "Wildcat Fitness" },
+    { youtubeId: "LLmgWb3YGUo", title: "A Day in the Life of a Personal Trainer", description: "A working London PT walks through a real morning of back-to-back client sessions.", tag: "Careers", duration: "4:29", channel: "Wildcat Fitness", roleMatch: ["Personal Trainer"] },
   ],
   building: [
-    { youtubeId: "6qTM0lbxsLE", title: "A Day in the Life of a Construction Site Manager in the UK", description: "Behind the scenes of a real day on site — from blueprints to big decisions as a construction site manager.", tag: "Careers", channel: "Construction Careers" },
-    { youtubeId: "qvRql-LV2Ow", title: "How Much Does a Quantity Surveyor Earn? (2025)", description: "Salary expectations at every level of quantity surveying — from apprentice to senior QS.", tag: "Careers", channel: "QS Careers" },
-    { youtubeId: "S52vWPdkWwQ", title: "Quantity Surveyor vs Building Surveyor — Which Career?", description: "The key differences between QS and building surveying roles and which path might suit you.", tag: "Explainer", channel: "Construction Careers" },
-    { youtubeId: "sQxea9eTW-w", title: "Should You Become a Quantity Surveyor?", description: "An honest look at the pros and cons of a career in quantity surveying in the UK.", tag: "Interview", channel: "QS Careers" },
+    { youtubeId: "6qTM0lbxsLE", title: "A Day in the Life of a Construction Site Manager in the UK", description: "Behind the scenes of a real day on site — from blueprints to big decisions as a construction site manager.", tag: "Careers", channel: "Construction Careers", roleMatch: ["Site Manager"] },
+    { youtubeId: "qvRql-LV2Ow", title: "How Much Does a Quantity Surveyor Earn? (2025)", description: "Salary expectations at every level of quantity surveying — from apprentice to senior QS.", tag: "Careers", channel: "QS Careers", roleMatch: ["Quantity Surveyor"] },
+    { youtubeId: "S52vWPdkWwQ", title: "Quantity Surveyor vs Building Surveyor — Which Career?", description: "The key differences between QS and building surveying roles and which path might suit you.", tag: "Explainer", channel: "Construction Careers", roleMatch: ["Quantity Surveyor", "Building Surveyor"] },
+    { youtubeId: "sQxea9eTW-w", title: "Should You Become a Quantity Surveyor?", description: "An honest look at the pros and cons of a career in quantity surveying in the UK.", tag: "Interview", channel: "QS Careers", roleMatch: ["Quantity Surveyor"] },
   ],
   fixing: [
-    { youtubeId: "zwTOIYRBB9I", title: "How to Become an Electrician in the UK (2025 Guide)", description: "A comprehensive walkthrough of every route into electrical work — apprenticeships, qualifications, and earnings.", tag: "Careers", channel: "Learn Trade Skills" },
-    { youtubeId: "mXVFWifyEvU", title: "A Day in the Life of an Electrician UK", description: "What a real working day looks like for a UK electrician — jobs, customers, and the trade lifestyle.", tag: "Careers", channel: "Trade Life" },
-    { youtubeId: "ErUkdNkKmzo", title: "Day in the Life of a UK Plumber", description: "A self-employed UK plumber walks through a typical working day including an oil boiler replacement.", tag: "Careers", channel: "The Trades Guy" },
-    { youtubeId: "yqSgI4dfT8w", title: "Is Being an Electrician Worth It in 2025?", description: "Honest take on the earnings, lifestyle, and career prospects of being an electrician in the UK right now.", tag: "Explainer", channel: "Trades Career" },
+    { youtubeId: "zwTOIYRBB9I", title: "How to Become an Electrician in the UK (2025 Guide)", description: "A comprehensive walkthrough of every route into electrical work — apprenticeships, qualifications, and earnings.", tag: "Careers", channel: "Learn Trade Skills", roleMatch: ["Electrician"] },
+    { youtubeId: "mXVFWifyEvU", title: "A Day in the Life of an Electrician UK", description: "What a real working day looks like for a UK electrician — jobs, customers, and the trade lifestyle.", tag: "Careers", channel: "Trade Life", roleMatch: ["Electrician"] },
+    { youtubeId: "ErUkdNkKmzo", title: "Day in the Life of a UK Plumber", description: "A self-employed UK plumber walks through a typical working day including an oil boiler replacement.", tag: "Careers", channel: "The Trades Guy", roleMatch: ["Plumber"] },
+    { youtubeId: "yqSgI4dfT8w", title: "Is Being an Electrician Worth It in 2025?", description: "Honest take on the earnings, lifestyle, and career prospects of being an electrician in the UK right now.", tag: "Explainer", channel: "Trades Career", roleMatch: ["Electrician"] },
   ],
   tennis: [
     { youtubeId: "MR9xgDoN_uQ", title: "How Much Money I Lost Playing 1 Season of Pro Tennis", description: "A top-300 player breaks down the real economics of life on tour — travel costs, prize money, coaching fees, and what it actually takes to survive as a pro.", tag: "Explainer", channel: "YouTube" },
@@ -218,9 +217,13 @@ export const industryVideos: Record<string, VideoClip[]> = {
     { youtubeId: "p0DgmkI2FiE", title: "The Biggest Secret in Tennis — The Tour: A Reality Show", description: "ATP Tour's own documentary series pulling back the curtain on the business, politics, and human stories behind men's professional tennis.", tag: "Documentary", channel: "ATP Tour" },
   ],
   delivery: [
-    { youtubeId: "AJbnSPvIQjE", title: "A Full Day in the Life of an HGV Driver | Amazon UK", description: "Class 1 HGV driving for Amazon UK — the early starts, long hauls, and realities of life on the road.", tag: "Careers", channel: "UK Drivers Guide" },
+    { youtubeId: "AJbnSPvIQjE", title: "A Full Day in the Life of an HGV Driver | Amazon UK", description: "Class 1 HGV driving for Amazon UK — the early starts, long hauls, and realities of life on the road.", tag: "Careers", channel: "UK Drivers Guide", roleMatch: ["HGV Driver"] },
     { youtubeId: "jLGQUVLa8vA", title: "A Day in the Life of a UK HGV Lorry Driver", description: "Behind the wheel of an HGV — what the job really involves, day to day in the UK.", tag: "Careers", channel: "HGV Life" },
     { youtubeId: "XJqsdprXF5c", title: "Inside Ocado's Distribution Warehouse | WIRED", description: "How the world's most automated online grocery warehouse operates — robots, conveyor systems, and 65,000 orders a week.", tag: "Documentary", channel: "WIRED" },
     { youtubeId: "4DKrcpa8Z_E", title: "Inside the Warehouse Where Thousands of Robots Pack Groceries", description: "A deep dive into the technology and careers powering Britain's most advanced fulfilment operation.", tag: "Documentary", channel: "Business Insider" },
   ],
 };
+
+/** Find a clip in an industry's Watch tab that's a direct match for a specific Career Map role, if one exists. */
+export const findRoleVideo = (industry: string, roleName: string): VideoClip | undefined =>
+  industryVideos[industry]?.find((clip) => clip.roleMatch?.includes(roleName));

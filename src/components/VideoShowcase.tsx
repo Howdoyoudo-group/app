@@ -14,6 +14,8 @@ export interface VideoClip {
   duration?: string;
   /** Channel / creator name */
   channel?: string;
+  /** Exact Career Map role name(s) this clip is a direct match for (e.g. an explainer/day-in-the-life about that specific job) */
+  roleMatch?: string[];
 }
 
 export interface VideoShowcaseProps {

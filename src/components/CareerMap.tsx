@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, PoundSterling, Briefcase, Target, Check, ArrowUpRight, ExternalLink, Loader2, Star } from "lucide-react";
+import { ChevronRight, PoundSterling, Briefcase, Target, Check, ArrowUpRight, ExternalLink, Loader2, Star, Play, X } from "lucide-react";
 import { resolveCareerMapRoleSlug, resolveNcsCatalogMatch, type NcsCatalogEntry, type NcsMatch } from "@/data/career-map-role-resolver";
 import { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { trackInteraction } from "@/hooks/useTrackInteraction";
 import { getStageImage } from "@/data/career-stage-images";
 import { useTargetRoles } from "@/hooks/useTargetRoles";
+import { findRoleVideo } from "@/data/industry-videos";
+import type { VideoClip } from "@/components/VideoShowcase";
 
 export interface RoleDetail {
   name: string;
@@ -78,6 +80,7 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showSwipeHint, setShowSwipeHint] = useState(true);
   const [ncsCatalog, setNcsCatalog] = useState<NcsCatalogEntry[]>([]);
+  const [activeVideo, setActiveVideo] = useState<VideoClip | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -347,6 +350,7 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
                   const isSaved = targetRoles.includes(role.name);
                   const roleSlug = resolveCareerMapRoleSlug(role.name, industry);
                   const ncsMatch = roleSlug === null ? resolveNcsCatalogMatch(role.name, ncsCatalog, industry) : null;
+                  const video = findRoleVideo(industry, role.name);
 
                   return (
                     <CareerMapRoleCard
@@ -361,6 +365,8 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
                       industry={industry}
                       toggleTargetRole={toggleTargetRole}
                       isActiveRole={roleSlug !== null && activeRoles.some((r) => r.slug === roleSlug)}
+                      video={video}
+                      onWatchVideo={setActiveVideo}
                     />
                   );
                 })}
@@ -405,6 +411,47 @@ const CareerMap = ({ title, subtitle, stages, industry }: CareerMapProps) => {
           </p>
         </motion.div>
       )}
+
+      {/* Role video modal */}
+      <AnimatePresence>
+        {activeVideo && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-foreground/90 flex items-center justify-center p-4"
+            onClick={() => setActiveVideo(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              className="relative w-full max-w-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-full aspect-video bg-black">
+                <iframe
+                  src={`https://www.youtube-nocookie.com/embed/${activeVideo.youtubeId}?autoplay=1&rel=0`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                  title={activeVideo.title}
+                />
+              </div>
+              <div className="flex items-start justify-between gap-3 pt-3">
+                <p className="font-display font-700 text-background text-sm leading-tight">{activeVideo.title}</p>
+                <button
+                  onClick={() => setActiveVideo(null)}
+                  className="shrink-0 text-background/70 hover:text-background transition-colors"
+                  aria-label="Close video"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };
@@ -420,6 +467,8 @@ interface CareerMapRoleCardProps {
   industry: string;
   toggleTargetRole: (name: string, roleSlug?: string | null) => void;
   isActiveRole: boolean;
+  video?: VideoClip;
+  onWatchVideo: (video: VideoClip) => void;
 }
 
 interface NcsFacts {
@@ -430,7 +479,7 @@ interface NcsFacts {
 const stripBullet = (s: string) => s.replace(/^\s*[-*]\s*/, "");
 
 const CareerMapRoleCard = ({
-  role, ri, level, isSaved, savingRole, roleSlug, ncsMatch, industry, toggleTargetRole, isActiveRole,
+  role, ri, level, isSaved, savingRole, roleSlug, ncsMatch, industry, toggleTargetRole, isActiveRole, video, onWatchVideo,
 }: CareerMapRoleCardProps) => {
   const [expanded, setExpanded] = useState(false);
   const [longDesc, setLongDesc] = useState<string | null>(null);
@@ -495,7 +544,18 @@ const CareerMapRoleCard = ({
       transition={{ duration: 0.3, delay: ri * 0.04 }}
       className="snap-start shrink-0 w-[260px] md:w-[280px]"
     >
-      <div className="h-full border-2 border-border hover:border-primary/40 transition-all flex flex-col">
+      <div className="h-full border-2 border-border hover:border-primary/40 transition-all flex flex-col relative">
+        {video && (
+          <button
+            type="button"
+            onClick={() => onWatchVideo(video)}
+            className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 bg-foreground/85 text-background text-[10px] font-display font-700 uppercase tracking-wide px-2 py-1 hover:bg-primary transition-colors"
+            title={`Watch: ${video.title}`}
+          >
+            <Play className="w-3 h-3" fill="currentColor" />
+            Watch
+          </button>
+        )}
         <div className="h-1.5 bg-primary/20" />
         <div className="p-4 flex flex-col flex-1">
           <h4 className="font-display font-700 text-base text-foreground mb-2 leading-tight">
