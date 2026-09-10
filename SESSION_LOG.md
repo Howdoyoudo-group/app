@@ -5,6 +5,22 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-11 (later) — Andrew (main branch) — Small copy fix on Community page
+
+### What was done THIS SESSION
+Andrew asked to remove the word "Real" from the Community page's "People You Should Meet" section - the section's action link read "Real directory", changed to just "Directory". Left the `RealTag`/`DummyTag` badges on individual member cards alone (a different, more structural real-vs-placeholder distinction) since only the one link text was flagged.
+
+### Commits
+`6e3b2e7` — pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Verified in the dev server.
+
+### Left for next session
+Nothing outstanding from this task.
+
+---
+
 ## 2026-09-11 — Andrew (main branch) — Audited every industry's Career Map for missing entry-level roles
 
 ### What was done THIS SESSION
