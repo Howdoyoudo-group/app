@@ -5,6 +5,28 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-11 (latest) — Andrew (main branch) — Video coverage push to 40% + role-page mobile tab fix
+
+### What was done THIS SESSION
+Andrew asked "how many of the 1500 roles have videos?" — answer was 60/1167 (5.1%) — then asked to push coverage "much higher, as many as possible."
+
+**Video coverage.** Split the 35 shared-CareerMap industries into 6 groups (~180 unmatched roles each) and ran parallel research agents, each sourcing + oembed-verifying real day-in-the-life/explainer videos for as many roles as genuinely have content available, favouring official employer/NHS/professional-body channels (same bar as earlier in the session: no forcing a match onto niche back-office roles with no real dedicated video). Wrote a merge script (`/tmp/merge_videos.py`, not committed - scratch only) that cross-validates every proposed `roleMatch` against the live `CareerStage` role list scraped fresh from the actual page files, merges into an existing clip if the same YouTube ID was already present, and otherwise appends a new entry - 0 role-name mismatches out of 408 new clips. Spot-verified a random sample of 25 of the new IDs via oembed post-merge, all live. **Coverage: 60/1167 (5%) → 471/1167 (40%).** Health alone is now 23/31 (74%).
+
+**Role-page mobile tab fix.** Mid-task, Andrew flagged that the mobile fix for industry pages (tapping one of the 9 PLAN/WATCH/etc. squares scrolls the newly-revealed content into view, since otherwise it's invisible below the fold and looks like tapping does nothing) needed replicating on individual role pages, which also have a tab grid. Found `RolePageLayout.tsx` (used by `src/pages/roles/RoleGeneric.tsx`, route `/roles/:slug`) is a separate one-off copy of `IndustryPageLayout.tsx`'s tab grid that never got the same fix — its tab buttons called `setActiveTab` directly with no scroll and no `contentRef`. Replicated the exact working pattern: added `contentRef`, a `selectTab()` wrapper (`setActiveTab` + `setTimeout(() => contentRef.current?.scrollIntoView(...), 50)`), and wired it into the tab button's `onClick` in place of the direct call.
+
+### Commits
+`32af51c` — pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Verified in dev server: Football's Academy Coach/Sports Scientist/Academy Scout/Safeguarding Officer cards all show the Watch badge correctly (and non-matching cards don't). On `/roles/academy-coach` at mobile width, tapping WATCH now scrolls the page down to reveal the Watch section instead of leaving it below the fold. `npm run typecheck` clean throughout.
+
+### Left for next session
+- Video coverage is 40%, not 100% — many of the remaining ~700 roles are genuinely niche back-office/corporate titles (e.g. "Trade Marketing Manager", "Regulatory Affairs Specialist") that don't have dedicated day-in-the-life content on YouTube; a further pass would have diminishing returns but is possible with the same pattern if Andrew wants to keep pushing it.
+- Cinema's Plan tab (`CinemaCareerMap.tsx`) still doesn't have the video-badge feature at all (separate component from the shared `CareerMap.tsx`).
+- Coffee (7/42), charity (5/41), and cars (9/38) are the lowest-coverage industries relative to their size — worth prioritising first if continuing.
+
+---
+
 ## 2026-09-11 (yet later) — Andrew (main branch) — Second pass on Career Map video matching
 
 ### What was done THIS SESSION
