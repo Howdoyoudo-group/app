@@ -1101,11 +1101,13 @@ const Marketplace = ({ embedded = false }: { embedded?: boolean } = {}) => {
     }, { replace: true });
   }, [setSearchParams]);
 
-  // Sync filters with URL params so role/industry CTAs always resolve to canonical values
+  // Sync filters with URL params so role/industry/company CTAs always resolve to canonical values
   useEffect(() => {
     setIndustry(canonicalizeIndustryParam(searchParams.get("industry")));
     const roleParam = toRoleSlug(searchParams.get("role") || "");
     setRoleFilter((current) => (current === roleParam ? current : roleParam));
+    const companyParam = searchParams.get("company");
+    setCompanyFilter(companyParam ? companyParam.toLowerCase() : null);
     const tabParam = searchParams.get("tab");
     if (tabParam) {
       setActiveTab(tabParam);

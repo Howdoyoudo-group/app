@@ -10,6 +10,7 @@ const drMartensData: CompanyCultureData = {
   industrySlug: "footwear",
   coverImage,
   videoUrl: "https://www.youtube.com/embed/CerohhfcTVY",
+  videoOrientation: "portrait",
   website: "https://www.drmartens.com",
   careersUrl: "https://jobs.drmartens.com/",
   founded: "1960",

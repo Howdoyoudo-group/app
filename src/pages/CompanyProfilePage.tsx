@@ -63,6 +63,14 @@ const CompanyProfilePage = () => {
         awards: (profileRow.awards as any) ?? [],
         sustainability: profileRow.sustainability,
         custom_blocks: (profileRow.custom_blocks as any) ?? [],
+        video_url: profileRow.video_url,
+        trustpilot_url: profileRow.trustpilot_url,
+        glassdoor_url: profileRow.glassdoor_url,
+        jobs_url: profileRow.jobs_url,
+        key_people: (profileRow.key_people as any) ?? [],
+        office_locations: (profileRow.office_locations as any) ?? [],
+        contact_links: (profileRow.contact_links as any) ?? [],
+        news_items: (profileRow.news_items as any) ?? [],
       });
       setLoading(false);
     };

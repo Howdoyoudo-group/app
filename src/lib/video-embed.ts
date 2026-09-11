@@ -10,7 +10,7 @@ export function toEmbeddableVideo(url: string): EmbeddableVideo | null {
   if (!trimmed) return null;
 
   const yt = trimmed.match(
-    /(?:youtube\.com\/watch\?v=|youtube\.com\/shorts\/|youtu\.be\/)([a-zA-Z0-9_-]{6,})/
+    /(?:youtube\.com\/watch\?v=|youtube\.com\/shorts\/|youtube\.com\/embed\/|youtu\.be\/)([a-zA-Z0-9_-]{6,})/
   );
   if (yt) {
     return { kind: "iframe", src: `https://www.youtube.com/embed/${yt[1]}?autoplay=0&rel=0` };

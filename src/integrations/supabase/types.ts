@@ -413,21 +413,29 @@ export type Database = {
           awards: Json | null
           careers_url: string | null
           company_id: string
+          contact_links: Json
           cover_image_url: string | null
           created_at: string
           culture: string | null
           custom_blocks: Json | null
+          glassdoor_url: string | null
           id: string
           instagram_url: string | null
+          jobs_url: string | null
+          key_people: Json
           linkedin_url: string | null
           locations: string[] | null
           logo_url: string | null
           mission: string | null
+          news_items: Json
+          office_locations: Json
           perks: string[] | null
           press_mentions: Json | null
           sustainability: string | null
           tagline: string | null
+          trustpilot_url: string | null
           updated_at: string
+          video_url: string | null
           website_url: string | null
         }
         Insert: {
@@ -435,21 +443,29 @@ export type Database = {
           awards?: Json | null
           careers_url?: string | null
           company_id: string
+          contact_links?: Json
           cover_image_url?: string | null
           created_at?: string
           culture?: string | null
           custom_blocks?: Json | null
+          glassdoor_url?: string | null
           id?: string
           instagram_url?: string | null
+          jobs_url?: string | null
+          key_people?: Json
           linkedin_url?: string | null
           locations?: string[] | null
           logo_url?: string | null
           mission?: string | null
+          news_items?: Json
+          office_locations?: Json
           perks?: string[] | null
           press_mentions?: Json | null
           sustainability?: string | null
           tagline?: string | null
+          trustpilot_url?: string | null
           updated_at?: string
+          video_url?: string | null
           website_url?: string | null
         }
         Update: {
@@ -457,21 +473,29 @@ export type Database = {
           awards?: Json | null
           careers_url?: string | null
           company_id?: string
+          contact_links?: Json
           cover_image_url?: string | null
           created_at?: string
           culture?: string | null
           custom_blocks?: Json | null
+          glassdoor_url?: string | null
           id?: string
           instagram_url?: string | null
+          jobs_url?: string | null
+          key_people?: Json
           linkedin_url?: string | null
           locations?: string[] | null
           logo_url?: string | null
           mission?: string | null
+          news_items?: Json
+          office_locations?: Json
           perks?: string[] | null
           press_mentions?: Json | null
           sustainability?: string | null
           tagline?: string | null
+          trustpilot_url?: string | null
           updated_at?: string
+          video_url?: string | null
           website_url?: string | null
         }
         Relationships: [

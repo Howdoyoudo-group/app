@@ -29,6 +29,14 @@ interface ProfileRow {
   awards: { title: string; year?: string }[] | null;
   sustainability: string | null;
   custom_blocks: { heading: string; body: string }[] | null;
+  video_url: string | null;
+  trustpilot_url: string | null;
+  glassdoor_url: string | null;
+  jobs_url: string | null;
+  key_people: { name: string; title: string }[] | null;
+  office_locations: { label: string; address: string }[] | null;
+  contact_links: { label: string; url: string }[] | null;
+  news_items: { title: string; url: string }[] | null;
 }
 
 const empty = (companyId: string): ProfileRow => ({
@@ -49,6 +57,14 @@ const empty = (companyId: string): ProfileRow => ({
   awards: [],
   sustainability: "",
   custom_blocks: [],
+  video_url: "",
+  trustpilot_url: "",
+  glassdoor_url: "",
+  jobs_url: "",
+  key_people: [],
+  office_locations: [],
+  contact_links: [],
+  news_items: [],
 });
 
 const CompanyProfileEditor = ({ companyId, companySlug, companyName }: Props) => {
@@ -222,7 +238,59 @@ const CompanyProfileEditor = ({ companyId, companySlug, companyName }: Props) =>
                   <Field label="LinkedIn"><LinkInput value={profile.linkedin_url} onChange={(v) => setProfile({ ...profile, linkedin_url: v })} /></Field>
                   <Field label="Careers page"><LinkInput value={profile.careers_url} onChange={(v) => setProfile({ ...profile, careers_url: v })} /></Field>
                   <Field label="Instagram"><LinkInput value={profile.instagram_url} onChange={(v) => setProfile({ ...profile, instagram_url: v })} /></Field>
+                  <Field label="Open roles (live vacancies link, if different from Careers)"><LinkInput value={profile.jobs_url} onChange={(v) => setProfile({ ...profile, jobs_url: v })} /></Field>
+                  <Field label="Video (YouTube or Vimeo link)"><LinkInput value={profile.video_url} onChange={(v) => setProfile({ ...profile, video_url: v })} /></Field>
+                  <Field label="Glassdoor page"><LinkInput value={profile.glassdoor_url} onChange={(v) => setProfile({ ...profile, glassdoor_url: v })} /></Field>
+                  <Field label="Trustpilot page"><LinkInput value={profile.trustpilot_url} onChange={(v) => setProfile({ ...profile, trustpilot_url: v })} /></Field>
                 </div>
+              </Section>
+
+              <Section title="Key people">
+                <RepeatableList
+                  items={profile.key_people ?? []}
+                  onChange={(items) => setProfile({ ...profile, key_people: items as any })}
+                  fields={[
+                    { key: "name", placeholder: "Name" },
+                    { key: "title", placeholder: "Job title" },
+                  ]}
+                  addLabel="Add person"
+                />
+              </Section>
+
+              <Section title="Office">
+                <RepeatableList
+                  items={profile.office_locations ?? []}
+                  onChange={(items) => setProfile({ ...profile, office_locations: items as any })}
+                  fields={[
+                    { key: "label", placeholder: "e.g. London (HQ)" },
+                    { key: "address", placeholder: "Address" },
+                  ]}
+                  addLabel="Add office"
+                />
+              </Section>
+
+              <Section title="Get in touch">
+                <RepeatableList
+                  items={profile.contact_links ?? []}
+                  onChange={(items) => setProfile({ ...profile, contact_links: items as any })}
+                  fields={[
+                    { key: "label", placeholder: "e.g. Careers enquiries" },
+                    { key: "url", placeholder: "https:// or mailto:…" },
+                  ]}
+                  addLabel="Add contact link"
+                />
+              </Section>
+
+              <Section title="Company news">
+                <RepeatableList
+                  items={profile.news_items ?? []}
+                  onChange={(items) => setProfile({ ...profile, news_items: items as any })}
+                  fields={[
+                    { key: "title", placeholder: "Headline" },
+                    { key: "url", placeholder: "https://…" },
+                  ]}
+                  addLabel="Add news item"
+                />
               </Section>
 
               {/* Rich extras */}

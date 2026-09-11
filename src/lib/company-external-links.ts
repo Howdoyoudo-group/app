@@ -69,7 +69,7 @@ const COMPANY_EXTERNAL: Record<string, CompanyExternal> = {
   "blank street": { careers: "https://www.blankstreet.com/careers", website: "https://www.blankstreet.com" },
   "blank street coffee": { careers: "https://www.blankstreet.com/careers", website: "https://www.blankstreet.com" },
   "grind": { careers: "https://grind.co.uk/pages/careers", website: "https://grind.co.uk" },
-  "five guys": { careers: "https://careers.fiveguys.co.uk/", website: "https://www.fiveguys.co.uk" },
+  "five guys": { careers: "https://jobs.fiveguys.co.uk/jobs/home/", website: "https://www.fiveguys.co.uk" },
   "soho house": { careers: "https://www.sohohouse.com/careers", website: "https://www.sohohouse.com" },
   "hawkstone": { website: "https://hawkstone.co/" },
   "pret": { careers: "https://careers.pret.co.uk/", website: "https://www.pret.co.uk" },

@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { ArrowLeft, ExternalLink, Globe, Linkedin, Briefcase, Instagram, Award, Newspaper, Leaf } from "lucide-react";
+import { ArrowLeft, ExternalLink, Globe, Linkedin, Briefcase, Instagram, Award, Newspaper, Leaf, Star, MapPin, Users, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 import CompanyLogo from "@/components/CompanyLogo";
 import { useTrackPageView } from "@/hooks/useTrackInteraction";
 import SEO, { companyDesc, breadcrumbJsonLd } from "@/components/SEO";
+import { toEmbeddableVideo } from "@/lib/video-embed";
 
 export interface DynamicCompanyProfile {
   slug: string;
@@ -25,6 +26,14 @@ export interface DynamicCompanyProfile {
   awards: { title: string; year?: string }[];
   sustainability: string | null;
   custom_blocks: { heading: string; body: string }[];
+  video_url: string | null;
+  trustpilot_url: string | null;
+  glassdoor_url: string | null;
+  jobs_url: string | null;
+  key_people: { name: string; title: string; photoUrl?: string }[];
+  office_locations: { label: string; address?: string }[];
+  contact_links: { label: string; url: string }[];
+  news_items: { title: string; url: string; source?: string }[];
 }
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -90,17 +99,82 @@ const CompanyProfileDynamic = ({ profile }: { profile: DynamicCompanyProfile }) 
 
           {/* External links */}
           <div className="flex flex-wrap gap-2 mt-6">
+            <Link
+              to={`/marketplace?company=${encodeURIComponent(profile.name)}`}
+              className="inline-flex items-center gap-1.5 text-xs font-bold uppercase border-2 border-foreground bg-primary text-primary-foreground px-3 py-1.5 hover:opacity-90"
+            >
+              <Briefcase className="w-3 h-3" /> See jobs on Howdoyoudo
+            </Link>
+            {(profile.jobs_url || profile.careers_url) && (
+              <ExtLink href={profile.jobs_url || profile.careers_url!} icon={<Briefcase className="w-3 h-3" />} label="Open roles" />
+            )}
             {profile.website_url && <ExtLink href={profile.website_url} icon={<Globe className="w-3 h-3" />} label="Website" />}
             {profile.careers_url && <ExtLink href={profile.careers_url} icon={<Briefcase className="w-3 h-3" />} label="Careers" />}
             {profile.linkedin_url && <ExtLink href={profile.linkedin_url} icon={<Linkedin className="w-3 h-3" />} label="LinkedIn" />}
             {profile.instagram_url && <ExtLink href={profile.instagram_url} icon={<Instagram className="w-3 h-3" />} label="Instagram" />}
           </div>
+
+          {(profile.glassdoor_url || profile.trustpilot_url) && (
+            <div className="flex flex-wrap gap-4 mt-4">
+              {profile.glassdoor_url && (
+                <a href={profile.glassdoor_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm hover:text-primary">
+                  <Star className="w-3.5 h-3.5" /> Glassdoor <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+              {profile.trustpilot_url && (
+                <a href={profile.trustpilot_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-sm hover:text-primary">
+                  <Star className="w-3.5 h-3.5" /> Trustpilot <ExternalLink className="w-3 h-3" />
+                </a>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* About */}
         {profile.about && (
           <Block title="About">
             <p className="whitespace-pre-line leading-relaxed">{profile.about}</p>
+            {profile.video_url && (() => {
+              const video = toEmbeddableVideo(profile.video_url!);
+              if (!video) return null;
+              return (
+                <div className="mt-4 aspect-video max-w-2xl overflow-hidden border-2 border-foreground">
+                  {video.kind === "iframe" ? (
+                    <iframe
+                      src={video.src}
+                      title={`${profile.name} video`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      className="w-full h-full"
+                    />
+                  ) : (
+                    <video src={video.src} controls className="w-full h-full" />
+                  )}
+                </div>
+              );
+            })()}
+          </Block>
+        )}
+
+        {profile.key_people.length > 0 && (
+          <Block title="Key people" icon={<Users className="w-4 h-4" />}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {profile.key_people.map((person, i) => (
+                <div key={i} className="flex items-center gap-3 border-2 border-dashed border-foreground/40 p-3">
+                  {person.photoUrl ? (
+                    <img src={person.photoUrl} alt={person.name} className="w-10 h-10 rounded-full object-cover shrink-0" loading="lazy" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0">
+                      <Users className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="font-bold text-sm truncate">{person.name}</p>
+                    <p className="text-muted-foreground text-xs truncate">{person.title}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </Block>
         )}
 
@@ -127,13 +201,48 @@ const CompanyProfileDynamic = ({ profile }: { profile: DynamicCompanyProfile }) 
           </Block>
         )}
 
-        {profile.locations.length > 0 && (
+        {profile.office_locations.length > 0 ? (
+          <Block title="Office" icon={<MapPin className="w-4 h-4" />}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {profile.office_locations.map((office, i) => (
+                <div key={i} className="border-2 border-dashed border-foreground/40 p-3">
+                  <p className="font-bold text-sm">{office.label}</p>
+                  {office.address && <p className="text-muted-foreground text-xs mt-1">{office.address}</p>}
+                </div>
+              ))}
+            </div>
+          </Block>
+        ) : profile.locations.length > 0 && (
           <Block title="Locations">
             <div className="flex flex-wrap gap-2">
               {profile.locations.map((p) => (
                 <span key={p} className="text-sm border-2 border-dashed border-foreground px-3 py-1 bg-background">{p}</span>
               ))}
             </div>
+          </Block>
+        )}
+
+        {profile.contact_links.length > 0 && (
+          <Block title="Get in touch" icon={<Mail className="w-4 h-4" />}>
+            <div className="flex flex-wrap gap-2">
+              {profile.contact_links.map((link, i) => (
+                <ExtLink key={i} href={link.url} icon={<Mail className="w-3 h-3" />} label={link.label} />
+              ))}
+            </div>
+          </Block>
+        )}
+
+        {profile.news_items.length > 0 && (
+          <Block title="Latest news" icon={<Newspaper className="w-4 h-4" />}>
+            <ul className="space-y-2">
+              {profile.news_items.map((n, i) => (
+                <li key={i}>
+                  <a href={n.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm hover:text-primary underline-offset-4 hover:underline">
+                    {n.title} {n.source && <span className="text-muted-foreground">· {n.source}</span>} <ExternalLink className="w-3 h-3" />
+                  </a>
+                </li>
+              ))}
+            </ul>
           </Block>
         )}
 

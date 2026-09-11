@@ -492,7 +492,7 @@ export const ALL_COMPANIES_BY_INDUSTRY: Record<string, CompanyData[]> = {
     { name: "AB InBev UK", url: "https://www.ab-inbev.com/", industry: "Hospitality" },
     { name: "Brakes (Sysco)", url: "https://syscogbjobs.co.uk", industry: "Hospitality" },
     { name: "Compass Group", url: "https://www.compass-group.co.uk/jobs/", industry: "Hospitality" },
-    { name: "Five Guys", url: "https://www.fiveguys.co.uk/careers", industry: "Hospitality", profileUrl: "/company/five-guys" },
+    { name: "Five Guys", url: "https://jobs.fiveguys.co.uk/jobs/home/", industry: "Hospitality", profileUrl: "/company/five-guys" },
     { name: "Gail's", url: "https://jobs.gailsbread.co.uk", industry: "Hospitality", profileUrl: "/company/gails" },
     { name: "Soho House", url: "https://www.sohohouse.com/careers", industry: "Hospitality", profileUrl: "/company/soho-house" },
     { name: "The Wolseley Hospitality Group", url: "https://thewolseleyhospitalitygroup.com/careers/", industry: "Hospitality" },
