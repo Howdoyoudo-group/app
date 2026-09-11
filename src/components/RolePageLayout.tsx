@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { ArrowLeft, HeartHandshake, Star, Target, Check } from "lucide-react";
@@ -168,6 +168,17 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
   }, [name, roleSlug, tabs]);
 
   const [activeTab, setActiveTab] = useState(enhancedTabs[0]?.id || "");
+  const contentRef = useRef<HTMLDivElement>(null);
+
+  // Tapping a tab swaps content that sits below the tab grid - on mobile that
+  // grid plus the hero often fills the whole screen, so without an explicit
+  // scroll the new content is invisible below the fold and it looks like the
+  // tap did nothing. Scroll it into view every time the active tab changes.
+  const selectTab = (id: string) => {
+    setActiveTab(id);
+    setTimeout(() => contentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+  };
+
   const activeTabObj = enhancedTabs.find((t) => t.id === activeTab);
   const rawContent = activeTabObj?.content;
   const activeContent = activeTabObj?.id === "listen"
@@ -258,7 +269,7 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
               return (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => selectTab(tab.id)}
                   className={`flex flex-col items-center gap-2 px-3 py-4 transition-all border-2 ${
                     isApply
                       ? isActive
@@ -304,6 +315,7 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
         </motion.div>
 
         <motion.div
+          ref={contentRef}
           key={activeTab}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
