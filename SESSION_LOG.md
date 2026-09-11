@@ -5,6 +5,28 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-11 (yet later) — Andrew (main branch) — Second pass on Career Map video matching
+
+### What was done THIS SESSION
+Andrew spot-checked the new Watch-badge feature and found gaps: Health's Doctor cards showed no badge even though "Day in the Life as a Doctor" (Ali Abdaal) and a UK Junior Doctor video were already sitting right there in the Watch tab - the first pass's exact-wording matching (`"Doctor"` vs the role's actual name `"Hospital Doctor / Consultant"`) was too strict. He also pointed at other likely-existing matches (chartered accountant, estate agent) and flagged extra sourcing options beyond plain YouTube search: CareerPilot, BBC Bitesize, NHS's own **Step into the NHS** (stepintothenhs.nhs.uk/careers/videos), industry body and company career sites. Also flagged CareerOneStop (US, careeronestop.org/Videos) as a huge-but-likely-AI-generated library - noted, not used as a source (US content, unclear provenance).
+
+Did a full second pass over `industry-videos.ts`:
+- **Retagged 15 existing videos** that were genuine matches missed the first time round, using looser (but still confident) judgement rather than literal substring matching: Doctor→Hospital Doctor/Consultant (both health videos), Vet→Veterinary Surgeon, Qualified Accountant→Chartered Accountant (ACA/ACCA), 18-Year-Old Estate Agent→Sales Negotiator, Hotel Manager→General Manager, HGV Lorry Driver→HGV Driver, Travel Agent→Travel Consultant, CBT Therapist→CBT Trainee, Pro Tennis→Professional Player, Book Editor ×2→Commissioning Editor, Investment Bank→Investment Banker, New Teacher→Classroom Teacher, Physiotherapist UK→Band 5 Physiotherapist, Policy & Public Affairs Officer→Public Affairs Executive, Think Tank→Research Fellow, Multimedia Journalist→Video Journalist (VJ), Fundraising Manager→Head of Fundraising.
+- **Sourced 7 new oembed-verified videos** for flagship roles that had none at all - using CareerPilot's embedded-video pages and official NHS/employer/professional-body channels as leads (its Midwife story page embeds a CareersBox video): Registered Nurse (Indeed), GP (NHS England), Midwife (CareersBox via CareerPilot), Paramedic (Cornwall Air Ambulance), Pharmacist (Boots UK), Architect (RIBA-chartered Urbanist Architecture), Pilot (British Airways).
+- Verified every `roleMatch` value against the real `CareerStage` role-name list with a script (no typos / silent mismatches).
+
+### Commits
+`85f1cb8` - pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Verified in dev server: Health's Plan tab now shows the Watch badge on GP, Hospital Doctor/Consultant, Registered Nurse and Midwife (confirmed via `get_page_text` after real clicks on each stage tab). `npm run typecheck` clean.
+
+### Left for next session
+- Coverage is still not exhaustive - this was two passes prioritising the roles most likely to be spot-checked (doctors/nurses, flagship professional roles), not all ~1,150 roles across every industry. Continuing with the same oembed-verification pattern is straightforward if more gaps get reported.
+- Cinema's Plan tab still doesn't have this feature (separate `CinemaCareerMap.tsx` component, not the shared `CareerMap.tsx`).
+
+---
+
 ## 2026-09-11 (even later) — Andrew (main branch) — Purplebricks scraper fix + Career Map video badges
 
 ### What was done THIS SESSION
