@@ -1206,12 +1206,23 @@ function normaliseCompanyKey(name: string): string {
     .trim();
 }
 
+/**
+ * Companies whose name happens to start with an unrelated hero brand's name
+ * (e.g. "Penguin Recruitment" vs the "Penguin" book publisher curated below)
+ * - blocks the word-prefix fallback matching further down from misattributing
+ * their logo. Checked against the normalised (lowercased, suffix-stripped) name.
+ */
+const CURATED_DOMAIN_COLLISION_BLOCKLIST = new Set([
+  "penguin recruitment",
+]);
+
 /** Try to find a curated domain via exact then progressively looser matches. */
 export function findCuratedDomain(rawCompany: string): string | undefined {
   const key = rawCompany.trim().toLowerCase();
   if (CURATED_DOMAINS[key]) return CURATED_DOMAINS[key];
 
   const normalised = normaliseCompanyKey(rawCompany);
+  if (CURATED_DOMAIN_COLLISION_BLOCKLIST.has(normalised)) return undefined;
   if (CURATED_DOMAINS[normalised]) return CURATED_DOMAINS[normalised];
 
   // Any NHS trust / body falls back to nhs.uk for a recognisable logo

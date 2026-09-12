@@ -448,6 +448,16 @@ const COMPANY_INDUSTRY_MAP: Record<string, string> = {
   "physio direct": "physiotherapy",
   // Psychotherapy
   "tavistock": "psychotherapy",
+  "priory group": "psychotherapy",
+  "cygnet": "psychotherapy",
+  "turning point": "psychotherapy",
+  "the forward trust": "psychotherapy",
+  "relate": "psychotherapy",
+  "bacp": "psychotherapy",
+  // Estate agency / hospitality brands that were leaking into psychotherapy
+  // (Reed/JSearch keyword searches like "family therapist" match loosely)
+  "haart": "estate-agency",
+  "mcdonald": "hospitality",
   // Teaching
   "pearson": "teaching",
   // Travel
@@ -484,6 +494,12 @@ const INDUSTRY_TITLE_BLOCKLIST: Record<string, RegExp> = {
   // "policy" alone would catch insurance/HR/warranty "policy" roles - block the
   // most common false-positive title patterns that slip through that word.
   politics: /\b(insurance policy|policy holder|warranty policy|hr policy administrator|return policy|returns policy|policy document|policy wording|underwrit)\b/i,
+  // Psychotherapy had NO blocklist/relevance entry at all until found 2026-09,
+  // which let McDonald's, Shoezone, Grosvenor Casinos, Sizewell C, haart and
+  // dozens of other unrelated companies accumulate under this industry with
+  // no nightly cleanup ever catching them (see INDUSTRY_RELEVANCE_KEYWORDS
+  // below for the primary defence - this blocklist is belt-and-braces).
+  psychotherapy: /\b(cyber security|cybersecurity|software engineer|java developer|devops|sre|kafka|hgv|forklift|estate agent|lettings negotiator|delivery driver|delivery cyclist|moped driver|pizza chef|cleaning assistant|sales administrator|insurance sales|office manager|computer programmer|eyfs practitioner|sales assistant|f&b team leader|plant operator|croupier|casino|bingo|shop floor|checkout|warehouse operative)\b/i,
 };
 
 // ── Placeholder/seed description detector ──
@@ -574,6 +590,13 @@ const INDUSTRY_RELEVANCE_KEYWORDS: Record<string, RegExp> = {
   journalism: /\b(journalist|reporter|editor|news|writer|correspondent|sub.editor|newsroom|publication|magazine|broadcast|investigative|features|columnist|press)\b/i,
   football: /\b(football|soccer|club|premier league|championship|EFL|FA|UEFA|FIFA|player|coach|scout|matchday|stadium|broadcasting|sponsorship|commercial partnership|kit|football operations|academy|youth development)\b/i,
   "horse-racing": /\b(horse[- ]?rac(?:e|ing)|racehorse|racecourse|race.?course|race.?day|equine|equestrian|thoroughbred|jockey|amateur jockey|apprentice jockey|conditional jockey|jockey coach|stable lad|stable lass|stable hand|head lad|head girl|work rider|exercise rider|travelling head|yard manager|racing yard|stud farm|stud manager|stud groom|bloodstock|bloodstock agent|farrier|paddock|turf club|BHA|British Horseracing|gallops|point.to.point|hunt yard|riding school|riding centre|racing manager|racing secretary|racing administrator|racecourse manager|clerk of the course)\b/i,
+  // Psychotherapy relevance - had no entry at all until found 2026-09 (see
+  // INDUSTRY_TITLE_BLOCKLIST above), which meant `isRelevantToIndustry`
+  // defaulted to "assume OK" for every job and nothing was ever purged.
+  // Known genuine mental-health employers (Priory Group, Cygnet, Relate etc.)
+  // skip this check entirely via COMPANY_INDUSTRY_MAP, so this only needs to
+  // gate jobs from unknown/generic companies.
+  psychotherapy: /\b(psychotherap|counsellor|counselling|\btherapist\b|\bcbt\b|talking therap|\biapt\b|psychological wellbeing practitioner|\bpwp\b|high intensity therapist|child psychotherapist|family therapist|clinical psycholog|counselling psycholog|forensic psycholog|systemic psychotherapy|integrative therapist|person.?centred therap|psychodynamic|\bbacp\b|\bukcp\b|\bhcpc\b|mental health practitioner|mental health nurse|mental health support worker|emotional wellbeing practitioner|psychiatric nurse|psychiatry|psychiatrist)\b/i,
   // Politics relevance - deliberately excludes bare "policy" and bare "council"
   // (too broad: insurance policy, HR policy, student council, parish council
   // notices). Every term below is either a distinctive institution/grade name
