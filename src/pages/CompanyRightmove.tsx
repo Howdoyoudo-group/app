@@ -16,6 +16,12 @@ const data: CompanyCultureData = {
   employees: "800+",
   sectors: ["Property", "Technology", "Data", "Digital Media"],
   glassdoor: 4.1,
+  videoUrl: "https://www.youtube.com/embed/6yATydiPWv0",
+  trustpilotUrl: "https://uk.trustpilot.com/review/www.rightmove.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Rightmove-EI_IE39764.11,20.htm",
+  keyPeople: [{ name: "Johan Svanström", title: "Chief Executive Officer" }, { name: "Ruaridh Hook", title: "Chief Financial Officer" }],
+  officeLocations: [{ label: "Head Office", address: "2 Caldecotte Lake Business Park, Caldecotte Lake Drive, Caldecotte, Milton Keynes, MK7 8LE", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/rightmove/" }],
   about: [
     "Rightmove launched in 2000 as a joint venture between the UK's four largest estate agency groups. The idea was simple: create a single place where all properties for sale or rent could be listed online. It worked - spectacularly.",
     "Today, Rightmove lists over 1 million properties at any time and attracts over 2 billion visits per year. It's the most visited property website in the UK, and the place where 86% of home searches begin.",

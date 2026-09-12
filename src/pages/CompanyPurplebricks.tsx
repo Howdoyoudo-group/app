@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   sectors: ["Online Estate Agency", "PropTech", "Lettings", "Valuations"],
   glassdoor: 3.1,
   trustpilot: 3.9,
+  trustpilotUrl: "https://uk.trustpilot.com/review/purplebricks.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Purplebricks-EI_IE1109507.11,23.htm",
+  keyPeople: [{ name: "Michael Bruce", title: "Chief Executive" }, { name: "Kenny Bruce", title: "Director (co-leading business turnaround)" }],
+  officeLocations: [{ label: "Head Office", address: "Suite 7, First Floor, Cranmore Place, Cranmore Drive, Shirley, Solihull, B90 4RZ", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/purplebricks-uk" }],
   about: [
     "Purplebricks launched in 2014 with a simple, provocative idea: why should selling your home cost thousands in commission? By offering a fixed-fee model and pairing local property experts with a digital-first platform, the company grew faster than any estate agency in UK history.",
     "Backed by heavy TV advertising and a slick online experience, Purplebricks reached a peak market cap of over £1 billion. The model proved that consumers were ready for an alternative to traditional high-street agents - even if the journey wasn't always smooth.",

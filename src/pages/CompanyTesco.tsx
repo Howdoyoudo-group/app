@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "330,000+",
   sectors: ["Grocery", "Retail", "Banking", "Technology"],
   glassdoor: 3.4,
+  trustpilotUrl: "https://uk.trustpilot.com/review/www.tesco.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Tesco-EI_IE10250.11,16.htm",
+  keyPeople: [{ name: "Ken Murphy", title: "Group Chief Executive" }, { name: "Ashwin Prasad", title: "UK Chief Executive" }],
+  officeLocations: [{ label: "Head Office", address: "Tesco House, Shire Park, Kestrel Way, Welwyn Garden City, Hertfordshire, AL7 1GA", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/-tesco" }],
   about: [
     "Tesco was founded in 1919 when Jack Cohen began selling surplus groceries from a stall in London's East End. The name came from a supplier - T.E. Stockwell - combined with Cohen's own initials. By the 1960s, Tesco had become a supermarket powerhouse.",
     "Today, Tesco is the UK's largest retailer, operating over 4,000 stores - from Express convenience shops to Extra hypermarkets. It serves tens of millions of customers weekly and employs 330,000+ people, making it one of the largest private-sector employers in the UK.",

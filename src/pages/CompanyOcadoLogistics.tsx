@@ -18,6 +18,11 @@ const ocadoLogisticsData: CompanyCultureData = {
   employees: "12,000+",
   sectors: ["Logistics", "Warehousing", "Last-Mile Delivery", "Grocery"],
   glassdoor: 3.0,
+  videoUrl: "https://www.youtube.com/embed/bWUfIcODvPg",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Ocado-Logistics-EI_IE9400350.11,26.htm",
+  keyPeople: [{ name: "Brian McClory", title: "Managing Director, Ocado Logistics" }],
+  officeLocations: [{ label: "Head Office", address: "Trident Place, Hatfield Business Park, Hatfield, Hertfordshire, AL10 9UL", isHQ: true }, { label: "Erith Customer Fulfilment Centre", address: "Erith, London/Kent", isHQ: false }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/ocado-logistics" }],
   about: [
     "Ocado Logistics is one of Ocado Group's founding divisions (2000), pioneering the 'last-mile delivery model' using branded vans and directly-employed drivers - and now operating as a distinct business running the fulfilment and delivery operation behind Ocado.com.",
     "Our network spans the whole country - Customer Fulfilment Centres (CFCs) and spokes across Hatfield, Dordon, Andover, Erith, Purfleet, Bristol, Luton, Bicester and beyond - combining industry-leading tech, fair pay and clear paths for progression.",

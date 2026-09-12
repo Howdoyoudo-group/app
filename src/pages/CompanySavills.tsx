@@ -16,6 +16,12 @@ const data: CompanyCultureData = {
   employees: "40,000+ (globally)",
   sectors: ["Property", "Real Estate", "Consulting", "Research"],
   glassdoor: 3.8,
+  videoUrl: "https://www.youtube.com/embed/c4CJJv4tja4",
+  trustpilotUrl: "https://uk.trustpilot.com/review/www.savills.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Savills-EI_IE24835.11,18.htm",
+  keyPeople: [{ name: "Simon Shaw", title: "Group Chief Executive" }],
+  officeLocations: [{ label: "Global & UK Headquarters", address: "33 Margaret Street, London, W1G 0JD", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/savills" }],
   about: [
     "Savills was founded in 1855 by Alfred Savill in London. Over 170 years later, it has grown into one of the world's leading property advisory firms, operating across 70+ countries with over 700 offices.",
     "The UK operation spans residential sales and lettings, commercial property, rural and agricultural land, property management, planning consultancy, and research. Savills is the go-to adviser for prime London property, country estates, and institutional real estate.",

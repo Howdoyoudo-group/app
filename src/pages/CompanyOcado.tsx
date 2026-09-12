@@ -17,6 +17,10 @@ const ocadoData: CompanyCultureData = {
   employees: "16,000+ (Group-wide, incl. JV operations)",
   sectors: ["Grocery", "Technology", "Robotics", "Logistics", "E-Commerce"],
   glassdoor: 3.3,
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Ocado-Group-EI_IE22337.11,22.htm",
+  keyPeople: [{ name: "Tim Steiner OBE", title: "Chief Executive Officer & Founder" }, { name: "James Matthews", title: "Deputy CEO, Ocado Group" }, { name: "Stephen Daintith", title: "Chief Financial Officer" }],
+  officeLocations: [{ label: "Global Headquarters", address: "Buildings 1 & 2, Trident Place, Hatfield Business Park, Mosquito Way, Hatfield, Hertfordshire, AL10 9UL", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/ocadogroup" }],
   about: [
     "Ocado was founded in 2000 by three former Goldman Sachs bankers - Tim Steiner, Jonathan Faiman, and Jason Gissing - who believed the internet would fundamentally change how people buy groceries. Unlike traditional supermarkets bolting on a website, Ocado was built online-first from day one.",
     "The company operates the UK's largest dedicated online grocery business through a joint venture with M&S, delivering over 400,000 orders per week from its Customer Fulfilment Centres (CFCs). But Ocado's real story is its technology division, Ocado Technology.",

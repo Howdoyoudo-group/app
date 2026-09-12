@@ -18,6 +18,11 @@ const ocadoRetailData: CompanyCultureData = {
   employees: "2,500+",
   sectors: ["Grocery", "E-Commerce", "Retail", "FMCG"],
   glassdoor: 3.4,
+  trustpilotUrl: "https://uk.trustpilot.com/review/www.ocado.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Ocado-Retail-EI_IE2921470.11,23.htm",
+  keyPeople: [{ name: "Hannah Gibson OBE", title: "Chief Executive Officer" }, { name: "Mathew Ankers", title: "Chief Financial Officer" }, { name: "George Dean", title: "Chief Commercial Officer" }],
+  officeLocations: [{ label: "Head Office", address: "Apollo Court, 2 Bishop Square, Hatfield Business Park, Hatfield, Hertfordshire, AL10 9NE", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/ocado-retail/" }],
   about: [
     "Ocado Retail (ORL) is a market-leading joint venture between Ocado Group and M&S Group, running the UK's largest pure-play online supermarket.",
     "ORL's vision is to \"never stop making our customers' lives better, by delivering the supermarket of tomorrow, today\" - serving around 50,000 products including the huge Ocado Own Range, big and small brands, and M&S (the only place to shop M&S online), plus Zoom by Ocado for 60-minute deliveries.",
