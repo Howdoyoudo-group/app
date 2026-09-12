@@ -5,6 +5,35 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-12 — Andrew (main branch) — Company profiles: video/people/office/ratings/contacts/news + open-roles fix
+
+### What was done THIS SESSION
+Andrew shared Welcome to the Jungle's Rover profile as the bar HDYD's company profiles should hit for paying customers, and asked for: videos on more companies (like the existing Me+Em/Dr Martens ones), key people, office location, Trustpilot/Glassdoor scores linking to the company's actual review page, a "how to get in touch" section, company news, and open roles pulling from HDYD's own jobs database. He also flagged Five Guys' careers/open-roles links going to the US site instead of UK, and Me+Em's careers link not working.
+
+Investigated the whole company-profile system first (`CompanyCultureData` in `src/components/CompanyCultureProfile.tsx`, used by all 37 static `src/pages/Company*.tsx` pages; a separate DB-backed `company_profiles` path for future employer-managed profiles). Confirmed live: Five Guys' `careersUrl` (`fiveguys.co.uk/careers`) 302-redirects to the US site (`careers.fiveguys.com`) - real UK jobs site is `jobs.fiveguys.co.uk/jobs/home/`. Me+Em's careers URL actually works fine, but its "open roles" action was pointing at a marketing page rather than the real live job board (`meandem.peoplehr.net/jobboard`). Also found Marketplace already builds `/marketplace?company=X` links (`getCompanyUrl()`) but never reads the `company` param on load - a real, confirmed bug.
+
+**Built:**
+- Extended `CompanyCultureData` + the DB `company_profiles` table/editor (new migration `20260911140000_company_profiles_video_ratings_people.sql`) with `jobsUrl`, `trustpilotUrl`/`glassdoorUrl`, `keyPeople`, `officeLocations`, `contactLinks`, `newsItems`, `videoOrientation`.
+- New "Key people", "Office", "Get in touch" and "Latest news" sections in `CompanyCultureProfile.tsx` and `CompanyProfileDynamic.tsx`. News reuses the exact same title-matching approach as `MyFeed.tsx`'s existing "Companies" feed (extracted to `src/lib/company-news.ts`) rather than building new scraping infra - there's no per-company news column anywhere, so this is best-effort title matching, same as the rest of the site already does.
+- Fixed the video embed to use the existing (but previously unused here) `toEmbeddableVideo()` helper instead of a YouTube-only string-replace, with an orientation field so new landscape videos don't get squeezed into the two existing videos' portrait box.
+- Split "View open roles" into "See jobs on Howdoyoudo" (internal, `/marketplace?company=X`) and "Apply on [Company]'s site" (external, `jobsUrl ?? careersUrl`) - fixed the Marketplace bug that made the internal link a no-op.
+- Fixed Five Guys and Me+Em everywhere their URLs were duplicated (`company-external-links.ts`, `all-companies.ts`, `Hospitality.tsx` all had stale/inconsistent values for Five Guys).
+- Ran parallel research agents (same pattern as this session's earlier video-sourcing pushes) across all 37 companies to source and verify key people, office locations, Trustpilot/Glassdoor deep links (`uk.trustpilot.com/review/...`, `glassdoor.co.uk/Overview/Working-at-...`), LinkedIn contact links, and 11 new "what it's like to work here" videos (up from 2) - one research batch (Ocado x3, Tesco, Purplebricks, Rightmove, Savills) hit a session rate limit mid-run and was retried successfully. Merged via a script that oembed-verifies every video and sanity-checks each company's slug before writing - 0 mismatches across 37 companies.
+
+### Commits
+`8019164` (data model + render + Marketplace fix + Five Guys/Me+Em fixes), `2dcf2df` (29 companies enriched), `30215c4` (final 7 companies) - pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Verified in dev server: Five Guys and Me+Em both show correct careers/jobs links; `/marketplace?company=Five%20Guys` correctly filters to Five Guys' 10 live jobs; Nike's profile shows Key people, Office (with HQ badge), Get in touch (LinkedIn), Latest news (real matched headlines), and its new video, all rendering correctly; Rightmove's new video embed confirmed live. `npm run typecheck` clean throughout.
+
+### Left for next session
+- Company news is best-effort title-matching against industry-scoped `articles`/`breaking_news` (same limitation `MyFeed.tsx` already has) - a real per-company news pipeline would need a schema change; not done this session as agreed with Andrew.
+- The DB-backed `company_profiles` path (for future paying employer customers) has all the same new fields wired into `CompanyProfileEditor.tsx` and `CompanyProfileDynamic.tsx`, but no real employer-managed company exists yet to test it end-to-end with live data.
+- Some companies still have gaps in the new fields (a few didn't have a genuine video, Trustpilot page, or Glassdoor page found) - same "partial coverage is expected" pattern as the earlier role-video work.
+- The broader data fragmentation (careers URLs/ratings duplicated across up to 4 files per company) wasn't fully consolidated - only Five Guys and Me+Em's duplicates were reconciled this session.
+
+---
+
 ## 2026-09-11 (latest) — Andrew (main branch) — Video coverage push to 40% + role-page mobile tab fix
 
 ### What was done THIS SESSION
