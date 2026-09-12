@@ -18,6 +18,11 @@ const drMartensData: CompanyCultureData = {
   employees: "3,000+",
   sectors: ["Footwear", "Fashion", "Retail", "DTC"],
   glassdoor: 3.5,
+  trustpilotUrl: "https://uk.trustpilot.com/review/drmartens.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Dr-Martens-plc-EI_IE907937.11,25.htm",
+  keyPeople: [{ name: "Ije Nwokorie", title: "Chief Executive Officer, Dr. Martens plc" }],
+  officeLocations: [{ label: "Global Head Office & Design Studio", address: "Camden Town, London, England", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/dr-martens-plc" }],
   about: [
     "Dr. Martens began in 1960 when the Griggs family licensed a revolutionary air-cushioned sole designed by Dr. Klaus Märtens. The first boot - the 1460 - rolled off the production line on 1 April 1960, and became a symbol of working-class durability.",
     "Within a decade, the boots had been adopted by skinheads, punks, goths, Britpop fans, and anyone who valued authenticity over trends. From Pete Townshend to Agyness Deyn, Docs became cultural armour.",

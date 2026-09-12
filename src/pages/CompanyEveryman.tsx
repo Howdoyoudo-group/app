@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "1,500+",
   sectors: ["Film and TV", "Hospitality", "Leisure", "Retail"],
   glassdoor: 3.9,
+  trustpilotUrl: "https://uk.trustpilot.com/review/www.everymancinema.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Everyman-EI_IE1276831.11,19.htm",
+  keyPeople: [{ name: "Farah Golant", title: "Chief Executive Officer" }, { name: "Sheree Manning", title: "Chief Financial Officer" }],
+  officeLocations: [{ label: "Head Office", address: "Studio 4, 2 Downshire Hill, London, NW3 1NR", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/everyman-media-group" }],
   about: [
     "Everyman Cinemas was founded in 2000 with a simple idea: cinema should be an experience, not just a screening. With sofa seating, in-screen dining, craft cocktails, and a curated programme of mainstream and independent films, Everyman redefined what going to the pictures means.",
     "The company now operates 40+ venues across the UK, from converted theatres in Hampstead to purpose-built sites in retail parks. Each venue is designed with its own character - no two Everymans look alike.",

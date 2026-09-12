@@ -16,6 +16,12 @@ const nikeData: CompanyCultureData = {
   employees: "79,000+",
   sectors: ["Footwear", "Apparel", "Retail", "DTC", "Technology"],
   glassdoor: 4.0,
+  videoUrl: "https://www.youtube.com/embed/ZTJpOzvxAUA",
+  trustpilotUrl: "https://uk.trustpilot.com/review/www.nike.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-NIKE-EI_IE1699.11,15.htm",
+  keyPeople: [{ name: "Elliott Hill", title: "President & Chief Executive Officer, NIKE, Inc." }, { name: "César Garcia", title: "VP & GM, EMEA" }],
+  officeLocations: [{ label: "Global Headquarters", address: "One Bowerman Drive, Beaverton, OR 97005, USA", isHQ: true }, { label: "UK Headquarters", address: "4 Handyside Street, London N1C 4DJ", isHQ: false }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/nike" }],
   about: [
     "Nike was founded as Blue Ribbon Sports in 1964 by Bill Bowerman and Phil Knight. What began as a handshake deal to import Japanese running shoes became the world's largest athletic brand, generating over $51 billion in annual revenue.",
     "The company's innovation engine is legendary - from the Waffle Trainer sole (made on an actual waffle iron) to Flyknit, Air Max, and the self-lacing Adapt. Nike doesn't just make shoes; it shapes how humans move.",

@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "1,200+",
   sectors: ["Education", "Charity", "Leadership Development", "Social Impact"],
   glassdoor: 3.8,
+  videoUrl: "https://www.youtube.com/embed/pZvtyz7zbNk",
+  trustpilotUrl: "https://uk.trustpilot.com/review/teachfirst.org.uk",
+  keyPeople: [{ name: "James Toop", title: "Chief Executive Officer, Teach First" }],
+  officeLocations: [{ label: "Head Office", address: "6 Mitre Passage, London, SE10 0ER", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/teach-first" }],
   about: [
     "Teach First was founded in 2002 by Brett Wigdortz, inspired by Teach For America. The model is simple but powerful: recruit the best graduates, train them intensively, and place them in schools serving low-income communities for a minimum of two years.",
     "Over 16,000 teachers have been trained through the programme, and Teach First has become one of the UK's largest graduate recruiters - competing with investment banks and consultancies for top talent. The pitch: use your degree to make a difference, earn a salary, and gain a PGCE and QTS.",

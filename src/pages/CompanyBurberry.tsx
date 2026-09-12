@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "9,000+",
   sectors: ["Luxury Fashion", "Retail", "DTC", "Accessories"],
   glassdoor: 3.9,
+  trustpilotUrl: "https://uk.trustpilot.com/review/www.burberry.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Burberry-EI_IE13011.11,19.htm",
+  keyPeople: [{ name: "Joshua Schulman", title: "Chief Executive Officer" }, { name: "Daniel Lee", title: "Chief Creative Officer" }],
+  officeLocations: [{ label: "Global HQ", address: "Horseferry House, Horseferry Road, London SW1P 2AW", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/burberry" }],
   about: [
     "Burberry was founded in 1856 by 21-year-old Thomas Burberry in Basingstoke, Hampshire. He invented gabardine - a breathable, waterproof fabric - and the brand's outerwear was worn by polar explorers, military officers, and aviators before becoming a luxury fashion icon.",
     "The trench coat and the Burberry check are two of the most recognisable symbols in fashion. But the brand's journey hasn't been linear - from ubiquity in the 1990s to 'chav culture' associations, Burberry has reinvented itself multiple times.",

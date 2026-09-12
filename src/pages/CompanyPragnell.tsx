@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   hq: "Stratford-upon-Avon, UK",
   employees: "100–250",
   sectors: ["Fine Jewellery", "High Jewellery", "Watches", "Antique & Estate Jewellery", "Bespoke Commissions"],
+  trustpilotUrl: "https://uk.trustpilot.com/review/pragnell.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Pragnell-EI_IE2361565.11,19.htm",
+  keyPeople: [{ name: "Charlie Pragnell", title: "Managing Director" }],
+  officeLocations: [{ label: "Flagship Showroom, Stratford-upon-Avon", address: "5 Wood Street, Stratford-upon-Avon, Warwickshire", isHQ: true }, { label: "Mayfair Showroom, London", address: "Mayfair, London", isHQ: false }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/george-pragnell" }],
   about: [
     "Pragnell is one of Britain's most respected independent fine jewellers, founded in 1954 by George Pragnell in the heart of Stratford-upon-Avon. Now in its third generation of family ownership, the house holds a Royal Warrant as jewellers to HM The King.",
     "The business spans three showrooms - Stratford-upon-Avon, Mayfair, and Leicester - each offering an intimate, appointment-led experience. Pragnell is known for museum-quality antique jewellery, exceptional loose diamonds, and bespoke commissions crafted in-house.",

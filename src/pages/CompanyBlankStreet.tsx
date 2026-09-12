@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "500+",
   sectors: ["Coffee", "Technology", "Hospitality", "Venture-Backed"],
   glassdoor: 3.8,
+  trustpilotUrl: "https://uk.trustpilot.com/review/blankstreet.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Blank-Street-EI_IE5678238.11,23.htm",
+  keyPeople: [{ name: "Issam Freiha", title: "Co-Founder & Chief Executive Officer" }, { name: "Vinay Menda", title: "Co-Founder" }, { name: "Ignacio Llado", title: "Co-Founder & UK President" }],
+  officeLocations: [{ label: "Global HQ", address: "Brooklyn, New York, USA", isHQ: true }, { label: "UK Office", address: "London, UK", isHQ: false }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/blank-street" }],
   about: [
     "Blank Street launched in 2020 in Brooklyn, New York, founded by Vinay Menda and Issam Freiha. The idea was simple but radical: use compact, tech-enabled formats to offer specialty-quality coffee at mainstream prices.",
     "The company operates micro-cafés and kiosks - typically 200–400 sq ft - equipped with automated espresso machines that reduce labour costs and ensure drink consistency. This allows Blank Street to undercut traditional specialty coffee pricing by 20–30%.",

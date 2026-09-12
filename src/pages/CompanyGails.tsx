@@ -17,6 +17,11 @@ const gailsData: CompanyCultureData = {
   employees: "1,000–2,000",
   sectors: ["Artisan Bakery", "Hospitality", "Food & Drink", "Retail"],
   glassdoor: 3.4,
+  trustpilotUrl: "https://www.trustpilot.com/review/gailsbread.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-GAIL%E2%80%99s-Bakery-EI_IE997177.11,24.htm",
+  keyPeople: [{ name: "Tom Molnar", title: "Co-Founder & Chief Executive" }, { name: "Nick Ayerst", title: "Managing Director (UK)" }],
+  officeLocations: [{ label: "Head Office", address: "4-6 Seymour Place, Marylebone, London", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/gailsbakery" }],
   about: [
     "Gail's is a neighbourhood bakery born in London in 2005. Founded by three friends - Gail Mejia, Tom Molnar, and Ran Avidan - with the simple belief that every community deserves access to properly made bread, baked fresh each morning.",
     "Today, Gail's operates over 100 bakeries across London and the south of England. Every loaf, pastry, and cake is made using slow fermentation, hand-shaping, and real ingredients - no shortcuts, no preservatives, no compromises.",

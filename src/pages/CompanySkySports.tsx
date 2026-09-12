@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "5,000+ (Sky UK)",
   sectors: ["Broadcasting", "Sport", "Media", "Technology"],
   glassdoor: 3.8,
+  trustpilotUrl: "https://uk.trustpilot.com/review/sky.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Sky-EI_IE3903.11,14.htm",
+  keyPeople: [{ name: "Jonathan Licht", title: "Chief Executive Officer, Sky Sports (Sky UK & Ireland)" }, { name: "Dana Strong", title: "Group Chief Executive Officer, Sky" }],
+  officeLocations: [{ label: "Sky Campus (Head Office)", address: "Grant Way, Isleworth, Middlesex, TW7 5QD", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/sky" }],
   about: [
     "Sky Sports launched in 1991 and immediately changed the landscape of British sport by securing the first Premier League broadcasting deal in 1992. That partnership - now worth billions - transformed football from a Saturday afternoon pastime into a global media product.",
     "Today, Sky Sports is the UK's dominant sports broadcaster, holding primary rights to the Premier League, EFL, cricket, golf, F1, and boxing. The operation spans live production, studio analysis, digital content, and the Sky Sports News channel.",

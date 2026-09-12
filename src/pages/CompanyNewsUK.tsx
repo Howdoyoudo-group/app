@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "3,000–5,000",
   sectors: ["National Newspapers", "Digital News", "Broadcasting", "Podcasts", "Radio", "Subscriptions"],
   glassdoor: 3.6,
+  trustpilotUrl: "https://uk.trustpilot.com/review/news.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-News-UK-EI_IE753535.11,18.htm",
+  keyPeople: [{ name: "Rebekah Brooks", title: "Chief Executive Officer, News UK" }],
+  officeLocations: [{ label: "The News Building (Head Office)", address: "1 London Bridge Street, London, SE1 9GF", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/news-uk" }],
   about: [
     "News UK is one of Britain's most influential media companies, publishing The Times (founded 1785), The Sunday Times, and The Sun - three of the most-read titles in the English-speaking world. The company is part of Rupert Murdoch's News Corp.",
     "Beyond print, News UK has invested heavily in digital transformation. The Times and Sunday Times operate a successful subscriber model with over 500,000 digital subscribers, while The Sun reaches over 30 million monthly users. The company also operates TalkTV, Talk Radio, Times Radio, and Virgin Radio through its Wireless division.",

@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "14,000+",
   sectors: ["Coffee", "Hospitality", "FMCG", "Retail"],
   glassdoor: 3.5,
+  trustpilotUrl: "https://uk.trustpilot.com/review/www.costa.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Costa-Coffee-EI_IE3199171.11,23.htm",
+  keyPeople: [{ name: "Philippe Schaillee", title: "Chief Executive Officer, Costa Coffee" }],
+  officeLocations: [{ label: "Head Office", address: "Loudwater, Buckinghamshire, England", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/costa-coffee/" }],
   about: [
     "Costa Coffee was founded in 1971 by Italian brothers Sergio and Bruno Costa, who started by supplying roasted coffee to local caterers and Italian coffee shops from a roastery in Lambeth, London. The first Costa Coffee shop opened in 1978 in Vauxhall Bridge Road.",
     "In 2019, The Coca-Cola Company acquired Costa from Whitbread for £3.9 billion - one of the largest deals in the UK food and drink sector. The acquisition gave Costa access to Coca-Cola's global distribution network, accelerating its expansion into ready-to-drink products and international markets.",

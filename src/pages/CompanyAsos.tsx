@@ -16,6 +16,12 @@ const data: CompanyCultureData = {
   employees: "2,500+",
   sectors: ["Fashion", "E-Commerce", "Retail", "Technology"],
   glassdoor: 3.4,
+  videoUrl: "https://www.youtube.com/embed/FhFXeiFpbM4",
+  trustpilotUrl: "https://uk.trustpilot.com/review/www.asos.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-ASOS-EI_IE35373.11,15.htm",
+  keyPeople: [{ name: "José Antonio Ramos Calamonte", title: "Chief Executive Officer" }, { name: "Aaron Izzard", title: "Chief Financial Officer & Executive Director" }],
+  officeLocations: [{ label: "Global HQ", address: "Greater London House, Hampstead Road, London NW1 7FB", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/asos-com" }],
   about: [
     "ASOS - originally 'As Seen On Screen' - launched in 2000 as a website selling copies of clothes worn by celebrities. It quickly pivoted to become the UK's largest online-only fashion retailer, selling over 850 brands alongside its own label.",
     "At its peak, ASOS served 26 million active customers globally, offering free delivery and free returns in a model that defined fast-fashion e-commerce. The company pioneered social-first marketing, influencer partnerships, and size-inclusive ranges.",

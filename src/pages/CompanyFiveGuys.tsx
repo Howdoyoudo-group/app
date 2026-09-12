@@ -17,6 +17,12 @@ const fiveGuysData: CompanyCultureData = {
   employees: "5,000+ (UK)",
   sectors: ["Food & Drink", "Quick Service Restaurants", "Hospitality"],
   glassdoor: 3.5,
+  videoUrl: "https://www.youtube.com/embed/Kmvh6XlEQ3Q",
+  trustpilotUrl: "https://www.trustpilot.com/review/www.fiveguys.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Five-Guys-EI_IE313650.11,20.htm",
+  keyPeople: [{ name: "John Eckbert", title: "CEO, Five Guys Europe" }],
+  officeLocations: [{ label: "Five Guys Europe Head Office", address: "Unit 4, 1 Bard Road, London, W10 6TP", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/five-guys-uk" }],
   about: [
     "Five Guys was founded in 1986 by Jerry and Janie Murrell in Arlington, Virginia, as a small family-run burger joint. The original deal was simple: four sons could either go to college or start a business. They chose burgers.",
     "The chain expanded through franchising and now operates over 1,800 locations worldwide, including 150+ in the UK and Europe. Five Guys entered the UK market in 2013 with its first Covent Garden location and has since become a premium fast-casual staple on British high streets.",

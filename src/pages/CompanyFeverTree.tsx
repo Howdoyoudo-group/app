@@ -17,6 +17,11 @@ const feverTreeData: CompanyCultureData = {
   employees: "~400",
   sectors: ["Premium Mixers", "FMCG", "Drinks", "Export"],
   glassdoor: 4.0,
+  trustpilotUrl: "https://uk.trustpilot.com/review/fever-tree.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Fever-Tree-EI_IE1848138.11,21.htm",
+  keyPeople: [{ name: "Tim Warrillow", title: "Co-Founder & Chief Executive Officer" }, { name: "Charles Gibb", title: "Chief Executive Officer, North America" }],
+  officeLocations: [{ label: "Head Office", address: "186-188 Shepherds Bush Road, Hammersmith, London", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/fever-tree" }],
   about: [
     "Fever-Tree was founded in 2004 by Charles Rolls and Tim Warrillow with a deceptively simple idea: if three-quarters of a gin and tonic is the tonic water, why was no one making a great one? The answer was a premium tonic made with quinine sourced from fever trees in the Democratic Republic of Congo — hence the name.",
     "Within a decade, Fever-Tree had transformed the mixer category entirely. Premium spirits brands had proliferated; the mixers hadn't kept up. Fever-Tree changed that, launching with Indian Tonic Water and expanding to over 40 products — from Ginger Beer to Elderflower to Aromatic Tonic — available in more than 85 countries.",

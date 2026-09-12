@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "500+",
   sectors: ["Football", "Broadcasting", "Commercial", "Community"],
   glassdoor: 4.1,
+  trustpilotUrl: "https://uk.trustpilot.com/review/premierleague.com",
+  glassdoorUrl: "https://www.glassdoor.com/Overview/Working-at-The-Premier-League-EI_IE669559.11,29.htm",
+  keyPeople: [{ name: "Richard Masters", title: "Chief Executive, The Premier League" }, { name: "Alison Brittain", title: "Chair, The Premier League" }],
+  officeLocations: [{ label: "Head Office", address: "Brunel Building, 57 North Wharf Road, London, W2 1HQ", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/the-premier-league" }],
   about: [
     "The Premier League was formed in 1992 when the First Division clubs broke away from the Football League to negotiate their own broadcasting deals. That decision created the richest domestic football competition in the world.",
     "Today, the Premier League generates over £6 billion in annual revenue, primarily through broadcasting deals spanning 189 countries. The central body negotiates TV rights and distributes revenue across 20 clubs, funding everything from transfer fees to grassroots football.",

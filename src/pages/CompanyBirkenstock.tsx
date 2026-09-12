@@ -16,6 +16,11 @@ const birkenstockData: CompanyCultureData = {
   employees: "6,200+",
   sectors: ["Footwear", "Luxury", "Manufacturing", "Retail"],
   glassdoor: 3.6,
+  trustpilotUrl: "https://uk.trustpilot.com/review/birkenstock.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Birkenstock-EI_IE1258159.11,22.htm",
+  keyPeople: [{ name: "Oliver Reichert", title: "Chief Executive Officer, Birkenstock Group" }, { name: "Mark Clarkson", title: "Managing Director, Birkenstock UK" }],
+  officeLocations: [{ label: "Global Headquarters", address: "Burg Ockenfels, 53545 Linz am Rhein, Germany", isHQ: true }, { label: "UK Office", address: "99 New Bond Street, 1st Floor, London W1S 1SW", isHQ: false }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/birkenstock-deutschland" }],
   about: [
     "Birkenstock's story begins in 1774 when Johann Adam Birkenstock was registered as a 'subject and shoemaker' in a small German village. By the late 1800s, the family had developed the first contoured insole, and by 1963, Karl Birkenstock had created the iconic cork-latex footbed that defines the brand today.",
     "For decades, Birkenstocks were the quiet choice of podiatrists and hippies. Then fashion caught up. Phoebe Philo put them on the Céline runway in 2012, and the brand's trajectory changed forever. Today, Birkenstock is a publicly listed company (NYSE: BIRK) valued at over €8 billion.",

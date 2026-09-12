@@ -16,6 +16,9 @@ const data: CompanyCultureData = {
   employees: "500+",
   sectors: ["Coffee", "Hospitality", "E-Commerce", "Sustainability"],
   glassdoor: 3.7,
+  trustpilotUrl: "https://uk.trustpilot.com/review/grind.co.uk",
+  keyPeople: [{ name: "David Abrahamovitch", title: "Founder & Chief Executive Officer" }],
+  officeLocations: [{ label: "HQ", address: "Telephone House, 69 Paul Street, Shoreditch, London EC2A 4NG", isHQ: true }],
   about: [
     "Grind started in 2011 as a single espresso bar and cocktail lounge on Old Street roundabout in Shoreditch. Founded by David Abrahamovitch, it quickly became a fixture of London's specialty coffee scene - known for great coffee, late-night cocktails, and slick design.",
     "Today, Grind operates multiple cafés across London, roasts its own coffee, and runs a fast-growing direct-to-consumer business selling compostable Nespresso-compatible pods. The pods - which are fully home-compostable - have become Grind's biggest revenue driver.",

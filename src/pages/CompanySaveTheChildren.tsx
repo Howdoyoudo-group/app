@@ -16,6 +16,10 @@ const data: CompanyCultureData = {
   employees: "25,000+ (globally)",
   sectors: ["Charity", "International Development", "Advocacy", "Education"],
   glassdoor: 3.7,
+  trustpilotUrl: "https://uk.trustpilot.com/review/savethechildren.org.uk",
+  keyPeople: [{ name: "Moazzam Malik", title: "Chief Executive Officer, Save the Children UK" }],
+  officeLocations: [{ label: "Head Office", address: "1 St John's Lane, London, EC1M 4AR", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/save-the-children" }],
   about: [
     "Save the Children was founded in 1919 by Eglantyne Jebb, who drafted the Declaration of the Rights of the Child - the precursor to the UN Convention on the Rights of the Child. From its very beginning, the organisation has been driven by a belief that every child deserves a future.",
     "Today, Save the Children operates in over 100 countries, reaching approximately 40 million children per year through programmes in education, health, nutrition, child protection, and emergency response.",

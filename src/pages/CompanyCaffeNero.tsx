@@ -16,6 +16,12 @@ const data: CompanyCultureData = {
   employees: "6,000+",
   sectors: ["Coffee", "Hospitality", "Food & Drink"],
   glassdoor: 3.4,
+  videoUrl: "https://www.youtube.com/embed/hqUP8tbX_gs",
+  trustpilotUrl: "https://uk.trustpilot.com/review/caffenero.com",
+  glassdoorUrl: "https://www.glassdoor.com/Overview/Working-at-Caff%C3%A8-Nero-EI_IE13311.11,21.htm",
+  keyPeople: [{ name: "Gerry Ford", title: "Founder & Group Chief Executive Officer" }, { name: "Lysa Hardy", title: "UK Chief Executive Officer" }],
+  officeLocations: [{ label: "Global HQ", address: "9-15 Neal Street, Covent Garden, London WC2H 9PW", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/caffe-nero" }],
   about: [
     "Caffè Nero was founded in 1997 by Gerry Ford with a simple mission: to create an authentic Italian coffee house experience on British high streets. The first store opened in London's South Kensington, and the brand has since grown to over 1,000 stores.",
     "What sets Nero apart from its competitors is its private ownership. Unlike Costa (Coca-Cola) and Starbucks (publicly traded), Caffè Nero remains independent, allowing it to make long-term brand decisions without quarterly earnings pressure.",

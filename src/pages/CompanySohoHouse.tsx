@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "12,000+",
   sectors: ["Hospitality", "Members' Clubs", "Hotels", "Wellness"],
   glassdoor: 3.2,
+  trustpilotUrl: "https://www.trustpilot.com/review/www.sohohouse.com",
+  glassdoorUrl: "https://www.glassdoor.com/Overview/Working-at-Soho-House-and-Co-EI_IE487272.11,28.htm",
+  keyPeople: [{ name: "Andrew Carnie", title: "Chief Executive Officer" }],
+  officeLocations: [{ label: "Head Office, Soho, London", address: "72-74 Dean Street, Soho, London, W1D 3TL", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/sohohouse" }],
   about: [
     "Soho House was founded in 1995 by Nick Jones as a private members' club for people in the creative industries - a place where film-makers, musicians, artists, and media professionals could eat, drink, and work. The first House opened above a Greek Street café in Soho.",
     "Today, Soho House & Co operates 40+ Houses across 15 countries, alongside Soho Works co-working spaces, Cowshed spas, Cecconi's restaurants, and The Ned hotels. The empire spans hospitality, wellness, retail, and real estate.",

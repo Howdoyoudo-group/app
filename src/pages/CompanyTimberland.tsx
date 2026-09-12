@@ -16,6 +16,11 @@ const timberlandData: CompanyCultureData = {
   employees: "5,500+",
   sectors: ["Footwear", "Outdoor", "Apparel", "Sustainability"],
   glassdoor: 3.8,
+  trustpilotUrl: "https://uk.trustpilot.com/review/timberland.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Timberland-EI_IE1035.11,21.htm",
+  keyPeople: [{ name: "Nina Flood", title: "Global Brand President, Timberland" }, { name: "Bracken Darrell", title: "President & Chief Executive Officer, VF Corporation" }],
+  officeLocations: [{ label: "Global Headquarters", address: "Stratham, New Hampshire, USA", isHQ: true }, { label: "UK Office", address: "8th Floor, 20 Farringdon Street, London EC4A 4AB", isHQ: false }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/timberland" }],
   about: [
     "Timberland was born in 1973 when Sidney Swartz introduced injection-moulding technology to create truly waterproof leather boots. The original yellow boot - later known simply as 'Timbs' - became one of the most iconic silhouettes in footwear history.",
     "What started as New England workwear was embraced by hip-hop culture in the 1990s, worn by Wu-Tang Clan, Notorious B.I.G., and Aaliyah. That crossover from function to fashion cemented Timberland as a cultural staple that transcends any single category.",

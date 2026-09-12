@@ -16,6 +16,12 @@ const uggData: CompanyCultureData = {
   employees: "4,500+ (Deckers Brands)",
   sectors: ["Footwear", "Lifestyle", "Retail", "DTC"],
   glassdoor: 3.7,
+  videoUrl: "https://www.youtube.com/embed/yO13ZWIgm5o",
+  trustpilotUrl: "https://uk.trustpilot.com/review/ugg.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-UGG-EI_IE1382016.11,14.htm",
+  keyPeople: [{ name: "Stefano Caroti", title: "Chief Executive Officer, President & Director, Deckers Brands" }, { name: "Anne Spangenberg", title: "President, UGG" }],
+  officeLocations: [{ label: "Global Headquarters (Deckers Brands)", address: "250 Coromar Drive, Goleta, CA 93117, USA", isHQ: true }, { label: "UK / Europe Regional Office", address: "Deckers Europe Ltd, 130 Shaftesbury Avenue, London W1D 5EU", isHQ: false }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/ugg" }],
   about: [
     "UGG was founded in 1978 by Australian surfer Brian Smith, who brought sheepskin boots to the California coast. What started as post-surf warming gear became one of the most recognisable comfort brands in the world.",
     "The Classic Boot - with its twin-face sheepskin and plush wool lining - sparked a cultural phenomenon in the early 2000s. Celebrities from Oprah to Tom Brady adopted UGGs, and the brand became synonymous with casual luxury.",

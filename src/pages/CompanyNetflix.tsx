@@ -16,6 +16,10 @@ const data: CompanyCultureData = {
   employees: "13,000+",
   sectors: ["Streaming", "Film", "Television", "Technology"],
   glassdoor: 4.0,
+  trustpilotUrl: "https://uk.trustpilot.com/review/netflix.com",
+  keyPeople: [{ name: "Ted Sarandos", title: "Co-CEO, Netflix" }, { name: "Greg Peters", title: "Co-CEO, Netflix" }],
+  officeLocations: [{ label: "Global Headquarters", address: "Los Gatos, California, USA", isHQ: true }, { label: "UK Office (Netflix Services UK Ltd)", address: "30 Berners Street, London, W1T 3LR", isHQ: false }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/netflix" }],
   about: [
     "Netflix was founded in 1997 by Reed Hastings and Marc Randolph as a DVD rental-by-mail service. The pivot to streaming in 2007 changed entertainment forever - killing Blockbuster, disrupting linear TV, and creating the binge-watching era.",
     "Today, Netflix has 280+ million subscribers in 190 countries and spends over $17 billion annually on content. It produces original films, series, documentaries, and games, with award-winning titles from Squid Game to The Crown.",

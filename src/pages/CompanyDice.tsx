@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "400+",
   sectors: ["Music", "Technology", "Ticketing", "Live Events"],
   glassdoor: 4.0,
+  trustpilotUrl: "https://uk.trustpilot.com/review/dice.fm",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-DICE-EI_IE1285872.11,15.htm",
+  keyPeople: [{ name: "Phil Hutcheon", title: "Founder & CEO" }, { name: "Andrew Foggin", title: "Executive Vice President of Music" }],
+  officeLocations: [{ label: "Head Office", address: "100 De Beauvoir Road, London, N1 4EN", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/dice-fm" }],
   about: [
     "Dice was founded in 2014 by Phil Hutcheon with a mission to fix live music ticketing. The app removes touts, hidden fees, and paper tickets - using mobile-only, non-transferable tickets that can only be returned to the waiting list, not resold at inflated prices.",
     "The platform uses data and algorithms to recommend gigs to users based on their listening habits and location. This discovery engine helps fans find events they'd otherwise miss, and helps artists and venues fill rooms with genuine fans.",

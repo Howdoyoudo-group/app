@@ -16,6 +16,12 @@ const data: CompanyCultureData = {
   employees: "380,000+",
   sectors: ["Coffee", "Hospitality", "Retail", "Technology"],
   glassdoor: 3.6,
+  videoUrl: "https://www.youtube.com/embed/8UC3imHSk_Y",
+  trustpilotUrl: "https://uk.trustpilot.com/review/starbucks.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Starbucks-EI_IE2202.11,20.htm",
+  keyPeople: [{ name: "Darren King", title: "UK Managing Director" }],
+  officeLocations: [{ label: "UK & EMEA Head Office, Chiswick Park", address: "Building 4, Chiswick Park, 566 Chiswick High Road, London, W4 5YG", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/starbucks" }],
   about: [
     "Starbucks was founded in 1971 in Seattle's Pike Place Market, originally selling whole-bean coffee. Under Howard Schultz's leadership from the 1980s, it transformed into the coffeehouse model we know today - inspired by Italian espresso bar culture.",
     "The company pioneered the concept of the 'third place' - a comfortable social environment between home and work. This idea reshaped how millions of people interact with coffee, turning a commodity into a lifestyle experience.",

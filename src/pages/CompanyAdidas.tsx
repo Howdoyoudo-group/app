@@ -17,6 +17,11 @@ const adidasData: CompanyCultureData = {
   sectors: ["Footwear", "Apparel", "Accessories", "Retail", "E-Commerce"],
   glassdoor: 4.0,
   trustpilot: 1.7,
+  trustpilotUrl: "https://uk.trustpilot.com/review/adidas.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-adidas-EI_IE10692.11,17.htm",
+  keyPeople: [{ name: "Bjørn Gulden", title: "Chief Executive Officer, adidas AG" }],
+  officeLocations: [{ label: "Global Headquarters", address: "Adi-Dassler-Straße 1, 91074 Herzogenaurach, Germany", isHQ: true }, { label: "UK / North Europe Office", address: "The Adidas Centre, Pepper Road, Hazel Grove, Stockport SK7 5SA", isHQ: false }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/adidas" }],
   about: [
     "Adidas was founded in 1949 by Adi Dassler in the small Bavarian town of Herzogenaurach, Germany. The name itself is a portmanteau of his nickname and surname. What started as a one-man cobbler operation has grown into the second-largest sportswear company in the world, generating over €22 billion in annual revenue.",
     "The brand's influence spans elite sport and street culture in equal measure. From Jesse Owens at the 1936 Olympics to the Yeezy phenomenon, Adidas has shaped how the world thinks about athletic footwear - and what people wear off the pitch.",

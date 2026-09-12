@@ -16,6 +16,9 @@ const data: CompanyCultureData = {
   employees: "50+",
   sectors: ["Brewing", "Cider", "Agriculture", "DTC"],
   glassdoor: undefined,
+  trustpilotUrl: "https://uk.trustpilot.com/review/hawkstone.com",
+  keyPeople: [{ name: "Jeremy Clarkson", title: "Co-Founder" }, { name: "Owen Jenkins", title: "Managing Director" }, { name: "Hugh van Cutsem", title: "Chairman" }],
+  officeLocations: [{ label: "Brewery HQ", address: "College Farm, Stow Road, Bourton-on-the-Water, Gloucestershire, GL54 2HN", isHQ: true }],
   about: [
     "Hawkstone was launched in 2021 by Jeremy Clarkson and the Cotswold Brew Co. What started as a farm-shop curiosity - lager brewed with barley grown on Clarkson's Diddly Squat Farm - has rapidly become one of the UK's fastest-growing drinks brands.",
     "The brand produces a premium lager and cider range, with ingredients sourced as locally as possible. The lager uses British-grown barley, and the cider is pressed from apples grown in Oxfordshire and Gloucestershire orchards.",

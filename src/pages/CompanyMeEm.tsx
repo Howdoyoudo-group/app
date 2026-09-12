@@ -19,6 +19,11 @@ const meemData: CompanyCultureData = {
   employees: "200–500",
   sectors: ["Womenswear", "Luxury Fashion", "D2C Retail", "E-Commerce"],
   glassdoor: 3.8,
+  trustpilotUrl: "https://uk.trustpilot.com/review/meandem.com",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-ME-EM-EI_IE2612048.11,16.htm",
+  keyPeople: [{ name: "Clare Hornby", title: "Founder & CEO" }],
+  officeLocations: [{ label: "Head Office, White City Place", address: "Third Floor, The WestWorks, White City Place, Wood Lane, London, W12 7FQ", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/me%26em-ltd" }],
   about: [
     "ME+EM is a modern luxury womenswear brand founded by Clare Hornby in 2009. Built on the belief that women deserve beautifully designed, high-quality clothes without the traditional luxury markup, the brand cuts out the middleman and sells directly to customers.",
     "What started as a kitchen-table startup has grown into one of the UK's most exciting fashion brands, with flagship stores in London's Marylebone, Chelsea, and Notting Hill, plus a thriving e-commerce business shipping worldwide.",

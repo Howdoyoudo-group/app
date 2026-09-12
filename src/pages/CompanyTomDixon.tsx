@@ -16,6 +16,11 @@ const data: CompanyCultureData = {
   employees: "200+",
   sectors: ["Interior Design", "Product Design", "Hospitality", "Retail"],
   glassdoor: 3.6,
+  trustpilotUrl: "https://www.trustpilot.com/review/tomdixon.net",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Tom-Dixon-EI_IE1022415.11,20.htm",
+  keyPeople: [{ name: "Henry Jones", title: "Chief Executive Officer" }, { name: "Tom Dixon", title: "Founder & Creative Director" }],
+  officeLocations: [{ label: "The Coal Office (HQ, Studio & Flagship Store)", address: "1 Bagley Walk, Kings Cross, London, N1C 4PQ", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/company/tom-dixon" }],
   about: [
     "Tom Dixon is one of the most celebrated British designers of his generation - and he's entirely self-taught. Starting as a welder and musician in the 1980s London scene, he began making furniture from salvaged materials, eventually becoming Creative Director of Habitat before launching his own brand in 2002.",
     "The Tom Dixon brand spans lighting, furniture, and accessories - with iconic products like the Beat pendant, Melt lamp, and Mirror Ball becoming fixtures in hotels, restaurants, and homes worldwide. The Coal Office HQ in King's Cross doubles as a showroom, restaurant, and creative studio.",

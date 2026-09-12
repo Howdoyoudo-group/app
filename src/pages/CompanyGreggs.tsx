@@ -16,6 +16,12 @@ const greggsData: CompanyCultureData = {
   employees: "32,000+",
   sectors: ["Bakery", "Food & Drink", "Retail", "Supply Chain"],
   glassdoor: 3.5,
+  videoUrl: "https://www.youtube.com/embed/-WqEi6520mc",
+  trustpilotUrl: "https://uk.trustpilot.com/review/www.greggs.co.uk",
+  glassdoorUrl: "https://www.glassdoor.co.uk/Overview/Working-at-Greggs-EI_IE10161.11,17.htm",
+  keyPeople: [{ name: "Roisin Currie", title: "Chief Executive Officer" }, { name: "Richard Hutton", title: "Chief Financial Officer" }],
+  officeLocations: [{ label: "Head Office", address: "Greggs House, Quorum Business Park, Newcastle upon Tyne, NE12 8BU", isHQ: true }],
+  contactLinks: [{ label: "LinkedIn", url: "https://uk.linkedin.com/company/greggs-plc" }],
   about: [
     "Greggs started in 1939 when John Gregg began delivering fresh eggs and yeast by bicycle on Tyneside. His son Ian turned the business into a chain of bakeries, and by the 1980s Greggs was the largest bakery chain in the UK.",
     "Today, Greggs operates over 2,400 shops across the UK, serving millions of customers per week. The vegan sausage roll launch in 2019 became a cultural moment - and a masterclass in PR - propelling the brand into mainstream food conversation.",
