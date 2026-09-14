@@ -207,9 +207,14 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
     <div className="min-h-screen bg-background">
       {/* Compact sticky tab bar - mobile only, mirrors the full grid once it's
           scrolled out of view so every tab stays reachable without scrolling
-          back up. */}
+          back up. Deliberately `fixed`, not `sticky`: a `sticky` element still
+          occupies space in normal flow, so mounting/unmounting it on scroll
+          shifted the full grid below it, which flipped the IntersectionObserver
+          verdict back, causing a mount/unmount feedback loop that read as
+          juddering on mobile. `fixed` sits outside document flow entirely, so
+          showing/hiding it can never move anything else. */}
       {showStickyTabs && (
-        <div className="md:hidden sticky top-0 z-40 bg-background border-b-2 border-foreground/10 shadow-sm">
+        <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-background border-b-2 border-foreground/10 shadow-sm">
           <div className="flex overflow-x-auto scrollbar-hide gap-1 px-2 py-2">
             {enhancedTabs.map((tab) => {
               const icon = TAB_ICONS[tab.id];
