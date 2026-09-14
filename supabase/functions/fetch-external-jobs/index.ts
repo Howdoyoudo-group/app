@@ -988,17 +988,21 @@ async function adzunaFetch(url: string): Promise<Response> {
 // they were found under.
 const ALWAYS_EXCLUDE_COMPANIES = /\b(mercor|surge ai|invisible technologies|remotasks|scale ai|appen|outlier(?:\.ai)?|handshake ai)\b/i;
 
-// Adzuna's own API returns a real `description` field for expired listings
-// too - instead of an empty string or an error, it's the site's own
-// "job no longer available" placeholder copy (chatbot widget greeting,
-// country-picker chrome, etc. - literally scraped their client-rendered
-// fallback into the JSON). Found live 2026-09-14: a Universal Music listing
-// showed this verbatim to candidates. audit-job-links already has this exact
-// marker list for non-Adzuna sources but explicitly skips Adzuna jobs, so
-// nothing else catches it - filter it out at ingestion instead.
-const ADZUNA_DEAD_LISTING_MARKERS = /\b(this job is no longer available|this vacancy is no longer available|this job has expired|this position has been filled|no longer accepting applications|the job you are looking for is no longer|sorry, this job is no longer|this opportunity has closed)\b/i;
-function isAdzunaDeadListing(description: string | null | undefined): boolean {
-  return !!description && ADZUNA_DEAD_LISTING_MARKERS.test(description);
+// Adzuna's own API sometimes returns page CHROME instead of a real job
+// description in the `description` field - not just for expired listings
+// (the "this job is no longer available" case) but for some apparently-live
+// ones too. Found live 2026-09-14: a Universal Music listing showed Adzuna's
+// own country-picker + "Zoe" chatbot widget greeting verbatim to candidates;
+// widening the check turned up a second, more common pattern from the same
+// root cause - Adzuna's "leave your email for similar new jobs" alert-signup
+// banner ("## <Title> jobs in <Location>\n\nLeave us your email address...")
+// leaking in the same way. audit-job-links already has a marker list for the
+// "no longer available" case on non-Adzuna sources but explicitly skips all
+// Adzuna jobs, so nothing else was catching either pattern - filter both out
+// at ingestion instead.
+const ADZUNA_JUNK_DESCRIPTION_MARKERS = /\b(this job is no longer available|this vacancy is no longer available|this job has expired|this position has been filled|no longer accepting applications|the job you are looking for is no longer|sorry, this job is no longer|this opportunity has closed|are you based in the united states\? select your country|zunastatic|leave us your email address|create email alert)\b/i;
+function isAdzunaJunkDescription(description: string | null | undefined): boolean {
+  return !!description && ADZUNA_JUNK_DESCRIPTION_MARKERS.test(description);
 }
 
 // ── Adzuna API fetcher ──────────────────────────────────────────────
@@ -1388,7 +1392,7 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
           ? `https://www.adzuna.co.uk/details/${r.id}`
           : (r.redirect_url || "");
 
-        if (isAdzunaDeadListing(r.description)) continue;
+        if (isAdzunaJunkDescription(r.description)) continue;
         allJobs.push({
           title: jobTitle,
           company: companyName,
@@ -1538,7 +1542,7 @@ async function fetchAdzunaByCategory(industry: string, appId: string, appKey: st
           ? `https://www.adzuna.co.uk/details/${r.id}`
           : (r.redirect_url || "");
 
-        if (isAdzunaDeadListing(r.description)) continue;
+        if (isAdzunaJunkDescription(r.description)) continue;
         allJobs.push({
           title: jobTitle,
           company: companyName,
@@ -1671,7 +1675,7 @@ async function fetchAdzunaByCategoryGeo(industry: string, appId: string, appKey:
           ? `https://www.adzuna.co.uk/details/${r.id}`
           : (r.redirect_url || "");
 
-        if (isAdzunaDeadListing(r.description)) continue;
+        if (isAdzunaJunkDescription(r.description)) continue;
         allJobs.push({
           title: jobTitle,
           company: companyName,
@@ -7270,7 +7274,7 @@ async function fetchRoleJobs(
             const pubDate = r.created ? new Date(r.created) : new Date();
             const expiresAt = new Date(pubDate.getTime() + 60 * 86400000).toISOString();
 
-            if (isAdzunaDeadListing(r.description)) continue;
+            if (isAdzunaJunkDescription(r.description)) continue;
             allJobs.push({
               title,
               company: company.slice(0, 200),
@@ -7380,7 +7384,7 @@ async function fetchPassionJobs(
             if (r.salary_min && r.salary_max) {
               salary = `£${Math.round(r.salary_min)} - £${Math.round(r.salary_max)}`;
             }
-            if (isAdzunaDeadListing(r.description)) continue;
+            if (isAdzunaJunkDescription(r.description)) continue;
             out.push({
               title,
               company: (r.company?.display_name || "Unknown").slice(0, 200),
