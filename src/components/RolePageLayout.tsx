@@ -169,6 +169,7 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
 
   const [activeTab, setActiveTab] = useState(enhancedTabs[0]?.id || "");
   const contentRef = useRef<HTMLDivElement>(null);
+  const tabBarRef = useRef<HTMLDivElement>(null);
 
   // Tapping a tab swaps content that sits below the tab grid - on mobile that
   // grid plus the hero often fills the whole screen, so without an explicit
@@ -179,6 +180,23 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
     setTimeout(() => contentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   };
 
+  // Once the tap scrolls you into a tab's content, the full tab grid above
+  // scrolls out of view with it - on mobile that leaves no way to get to
+  // another tab without scrolling all the way back up (feedback: "lost and
+  // can't go back"). A compact sticky bar mirrors the full grid once it's
+  // scrolled past, so any tab is reachable from wherever you are.
+  const [showStickyTabs, setShowStickyTabs] = useState(false);
+  useEffect(() => {
+    const el = tabBarRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyTabs(!entry.isIntersecting),
+      { threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const activeTabObj = enhancedTabs.find((t) => t.id === activeTab);
   const rawContent = activeTabObj?.content;
   const activeContent = activeTabObj?.id === "listen"
@@ -187,6 +205,39 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Compact sticky tab bar - mobile only, mirrors the full grid once it's
+          scrolled out of view so every tab stays reachable without scrolling
+          back up. */}
+      {showStickyTabs && (
+        <div className="md:hidden sticky top-0 z-40 bg-background border-b-2 border-foreground/10 shadow-sm">
+          <div className="flex overflow-x-auto scrollbar-hide gap-1 px-2 py-2">
+            {enhancedTabs.map((tab) => {
+              const icon = TAB_ICONS[tab.id];
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => selectTab(tab.id)}
+                  aria-label={tab.label}
+                  aria-current={isActive}
+                  className={`flex flex-col items-center gap-1 px-3 py-1.5 shrink-0 rounded-lg transition-colors ${
+                    isActive ? "bg-primary/10 text-primary" : "text-foreground/70"
+                  }`}
+                >
+                  {icon ? (
+                    <img src={icon} alt="" className="w-6 h-6 object-contain" loading="lazy" width={24} height={24} />
+                  ) : (
+                    <HeartHandshake className="w-6 h-6" strokeWidth={1.5} />
+                  )}
+                  <span className="font-display font-700 text-[10px] tracking-wide uppercase whitespace-nowrap">
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
       <SEO
         title={`${name} - Role Guide & Jobs`}
         description={roleDesc(name)}
@@ -260,7 +311,7 @@ const RolePageLayout = ({ name, description, tabs, category, slug }: RolePageLay
             )}
           </div>
 
-          <div className="grid grid-cols-3 md:grid-cols-9 gap-3 mb-12 border-b border-border pb-6">
+          <div ref={tabBarRef} className="grid grid-cols-3 md:grid-cols-9 gap-3 mb-12 border-b border-border pb-6">
             {enhancedTabs.map((tab) => {
               const icon = TAB_ICONS[tab.id];
               const isActive = activeTab === tab.id;
