@@ -85,6 +85,7 @@ const newsfeed = [
 const psychotherapyCompanies = [
   { name: "Tavistock & Portman NHS Trust", url: "https://tavistockandportman.nhs.uk", founded: "1920", hq: "London", glassdoor: 3.9, overview: "A world-renowned mental health trust.", valueChainStage: "Training & Education" },
   { name: "BACP", url: "https://www.bacp.co.uk", founded: "1977", hq: "Lutterworth", glassdoor: 3.5, overview: "The UK's largest professional body for therapists.", valueChainStage: "Professional Bodies" },
+  { name: "HCPC", url: "https://www.hcpc-uk.org", founded: "2003", hq: "London", overview: "The statutory regulator for practitioner psychologists and 14 other health professions - registration is a legal requirement to use protected titles like 'Clinical Psychologist'.", valueChainStage: "Professional Bodies" },
   { name: "NHS Talking Therapies", url: "https://www.jobs.nhs.uk", founded: "2008", hq: "Nationwide", glassdoor: 3.7, overview: "The world's largest publicly funded talking therapy programme.", valueChainStage: "NHS & Public Sector" },
   { name: "BetterHelp", url: "https://www.betterhelp.com/therapist/", founded: "2013", hq: "San Francisco", glassdoor: 3.8, trustpilot: 4.0, overview: "The world's largest online therapy platform.", valueChainStage: "Digital & Online" },
   { name: "Ieso Digital Health", url: "https://www.iesohealth.com", founded: "2000", hq: "Cambridge", glassdoor: 3.6, trustpilot: 4.2, overview: "An NHS-contracted digital therapy provider.", valueChainStage: "Digital & Online" },
@@ -136,6 +137,7 @@ const Psychotherapy = () => {
         <ExploreFurther links={[
           { title: "BACP - Careers in Counselling", description: "The British Association for Counselling and Psychotherapy's guide to training, qualifications, and career paths.", url: "https://www.bacp.co.uk/careers/" },
           { title: "UKCP - Become a Psychotherapist", description: "The UK Council for Psychotherapy's resources on training routes and professional registration.", url: "https://www.psychotherapy.org.uk" },
+          { title: "HCPC - Register as a Psychologist", description: "The Health and Care Professions Council's guide to registration requirements for protected titles like Practitioner Psychologist and Clinical Psychologist.", url: "https://www.hcpc-uk.org/becoming-a-registrant/" },
         ]} />
       </>
     ) },
