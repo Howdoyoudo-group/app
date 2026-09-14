@@ -182,15 +182,73 @@ const IndustryPageLayout = ({
       ? <ReorderListenSections>{rawContent}</ReorderListenSections>
       : rawContent;
 
+  // Shared box renderer for both the primary hero grid and the fixed bars
+  // (mobile compact + desktop full) that mirror it once it's scrolled past -
+  // `compact` shrinks icon/padding sizing so a permanently-pinned desktop bar
+  // doesn't eat too much vertical space, without changing the box styling.
+  const renderTabBox = (tab: IndustryTab, compact: boolean) => {
+    const icon = TAB_ICONS[tab.id];
+    const isActive = activeTab === tab.id;
+    const isApply = tab.id === "apply";
+    const isMentor = tab.id === "mentor";
+    const iconSize = compact ? "w-8 h-8" : "w-10 h-10 md:w-12 md:h-12";
+    const iconPx = compact ? 32 : 48;
+    return (
+      <button
+        key={tab.id}
+        onClick={() => selectTab(tab.id)}
+        aria-current={isActive}
+        className={`flex flex-col items-center gap-2 px-3 ${compact ? "py-2" : "py-4"} transition-all border-2 ${
+          isApply
+            ? isActive
+              ? "border-primary bg-primary text-primary-foreground"
+              : "border-primary bg-primary/10 hover:bg-primary/20"
+            : isActive
+              ? "border-primary bg-primary/5"
+              : "border-border hover:border-primary/50"
+        }`}
+      >
+        {icon ? (
+          <img
+            src={icon}
+            alt={tab.label}
+            className={`${iconSize} object-contain transition-opacity ${
+              isActive ? "opacity-100" : isApply ? "opacity-80" : "opacity-60"
+            }`}
+            loading="lazy"
+            width={iconPx}
+            height={iconPx}
+          />
+        ) : isMentor ? (
+          <HeartHandshake
+            className={`${iconSize} transition-opacity ${isActive ? "opacity-100 text-primary" : "opacity-60"}`}
+            strokeWidth={1.5}
+          />
+        ) : null}
+        <span
+          className={`font-display font-700 text-xs tracking-wide uppercase transition-colors ${
+            isApply
+              ? isActive ? "text-primary-foreground" : "text-primary"
+              : isActive ? "text-primary" : "text-foreground"
+          }`}
+        >
+          {tab.label}
+        </span>
+      </button>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Compact sticky tab bar - mobile only, mirrors the full grid once it's
-          scrolled out of view so every tab stays reachable without scrolling
-          back up. Deliberately `fixed`, not `sticky`: a `sticky` element still
+      {/* Sticky tab bars - mirror the full grid once it's scrolled out of
+          view so every tab stays reachable without scrolling back up
+          (mobile: compact icon strip; desktop: the same boxes, just
+          slightly condensed since this one stays pinned permanently).
+          Deliberately `fixed`, not `sticky`: a `sticky` element still
           occupies space in normal flow, so mounting/unmounting it on scroll
           shifted the full grid below it, which flipped the IntersectionObserver
           verdict back, causing a mount/unmount feedback loop that read as
-          juddering on mobile. `fixed` sits outside document flow entirely, so
+          juddering. `fixed` sits outside document flow entirely, so
           showing/hiding it can never move anything else. */}
       {showStickyTabs && (
         <div className="md:hidden fixed top-0 inset-x-0 z-40 bg-background border-b-2 border-foreground/10 shadow-sm">
@@ -219,6 +277,15 @@ const IndustryPageLayout = ({
                 </button>
               );
             })}
+          </div>
+        </div>
+      )}
+      {showStickyTabs && (
+        <div className="hidden md:block fixed top-0 inset-x-0 z-40 bg-background border-b-2 border-foreground/10 shadow-sm">
+          <div className="container mx-auto px-6 md:px-12">
+            <div className="grid grid-cols-9 gap-3 py-3">
+              {sortedTabs.map((tab) => renderTabBox(tab, true))}
+            </div>
           </div>
         </div>
       )}
@@ -270,56 +337,7 @@ const IndustryPageLayout = ({
 
           {/* Tab bar */}
           <div ref={tabBarRef} className="grid grid-cols-3 md:grid-cols-9 gap-3 mb-12 border-b border-border pb-6">
-            {sortedTabs.map((tab) => {
-              const icon = TAB_ICONS[tab.id];
-              const isActive = activeTab === tab.id;
-              const isApply = tab.id === "apply";
-              const isMentor = tab.id === "mentor";
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => selectTab(tab.id)}
-                  className={`flex flex-col items-center gap-2 px-3 py-4 transition-all border-2 ${
-                    isApply
-                      ? isActive
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-primary bg-primary/10 hover:bg-primary/20"
-                      : isActive
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50"
-                  }`}
-                >
-                  {icon ? (
-                    <img
-                      src={icon}
-                      alt={tab.label}
-                      className={`w-10 h-10 md:w-12 md:h-12 object-contain transition-opacity ${
-                        isActive ? "opacity-100" : isApply ? "opacity-80" : "opacity-60"
-                      }`}
-                      loading="lazy"
-                      width={48}
-                      height={48}
-                    />
-                  ) : isMentor ? (
-                    <HeartHandshake
-                      className={`w-10 h-10 md:w-12 md:h-12 transition-opacity ${
-                        isActive ? "opacity-100 text-primary" : "opacity-60"
-                      }`}
-                      strokeWidth={1.5}
-                    />
-                  ) : null}
-                  <span
-                    className={`font-display font-700 text-xs tracking-wide uppercase transition-colors ${
-                      isApply
-                        ? isActive ? "text-primary-foreground" : "text-primary"
-                        : isActive ? "text-primary" : "text-foreground"
-                    }`}
-                  >
-                    {tab.label}
-                  </span>
-                </button>
-              );
-            })}
+            {sortedTabs.map((tab) => renderTabBox(tab, false))}
           </div>
         </motion.div>
 
