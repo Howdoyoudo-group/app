@@ -7826,6 +7826,34 @@ Deno.serve(async (req) => {
         }
       }
 
+      // Priority Workday Recruiting tenants - same early-save reasoning as the
+      // ATS/Teamtailor blocks above. Found 2026-09-13: Brentford FC and Aston
+      // Villa (football) and Ramsay Health Care (health) - all Workday
+      // tenants in industries with a heavy keyword sweep - had gone stale for
+      // 11+ days because WORKDAY_TENANTS only ran in the late pass (12c
+      // below), which football/health/wellness/money starve out via
+      // WORKER_RESOURCE_LIMIT before it's reached. WORKDAY_TENANTS was added
+      // after the original Greenhouse/Lever/Workable/Ashby/Teamtailor fix and
+      // was never folded into this priority block. The late pass stays in
+      // place as a harmless redundant safety net (deduped by URL).
+      const priorityWdTenants = WORKDAY_TENANTS.filter((t) =>
+        t.industry === industry || (t.routes ?? []).some((r) => r.industry === industry)
+      );
+      for (const tenant of priorityWdTenants) {
+        const wdJobs = await fetchWorkdayJobs(tenant);
+        const matched = wdJobs.filter((j) => j.industry === industry);
+        if (matched.length > 0) {
+          allJobs.push(...matched);
+          try {
+            const inserted = await safeUpsertJobs(supabase, matched);
+            totalInserted += inserted;
+            console.log(`[${industry}] Priority Workday(${tenant.company}): saved=${inserted} of ${matched.length}`);
+          } catch (e: any) {
+            console.error(`[${industry}] Priority Workday(${tenant.company}) save error:`, e?.message || e);
+          }
+        }
+      }
+
       // Day-bucket gate: when called via cron, only run Adzuna sweeps for
       // industries in today's allowed set. Targeted refreshes and admin
       // overrides leave adzunaGated=false so Adzuna runs for everything.

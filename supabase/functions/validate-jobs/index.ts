@@ -419,6 +419,23 @@ const COMPANY_INDUSTRY_MAP: Record<string, string> = {
   "clarks": "footwear",
   "dr martens": "footwear",
   "office shoes": "footwear",
+  // Formula 1 / motorsport teams and bodies — mapped explicitly so their
+  // genuinely on-topic postings (merchandise, ops, engineering) survive the
+  // new formula-1 relevance check below even when a title/description
+  // doesn't spell out "Formula 1" (found 2026-09-13: senploy/eTeach/
+  // TeacherActive SEND-education listings were 38+ of formula-1's jobs).
+  "haas f1": "formula-1",
+  "formula one management": "formula-1",
+  "formula one group": "formula-1",
+  "silverstone circuits": "formula-1",
+  "mclaren racing": "formula-1",
+  "red bull racing": "formula-1",
+  "mercedes-amg petronas": "formula-1",
+  "scuderia ferrari": "formula-1",
+  "aston martin f1": "formula-1",
+  "williams racing": "formula-1",
+  "alpine f1": "formula-1",
+  "kick sauber": "formula-1",
   // Gaming
   "rockstar games": "gaming",
   "ubisoft": "gaming",
@@ -460,6 +477,14 @@ const COMPANY_INDUSTRY_MAP: Record<string, string> = {
   "mcdonald": "hospitality",
   // Teaching
   "pearson": "teaching",
+  // SEND/tutoring platforms and education staffing agencies that were
+  // leaking into formula-1, tennis, wellness and footwear (their listing
+  // titles ("Outreach Tutor", "Finance Administrator") get keyword-matched
+  // into unrelated industries by the ingestion sweep — found 2026-09-13).
+  "senploy": "teaching",
+  "eteach": "teaching",
+  "teacheractive": "teaching",
+  "findtutors": "teaching",
   // Travel
   "marriott": "travel",
   "hilton": "travel",
@@ -500,6 +525,15 @@ const INDUSTRY_TITLE_BLOCKLIST: Record<string, RegExp> = {
   // no nightly cleanup ever catching them (see INDUSTRY_RELEVANCE_KEYWORDS
   // below for the primary defence - this blocklist is belt-and-braces).
   psychotherapy: /\b(cyber security|cybersecurity|software engineer|java developer|devops|sre|kafka|hgv|forklift|estate agent|lettings negotiator|delivery driver|delivery cyclist|moped driver|pizza chef|cleaning assistant|sales administrator|insurance sales|office manager|computer programmer|eyfs practitioner|sales assistant|f&b team leader|plant operator|croupier|casino|bingo|shop floor|checkout|warehouse operative)\b/i,
+  // Formula-1, wellness, footwear, physiotherapy and tennis had NO
+  // blocklist/relevance entries at all until found 2026-09-13 (see audit in
+  // SESSION_LOG.md) — belt-and-braces blocklist for the specific recurring
+  // false-positive title patterns found in each, on top of the relevance
+  // keyword gate below (the primary defence).
+  "formula-1": /\b(teaching assistant|sen teaching|one to one tutor|outreach tutor|maths tutor|\beyfs\b|sencos?\b|special educational needs|healthcare assistant|kitchen porter|aircraft maintenance|dental nurse|care assistant|support worker)\b/i,
+  wellness: /\b(coach builder|vehicle rehabilitation|mains rehabilitation|water rehabilitation|telesales executive|data administrator apprentice|retail head chef)\b/i,
+  footwear: /\b(asbestos trainer|mental health first aid trainer|call centre trainer|warehouse trainer|ai data trainer|chef trainer|regional trainer|technical trainer|change trainer|electrical installation trainer|hourly paid trainer|trainer assessor|f45 trainer|personal trainer)\b/i,
+  tennis: /\b(job coach|skills coach|support coach|life coach|personal assistant|football tracking)\b/i,
 };
 
 // ── Placeholder/seed description detector ──
@@ -596,7 +630,16 @@ const INDUSTRY_RELEVANCE_KEYWORDS: Record<string, RegExp> = {
   // Known genuine mental-health employers (Priory Group, Cygnet, Relate etc.)
   // skip this check entirely via COMPANY_INDUSTRY_MAP, so this only needs to
   // gate jobs from unknown/generic companies.
-  psychotherapy: /\b(psychotherap|counsellor|counselling|\btherapist\b|\bcbt\b|talking therap|\biapt\b|psychological wellbeing practitioner|\bpwp\b|high intensity therapist|child psychotherapist|family therapist|clinical psycholog|counselling psycholog|forensic psycholog|systemic psychotherapy|integrative therapist|person.?centred therap|psychodynamic|\bbacp\b|\bukcp\b|\bhcpc\b|mental health practitioner|mental health nurse|mental health support worker|emotional wellbeing practitioner|psychiatric nurse|psychiatry|psychiatrist)\b/i,
+  // FIX 2026-09-13: several terms here are word STEMS ("psychotherap",
+  // "clinical psycholog", "talking therap", "person-centred therap") that a
+  // trailing \b silently fails to match against their real inflections —
+  // \b(psychotherap)\b never matches "Psychotherapist" because there's no
+  // word boundary between the "p" the stem ends on and the "i" of "-ist"
+  // that follows in the real word. That let genuine "Psychotherapist"/
+  // "Clinical Psychologist" titles from unknown companies get deleted as
+  // "irrelevant" ever since this regex was deployed. Stems get \w* so they
+  // consume the rest of the word before the closing \b is evaluated.
+  psychotherapy: /\b(psychotherap\w*|counsellor|counselling|\btherapist\b|\bcbt\b|talking therap\w*|\biapt\b|psychological wellbeing practitioner|\bpwp\b|high intensity therapist|child psychotherapist|family therapist|clinical psycholog\w*|counselling psycholog\w*|forensic psycholog\w*|systemic psychotherapy|integrative therapist|person.?centred therap\w*|psychodynamic|\bbacp\b|\bukcp\b|\bhcpc\b|mental health practitioner|mental health nurse|mental health support worker|emotional wellbeing practitioner|psychiatric nurse|psychiatry|psychiatrist)\b/i,
   // Politics relevance - deliberately excludes bare "policy" and bare "council"
   // (too broad: insurance policy, HR policy, student council, parish council
   // notices). Every term below is either a distinctive institution/grade name
@@ -607,6 +650,36 @@ const INDUSTRY_RELEVANCE_KEYWORDS: Record<string, RegExp> = {
   // producer). Every term below is either a distinctive theatre-specific
   // compound phrase or a named theatre company/venue.
   theatre: /\b(theatre|theatres|theatrical|west end|stage manager|stage management|deputy stage manager|assistant stage manager|touring stage manager|company manager theatre|production manager theatre|wardrobe supervisor|wardrobe assistant|wardrobe mistress|costume designer|costume maker|set designer|scenic designer|scenic artist|scenic painter|lighting designer theatre|lighting technician theatre|theatre technician|sound designer theatre|dramaturg|literary manager|casting director|panto\b|pantomime|national theatre|royal shakespeare company|\brsc\b|ambassador theatre group|lw theatres|delfont mackintosh|sonia friedman|nimax theatres|donmar warehouse|bristol old vic|chichester festival theatre|sheffield theatres|birmingham rep|royal exchange theatre|glyndebourne|production resource group|white light lighting|rada drama school)\b/i,
+  // Formula-1 relevance - deliberately excludes generic engineering/manufacturing
+  // terms (CNC, composite technician, fibreglass) since those match thousands of
+  // unrelated automotive/aerospace supply-chain jobs; genuine team/supplier
+  // postings survive via the company map above instead. Found 2026-09-13:
+  // senploy alone was 24% of this industry with zero motorsport relevance.
+  "formula-1": /\b(formula 1|formula one|\bf1\b|grand prix|motorsport|motor sport|pit crew|pit lane|pit wall|pit stop|race engineer|race strategist|vehicle dynamics engineer|aerodynamicist|telemetry engineer|race car|racing car|fia formula|indycar|nascar|rally driver|rallying|karting|go.kart|silverstone circuit|brands hatch|donington park|motorsport valley|mclaren racing|red bull racing|mercedes.amg petronas|scuderia ferrari|aston martin f1|williams racing|alpine f1|haas f1|kick sauber|formula one group|formula one management|motorsport uk|british racing drivers|\bbrdc\b|pirelli motorsport|drive to survive)\b/i,
+  // Wellness relevance - fitness/gym/spa/wellbeing vocabulary. Deliberately
+  // excludes bare "coach"/"trainer" (too broad - vehicle coach builders, IT
+  // trainers). Found 2026-09-13: FindTutors alone was 17% of this industry.
+  // "holistic therap" and "hydrotherap" are stems - see the psychotherapy
+  // fix note above for why they need \w* to match their real inflections.
+  wellness: /\b(gym|fitness|personal trainer|wellbeing|wellness|spa|massage|yoga|pilates|nutrition|nutritionist|mental health first aid|holistic therap\w*|sports massage|group exercise|leisure centre|health club|spa therapist|fitness instructor|wellbeing coach|wellbeing officer|hydrotherap\w*|meditation|mindfulness|acupuncture|reiki|aromatherapy|reflexology|swim instructor|swim teacher|padel|health and fitness)\b/i,
+  // Footwear relevance - deliberately excludes any "train-" root (that's the
+  // exact false-positive vector: generic Trainer/Training-Assessor job titles
+  // getting keyword-matched against footwear's "trainers" = sneakers meaning).
+  // Found 2026-09-13: dozens of unrelated training roles (asbestos, call
+  // centre, mental health first aid) were tagged footwear this way.
+  footwear: /\b(shoe|shoes|footwear|sneaker|sneakers|bootmaker|cobbler|shoemaker|cordwainer|shoe repair|shoe factory|shoe fitter|shoe designer|footwear designer|footwear technologist|footwear merchandiser|footwear buyer|footwear production|outsole|midsole|insole|safety boots|wellington boot|orthopaedic footwear|clog|sandal|espadrille|loafer|brogue)\b/i,
+  // Physiotherapy relevance - deliberately excludes bare "rehabilitation"
+  // (too broad: water-mains rehabilitation, vehicle rehab, credit
+  // rehabilitation all matched it). Found 2026-09-13: South Lanarkshire
+  // Council alone was 8.6% of this industry with mixed relevance.
+  // "physiotherap", "physical therap" and "hydrotherap" are stems - see the
+  // psychotherapy fix note above for why they need \w*.
+  physiotherapy: /\b(physiotherap\w*|physical therap\w*|sports therapist|sports rehabilitation|rehabilitation therapist|rehabilitation assistant|neurological rehabilitation|therapy assistant|therapy support worker|chartered society of physiotherapy|\bmsk\b|musculoskeletal|hydrotherap\w*|first contact physiotherapist|extended scope practitioner|neuro physiotherapist|paediatric physiotherapist|veterinary physiotherapist|equine physiotherapist)\b/i,
+  // Tennis relevance - deliberately excludes bare "coach" (too broad: job
+  // coaches, life coaches, disability support "skills coaches" all matched
+  // it). Found 2026-09-13: generic disability-support coaching roles and a
+  // Hawk-Eye football-tracking role were tagged tennis this way.
+  tennis: /\b(tennis|padel|racquet|racket sport|wimbledon|\blta\b|atp tour|wta tour|davis cup|fed cup|billie jean king cup|tennis coach|tennis club|tennis academy|lawn tennis|aeltc|tennis court)\b/i,
 };
 
 // Company keys are matched on WORD BOUNDARIES, not as raw substrings.
