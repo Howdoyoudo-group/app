@@ -989,20 +989,59 @@ async function adzunaFetch(url: string): Promise<Response> {
 const ALWAYS_EXCLUDE_COMPANIES = /\b(mercor|surge ai|invisible technologies|remotasks|scale ai|appen|outlier(?:\.ai)?|handshake ai)\b/i;
 
 // Adzuna's own API sometimes returns page CHROME instead of a real job
-// description in the `description` field - not just for expired listings
-// (the "this job is no longer available" case) but for some apparently-live
-// ones too. Found live 2026-09-14: a Universal Music listing showed Adzuna's
-// own country-picker + "Zoe" chatbot widget greeting verbatim to candidates;
-// widening the check turned up a second, more common pattern from the same
-// root cause - Adzuna's "leave your email for similar new jobs" alert-signup
-// banner ("## <Title> jobs in <Location>\n\nLeave us your email address...")
-// leaking in the same way. audit-job-links already has a marker list for the
-// "no longer available" case on non-Adzuna sources but explicitly skips all
-// Adzuna jobs, so nothing else was catching either pattern - filter both out
-// at ingestion instead.
-const ADZUNA_JUNK_DESCRIPTION_MARKERS = /\b(this job is no longer available|this vacancy is no longer available|this job has expired|this position has been filled|no longer accepting applications|the job you are looking for is no longer|sorry, this job is no longer|this opportunity has closed|are you based in the united states\? select your country|zunastatic|leave us your email address|create email alert)\b/i;
+// description in the `description` field for expired listings - a Universal
+// Music listing showed Adzuna's own country-picker + "Zoe" chatbot widget
+// greeting AND an explicit "Unfortunately, this job is no longer available"
+// verbatim to candidates. audit-job-links already has a marker list for
+// exactly this on non-Adzuna sources but explicitly skips all Adzuna jobs,
+// so nothing else was catching it - filter it out at ingestion instead.
+//
+// IMPORTANT - deliberately narrow: an earlier version of this also matched
+// on generic chrome fragments alone (zunastatic image URLs, the country-
+// picker copy, "leave us your email address"/"create email alert" alert-
+// signup prompts) with no "dead" phrase required, reasoning that Adzuna's
+// chrome only appears on a page with nothing else on it. That's false - a
+// live Kinleigh Folkard & Hayward listing (real, current, verified live by
+// a human) had that exact chrome PLUS the complete real job description
+// appended after it, because that row came from a full-page scrape rather
+// than the clean description field. That version was live briefly and
+// likely deleted some genuinely-live jobs before being caught - see
+// SESSION_LOG.md 2026-09-14. Only match on an explicit "this listing is
+// dead" phrase, never on chrome/boilerplate alone.
+const ADZUNA_JUNK_DESCRIPTION_MARKERS = /\b(this job is no longer available|this vacancy is no longer available|this job has expired|this position has been filled|no longer accepting applications|the job you are looking for is no longer|sorry, this job is no longer|this opportunity has closed)\b/i;
 function isAdzunaJunkDescription(description: string | null | undefined): boolean {
   return !!description && ADZUNA_JUNK_DESCRIPTION_MARKERS.test(description);
+}
+
+// Some Adzuna records (seen from partner-sourced listings, e.g. tagged
+// "360 Resourcing") return a full page SCRAPE as `description` instead of
+// clean text - their own site nav, country-picker chrome, and "email me
+// similar jobs" banner, all wrapped around the real job content rather than
+// replacing it. Found live 2026-09-14: a genuine, current Kinleigh Folkard &
+// Hayward listing had this chrome AND the complete real description, so a
+// plain skip-if-chrome-present check would wrongly discard a live job. This
+// extracts just the real content instead of throwing the whole row away:
+// Adzuna's own rendered page repeats "[Apply for this job](...)" as a link
+// immediately before the real description starts, and the description ends
+// right before the page's trailing "Stats for this job" / "Similar jobs" /
+// "Popular searches" / "Country selection" chrome - both are stable anchors
+// across the pages checked so far.
+const ADZUNA_CHROME_MARKERS = /(zunastatic|are you based in the united states\? select your country|leave us your email address|create email alert)/i;
+const ADZUNA_APPLY_LINK = /\[Apply for this job\]\([^)]*\)\s*/i;
+const ADZUNA_TRAILING_CHROME = /##\s*(Stats for this job|Similar jobs|Popular searches)|####\s*Country selection/i;
+function cleanAdzunaDescription(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  if (isAdzunaJunkDescription(raw)) return null; // explicit "dead" phrase - always drop
+  if (!ADZUNA_CHROME_MARKERS.test(raw)) return raw; // already clean - the common case
+  const applyMatch = ADZUNA_APPLY_LINK.exec(raw);
+  if (!applyMatch) return null; // chrome with no recoverable content - treat as junk
+  const afterApply = raw.slice(applyMatch.index + applyMatch[0].length);
+  const trailingMatch = ADZUNA_TRAILING_CHROME.exec(afterApply);
+  const extracted = (trailingMatch ? afterApply.slice(0, trailingMatch.index) : afterApply)
+    .replace(ADZUNA_APPLY_LINK, "") // drop the repeated "Apply for this job" CTA link that follows the real content
+    .trim();
+  // Require enough real content that this isn't just a stray fragment.
+  return extracted.length > 80 ? extracted : null;
 }
 
 // ── Adzuna API fetcher ──────────────────────────────────────────────
@@ -1370,9 +1409,11 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
           salaryStr = r.salary_is_predicted ? `${base} (est.)` : base;
         }
 
-        const { stage, roleCategory } = classifyJob(jobTitle, r.description || "", assignedIndustry);
+        const cleanedAdzunaDescription = cleanAdzunaDescription(r.description);
+        if (cleanedAdzunaDescription === null) continue;
+        const { stage, roleCategory } = classifyJob(jobTitle, cleanedAdzunaDescription, assignedIndustry);
         // Append adref to description as a stable Adzuna ID for dedup/debug
-        const baseDescription = (r.description || "").slice(0, 1900);
+        const baseDescription = cleanedAdzunaDescription.slice(0, 1900);
         const adref = r.adref ? `\n\n[adzuna:${r.adref}]` : "";
 
         const tagSet: string[] = [];
@@ -1392,7 +1433,6 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
           ? `https://www.adzuna.co.uk/details/${r.id}`
           : (r.redirect_url || "");
 
-        if (isAdzunaJunkDescription(r.description)) continue;
         allJobs.push({
           title: jobTitle,
           company: companyName,
@@ -1532,8 +1572,10 @@ async function fetchAdzunaByCategory(industry: string, appId: string, appKey: st
           salaryStr = r.salary_is_predicted ? `${base} (est.)` : base;
         }
 
-        const { stage, roleCategory } = classifyJob(jobTitle, r.description || "", industry);
-        const baseDescription = (r.description || "").slice(0, 1900);
+        const cleanedAdzunaDescription = cleanAdzunaDescription(r.description);
+        if (cleanedAdzunaDescription === null) continue;
+        const { stage, roleCategory } = classifyJob(jobTitle, cleanedAdzunaDescription, industry);
+        const baseDescription = cleanedAdzunaDescription.slice(0, 1900);
         const adref = r.adref ? `\n\n[adzuna:${r.adref}]` : "";
 
         // See note above on canonical Adzuna URLs - avoid the redirect_url
@@ -1542,7 +1584,6 @@ async function fetchAdzunaByCategory(industry: string, appId: string, appKey: st
           ? `https://www.adzuna.co.uk/details/${r.id}`
           : (r.redirect_url || "");
 
-        if (isAdzunaJunkDescription(r.description)) continue;
         allJobs.push({
           title: jobTitle,
           company: companyName,
@@ -1665,8 +1706,10 @@ async function fetchAdzunaByCategoryGeo(industry: string, appId: string, appKey:
           salaryStr = r.salary_is_predicted ? `${base} (est.)` : base;
         }
 
-        const { stage, roleCategory } = classifyJob(jobTitle, r.description || "", industry);
-        const baseDescription = (r.description || "").slice(0, 1900);
+        const cleanedAdzunaDescription = cleanAdzunaDescription(r.description);
+        if (cleanedAdzunaDescription === null) continue;
+        const { stage, roleCategory } = classifyJob(jobTitle, cleanedAdzunaDescription, industry);
+        const baseDescription = cleanedAdzunaDescription.slice(0, 1900);
         const adref = r.adref ? `\n\n[adzuna:${r.adref}]` : "";
 
         // Use canonical Adzuna listing URL (see note above) - avoid the
@@ -1675,7 +1718,6 @@ async function fetchAdzunaByCategoryGeo(industry: string, appId: string, appKey:
           ? `https://www.adzuna.co.uk/details/${r.id}`
           : (r.redirect_url || "");
 
-        if (isAdzunaJunkDescription(r.description)) continue;
         allJobs.push({
           title: jobTitle,
           company: companyName,
@@ -7262,7 +7304,9 @@ async function fetchRoleJobs(
             if (roleSignal && !roleSignal.test(title)) continue;
 
             const desc = (r.description || "").replace(/<[^>]*>/g, "").trim();
-            const inferredIndustry = inferIndustryFromText(title, company, desc) || fallbackIndustry;
+            const cleanedAdzunaDescription = cleanAdzunaDescription(desc);
+            if (cleanedAdzunaDescription === null) continue;
+            const inferredIndustry = inferIndustryFromText(title, company, cleanedAdzunaDescription) || fallbackIndustry;
 
             let salary: string | null = null;
             if (r.salary_min && r.salary_max) {
@@ -7274,7 +7318,6 @@ async function fetchRoleJobs(
             const pubDate = r.created ? new Date(r.created) : new Date();
             const expiresAt = new Date(pubDate.getTime() + 60 * 86400000).toISOString();
 
-            if (isAdzunaJunkDescription(r.description)) continue;
             allJobs.push({
               title,
               company: company.slice(0, 200),
@@ -7284,7 +7327,7 @@ async function fetchRoleJobs(
               location: (r.location?.display_name || null)?.slice(0, 200) ?? null,
               type: r.contract_time === "part_time" ? "Part-time" : "Full-time",
               salary,
-              description: desc.slice(0, 2000) || null,
+              description: cleanedAdzunaDescription.slice(0, 2000) || null,
               url: link,
               source_url: "adzuna.com",
               expires_at: expiresAt,
@@ -7379,12 +7422,13 @@ async function fetchPassionJobs(
               ? `https://www.adzuna.co.uk/details/${r.id}`
               : (r.redirect_url || "");
             if (!title || !link) continue;
-            const desc = (r.description || "").slice(0, 1900);
+            const cleanedAdzunaDescription = cleanAdzunaDescription(r.description);
+            if (cleanedAdzunaDescription === null) continue;
+            const desc = cleanedAdzunaDescription.slice(0, 1900);
             let salary: string | null = null;
             if (r.salary_min && r.salary_max) {
               salary = `£${Math.round(r.salary_min)} - £${Math.round(r.salary_max)}`;
             }
-            if (isAdzunaJunkDescription(r.description)) continue;
             out.push({
               title,
               company: (r.company?.display_name || "Unknown").slice(0, 200),
