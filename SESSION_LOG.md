@@ -5,6 +5,26 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-12 — Woody (main branch) — About page: "Featured In" section for The Times piece
+
+### What was done THIS SESSION
+Woody shared a promo graphic for HDYD's feature in The Times ("We need to teach young people the new ways of getting a job") and asked for a section below the About page's explainer video: HDYD logo x The Times logo, a link to the article, and the graphic as a teaser.
+
+Couldn't locate the actual pasted graphic as a file on disk (checked Desktop, Downloads, and the `hdyd editorial/hdyd-studio/out/*` folders where Studio-generated teasers normally land - nothing matched, and nothing on disk was modified today). Rather than block on that, built the section natively in the site's own design system instead of faking the graphic: transcribed the real headline and pull-quote text verbatim from the image, used the real article URL, and rendered "THE TIMES" as a system-serif wordmark (Georgia/Times New Roman) alongside the existing `Howdoyoudo?` header wordmark - text only, no lifted/trademarked logo image.
+
+New `src/data/press.ts` (`pressFeatures[]`) holds outlet/url/headline/excerpt so future press mentions are a one-line data add, not another edit to `About.tsx`. New "Featured In" block in `About.tsx` renders right after the explainer video, before the existing "Why/What We Do/Platform" sections - one card per feature, whole card links out (`target="_blank"`) to the piece.
+
+### Commits
+`4b25a0f` - pushed to both remotes (`howdoyoudo` + `origin`) ✅.
+
+### Current state
+Live. Verified in dev server on both desktop and mobile viewports - lockup, headline, pull-quote and outbound link all render and wrap correctly; link confirmed pointing at the real Times URL. `npm run typecheck` clean.
+
+### Left for next session
+If Woody wants the exact promo graphic embedded (not just the transcribed text), he'll need to hand over the actual image file (drag into the project or give a path) - it wasn't recoverable from anywhere on disk this session.
+
+---
+
 ## 2026-09-12 — Andrew (main branch) — Company profiles: video/people/office/ratings/contacts/news + open-roles fix
 
 ### What was done THIS SESSION

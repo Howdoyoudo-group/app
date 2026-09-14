@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { ExternalLink } from "lucide-react";
+import { pressFeatures } from "@/data/press";
 
 const INDUSTRIES = ["Fashion", "Football", "Music", "Beauty", "Food", "Travel", "Technology", "Beer", "Books", "Pets", "Gaming"];
 
@@ -25,6 +27,58 @@ const About = () => {
             />
           </div>
         </motion.div>
+
+        {/* Featured In */}
+        {pressFeatures.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-20"
+          >
+            <p className="text-primary text-xs tracking-[0.3em] uppercase font-body mb-6">Featured In</p>
+            <div className="space-y-8">
+              {pressFeatures.map((feature) => (
+                <a
+                  key={feature.url}
+                  href={feature.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group block border border-border p-6 md:p-10 hover:border-primary transition-colors"
+                >
+                  {/* Lockup: Howdoyoudo? x THE TIMES */}
+                  <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-6">
+                    <span className="font-display font-900 text-lg md:text-xl tracking-tight text-foreground">
+                      Howdoyoudo<span className="text-primary">?</span>
+                    </span>
+                    <span className="text-muted-foreground text-base md:text-lg font-body">×</span>
+                    <span
+                      className="font-700 text-lg md:text-xl tracking-tight text-foreground uppercase"
+                      style={{ fontFamily: 'Georgia, "Times New Roman", Times, serif' }}
+                    >
+                      {feature.outlet}
+                    </span>
+                  </div>
+
+                  <p className="text-muted-foreground text-xs tracking-[0.2em] uppercase font-body mb-3">
+                    From Today's Feature
+                  </p>
+                  <h3 className="font-display text-xl md:text-3xl font-700 leading-snug mb-4 group-hover:text-primary transition-colors max-w-3xl">
+                    {feature.headline}
+                  </h3>
+                  <p className="text-muted-foreground text-sm md:text-base leading-relaxed font-body italic mb-6 max-w-2xl">
+                    "{feature.excerpt}"
+                  </p>
+                  <span className="inline-flex items-center gap-2 font-display font-600 text-sm uppercase tracking-wide text-foreground group-hover:text-primary transition-colors">
+                    Read the article
+                    <ExternalLink className="w-4 h-4" />
+                  </span>
+                </a>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* Header */}
         <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-12 md:gap-20 mb-20">
