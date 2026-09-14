@@ -162,13 +162,22 @@ const IndustryPageLayout = ({
   // so it crosses the viewport edge (and isIntersecting flips) as soon as
   // you've scrolled past that exact point, regardless of the grid's own
   // height or how much scrollable content exists below it.
+  //
+  // rootMargin's negative top shrinks the effective viewport the observer
+  // checks against. Needed because the sentinel sits immediately before
+  // contentRef, which the auto-scroll targets - after that scroll settles,
+  // the sentinel rests at y=~0.2px, right on the intersecting/not boundary
+  // rather than clearly past it. That made the bar not appear until the
+  // user nudged the page with a manual scroll (found live 2026-09-15: "only
+  // appears if you move the screen"). Requiring 24px of clearance means the
+  // scroll's own resting position reliably counts as "past it".
   const [showStickyTabs, setShowStickyTabs] = useState(false);
   useEffect(() => {
     const el = tabBarSentinelRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => setShowStickyTabs(!entry.isIntersecting),
-      { threshold: 0 },
+      { threshold: 0, rootMargin: "-24px 0px 0px 0px" },
     );
     observer.observe(el);
     return () => observer.disconnect();
