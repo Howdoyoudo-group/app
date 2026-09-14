@@ -727,6 +727,7 @@ const categories: Category[] = [
     slug: "volunteering",
     resources: [
       { name: "Do IT", description: "The UK's largest volunteering platform.", url: "https://doit.life/volunteer", tags: ["Find roles", "UK"] },
+      { name: "Vinspired", description: "UK volunteering platform for young people (14-25) - filter roles by cause and by the skills you'll build.", url: "https://vinspired.com", tags: ["Young people", "UK"] },
       { name: "CharityJob - Volunteer roles", description: "Search hundreds of UK volunteer opportunities.", url: "https://www.charityjob.co.uk/volunteer-jobs", tags: ["UK"] },
     ],
   },
