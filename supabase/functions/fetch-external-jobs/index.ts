@@ -1013,6 +1013,13 @@ function isAdzunaJunkDescription(description: string | null | undefined): boolea
   return !!description && ADZUNA_JUNK_DESCRIPTION_MARKERS.test(description);
 }
 
+// Adzuna listings go stale faster than the site-wide 60-day default assumes -
+// a real-browser spot-check of 15 jobs from a single ~26-day-old ingestion
+// batch found 12 (80%) already dead on Adzuna's own site. Reed gets the same
+// tighter treatment elsewhere for the same reason (see audit-job-links' Reed
+// pre-pass). 30 days matches that existing precedent.
+const ADZUNA_EXPIRY_MS = 30 * 86400000;
+
 // Some Adzuna records (seen from partner-sourced listings, e.g. tagged
 // "360 Resourcing") return a full page SCRAPE as `description` instead of
 // clean text - their own site nav, country-picker chrome, and "email me
@@ -1445,7 +1452,7 @@ async function fetchAdzunaJobs(industry: string, keywords: string[], appId: stri
           description: baseDescription + adref,
           url: canonicalAdzunaUrl,
           source_url: "adzuna.com",
-          expires_at: r.created ? new Date(new Date(r.created).getTime() + 60 * 86400000).toISOString() : null,
+          expires_at: r.created ? new Date(new Date(r.created).getTime() + ADZUNA_EXPIRY_MS).toISOString() : null,
           // Flag conflicts so classify-jobs picks them up via the AI second pass
           needs_review: categoryConflict || assignedIndustry !== industry || undefined,
           // Force entry-level only when we believe it's a real grad role
@@ -1597,7 +1604,7 @@ async function fetchAdzunaByCategory(industry: string, appId: string, appKey: st
           url: canonicalAdzunaUrl,
           source_url: "adzuna.com",
           expires_at: r.created
-            ? new Date(new Date(r.created).getTime() + 60 * 86400000).toISOString()
+            ? new Date(new Date(r.created).getTime() + ADZUNA_EXPIRY_MS).toISOString()
             : null,
         });
       }
@@ -1731,7 +1738,7 @@ async function fetchAdzunaByCategoryGeo(industry: string, appId: string, appKey:
           url: canonicalAdzunaUrl,
           source_url: "adzuna.com",
           expires_at: r.created
-            ? new Date(new Date(r.created).getTime() + 60 * 86400000).toISOString()
+            ? new Date(new Date(r.created).getTime() + ADZUNA_EXPIRY_MS).toISOString()
             : null,
         });
       }
@@ -7316,7 +7323,7 @@ async function fetchRoleJobs(
             }
 
             const pubDate = r.created ? new Date(r.created) : new Date();
-            const expiresAt = new Date(pubDate.getTime() + 60 * 86400000).toISOString();
+            const expiresAt = new Date(pubDate.getTime() + ADZUNA_EXPIRY_MS).toISOString();
 
             allJobs.push({
               title,
@@ -7439,7 +7446,7 @@ async function fetchPassionJobs(
               description: desc,
               url: link,
               source_url: "adzuna.com",
-              expires_at: r.created ? new Date(new Date(r.created).getTime() + 60 * 86400000).toISOString() : null,
+              expires_at: r.created ? new Date(new Date(r.created).getTime() + ADZUNA_EXPIRY_MS).toISOString() : null,
               needs_review: true,
               tags: ["passion-job", tag],
             });
