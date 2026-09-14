@@ -129,25 +129,42 @@ const IndustryPageLayout = ({
   const [activeTab, setActiveTab] = useState(sortedTabs[0]?.id || "");
   const location = useLocation();
   const contentRef = useRef<HTMLDivElement>(null);
-  const tabBarRef = useRef<HTMLDivElement>(null);
+  const tabBarSentinelRef = useRef<HTMLDivElement>(null);
 
   // Tapping a tab swaps content that sits below the tab grid - on mobile that
   // grid plus the hero often fills the whole screen, so without an explicit
   // scroll the new content is invisible below the fold and it looks like the
   // tap did nothing. Scroll it into view every time the active tab changes.
+  //
+  // Tabs whose content loads asynchronously (Attend's EventsSection fetches
+  // events after mount) can grow/shift height WHILE the smooth-scroll
+  // animation from the first call is still in flight, which cuts the browser's
+  // native scroll short - found live: the target heading was still ~500px
+  // below the viewport top after the "completed" scroll. A second corrective
+  // call once that content has had time to settle fixes the undershoot.
   const selectTab = (id: string) => {
     setActiveTab(id);
     setTimeout(() => contentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    setTimeout(() => contentRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 600);
   };
 
   // Once the tap scrolls you into a tab's content, the full tab grid above
   // scrolls out of view with it - on mobile that leaves no way to get to
   // another tab without scrolling all the way back up (feedback: "lost and
-  // can't go back"). A compact sticky bar mirrors the full grid once it's
-  // scrolled past, so any tab is reachable from wherever you are.
+  // can't go back"). A sticky bar mirrors the full grid once it's scrolled
+  // past, so any tab is reachable from wherever you are.
+  //
+  // Watches a 1px SENTINEL placed right after the grid, not the grid itself.
+  // The grid is ~350px tall - some tabs (Read, Attend) have short enough
+  // content that the page can never scroll far enough for the *entire* grid
+  // to leave the viewport, so its bottom row stays permanently peeking into
+  // view and isIntersecting never flips to false. A sentinel has ~0 height,
+  // so it crosses the viewport edge (and isIntersecting flips) as soon as
+  // you've scrolled past that exact point, regardless of the grid's own
+  // height or how much scrollable content exists below it.
   const [showStickyTabs, setShowStickyTabs] = useState(false);
   useEffect(() => {
-    const el = tabBarRef.current;
+    const el = tabBarSentinelRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
       ([entry]) => setShowStickyTabs(!entry.isIntersecting),
@@ -336,18 +353,24 @@ const IndustryPageLayout = ({
           </div>
 
           {/* Tab bar */}
-          <div ref={tabBarRef} className="grid grid-cols-3 md:grid-cols-9 gap-3 mb-12 border-b border-border pb-6">
+          <div className="grid grid-cols-3 md:grid-cols-9 gap-3 mb-12 border-b border-border pb-6">
             {sortedTabs.map((tab) => renderTabBox(tab, false))}
           </div>
+          {/* Sentinel the sticky-bar observer watches - see note above. */}
+          <div ref={tabBarSentinelRef} />
         </motion.div>
 
-        {/* Active tab content */}
+        {/* Active tab content. Padded down when a sticky bar is showing so
+            it doesn't sit under it (the bar is `fixed`, so it overlays
+            rather than pushing content down) - values match each bar's
+            measured height with a little headroom. */}
         <motion.div
           ref={contentRef}
           key={activeTab}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className={showStickyTabs ? "pt-20 md:pt-28" : ""}
         >
           {activeContent}
         </motion.div>
