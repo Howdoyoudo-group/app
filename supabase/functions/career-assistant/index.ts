@@ -524,7 +524,8 @@ When the user expresses an intent, USE THE TOOLS to act on their behalf, then co
 - "Find me marketing jobs in London" / "any chef roles?" → call search_jobs
 - "Show me coffee jobs at Costa" → call search_jobs(query: "barista", company: "Costa")
 - "What jobs do you recommend for me?" / "find me some jobs" / "got anything for me?" (no specific keyword, company, industry or location given) → call get_recommended_jobs, NOT search_jobs - this returns their actual personalised top matches (the same ranked list as their Howdy Jobs tab), not a generic keyword search
-- "Check my target/most wanted companies or roles for anything available" / "any openings at my dream companies?" → call get_recommended_jobs FIRST (its ranking already factors in their dream companies/roles/RIASEC/work-values - it's the same personalised source as their Howdy Jobs tab). If they then want it broken down by a SPECIFIC company or role by name, also call search_jobs once per company/role named in their Most Wanted context (e.g. search_jobs(company: "Chelsea FC"), search_jobs(query: "Trustee")) - you can call several tools in the same turn. Never say you "can't search for live job openings" or "don't have access to real-time job boards" - that's false, these two tools exist for exactly this and must always be tried before telling the user to go check external sites themselves.
+- "What jobs do you recommend given my interests/wishlist?" / an OPEN recommendation ask with no named filter → call get_recommended_jobs ONLY (its ranking already factors in dream companies/roles/RIASEC/work-values - same personalised source as their Howdy Jobs tab). One call, don't also loop search_jobs.
+- "Find/check jobs AT my most wanted companies (or roles)" / "anything available out of the companies/roles I've saved?" - this NAMES specific companies/roles as the actual filter, so get_recommended_jobs alone is the wrong tool (its ranked list isn't guaranteed to include those companies at all - it optimises for overall fit, not a company match). Instead call search_jobs once per company/role from their Most Wanted context (e.g. search_jobs(company: "Chelsea FC"), search_jobs(company: "Brentford") - up to about 6 calls in the same turn is fine, that's still one turn, not multiple rounds of back-and-forth). If they have more than ~6 combined, do the most recently added ones first and say you checked those, offer to check the rest. Merge results into one answer, dedupe by job, and don't claim a company had nothing if you didn't actually call search_jobs for it. Never say you "can't search for live job openings" or "don't have access to real-time job boards" - that's false, these tools exist for exactly this.
 - "I want to become a plumber" / "let's focus on Electrician" → call add_dream_role(role: "Plumber") - this is their main current goal, not just an interest, and (if it matches a real role page) also becomes what you coach them on
 - Agreeing on a concrete next step mid-conversation that isn't already an automatic checklist item → call add_coach_task(title: "...")
 
@@ -924,13 +925,30 @@ When either tool returns matches, every job title you show MUST be a clickable m
           await persistTurn(latestUserMessage, finalText);
           return new Response(sse, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
         }
-        // Execute tool calls
+        // Execute tool calls. Read-only tools (e.g. search_jobs once per Most
+        // Wanted company) run in parallel - a single round can legitimately
+        // contain several of these, and running them one at a time was
+        // adding real latency for exactly that case. Writes (add_dream_role
+        // etc) stay sequential: several of them read-modify-write the same
+        // profiles.job_preferences column, so running those concurrently
+        // risks one call's write clobbering another's (lost update).
         convo.push(msg);
-        for (const tc of toolCalls) {
+        const READ_ONLY_TOOLS = new Set(["search_site", "search_jobs", "get_recommended_jobs"]);
+        const toolResults: { role: string; tool_call_id: string; content: string }[] = new Array(toolCalls.length);
+        const writeIndices: number[] = [];
+        await Promise.all(toolCalls.map(async (tc: any, i: number) => {
+          if (!READ_ONLY_TOOLS.has(tc.function?.name)) { writeIndices.push(i); return; }
           const args = (() => { try { return JSON.parse(tc.function?.arguments || "{}"); } catch { return {}; } })();
           const result = await executeTool(tc.function?.name, args);
-          convo.push({ role: "tool", tool_call_id: tc.id, content: result });
+          toolResults[i] = { role: "tool", tool_call_id: tc.id, content: result };
+        }));
+        for (const i of writeIndices.sort((a, b) => a - b)) {
+          const tc = toolCalls[i];
+          const args = (() => { try { return JSON.parse(tc.function?.arguments || "{}"); } catch { return {}; } })();
+          const result = await executeTool(tc.function?.name, args);
+          toolResults[i] = { role: "tool", tool_call_id: tc.id, content: result };
         }
+        convo.push(...toolResults);
         // loop again so the model can use results / call more tools
       }
     }

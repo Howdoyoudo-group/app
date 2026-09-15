@@ -36,7 +36,11 @@ export function computeReadiness(
  * Howdy on every candidate turn. Used by both career-assistant (text chat)
  * and howdy-voice-token (voice) so the two channels never diverge.
  */
-export async function buildCvEvidenceContext(svcClient: any, userId: string): Promise<string> {
+export async function buildCvEvidenceContext(
+  svcClient: any,
+  userId: string,
+  opts: { concise?: boolean } = {},
+): Promise<string> {
   const [{ data: profile }, { data: badgeRows }, { data: generalTasks }] = await Promise.all([
     svcClient
       .from("profiles")
@@ -55,6 +59,34 @@ export async function buildCvEvidenceContext(svcClient: any, userId: string): Pr
   const qualifications: any[] = Array.isArray(jobPrefs?.profileBuilder?.qualifications) ? jobPrefs.profileBuilder.qualifications : [];
   const standoutHistory = workHistory.filter((w: any) => ["Internship", "Volunteering", "Award"].includes(w?.kind));
   const careerLevel: string | null = (profile as any)?.career_level || understandMe?.careerLevel || null;
+
+  const wantedRoles: string[] = Array.isArray(jobPrefs?.targetRoles) ? jobPrefs.targetRoles : [];
+  const wantedCompanies: string[] = Array.isArray(jobPrefs?.targetCompanies) ? jobPrefs.targetCompanies : [];
+
+  // Voice needs a much shorter prompt than text - a big system prompt adds
+  // real generation latency on every turn, and a slow/silent turn is what
+  // trips ElevenLabs' own "are you still there?" idle check. Text can afford
+  // the full detail below since it streams and the user is reading, not
+  // waiting on audio.
+  if (opts.concise) {
+    const shortParts: string[] = [];
+    if (careerLevel) shortParts.push(`Career level: ${careerLevel}`);
+    if (workHistory.length) {
+      const w = workHistory[0];
+      shortParts.push(`Most recent role: ${[w.title, w.company ? `at ${w.company}` : null].filter(Boolean).join(" ")}`);
+    }
+    if (understandMe?.transferableSkills?.length) {
+      shortParts.push(`Transferable skills: ${understandMe.transferableSkills.slice(0, 4).join(", ")}`);
+    }
+    if (jobPrefs?.passions?.length || jobPrefs?.passionsText) {
+      shortParts.push(`Passions: ${[...(jobPrefs.passions ?? []), jobPrefs.passionsText].filter(Boolean).slice(0, 4).join(", ")}`);
+    }
+    if (wantedRoles.length) shortParts.push(`Most Wanted roles: ${wantedRoles.slice(0, 5).join(", ")}`);
+    if (wantedCompanies.length) shortParts.push(`Most Wanted companies: ${wantedCompanies.slice(0, 5).join(", ")}`);
+    return shortParts.length
+      ? `\n\n### What you know about them (brief - keep references to this short, spoken out loud)\n${shortParts.join("\n")}`
+      : "";
+  }
 
   const parts: string[] = [`CV uploaded: ${cvUploaded ? "yes" : "no"}`];
   if (careerLevel) parts.push(`Career level: ${careerLevel}`);
@@ -98,8 +130,6 @@ export async function buildCvEvidenceContext(svcClient: any, userId: string): Pr
   // before this fix: nothing ever read job_preferences.targetRoles/
   // targetCompanies back into context, so Howdy could save a dream role
   // but never actually recall or reason from it on a later turn.
-  const wantedRoles: string[] = Array.isArray(jobPrefs?.targetRoles) ? jobPrefs.targetRoles : [];
-  const wantedCompanies: string[] = Array.isArray(jobPrefs?.targetCompanies) ? jobPrefs.targetCompanies : [];
   if (wantedRoles.length) parts.push(`Most Wanted roles (saved wishlist, from site-wide "Save to Most Wanted"): ${wantedRoles.join(", ")}`);
   if (wantedCompanies.length) parts.push(`Most Wanted companies (saved wishlist): ${wantedCompanies.join(", ")}`);
 
