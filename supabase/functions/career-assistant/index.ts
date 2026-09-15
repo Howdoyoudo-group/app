@@ -1,7 +1,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { renderSiteMapForPrompt, renderSiteSearchResults, searchSiteIndex, buildRoutingDirective, buildJobIntentDirective } from "../_shared/site-map.ts";
 import { resolveRoleTitleToSlug } from "../_shared/role-slugs.ts";
-import { buildTargetRolesContext } from "../_shared/coach-context.ts";
+import { buildTargetRolesContext, buildCvEvidenceContext } from "../_shared/coach-context.ts";
 
 
 const corsHeaders = {
@@ -48,7 +48,7 @@ __SITE_MAP__
 2. If they want to apply for jobs → point to /marketplace and the CV/application tools
 3. If they need skills/courses → recommend /learning and industry-specific courses tabs
 4. If they want inspiration → suggest company profiles and career profiles
-5. If they're unsure what suits them → recommend the "Understand Me" tool at /marketplace
+5. **If they're unsure what suits them or ask "what roles/industries would suit me"** → don't just deflect to the "Understand Me" quiz. Check context first: if you have their RIASEC personality type, work values, CV-derived transferable skills, passions, or Most Wanted wishlist, use THAT to name 2-4 specific real roles/industries and say why each fits (e.g. "your top RIASEC type is Social and you've named X as a passion, plus your CV shows customer-facing experience at Y - that points toward [specific role], here's the page: [link]"). Only recommend the Understand Me tool (/marketplace) as a fallback when none of that data is actually present in context - never as the default first answer when you already have real signal to work from.
 6. **Side hustles / side income / making money on the side / part-time income / supplementing income / proving strategic value with a side project** → ALWAYS link to [/side-hustles](/side-hustles) FIRST, plus a specific topic page (e.g. [/side-hustles/freelancing](/side-hustles/freelancing), [/side-hustles/content-creation](/side-hustles/content-creation)) when relevant. Do NOT route side-hustle questions to industry pages, the Learning Hub, or the CV Builder — those are secondary at best. NEVER invent off-platform side-hustle ideas (no "start a scouting newsletter", no "help an artist with brand partnerships"). Only recommend the curated topics listed in the site map.
 7. **Starting a business / founding a startup / incorporating / raising money / SEIS / EIS / Advance Assurance / angel investors / VC / grants / cap tables / fundraising** → ALWAYS link to [/starting-a-business](/starting-a-business) FIRST. It has dedicated SEIS/EIS, HMRC, legal foundations and fundraising sections with curated UK partner resources (SeedLegals, British Business Bank, SFC Capital, Angel Academe, BackerIQ, Legal Foundations). Do NOT route these to the Learning Hub or to role/industry pages — /starting-a-business is the canonical home.
 8. Before recommending internal pages, use the live site-search context/tool results. If the user asks about Side Hustles or side income, the answer MUST start with [/side-hustles](/side-hustles). If they ask about SEIS/EIS/fundraising/startups, the answer MUST start with [/starting-a-business](/starting-a-business).
@@ -351,9 +351,16 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Target roles: readiness, gaps, CV/experience, badges/course status,
-      // per role - this is what lets Howdy coach instead of just chat, see
-      // instruction 10 in CANDIDATE_KNOWLEDGE.
+      // CV/onboarding/Match-Me evidence + Most Wanted roles/companies -
+      // unconditional (not gated on having a target role set), since this is
+      // exactly the raw material Howdy needs to make a FIRST suggestion when
+      // someone hasn't picked a role yet, not just coach one they already have.
+      const cvEvidenceContext = await buildCvEvidenceContext(svcClient, userId);
+      if (cvEvidenceContext) parts.push(cvEvidenceContext);
+
+      // Target roles: readiness, gaps, course status, plan checklist, per
+      // role - this is what lets Howdy coach instead of just chat, see
+      // instruction 10 in CANDIDATE_KNOWLEDGE. Empty until they've set one.
       const targetRolesContext = await buildTargetRolesContext(svcClient, userId);
       if (targetRolesContext) parts.push(targetRolesContext);
 
