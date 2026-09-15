@@ -24,6 +24,7 @@ import WhatsAppOptIn from "@/components/profile/WhatsAppOptIn";
 import RiasecHexagon from "@/components/profile/RiasecHexagon";
 import UnderstandMe from "@/components/UnderstandMe";
 import YourBadges from "@/components/YourBadges";
+import CuriosityScoreCard from "@/components/CuriosityScoreCard";
 import RiasecQuiz, { RiasecScores, WorkValues } from "@/components/RiasecQuiz";
 import { roles } from "@/data/roles";
 import { CAREER_MAP_ROLES } from "@/data/career-map-roles";
@@ -1594,6 +1595,8 @@ const MyProfile = () => {
                 </button>
               )}
             </div>
+
+            <CuriosityScoreCard />
 
             <YourBadges />
 
