@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Flame } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -476,6 +476,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
   const accountRef = useRef<HTMLDivElement | null>(null);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string | null>(null);
+  const [curiosityScore, setCuriosityScore] = useState<number | null>(null);
 
   useEffect(() => {
     if (!accountOpen) return;
@@ -503,6 +504,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
     if (!user) {
       setPhotoUrl(null);
       setFirstName(null);
+      setCuriosityScore(null);
       return;
     }
     (async () => {
@@ -510,11 +512,14 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
       const metadataPhoto = meta.avatar_url || meta.picture || null;
       const { data } = await supabase
         .from("profiles")
-        .select("photo_url, full_name")
+        .select("photo_url, full_name, curiosity_score")
         .eq("id", user.id)
         .maybeSingle();
       if (!active) return;
       setPhotoUrl((data as any)?.photo_url || metadataPhoto || null);
+      // numeric columns come back as strings from PostgREST, not JS numbers
+      const rawCuriosity = (data as any)?.curiosity_score;
+      setCuriosityScore(rawCuriosity != null ? Number(rawCuriosity) : null);
       const fullName = (data as any)?.full_name as string | null;
       const profileFirst = fullName ? fullName.trim().split(/\s+/)[0] : null;
       const metaFirst =
@@ -567,7 +572,18 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
         {/* RIGHT: auth */}
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4 shrink-0">
           {user ? (
-            <div ref={accountRef} className="hidden sm:block relative">
+            <div className="hidden sm:flex items-center gap-2">
+              {curiosityScore != null && !Number.isNaN(curiosityScore) && (
+                <Link
+                  to="/my-profile"
+                  title={`${curiosityScore}% curious - how actively you're exploring Howdy`}
+                  className="inline-flex items-center gap-1 rounded-full border-2 border-foreground bg-primary px-2.5 py-1 shadow-[2px_2px_0_hsl(var(--foreground))] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                >
+                  <Flame className="w-3.5 h-3.5 text-foreground" />
+                  <span className="font-display font-900 text-xs text-foreground">{curiosityScore}%</span>
+                </Link>
+              )}
+              <div ref={accountRef} className="relative">
               <button
                 type="button"
                 onClick={() => setAccountOpen((v) => !v)}
@@ -643,6 +659,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
                   </motion.div>
                 )}
               </AnimatePresence>
+              </div>
             </div>
           ) : authLoading ? null : (
             <Link

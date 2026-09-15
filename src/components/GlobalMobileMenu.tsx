@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Menu, X, ChevronRight, ArrowLeft, ChevronDown } from "lucide-react";
+import { Menu, X, ChevronRight, ArrowLeft, ChevronDown, Flame } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -147,6 +147,7 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
   const [openSubSection, setOpenSubSection] = useState<string | null>(null);
   const [openHelpSection, setOpenHelpSection] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [curiosityScore, setCuriosityScore] = useState<number | null>(null);
   const location = useLocation();
 
   const closeMenu = () => {
@@ -170,17 +171,20 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
 
   useEffect(() => {
     let active = true;
-    if (!user) { setPhotoUrl(null); return; }
+    if (!user) { setPhotoUrl(null); setCuriosityScore(null); return; }
     (async () => {
       const meta = (user.user_metadata as any) || {};
       const metadataPhoto = meta.avatar_url || meta.picture || null;
       const { data } = await supabase
         .from("profiles")
-        .select("photo_url")
+        .select("photo_url, curiosity_score")
         .eq("id", user.id)
         .maybeSingle();
       if (!active) return;
       setPhotoUrl((data as any)?.photo_url || metadataPhoto || null);
+      // numeric columns come back as strings from PostgREST, not JS numbers
+      const rawCuriosity = (data as any)?.curiosity_score;
+      setCuriosityScore(rawCuriosity != null ? Number(rawCuriosity) : null);
     })();
     return () => { active = false; };
   }, [user]);
@@ -195,6 +199,17 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
   return (
     <>
       <div className="flex items-center gap-2 md:hidden">
+        {showAvatar && user && curiosityScore != null && !Number.isNaN(curiosityScore) && (
+          <Link
+            to="/my-profile"
+            aria-label={`${curiosityScore}% curious`}
+            onClick={() => setOpen(false)}
+            className="inline-flex items-center gap-1 rounded-full border-2 border-foreground bg-primary px-2 py-1 shadow-[2px_2px_0_hsl(var(--foreground))] hover:opacity-90 transition-opacity"
+          >
+            <Flame className="w-3 h-3 text-foreground" />
+            <span className="font-display font-900 text-[11px] text-foreground">{curiosityScore}%</span>
+          </Link>
+        )}
         {showAvatar && user && (
           <Link
             to="/my-profile"
