@@ -477,6 +477,9 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string | null>(null);
   const [curiosityScore, setCuriosityScore] = useState<number | null>(null);
+  const [curiosityBreadth, setCuriosityBreadth] = useState<number | null>(null);
+  const [curiosityOpen, setCuriosityOpen] = useState(false);
+  const curiosityRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!accountOpen) return;
@@ -496,6 +499,24 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
     };
   }, [accountOpen]);
 
+  useEffect(() => {
+    if (!curiosityOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (curiosityRef.current && !curiosityRef.current.contains(e.target as Node)) {
+        setCuriosityOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCuriosityOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [curiosityOpen]);
+
   // Default: hide logo on overlay (hero already has speech bubble), show otherwise
   const renderLogo = showLogo ?? !overlay;
 
@@ -505,6 +526,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
       setPhotoUrl(null);
       setFirstName(null);
       setCuriosityScore(null);
+      setCuriosityBreadth(null);
       return;
     }
     (async () => {
@@ -512,7 +534,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
       const metadataPhoto = meta.avatar_url || meta.picture || null;
       const { data } = await supabase
         .from("profiles")
-        .select("photo_url, full_name, curiosity_score")
+        .select("photo_url, full_name, curiosity_score, curiosity_breadth")
         .eq("id", user.id)
         .maybeSingle();
       if (!active) return;
@@ -520,6 +542,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
       // numeric columns come back as strings from PostgREST, not JS numbers
       const rawCuriosity = (data as any)?.curiosity_score;
       setCuriosityScore(rawCuriosity != null ? Number(rawCuriosity) : null);
+      setCuriosityBreadth((data as any)?.curiosity_breadth ?? null);
       const fullName = (data as any)?.full_name as string | null;
       const profileFirst = fullName ? fullName.trim().split(/\s+/)[0] : null;
       const metaFirst =
@@ -574,14 +597,46 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
           {user ? (
             <div className="hidden sm:flex items-center gap-2">
               {curiosityScore != null && !Number.isNaN(curiosityScore) && (
-                <Link
-                  to="/my-profile"
-                  title={`${curiosityScore}% curious - how actively you're exploring Howdy`}
-                  className="inline-flex items-center gap-1 rounded-full border-2 border-foreground bg-primary px-2.5 py-1 shadow-[2px_2px_0_hsl(var(--foreground))] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
-                >
-                  <Flame className="w-3.5 h-3.5 text-foreground" />
-                  <span className="font-display font-900 text-xs text-foreground">{curiosityScore}%</span>
-                </Link>
+                <div ref={curiosityRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setCuriosityOpen((v) => !v)}
+                    aria-label={`${curiosityScore}% curious - what does this mean?`}
+                    aria-expanded={curiosityOpen}
+                    className="inline-flex items-center gap-1 rounded-full border-2 border-foreground bg-primary px-2.5 py-1 shadow-[2px_2px_0_hsl(var(--foreground))] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                  >
+                    <Flame className="w-3.5 h-3.5 text-foreground" />
+                    <span className="font-display font-900 text-xs text-foreground">{curiosityScore}%</span>
+                  </button>
+                  <AnimatePresence>
+                    {curiosityOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -6 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -6 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 mt-2 w-72 bg-background border-2 border-foreground rounded-xl shadow-[4px_4px_0_0_hsl(var(--foreground))] overflow-hidden z-50 p-4"
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <Flame className="w-4 h-4 text-primary" />
+                          <span className="font-display font-900 text-sm">Your curiosity score</span>
+                        </div>
+                        <p className="font-display font-800 text-2xl text-primary mb-1">{curiosityScore}%</p>
+                        <p className="font-body text-xs text-muted-foreground mb-3">
+                          How actively you're exploring Howdy - browsing, saving jobs, tracking applications, learning
+                          {curiosityBreadth != null ? ` - active in ${curiosityBreadth}/5 signal areas.` : "."} Employers see this too, it's part of what makes you stand out.
+                        </p>
+                        <Link
+                          to="/my-profile"
+                          onClick={() => setCuriosityOpen(false)}
+                          className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:underline"
+                        >
+                          See full details on your profile →
+                        </Link>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               )}
               <div ref={accountRef} className="relative">
               <button

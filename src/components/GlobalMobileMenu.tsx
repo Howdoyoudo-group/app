@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Menu, X, ChevronRight, ArrowLeft, ChevronDown, Flame } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
@@ -148,7 +148,21 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
   const [openHelpSection, setOpenHelpSection] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [curiosityScore, setCuriosityScore] = useState<number | null>(null);
+  const [curiosityBreadth, setCuriosityBreadth] = useState<number | null>(null);
+  const [curiosityOpen, setCuriosityOpen] = useState(false);
+  const curiosityRef = useRef<HTMLDivElement | null>(null);
   const location = useLocation();
+
+  useEffect(() => {
+    if (!curiosityOpen) return;
+    const onClick = (e: MouseEvent) => {
+      if (curiosityRef.current && !curiosityRef.current.contains(e.target as Node)) {
+        setCuriosityOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [curiosityOpen]);
 
   const closeMenu = () => {
     setOpen(false);
@@ -171,13 +185,13 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
 
   useEffect(() => {
     let active = true;
-    if (!user) { setPhotoUrl(null); setCuriosityScore(null); return; }
+    if (!user) { setPhotoUrl(null); setCuriosityScore(null); setCuriosityBreadth(null); return; }
     (async () => {
       const meta = (user.user_metadata as any) || {};
       const metadataPhoto = meta.avatar_url || meta.picture || null;
       const { data } = await supabase
         .from("profiles")
-        .select("photo_url, curiosity_score")
+        .select("photo_url, curiosity_score, curiosity_breadth")
         .eq("id", user.id)
         .maybeSingle();
       if (!active) return;
@@ -185,6 +199,7 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
       // numeric columns come back as strings from PostgREST, not JS numbers
       const rawCuriosity = (data as any)?.curiosity_score;
       setCuriosityScore(rawCuriosity != null ? Number(rawCuriosity) : null);
+      setCuriosityBreadth((data as any)?.curiosity_breadth ?? null);
     })();
     return () => { active = false; };
   }, [user]);
@@ -200,15 +215,46 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
     <>
       <div className="flex items-center gap-2 md:hidden">
         {showAvatar && user && curiosityScore != null && !Number.isNaN(curiosityScore) && (
-          <Link
-            to="/my-profile"
-            aria-label={`${curiosityScore}% curious`}
-            onClick={() => setOpen(false)}
-            className="inline-flex items-center gap-1 rounded-full border-2 border-foreground bg-primary px-2 py-1 shadow-[2px_2px_0_hsl(var(--foreground))] hover:opacity-90 transition-opacity"
-          >
-            <Flame className="w-3 h-3 text-foreground" />
-            <span className="font-display font-900 text-[11px] text-foreground">{curiosityScore}%</span>
-          </Link>
+          <div ref={curiosityRef} className="relative">
+            <button
+              type="button"
+              onClick={() => setCuriosityOpen((v) => !v)}
+              aria-label={`${curiosityScore}% curious - what does this mean?`}
+              aria-expanded={curiosityOpen}
+              className="inline-flex items-center gap-1 rounded-full border-2 border-foreground bg-primary px-2 py-1 shadow-[2px_2px_0_hsl(var(--foreground))] hover:opacity-90 transition-opacity"
+            >
+              <Flame className="w-3 h-3 text-foreground" />
+              <span className="font-display font-900 text-[11px] text-foreground">{curiosityScore}%</span>
+            </button>
+            <AnimatePresence>
+              {curiosityOpen && (
+                <motion.div
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute left-0 mt-2 w-64 bg-background border-2 border-foreground rounded-xl shadow-[4px_4px_0_0_hsl(var(--foreground))] overflow-hidden z-50 p-4"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Flame className="w-4 h-4 text-primary" />
+                    <span className="font-display font-900 text-sm">Your curiosity score</span>
+                  </div>
+                  <p className="font-display font-800 text-2xl text-primary mb-1">{curiosityScore}%</p>
+                  <p className="font-body text-xs text-muted-foreground mb-3">
+                    How actively you're exploring Howdy - browsing, saving jobs, tracking applications, learning
+                    {curiosityBreadth != null ? ` - active in ${curiosityBreadth}/5 signal areas.` : "."} Employers see this too, it's part of what makes you stand out.
+                  </p>
+                  <Link
+                    to="/my-profile"
+                    onClick={() => { setCuriosityOpen(false); setOpen(false); }}
+                    className="font-display font-700 text-xs uppercase tracking-wide text-primary hover:underline"
+                  >
+                    See full details on your profile →
+                  </Link>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         )}
         {showAvatar && user && (
           <Link
