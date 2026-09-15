@@ -208,6 +208,41 @@ const CareerAssistant = () => {
     return () => { cancelled = true; };
   }, [user, location.pathname]);
 
+  // Proactive nudges (Phase 3 of the Howdy improvement plan): a Postgres
+  // trigger queues a howdy_nudges row when something real happens - today,
+  // a job_tracker_items status change ("How's it going with the interview
+  // at X?"). Checked on mount so the floating-button badge can light up
+  // even before the user opens chat, same as hasNewJobs above; shown as an
+  // appended message (not a onlyWelcome-gated replacement, since a nudge is
+  // a "by the way" that should land whether or not there's a running
+  // conversation) the first time chat opens after it's found, then marked
+  // shown so it never repeats.
+  const [pendingNudge, setPendingNudge] = useState<{ id: string; message: string } | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) { setPendingNudge(null); return; }
+    (async () => {
+      const { data } = await supabase
+        .from("howdy_nudges")
+        .select("id, message")
+        .eq("user_id", user.id)
+        .is("shown_at", null)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (!cancelled) setPendingNudge(data ?? null);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
+  useEffect(() => {
+    if (!open || !user || !historyLoaded || !pendingNudge) return;
+    const nudge = pendingNudge;
+    setPendingNudge(null); // clear immediately so it can't double-fire
+    setMessages((prev) => [...prev, { role: "assistant", content: nudge.message }]);
+    supabase.from("howdy_nudges").update({ shown_at: new Date().toISOString() }).eq("id", nudge.id).then();
+  }, [open, user, historyLoaded, pendingNudge]);
+
   // Howdy never auto-opens — users open the chat on demand via the floating button.
 
   // Allow any part of the app (e.g. the MyJobs bottom nav "Howdy" button) to
@@ -570,7 +605,7 @@ const CareerAssistant = () => {
                 animate={{ y: [0, -5, 0], rotate: [0, -2, 0, 2, 0] }}
                 transition={{ duration: 3.4, repeat: Infinity, ease: "easeInOut" }}
               />
-              {hasNewJobs && (
+              {(hasNewJobs || pendingNudge) && (
                 <span className="absolute top-1.5 right-1.5 w-3.5 h-3.5 rounded-full bg-[#FF3B30] ring-2 ring-background" aria-hidden />
               )}
             </motion.button>

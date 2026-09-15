@@ -993,6 +993,33 @@ export type Database = {
         }
         Relationships: []
       }
+      howdy_nudges: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          shown_at: string | null
+          trigger_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          shown_at?: string | null
+          trigger_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          shown_at?: string | null
+          trigger_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       industry_events: {
         Row: {
           created_at: string
