@@ -15,6 +15,10 @@ export function HowdyVoiceButton({ onTranscript }: Props) {
   const [isStarting, setIsStarting] = useState(false);
   const [isPremium, setIsPremium] = useState<boolean | null>(null);
   const startedAtRef = useRef<number | null>(null);
+  // Buffers the live transcript so it can be persisted to howdy_messages /
+  // howdy_memory on disconnect - see howdy-voice-log. Reset per call so a
+  // voice call is one continuous thread, not blended with the previous one.
+  const transcriptRef = useRef<{ role: "user" | "assistant"; content: string }[]>([]);
 
   useEffect(() => {
     let cancelled = false;
@@ -38,6 +42,7 @@ export function HowdyVoiceButton({ onTranscript }: Props) {
   const conversation = useConversation({
     onConnect: () => {
       startedAtRef.current = Date.now();
+      transcriptRef.current = [];
     },
     onDisconnect: () => {
       const start = startedAtRef.current;
@@ -45,19 +50,20 @@ export function HowdyVoiceButton({ onTranscript }: Props) {
       if (start) {
         const seconds = Math.round((Date.now() - start) / 1000);
         supabase.functions.invoke("howdy-voice-log", {
-          body: { duration_seconds: seconds },
+          body: { duration_seconds: seconds, transcript: transcriptRef.current },
         }).catch(() => {});
       }
+      transcriptRef.current = [];
     },
     onMessage: (msg: any) => {
-      if (!onTranscript) return;
       const text = typeof msg?.message === "string" ? msg.message.trim() : "";
       if (!text) return;
       const role = msg?.role ?? msg?.source;
-      if (role === "user") onTranscript("user", text);
-      else if (role === "ai" || role === "assistant" || role === "agent") {
-        onTranscript("assistant", text);
-      }
+      const normalizedRole =
+        role === "user" ? "user" : role === "ai" || role === "assistant" || role === "agent" ? "assistant" : null;
+      if (!normalizedRole) return;
+      transcriptRef.current.push({ role: normalizedRole, content: text });
+      onTranscript?.(normalizedRole, text);
     },
     onError: (err: any) => {
       console.error("Voice error", err);

@@ -326,7 +326,14 @@ const HowdyApp = () => {
           <div className="shrink-0">
             <HowdyVoiceButton
               onTranscript={(role, content) => {
-                if (role === "user") send(content);
+                // Just display it live - HowdyVoiceButton persists the real
+                // transcript to howdy_messages/howdy_memory itself on
+                // disconnect (see howdy-voice-log). Previously this called
+                // send(content) on the user's turn, which fired a second,
+                // independent text completion for every spoken utterance -
+                // duplicating persistence and risking a text reply that
+                // didn't match what Howdy actually said out loud.
+                setMessages((prev) => [...prev, { role, content }]);
               }}
             />
           </div>
