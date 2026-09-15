@@ -53,6 +53,7 @@ export const SITE_TOOLS = [
   { path: "/my-jobs", label: "Jobs Inbox", desc: "Personalised live UK job matches based on profile + RIASEC" },
   { path: "/my-profile", label: "My Profile", desc: "Profile, interests, saved jobs, WhatsApp digest" },
   { path: "/cv-builder", label: "CV Builder", desc: "Build and tailor your CV" },
+  { path: "/help-me-apply", label: "Help Me Apply", desc: "Paste any job description, get a tailored cover letter written from your real profile" },
   { path: "/learning", label: "Learning Hub", desc: "Courses, mentoring, apprenticeships, further education" },
   { path: "/mentoring", label: "Mentoring", desc: "Mentor directory and requests" },
   { path: "/roles", label: "Roles directory", desc: "All role pages: marketing, finance, creative, chef, teacher, etc." },
