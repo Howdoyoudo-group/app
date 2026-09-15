@@ -408,13 +408,14 @@ When the user expresses an intent, USE THE TOOLS to act on their behalf, then co
 - "Add Nike to my list" / "I'd love to work at Burberry" → call add_dream_company
 - "Find me marketing jobs in London" / "any chef roles?" → call search_jobs
 - "Show me coffee jobs at Costa" → call search_jobs(query: "barista", company: "Costa")
+- "What jobs do you recommend for me?" / "find me some jobs" / "got anything for me?" (no specific keyword, company, industry or location given) → call get_recommended_jobs, NOT search_jobs - this returns their actual personalised top matches (the same ranked list as their Howdy Jobs tab), not a generic keyword search
 - "I want to become a plumber" / "let's focus on Electrician" → call add_dream_role(role: "Plumber") - this is their main current goal, not just an interest, and (if it matches a real role page) also becomes what you coach them on
 - Agreeing on a concrete next step mid-conversation that isn't already an automatic checklist item → call add_coach_task(title: "...")
 
 You can call multiple tools in one turn. After acting, briefly confirm in plain English (e.g. "Added **CEO** to your dream roles ✅ - I'll watch for openings.") and offer a relevant next step. Don't ask permission to add things the user clearly asked for - just do it.
 
-When users ask about jobs, ALWAYS prefer search_jobs over hand-waving. Quote real titles & companies from the tool results, never invent them.
-When search_jobs returns matches, every job title you show MUST be a clickable markdown link using the EXACT url provided by the tool (these are in-app /marketplace?jobId=... links that open the job with the "Howdy can help" helper). Format: [Job Title at Company](/marketplace?jobId=...). Never link to the external job site - always use the in-app marketplace link.
+When users ask about jobs, ALWAYS prefer search_jobs or get_recommended_jobs over hand-waving - never answer a jobs question from the "Live jobs" list in context alone without calling one of these tools first, since that list is only a rough starting point. Quote real titles & companies from the tool results, never invent them.
+When either tool returns matches, every job title you show MUST be a clickable markdown link using the EXACT url provided by the tool (these are in-app /marketplace?jobId=... links that open the job with the "Howdy can help" helper). Format: [Job Title at Company](/marketplace?jobId=...). Never link to the external job site - always use the in-app marketplace link.
 ` : "";
 
     const baseKnowledge = mode === "employer"
@@ -504,7 +505,7 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
         type: "function",
         function: {
           name: "search_jobs",
-          description: "Search live UK job listings on the Howdy marketplace by keywords, company, industry or location. Returns up to 8 matches with titles, companies and apply URLs.",
+          description: "Search live UK job listings on the Howdy marketplace by keywords, company, industry or location. Returns up to 8 matches with titles, companies and apply URLs. Use this ONLY when the user gave a concrete criterion (a keyword, company, industry or location) - for an open-ended 'what jobs do you recommend for me' style ask with no criteria, use get_recommended_jobs instead.",
           parameters: {
             type: "object",
             properties: {
@@ -514,6 +515,14 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
               location: { type: "string", description: "Optional location filter, e.g. 'London'." },
             },
           },
+        },
+      },
+      {
+        type: "function",
+        function: {
+          name: "get_recommended_jobs",
+          description: "Get this specific user's personalised top job matches - the exact same ranked list shown on their Howdy Jobs tab (/my-jobs?tab=jobs), scored against their industry interests, role preferences, career level, RIASEC/work-values results and dream companies/roles. Use this for open-ended asks like 'what jobs do you recommend for me' / 'find me some jobs' with no specific keyword, company, industry or location given - it is NOT a keyword search, so don't pass search terms to it.",
+          parameters: { type: "object", properties: {} },
         },
       },
     ] : undefined;
@@ -632,6 +641,72 @@ When search_jobs returns matches, every job title you show MUST be a clickable m
             clickableResults,
             formattingRule: "In your final answer, paste clickableResults for the job list. Do not convert these into plain bold text.",
             browseAt: "/marketplace",
+          });
+        }
+        if (name === "get_recommended_jobs") {
+          // Same source as the Howdy Jobs tab (MyJobs.tsx): job_matches is a
+          // per-user pre-scored pool computed nightly by score-new-jobs, using
+          // the same scoreJob() weighting (industry/role match, dream
+          // companies/roles, RIASEC, work values, career level, location,
+          // behavioural affinity) that's the single source of truth for
+          // ranking across the app. Found live 2026-09-15: this chatbot's only
+          // other job lookup (search_jobs) is a bare keyword ilike search with
+          // no personalisation at all, so "what jobs do you recommend for me"
+          // - a question with no keyword to search on - fell through to an
+          // unordered, unfiltered slice of the whole jobs table and looked
+          // nothing like the user's actual Howdy Jobs list.
+          const { data: preMatches } = await svcClient
+            .from("job_matches")
+            .select("job_id, score")
+            .eq("user_id", userId)
+            .order("score", { ascending: false })
+            .limit(30);
+
+          let jobs: any[] = [];
+          if (preMatches && preMatches.length >= 3) {
+            const { data: matchedJobs } = await svcClient
+              .from("jobs")
+              .select("id, title, company, industry, location, url, salary")
+              .in("id", preMatches.map((m) => m.job_id))
+              .or("expires_at.is.null,expires_at.gt.now()");
+            const scoreById = new Map(preMatches.map((m) => [m.job_id, m.score]));
+            jobs = (matchedJobs || [])
+              .sort((a, b) => (scoreById.get(b.id) ?? 0) - (scoreById.get(a.id) ?? 0))
+              .slice(0, 8);
+          }
+          // Fall back for users too new to have a scored pool yet (job_matches
+          // is populated by an overnight cron) - filter on their stated
+          // interests directly rather than an unfiltered pull.
+          if (jobs.length === 0) {
+            const { data: prof } = await svcClient
+              .from("profiles")
+              .select("industry_interests, role_preferences")
+              .eq("id", userId)
+              .maybeSingle();
+            const interests = [...(prof?.industry_interests ?? []), ...(prof?.role_preferences ?? [])];
+            let fallbackQuery = svcClient
+              .from("jobs")
+              .select("id, title, company, industry, location, url, salary")
+              .or("expires_at.is.null,expires_at.gt.now()")
+              .limit(8);
+            if (interests.length) {
+              const orFilter = interests.map((i) => `industry.ilike.%${i}%,title.ilike.%${i}%`).join(",");
+              fallbackQuery = fallbackQuery.or(orFilter);
+            }
+            const { data: fallbackJobs } = await fallbackQuery;
+            jobs = fallbackJobs || [];
+          }
+
+          const clickableResults = jobs
+            .map((j: any) => `- [${j.title} at ${j.company}](/marketplace?jobId=${j.id})${j.location ? ` (${j.location})` : ""}${j.salary ? ` — ${j.salary}` : ""}`)
+            .join("\n");
+          return JSON.stringify({
+            count: jobs.length,
+            jobs,
+            clickableResults,
+            source: jobs.length && preMatches && preMatches.length >= 3 ? "personalised_matches" : "interest_fallback",
+            formattingRule: "In your final answer, paste clickableResults for the job list. Do not convert these into plain bold text.",
+            browseAt: "/my-jobs?tab=jobs",
           });
         }
         return JSON.stringify({ error: "unknown tool" });
