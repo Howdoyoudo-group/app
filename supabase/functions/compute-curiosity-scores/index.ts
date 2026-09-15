@@ -32,6 +32,11 @@ const SERVICE_KEY = Deno.env.get("HDYD_SERVICE_JWT") || Deno.env.get("SUPABASE_S
 const DAY_MS = 86_400_000;
 const CATEGORY_CAP = 30;
 
+// Index-aligned with the subscores tuple below - used to persist WHICH
+// categories are active (not just the 0-5 breadth count) so the frontend
+// can suggest a concrete next action instead of a generic "be more active".
+const CATEGORY_KEYS = ["browsing", "saves", "tracker", "learning_content", "courses_badges"] as const;
+
 const cutoffIso = (days: number) => new Date(Date.now() - days * DAY_MS).toISOString();
 const ageDays = (iso: string) => (Date.now() - new Date(iso).getTime()) / DAY_MS;
 
@@ -142,14 +147,15 @@ Deno.serve(async (req) => {
 
     // Cap each category, apply the breadth multiplier, get one weighted_raw
     // per user (0 for users with no rows in `subscores` at all).
-    const weightedRaw = new Map<string, { weighted: number; breadth: number }>();
+    const weightedRaw = new Map<string, { weighted: number; breadth: number; activeCategories: string[] }>();
     ids.forEach((id) => {
       const raw = subscores.get(id) ?? [0, 0, 0, 0, 0];
       const capped = raw.map((v) => Math.min(CATEGORY_CAP, v));
       const total = capped.reduce((a, b) => a + b, 0);
-      const breadth = capped.filter((v) => v >= 3).length;
+      const activeCategories = CATEGORY_KEYS.filter((_, i) => capped[i] >= 3);
+      const breadth = activeCategories.length;
       const breadthMult = 0.6 + 0.4 * (breadth / 5);
-      weightedRaw.set(id, { weighted: total * breadthMult, breadth });
+      weightedRaw.set(id, { weighted: total * breadthMult, breadth, activeCategories });
     });
 
     // Percentile rank across ALL profiles (not just opted-in candidates) -
@@ -158,12 +164,13 @@ Deno.serve(async (req) => {
     const n = sorted.length;
     const now = new Date().toISOString();
     const rows = sorted.map((id, rank) => {
-      const { weighted, breadth } = weightedRaw.get(id)!;
+      const { weighted, breadth, activeCategories } = weightedRaw.get(id)!;
       return {
         id,
         curiosity_score: n > 1 ? Math.round((rank / (n - 1)) * 100) : 50,
         curiosity_score_raw: Math.round(weighted * 100) / 100,
         curiosity_breadth: breadth,
+        curiosity_active_categories: activeCategories,
         curiosity_score_computed_at: now,
       };
     });

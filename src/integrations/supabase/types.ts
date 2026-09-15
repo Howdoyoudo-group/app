@@ -1821,6 +1821,7 @@ export type Database = {
           community_chat_agreed_at: string | null
           community_chat_joined: boolean
           created_at: string
+          curiosity_active_categories: Json | null
           curiosity_breadth: number | null
           curiosity_score: number | null
           curiosity_score_computed_at: string | null
@@ -1869,6 +1870,7 @@ export type Database = {
           community_chat_agreed_at?: string | null
           community_chat_joined?: boolean
           created_at?: string
+          curiosity_active_categories?: Json | null
           curiosity_breadth?: number | null
           curiosity_score?: number | null
           curiosity_score_computed_at?: string | null
@@ -1917,6 +1919,7 @@ export type Database = {
           community_chat_agreed_at?: string | null
           community_chat_joined?: boolean
           created_at?: string
+          curiosity_active_categories?: Json | null
           curiosity_breadth?: number | null
           curiosity_score?: number | null
           curiosity_score_computed_at?: string | null

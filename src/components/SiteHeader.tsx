@@ -1,9 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Flame } from "lucide-react";
+import { ChevronDown, Flame, ArrowRight } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { missingCuriosityCategories } from "@/lib/curiosityCategories";
 import GlobalMobileMenu from "./GlobalMobileMenu";
 
 const LIME = "hsl(120, 100%, 45%)";
@@ -478,6 +479,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
   const [firstName, setFirstName] = useState<string | null>(null);
   const [curiosityScore, setCuriosityScore] = useState<number | null>(null);
   const [curiosityBreadth, setCuriosityBreadth] = useState<number | null>(null);
+  const [curiosityActiveCategories, setCuriosityActiveCategories] = useState<string[] | null>(null);
   const [curiosityOpen, setCuriosityOpen] = useState(false);
   const curiosityRef = useRef<HTMLDivElement | null>(null);
 
@@ -527,6 +529,7 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
       setFirstName(null);
       setCuriosityScore(null);
       setCuriosityBreadth(null);
+      setCuriosityActiveCategories(null);
       return;
     }
     (async () => {
@@ -534,11 +537,12 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
       const metadataPhoto = meta.avatar_url || meta.picture || null;
       const { data } = await supabase
         .from("profiles")
-        .select("photo_url, full_name, curiosity_score, curiosity_breadth")
+        .select("photo_url, full_name, curiosity_score, curiosity_breadth, curiosity_active_categories")
         .eq("id", user.id)
         .maybeSingle();
       if (!active) return;
       setPhotoUrl((data as any)?.photo_url || metadataPhoto || null);
+      setCuriosityActiveCategories((data as any)?.curiosity_active_categories ?? null);
       // numeric columns come back as strings from PostgREST, not JS numbers
       const rawCuriosity = (data as any)?.curiosity_score;
       setCuriosityScore(rawCuriosity != null ? Number(rawCuriosity) : null);
@@ -626,6 +630,24 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
                           How actively you're exploring Howdy - browsing, saving jobs, tracking applications, learning
                           {curiosityBreadth != null ? ` - active in ${curiosityBreadth}/5 signal areas.` : "."} Employers see this too, it's part of what makes you stand out.
                         </p>
+                        {(() => {
+                          const missing = curiosityActiveCategories != null ? missingCuriosityCategories(curiosityActiveCategories) : [];
+                          const top = missing[0];
+                          if (!top) return null;
+                          return (
+                            <Link
+                              to={top.linkTo}
+                              onClick={() => setCuriosityOpen(false)}
+                              className="group flex items-start gap-2 rounded-lg border-2 border-foreground/10 hover:border-foreground p-2 mb-3 transition-colors"
+                            >
+                              <div className="min-w-0">
+                                <p className="font-display font-700 text-[10px] uppercase tracking-wide text-muted-foreground">Try this next</p>
+                                <p className="font-display font-800 text-xs text-foreground">{top.label}</p>
+                              </div>
+                              <ArrowRight className="w-3.5 h-3.5 text-primary shrink-0 ml-auto mt-1 group-hover:translate-x-0.5 transition-transform" />
+                            </Link>
+                          );
+                        })()}
                         <Link
                           to="/my-profile"
                           onClick={() => setCuriosityOpen(false)}
