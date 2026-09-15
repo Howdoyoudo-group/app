@@ -103,5 +103,11 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate")],
+  // @tailwindcss/typography was already a dependency and "prose"/"prose-*"
+  // classes were already used across 7 components (CareerAssistant,
+  // Marketplace, CompanyProfileCard, etc) but the plugin was never
+  // registered here - every one of those classes was a silent no-op, no CSS
+  // generated at all. Found while fixing Howdy's chat links not looking
+  // clickable (prose-a:text-primary/underline were doing nothing).
+  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
 } satisfies Config;

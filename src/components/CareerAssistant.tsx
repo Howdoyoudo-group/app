@@ -732,8 +732,16 @@ const CareerAssistant = () => {
                           isUser ? "bg-foreground text-background" : "bg-background text-foreground"
                         }`}
                       >
-                        <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-a:text-primary">
-                          <ReactMarkdown>{m.content}</ReactMarkdown>
+                        <div className="prose prose-sm max-w-none prose-p:my-1 prose-ul:my-1 prose-a:text-primary prose-a:underline prose-a:font-bold prose-a:decoration-2">
+                          <ReactMarkdown
+                            components={{
+                              a: ({ node, ...props }) => (
+                                <a {...props} target="_blank" rel="noreferrer" />
+                              ),
+                            }}
+                          >
+                            {m.content}
+                          </ReactMarkdown>
                         </div>
                       </div>
                     </div>
