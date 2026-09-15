@@ -457,6 +457,18 @@ Deno.serve(async (req) => {
       }
       const narrData = await narrResp.json();
       const narrative = narrData?.choices?.[0]?.message?.content?.trim() || "";
+      // Persist so a reload doesn't show the proactive nudge again as a
+      // "new" welcome card once real history exists.
+      if (narrative) {
+        try {
+          await svcClient.from("howdy_messages").insert([
+            { user_id: userId, role: "user", content: "What's my plan?", mode: "candidate" },
+            { user_id: userId, role: "assistant", content: narrative, mode: "candidate" },
+          ]);
+        } catch (err) {
+          console.error("Failed to persist plan narrative:", err);
+        }
+      }
       return new Response(JSON.stringify({ narrative }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -808,6 +820,24 @@ When either tool returns matches, every job title you show MUST be a clickable m
       }
     };
 
+    // Persist a real turn to howdy_messages so chat history survives a page
+    // refresh / new session - previously chat was pure client-side React
+    // state, entirely lost on reload. Strips the internal MEMORY:: directive
+    // the same way the client strips it from the displayed bubble, so a
+    // reloaded history reads exactly like what the user actually saw.
+    const persistTurn = async (userText: string, assistantText: string) => {
+      const cleanAssistant = assistantText.replace(/\s*MEMORY::[^\n]*$/im, "").trimEnd();
+      if (!userText.trim() && !cleanAssistant.trim()) return;
+      try {
+        await svcClient.from("howdy_messages").insert([
+          { user_id: userId, role: "user", content: userText, mode },
+          { user_id: userId, role: "assistant", content: cleanAssistant, mode },
+        ]);
+      } catch (err) {
+        console.error("Failed to persist howdy_messages:", err);
+      }
+    };
+
     // ---------- Agent loop: up to 3 tool rounds, then stream final reply ----------
     const convo: any[] = [
       { role: "system", content: systemPrompt },
@@ -876,9 +906,11 @@ When either tool returns matches, every job title you show MUST be a clickable m
               const lower = new Set(existing.map((s) => s.toLowerCase()));
               const merged = [...existing];
               for (const f of newFacts) if (!lower.has(f.toLowerCase())) merged.push(f);
-              await svcClient.from("profiles").update({ howdy_memory: merged.slice(-40) }).eq("id", userId);
+              // Cap raised 40 -> 80 (see note at the other write site below).
+              await svcClient.from("profiles").update({ howdy_memory: merged.slice(-80) }).eq("id", userId);
             }
           }
+          await persistTurn(latestUserMessage, finalText);
           return new Response(sse, { headers: { ...corsHeaders, "Content-Type": "text/event-stream" } });
         }
         // Execute tool calls
@@ -925,31 +957,31 @@ When either tool returns matches, every job title you show MUST be a clickable m
     // Tee the stream: pass through to client, sniff full assistant text for MEMORY:: lines, then persist.
     const [clientStream, sniffStream] = response.body!.tee();
 
-    if (mode === "candidate") {
-      (async () => {
-        try {
-          const reader = sniffStream.getReader();
-          const decoder = new TextDecoder();
-          let buf = "";
-          let assistantText = "";
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buf += decoder.decode(value, { stream: true });
-            let nl: number;
-            while ((nl = buf.indexOf("\n")) !== -1) {
-              const line = buf.slice(0, nl).replace(/\r$/, "");
-              buf = buf.slice(nl + 1);
-              if (!line.startsWith("data: ")) continue;
-              const json = line.slice(6).trim();
-              if (json === "[DONE]") continue;
-              try {
-                const parsed = JSON.parse(json);
-                const c = parsed.choices?.[0]?.delta?.content;
-                if (c) assistantText += c;
-              } catch { /* ignore */ }
-            }
+    (async () => {
+      try {
+        const reader = sniffStream.getReader();
+        const decoder = new TextDecoder();
+        let buf = "";
+        let assistantText = "";
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buf += decoder.decode(value, { stream: true });
+          let nl: number;
+          while ((nl = buf.indexOf("\n")) !== -1) {
+            const line = buf.slice(0, nl).replace(/\r$/, "");
+            buf = buf.slice(nl + 1);
+            if (!line.startsWith("data: ")) continue;
+            const json = line.slice(6).trim();
+            if (json === "[DONE]") continue;
+            try {
+              const parsed = JSON.parse(json);
+              const c = parsed.choices?.[0]?.delta?.content;
+              if (c) assistantText += c;
+            } catch { /* ignore */ }
           }
+        }
+        if (mode === "candidate") {
           // Extract MEMORY:: line(s)
           const memMatch = assistantText.match(/MEMORY::\s*(.+)$/im);
           if (memMatch) {
@@ -969,16 +1001,25 @@ When either tool returns matches, every job title you show MUST be a clickable m
               for (const f of newFacts) {
                 if (!existingLower.has(f.toLowerCase())) merged.push(f);
               }
-              // Cap at most-recent 40 facts.
-              const trimmed = merged.slice(-40);
+              // Cap at most-recent 80 facts (raised from 40 - a stable fact
+              // like "wants to move to Manchester" was getting silently
+              // evicted by small talk under the old, tighter cap. Considered
+              // a fuller {fact, category, added_at} restructure per the
+              // original Howdy-improvement plan, but that needs the model to
+              // reliably self-classify each fact's category on every write
+              // and touches 2 other read sites (whatsapp-inbound, this file)
+              // for unclear mechanical benefit over just... not evicting as
+              // eagerly. Revisit if 80 still proves too tight in practice.
+              const trimmed = merged.slice(-80);
               await svcClient.from("profiles").update({ howdy_memory: trimmed }).eq("id", userId);
             }
           }
-        } catch (err) {
-          console.error("memory sniff failed:", err);
         }
-      })();
-    }
+        await persistTurn(latestUserMessage, assistantText);
+      } catch (err) {
+        console.error("memory sniff / message persist failed:", err);
+      }
+    })();
 
     return new Response(clientStream, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },

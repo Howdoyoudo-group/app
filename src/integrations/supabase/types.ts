@@ -966,6 +966,33 @@ export type Database = {
           },
         ]
       }
+      howdy_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          mode: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          mode?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          mode?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       industry_events: {
         Row: {
           created_at: string

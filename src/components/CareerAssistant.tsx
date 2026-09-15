@@ -135,6 +135,36 @@ const CareerAssistant = () => {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Load persisted chat history so it survives a page refresh / new session -
+  // previously `messages` was pure in-memory React state, so reloading the
+  // page silently reset the conversation to the welcome card every time,
+  // even though the backend now remembers everything (howdy_messages,
+  // written by career-assistant after every reply). Candidate mode only -
+  // employer-mode chat still starts fresh each time, matching the existing
+  // mode-switch reset behaviour lower down. Gates the proactive nudge below
+  // via `historyLoaded` so it doesn't fire before we know whether there's
+  // real prior history to show instead.
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    if (!user) { setHistoryLoaded(true); return; }
+    (async () => {
+      const { data } = await supabase
+        .from("howdy_messages")
+        .select("role, content")
+        .eq("user_id", user.id)
+        .eq("mode", "candidate")
+        .order("created_at", { ascending: false })
+        .limit(30);
+      if (cancelled) return;
+      if (data?.length) {
+        setMessages((data as Msg[]).slice().reverse());
+      }
+      setHistoryLoaded(true);
+    })();
+    return () => { cancelled = true; };
+  }, [user]);
+
   // Detect premium / admin role to make Howdy front-and-centre.
   useEffect(() => {
     let cancelled = false;
@@ -247,6 +277,7 @@ const CareerAssistant = () => {
   // proactive style rather than waiting to be asked.
   useEffect(() => {
     if (!open || !user || mode !== "candidate") return;
+    if (!historyLoaded) return; // wait to know whether real history exists first
     if (sessionStorage.getItem("howdy_proactive_shown")) return;
     const onlyWelcome = messages.length === 1 && messages[0].content === WELCOME_CANDIDATE;
     if (!onlyWelcome) return;
@@ -289,7 +320,7 @@ const CareerAssistant = () => {
       }
     })();
     return () => { cancelled = true; };
-  }, [open, user, mode, messages]);
+  }, [open, user, mode, messages, historyLoaded]);
 
   // Check tour completion status
   useEffect(() => {
