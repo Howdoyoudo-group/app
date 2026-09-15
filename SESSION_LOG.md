@@ -5,6 +5,34 @@ This file is updated by Claude at the start and end of every session.
 
 ---
 
+## 2026-09-15 — Andrew (main branch) — Howdy "knows you inside out": 5-phase improvement plan (all phases)
+
+### What was done THIS SESSION
+Andrew asked what Howdy could learn from tryapt.ai (a competitor AI career coach claiming 1M+ users) and its reviews, given the ambition that "Howdy knows the site inside out and knows you based on everything you have done." Researched Apt's site + Trustpilot reviews, audited the HDYD codebase for the gap, and wrote a 5-phase plan (`/Users/andrewharrison/.claude/plans/zany-rolling-dahl.md`) - approved, then executed end-to-end across the session on repeated "keep going".
+
+**Phase 1 - stop dropping data Howdy already had:** `riasec_scores`/`work_values` were fetched in `coach-context.ts` and never rendered - added rendering directly in `career-assistant/index.ts`'s own profile fetch (not `coach-context.ts`, since `buildTargetRolesContext` early-returns empty for users with no target role - this needed to apply to everyone). Also wired in `job_tracker_items`, `liked_jobs`, `dismissed_jobs` (so Howdy doesn't resurface a job the user already dismissed) and `curiosity_score` (caught a bug here: Postgres `numeric` columns come back from PostgREST as strings, not numbers - a naive `typeof === "number"` check silently never fired).
+
+**Phase 2 - persistent memory (the single biggest gap vs Apt):** New `howdy_messages` table (one flat thread per user, not a multi-conversation abstraction Howdy has no UI for) + `CareerAssistant.tsx` now loads the last 30 messages on chat-open instead of starting from zero every session. `howdy_memory`'s cap raised 40→80 (kept the flat structure rather than the plan's proposed `{fact,category}` shape - two other consumers read it as a plain `string[]`, and the model would need to reliably self-classify categories, for unclear benefit over just evicting less eagerly).
+
+**Phase 3 - make it proactive:** New `howdy_nudges` table + a Postgres trigger (`security definer`, fires regardless of which code path changes `job_tracker_items.status`) that queues a templated nudge on applied/interviewing/offer/rejected. `CareerAssistant.tsx` shows it next time chat opens, with a `historyLoaded` guard so it can't fire before real prior context has loaded.
+
+**Phase 4 - Apt's most-praised features:** (a) Discovered HDYD already has Apt's #1-praised feature - paste a job description, get a tailored cover letter - live at `/help-me-apply`, nav-promoted, but completely unknown to Howdy (absent from `site-map.ts` and the prompt). Also found a second, richer existing feature (`JobApplicationHelper`/`tailor-application`, the "Howdy can help" button on Marketplace/Tracker job cards - fit assessment + CV tips + company insight, not just a cover letter, but tied to a specific job card with no deep link). Fixed by adding routing rules to the system prompt for both, rather than building new functionality. (b) Interactive interview prep: was content-links-only (`Learning.tsx`'s Interview Skills topic). Added a prompt rule for Howdy to run a live STAR-format mock interview in chat, one question at a time with real feedback, grounded in the user's actual target-role gaps - no new backend needed, pure prompting.
+
+**Phase 5 - voice/text parity:** `howdy-voice-log` previously only logged call duration for the premium minute-cap - the actual conversation was invisible to text-Howdy. `HowdyVoiceButton.tsx` already received every turn live via ElevenLabs' `onMessage`; it now buffers the transcript and sends it to `howdy-voice-log` on disconnect, which persists it into `howdy_messages` (picked up automatically by the Phase-2 history loader) and runs one small Gemini call to extract `MEMORY::` facts into `howdy_memory`, reusing career-assistant's existing parse/merge logic. Also fixed a latent bug this surfaced: `HowdyApp.tsx` was calling `send()` on every spoken user turn, firing a second independent text completion in parallel with the live spoken reply - now it just displays the live transcript like `CareerAssistant.tsx` already did. **Left undone:** giving voice-Howdy the same tool access as text-Howdy (e.g. `search_jobs`) needs a Custom Tool registered on the ElevenLabs agent itself via their dashboard/API - can't be wired up or verified from this repo alone.
+
+### Verification
+Direct Management-API SQL round-trips against real-shaped rows (scoped to Woody's account, deleted after) for `howdy_messages` and `howdy_nudges`, including a full wishlist→interviewing→offer→interviewing trigger sequence confirming correct templated nudges and no-op on same-status updates. `npm run typecheck` clean after every phase. Could not do full live E2E (no authenticated browser session, no way to test a live voice call in this environment) - each phase's actual in-chat behaviour is not yet human-verified.
+
+### Commits
+`e608d29`, `f90b711`, `be44651` (this session's; Phases 1-3 commits landed earlier in the same continuous session) - pushed to both `howdoyoudo` and `origin`.
+
+### Left for next session
+- Human-verify each phase live: chat as a real account with target roles + tracker items set, confirm Howdy references them correctly; refresh mid-conversation and confirm history survives; trigger a real tracker status change and confirm the nudge appears; paste a real job description and confirm it routes to `/help-me-apply`; ask for interview practice and confirm the live Q&A behaviour; complete a real voice call then check text chat references it.
+- ElevenLabs Custom Tool wiring for voice tool-access (Phase 5's stretch goal) - needs dashboard/API access on the ElevenLabs side, not just this repo.
+- Unrelated pre-existing uncommitted changes on this branch (`fetch-external-jobs/index.ts`, `validate-jobs/index.ts`) were left untouched - not part of this work, should be reviewed separately before the next session starts.
+
+---
+
 ## 2026-09-13/14 — Andrew (main branch) — Job miscategorization cleanup (6 industries), Workday staleness fix, Vinspired
 
 ### What was done THIS SESSION
