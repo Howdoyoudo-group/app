@@ -236,7 +236,7 @@ const GlobalMobileMenu = ({ showAvatar = true, panelTopClass = "top-16" }: Props
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -6 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute left-0 mt-2 w-64 bg-background border-2 border-foreground rounded-xl shadow-[4px_4px_0_0_hsl(var(--foreground))] overflow-hidden z-50 p-4"
+                  className="absolute right-0 mt-2 w-64 max-w-[calc(100vw-2rem)] bg-background border-2 border-foreground rounded-xl shadow-[4px_4px_0_0_hsl(var(--foreground))] overflow-hidden z-50 p-4"
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <Flame className="w-4 h-4 text-primary" />
