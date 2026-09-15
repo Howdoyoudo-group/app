@@ -632,20 +632,26 @@ const SiteHeader = ({ overlay = false, showLogo }: SiteHeaderProps) => {
                         </p>
                         {(() => {
                           const missing = curiosityActiveCategories != null ? missingCuriosityCategories(curiosityActiveCategories) : [];
-                          const top = missing[0];
-                          if (!top) return null;
+                          if (!missing.length) return null;
                           return (
-                            <Link
-                              to={top.linkTo}
-                              onClick={() => setCuriosityOpen(false)}
-                              className="group flex items-start gap-2 rounded-lg border-2 border-foreground/10 hover:border-foreground p-2 mb-3 transition-colors"
-                            >
-                              <div className="min-w-0">
-                                <p className="font-display font-700 text-[10px] uppercase tracking-wide text-muted-foreground">Try this next</p>
-                                <p className="font-display font-800 text-xs text-foreground">{top.label}</p>
+                            <div className="mb-3">
+                              <p className="font-display font-700 text-[10px] uppercase tracking-wide text-muted-foreground mb-1.5">
+                                Ways to raise your score
+                              </p>
+                              <div className="space-y-1.5">
+                                {missing.map((c) => (
+                                  <Link
+                                    key={c.key}
+                                    to={c.linkTo}
+                                    onClick={() => setCuriosityOpen(false)}
+                                    className="group flex items-center gap-2 rounded-lg border-2 border-foreground/10 hover:border-foreground p-2 transition-colors"
+                                  >
+                                    <span className="font-display font-800 text-xs text-foreground">{c.label}</span>
+                                    <ArrowRight className="w-3.5 h-3.5 text-primary shrink-0 ml-auto group-hover:translate-x-0.5 transition-transform" />
+                                  </Link>
+                                ))}
                               </div>
-                              <ArrowRight className="w-3.5 h-3.5 text-primary shrink-0 ml-auto mt-1 group-hover:translate-x-0.5 transition-transform" />
-                            </Link>
+                            </div>
                           );
                         })()}
                         <Link
