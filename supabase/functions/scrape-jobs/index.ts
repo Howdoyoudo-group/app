@@ -1490,11 +1490,14 @@ function getExtractedJobsArray(payload: any): any[] {
   return [];
 }
 
-function createJobRecord(company: string, source: CareerSource, raw: any, contextText = '', pageUrl = source.url): NormalizedJob | null {
+function createJobRecord(company: string, source: CareerSource, raw: any, contextText = '', pageUrl = source.url, allowContextAsDescription = true): NormalizedJob | null {
   const title = cleanupTitle(raw?.title || raw?.job_title || raw?.role || raw?.position || raw?.name);
   if (!isValidJobTitle(title)) return null;
 
-  const description = normalizeText(raw?.description || raw?.summary || raw?.snippet || contextText).slice(0, 2000) || null;
+  const ownDescription = normalizeText(raw?.description || raw?.summary || raw?.snippet);
+  // contextText still feeds hasStrongJobSignals below regardless of allowContextAsDescription -
+  // it's only the *description* field that must not fall back to it when the caller says so.
+  const description = (ownDescription || (allowContextAsDescription ? normalizeText(contextText) : '')).slice(0, 2000) || null;
   const combinedContext = [description, contextText].filter(Boolean).join(' ');
   let url = toAbsoluteUrl(raw?.url || raw?.apply_url || raw?.link || raw?.href, pageUrl);
 
@@ -1553,10 +1556,17 @@ function createJobRecord(company: string, source: CareerSource, raw: any, contex
   };
 }
 
-function extractJobsFromStructuredPayload(payload: any, company: string, source: CareerSource, contextText = '', pageUrl = source.url): NormalizedJob[] {
+// allowContextAsDescription must be false when contextText is a *listing* page shared by
+// every job pulled off it (found live 2026-09-15: all 5 Brentford FC jobs shared one
+// identical 1185-char description that was the careers listing page's nav chrome and
+// unrelated news teasers, because the extraction prompt marks `description` optional and
+// every job fell back to this same shared contextText). It's fine left true when contextText
+// is that one job's own detail-page markdown - see call sites below. contextText still feeds
+// hasStrongJobSignals' content-hint check either way, just not necessarily the description field.
+function extractJobsFromStructuredPayload(payload: any, company: string, source: CareerSource, contextText = '', pageUrl = source.url, allowContextAsDescription = true): NormalizedJob[] {
   return dedupeJobs(
     getExtractedJobsArray(payload)
-      .map((raw) => createJobRecord(company, source, raw, contextText, pageUrl))
+      .map((raw) => createJobRecord(company, source, raw, contextText, pageUrl, allowContextAsDescription))
       .filter(Boolean) as NormalizedJob[]
   );
 }
@@ -1591,6 +1601,53 @@ function extractJobsFromMarkdown(markdown: string, company: string, source: Care
   }
 
   return dedupeJobs(jobs);
+}
+
+// Jobs pulled from a listing page's structured extraction often have a real, distinct
+// detail-page url but no description of their own (see extractJobsFromStructuredPayload).
+// Follow each one's own url and pull its actual posting text instead of leaving the field
+// contaminated with the listing page's content or empty. Bounded to a handful per company
+// so this doesn't multiply Firecrawl usage across the ~500 CAREER_SOURCES entries - most
+// sources already get a real per-job description from structured extraction and never hit
+// this path at all.
+async function backfillMissingDescriptions(jobs: NormalizedJob[], source: CareerSource, apiKey: string): Promise<void> {
+  const MAX_BACKFILL = 8;
+  const targets = jobs
+    .filter((job) => !job.description && !isSamePageUrl(job.url, source.url))
+    .slice(0, MAX_BACKFILL);
+
+  for (let i = 0; i < targets.length; i += 4) {
+    const batch = targets.slice(i, i + 4);
+    await Promise.all(batch.map(async (job) => {
+      try {
+        const resp = await fetch('https://api.firecrawl.dev/v2/scrape', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            url: job.url.split('#')[0],
+            formats: ['markdown'],
+            onlyMainContent: true,
+            waitFor: 1500,
+          }),
+        });
+
+        if (!resp.ok) {
+          await resp.text().catch(() => {});
+          return;
+        }
+
+        const data = await resp.json();
+        const pageMarkdown: string = data?.data?.markdown ?? data?.markdown ?? '';
+        const cleaned = normalizeText(stripMarkdown(pageMarkdown)).slice(0, 2000);
+        if (cleaned) job.description = cleaned;
+      } catch (err) {
+        console.error(`[scrape-jobs] Detail-page description backfill failed for ${job.url}:`, err);
+      }
+    }));
+  }
 }
 
 function dedupeJobs(jobs: NormalizedJob[]): NormalizedJob[] {
@@ -1648,7 +1705,7 @@ async function scrapeJobsInFootball(company: string, source: CareerSource, apiKe
       const markdown = data?.data?.markdown ?? data?.markdown ?? '';
       const structured = data?.data?.json ?? data?.json ?? null;
       const pageJobs = dedupeJobs([
-        ...extractJobsFromStructuredPayload(structured, company, source, markdown, pageUrl),
+        ...extractJobsFromStructuredPayload(structured, company, source, markdown, pageUrl, false),
         ...extractJobsFromMarkdown(markdown, company, source, pageUrl),
       ]);
       console.log(`[scrape-jobs] jobsinfootball page ${page}: ${pageJobs.length} jobs`);
@@ -2130,7 +2187,7 @@ async function scrapeCompanyJobs(company: string, source: CareerSource, apiKey: 
 
     const ocadoLogisticsJobs = isOcadoLogistics ? extractOcadoLogisticsJobsFromMarkdown(markdown, company, source, scrapedLinks) : [];
     let jobs = dedupeJobs([
-      ...extractJobsFromStructuredPayload(structuredPayload, company, source, markdown, source.url),
+      ...extractJobsFromStructuredPayload(structuredPayload, company, source, markdown, source.url, false),
       ...extractJobsFromMarkdown(markdown, company, source, source.url),
       ...(company === 'Netflix' ? extractNetflixJobsFromMarkdown(markdown, company, source) : []),
       ...(company === 'ASOS' ? extractAsosJobsFromMarkdown(markdown, company, source) : []),
@@ -2151,6 +2208,8 @@ async function scrapeCompanyJobs(company: string, source: CareerSource, apiKey: 
       console.log(`[scrape-jobs] ${company}: extracted ${jobs.length} jobs from ${source.url}`);
       return { success: true, jobs };
     }
+
+    await backfillMissingDescriptions(jobs, source, apiKey);
 
     if (jobs.length < 5) {
       const hostname = getSourceHostname(source.url);
