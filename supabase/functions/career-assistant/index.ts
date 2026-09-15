@@ -10,6 +10,26 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+// Mirrors src/components/RiasecQuiz.tsx's label maps - can't import the React
+// component across the Vite/Deno boundary, so kept as a small parallel copy.
+// Only used to render a human-readable summary of scores already computed by
+// that quiz, not to reimplement any quiz logic here.
+const RIASEC_LABELS: Record<string, string> = {
+  R: "Realistic (hands-on, practical)",
+  I: "Investigative (analytical, research-oriented)",
+  A: "Artistic (creative, expressive)",
+  S: "Social (helping, teaching, mentoring)",
+  E: "Enterprising (leading, persuading, managing)",
+  C: "Conventional (organised, detail-oriented)",
+};
+const WORK_VALUE_LABELS: Record<string, string> = {
+  autonomy: "Autonomy",
+  creativity: "Creativity",
+  stability: "Stability",
+  recognition: "Recognition",
+  variety: "Variety",
+};
+
 const CANDIDATE_KNOWLEDGE = `You are "Howdy", a friendly AI assistant for the Howdy platform - a UK site for young professionals exploring industries they're passionate about.
 
 ## Your personality
@@ -285,7 +305,7 @@ Deno.serve(async (req) => {
       // Candidate context
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name, career_level, industry_interests, role_preferences, location_preference, howdy_memory")
+        .select("full_name, career_level, industry_interests, role_preferences, location_preference, howdy_memory, riasec_scores, work_values, curiosity_score")
         .single();
       const parts: string[] = [];
       if (profile) {
@@ -296,6 +316,34 @@ Deno.serve(async (req) => {
         if (profile.role_preferences?.length)
           parts.push(`Role preferences: ${profile.role_preferences.join(", ")}`);
         if (profile.location_preference) parts.push(`Location: ${profile.location_preference}`);
+        // RIASEC + work values: computed by the Match Me quiz (RiasecQuiz.tsx)
+        // and already stored on every profile that's taken it, but was never
+        // read by Howdy before - this is exactly the "deep personality
+        // understanding" competitor AI coaches get praised most for, and it
+        // was sitting unused. Render top-3 of each rather than the full raw
+        // scores so it reads as a usable signal, not a data dump.
+        const riasec = profile.riasec_scores as Record<string, number> | null;
+        if (riasec && typeof riasec === "object") {
+          const top3 = Object.entries(riasec)
+            .sort((a, b) => (b[1] as number) - (a[1] as number))
+            .slice(0, 3)
+            .map(([k]) => RIASEC_LABELS[k] || k);
+          if (top3.length) parts.push(`Personality type (RIASEC, from their Match Me quiz): ${top3.join(", ")}`);
+        }
+        const workValues = profile.work_values as Record<string, number> | null;
+        if (workValues && typeof workValues === "object") {
+          const top3 = Object.entries(workValues)
+            .sort((a, b) => (b[1] as number) - (a[1] as number))
+            .slice(0, 3)
+            .map(([k]) => WORK_VALUE_LABELS[k] || k);
+          if (top3.length) parts.push(`What matters most to them at work (from their Match Me quiz): ${top3.join(", ")}`);
+        }
+        // numeric columns come back as strings from PostgREST (precision
+        // safety), not JS numbers - Number() rather than a typeof check.
+        const curiosityScore = profile.curiosity_score != null ? Number(profile.curiosity_score) : null;
+        if (curiosityScore != null && !Number.isNaN(curiosityScore)) {
+          parts.push(`Engagement level: ${curiosityScore}th percentile most-engaged jobseeker on the platform this month (curiosity score - use this sparingly, only if genuinely relevant, e.g. to encourage someone who's dropped off, or acknowledge someone clearly putting in the work).`);
+        }
         if (profile.howdy_memory?.length) {
           parts.push(`\n### What you've already learned about them\n- ${profile.howdy_memory.join("\n- ")}`);
         }
@@ -306,6 +354,51 @@ Deno.serve(async (req) => {
       // instruction 10 in CANDIDATE_KNOWLEDGE.
       const targetRolesContext = await buildTargetRolesContext(svcClient, userId);
       if (targetRolesContext) parts.push(targetRolesContext);
+
+      // What they've actually DONE on the site - application pipeline, saved
+      // jobs, dismissed jobs. None of this reached Howdy before, so it could
+      // never say "how did the interview at X go?" or "you've got a
+      // follow-up due Friday" even though the data was sitting right there.
+      const [{ data: trackerItems }, { data: likedJobRows }, { count: dismissedCount }] = await Promise.all([
+        svcClient
+          .from("job_tracker_items")
+          .select("company, title, status, next_action, follow_up_date")
+          .eq("user_id", userId)
+          .not("status", "in", "(rejected,withdrawn)")
+          .order("updated_at", { ascending: false })
+          .limit(10),
+        svcClient
+          .from("liked_jobs")
+          .select("job_id")
+          .eq("user_id", userId)
+          .order("liked_at", { ascending: false })
+          .limit(5),
+        svcClient
+          .from("dismissed_jobs")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", userId),
+      ]);
+      if (trackerItems?.length) {
+        const lines = trackerItems.map((t: any) => {
+          const bits = [`${t.title} at ${t.company}`, `status: ${t.status}`];
+          if (t.next_action) bits.push(`next: ${t.next_action}`);
+          if (t.follow_up_date) bits.push(`follow up by ${t.follow_up_date}`);
+          return `- ${bits.join(" - ")}`;
+        });
+        parts.push(`\n### Their live application tracker (/my-jobs?tab=tracker) - reference specific ones by name when relevant, e.g. ask how an interview went, or nudge a due follow-up\n${lines.join("\n")}`);
+      }
+      if (likedJobRows?.length) {
+        const { data: likedJobDetails } = await svcClient
+          .from("jobs")
+          .select("id, title, company")
+          .in("id", likedJobRows.map((r: any) => r.job_id));
+        if (likedJobDetails?.length) {
+          parts.push(`Recently saved jobs: ${likedJobDetails.map((j: any) => `${j.title} at ${j.company}`).join(", ")}`);
+        }
+      }
+      if (dismissedCount) {
+        parts.push(`They've dismissed ${dismissedCount} suggested job(s) as not for them - keep that in mind, don't be pushy about jobs in general if they've dismissed several.`);
+      }
 
       // Pull a handful of live jobs that look relevant to the latest user message + memory
       const memoryBlob = (profile?.howdy_memory ?? []).join(" ");
